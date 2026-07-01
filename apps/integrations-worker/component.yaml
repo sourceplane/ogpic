@@ -66,4 +66,4 @@ spec:
     surface: integrations
     runtime: cloudflare
 
-# ci: re-trigger deploy (batch C — integrations + api-edge gateway, 20260622T141448Z)
+# ci: ogpic batch 5 — integrations-worker (2026-07-02)
