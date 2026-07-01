@@ -16,7 +16,7 @@ Rebrand values:
 | productDomain | `ogpic.app` |
 | apiBaseUrl | `https://api.ogpic.app` |
 | cliBin | `ogpic` |
-| workersDevSubdomain | `your-workers-subdomain` |
+| workersDevSubdomain | `rahulvarghesepullely` (shared CF account subdomain; set during bring-up) |
 | salesEmail | (baseline mailbox kept) |
 
 See FORKING.md in the baseline for the operator checklist (cloud accounts,
