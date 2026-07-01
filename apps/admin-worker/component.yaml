@@ -60,4 +60,4 @@ spec:
     layer: runtime
     surface: admin-support
     runtime: cloudflare
-# ci: ogpic bring-up batch 2 — admin-worker leaf deploy (2026-07-02)
+# ci: ogpic admin-worker re-trigger — clean record after transient orun log-delivery exit (2026-07-02b)
