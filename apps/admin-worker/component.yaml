@@ -60,4 +60,4 @@ spec:
     layer: runtime
     surface: admin-support
     runtime: cloudflare
-# ci: re-trigger deploy (batch A — runner-starvation recovery 20260622T115650Z)
+# ci: ogpic bring-up batch 2 — admin-worker leaf deploy (2026-07-02)
