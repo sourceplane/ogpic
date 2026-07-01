@@ -49,4 +49,4 @@ spec:
           - profile: apply
             when:
               triggerRef: github-push-main
-# ci: ogpic first-boot infra bring-up — supabase (org id from SUPABASE_ORG_ID) (2026-07-01)
+# ci: ogpic supabase re-apply — corrected SUPABASE_ORG_ID / PAT (2026-07-01b)
