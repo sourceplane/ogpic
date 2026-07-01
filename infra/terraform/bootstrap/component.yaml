@@ -48,4 +48,4 @@ spec:
           - profile: apply
             when:
               triggerRef: github-push-main
-# ci: trigger convergence — first-boot infra bring-up (bootstrap access check)
+# ci: ogpic first-boot infra bring-up — bootstrap (2026-07-01)
