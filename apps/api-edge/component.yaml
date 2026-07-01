@@ -77,5 +77,5 @@ spec:
     layer: runtime
     surface: api
     runtime: cloudflare
-# ci: re-trigger deploy (batch C — integrations + api-edge gateway, 20260622T141448Z)
-# ci: re-trigger deploy (batch C — integrations + api-edge gateway, 20260622T141448Z)
+# ci: ogpic batch 5 — api-edge gateway (smoke /health) (2026-07-02)
+# ci: ogpic batch 5 — api-edge gateway (smoke /health) (2026-07-02)
