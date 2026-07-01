@@ -1,0 +1,50 @@
+apiVersion: sourceplane.io/v1
+kind: Component
+metadata:
+  name: db-migrate
+  description: Applies database migrations to stage and prod Supabase instances
+  labels:
+    domain: infra
+    scope: database
+    team: platform
+    layer: data
+
+spec:
+  type: db-migrate
+  lifecycle: production
+  owner: platform
+  domain: infra
+
+  dependsOn:
+    - component: db
+    # Migrations read the Supabase connection from the secret `supabase` writes.
+    - component: supabase
+
+  path: packages/db/src/migrations
+
+  parameters:
+    nodeVersion: "20"
+    pnpmVersion: "10.12.1"
+    awsRegion: us-east-1
+    awsAccountId: "306024784101"
+    secretName: sourceplane/lumen/supabase
+    owner: sourceplane
+    repo: lumen
+
+  subscribe:
+    environments:
+      - name: stage
+        profile: plan
+        profileRules:
+          - profile: apply
+            when:
+              triggerRef: github-push-main
+
+      - name: prod
+        profile: plan
+        profileRules:
+          - profile: apply
+            when:
+              triggerRef: github-push-main
+# ci: re-trigger deploy (batch A — runner-starvation recovery 20260622T115650Z)
+# ci: re-trigger deploy (batch A — runner-starvation recovery 20260622T115650Z)

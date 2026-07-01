@@ -1,0 +1,52 @@
+apiVersion: sourceplane.io/v1
+kind: Component
+
+metadata:
+  name: supabase
+  description: Provisions Supabase projects for stage and prod and stores credentials in AWS Secrets Manager
+  labels:
+    domain: infra
+    scope: database
+
+spec:
+  type: terraform
+  lifecycle: production
+  owner: platform
+  domain: infra
+
+  # Supabase provisioning writes credentials to AWS Secrets Manager and stores
+  # Terraform state in S3; both are proven by `bootstrap` first.
+  dependsOn:
+    - component: bootstrap
+
+  parameters:
+    orgName: sourceplane
+    stackName: supabase
+    terraformDir: terraform
+    terraformVersion: "1.15.3"
+    # Supabase region is surfaced to Terraform as TF_VAR_supabaseRegion by the
+    # terraform composition's parameter→TF_VAR loop. The org id is NOT committed
+    # here: it is account-specific and injected as TF_VAR_supabaseOrgId from the
+    # SUPABASE_ORG_ID CI secret (see .github/workflows/ci.yml). Keeping it out of
+    # parameters also prevents the param→TF_VAR loop from overriding the secret.
+    supabaseRegion: ap-southeast-1
+
+  env:
+    AWS_EC2_METADATA_DISABLED: "true"
+
+  subscribe:
+    environments:
+      - name: stage
+        profile: plan-only
+        profileRules:
+          - profile: apply
+            when:
+              triggerRef: github-push-main
+
+      - name: prod
+        profile: plan-only
+        profileRules:
+          - profile: apply
+            when:
+              triggerRef: github-push-main
+# ci: re-trigger supabase apply with org id sourced from SUPABASE_ORG_ID secret
