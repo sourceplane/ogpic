@@ -65,4 +65,4 @@ spec:
     layer: runtime
     surface: identity
     runtime: cloudflare
-# ci: re-trigger deploy (batch B — membership-dependents, 20260622T140838Z)
+# ci: ogpic batch 4 — membership-dependent identity-worker (2026-07-02)
