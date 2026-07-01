@@ -76,4 +76,4 @@ spec:
     layer: delivery
     surface: web-console-next
     runtime: cloudflare
-# ci: re-trigger web-console after api-edge is live (20260622T142123Z)
+# ci: ogpic web-console-next re-trigger — clean record after transient orun log-delivery exit (2026-07-02)
