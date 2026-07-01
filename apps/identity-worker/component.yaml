@@ -65,4 +65,4 @@ spec:
     layer: runtime
     surface: identity
     runtime: cloudflare
-# ci: ogpic batch 4 — membership-dependent identity-worker (2026-07-02)
+# ci: ogpic identity-worker re-trigger — clean record after transient orun log-delivery exit (2026-07-02b)
