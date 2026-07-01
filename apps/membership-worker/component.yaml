@@ -61,4 +61,4 @@ spec:
     layer: runtime
     surface: membership
     runtime: cloudflare
-# ci: re-trigger deploy (batch A — runner-starvation recovery 20260622T115650Z)
+# ci: ogpic membership-worker re-trigger — clean record after transient orun log-delivery exit (2026-07-02)
