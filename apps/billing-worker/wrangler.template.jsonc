@@ -48,10 +48,7 @@
         }
       ],
       "services": [
-        {
-          "binding": "MEMBERSHIP_WORKER",
-          "service": "ogpic-membership-worker-stage"
-        },
+        // @cycle-break:billing-worker->membership-worker:ewogICAgICAgICAgImJpbmRpbmciOiAiTUVNQkVSU0hJUF9XT1JLRVIiLAogICAgICAgICAgInNlcnZpY2UiOiAib2dwaWMtbWVtYmVyc2hpcC13b3JrZXItc3RhZ2UiCiAgICAgICAgfSw=
         {
           "binding": "POLICY_WORKER",
           "service": "ogpic-policy-worker-stage"
@@ -74,10 +71,7 @@
         }
       ],
       "services": [
-        {
-          "binding": "MEMBERSHIP_WORKER",
-          "service": "ogpic-membership-worker-prod"
-        },
+        // @cycle-break:billing-worker->membership-worker:ewogICAgICAgICAgImJpbmRpbmciOiAiTUVNQkVSU0hJUF9XT1JLRVIiLAogICAgICAgICAgInNlcnZpY2UiOiAib2dwaWMtbWVtYmVyc2hpcC13b3JrZXItcHJvZCIKICAgICAgICB9LA==
         {
           "binding": "POLICY_WORKER",
           "service": "ogpic-policy-worker-prod"

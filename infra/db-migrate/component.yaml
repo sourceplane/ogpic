@@ -46,5 +46,5 @@ spec:
           - profile: apply
             when:
               triggerRef: github-push-main
-# ci: re-trigger deploy (batch A — runner-starvation recovery 20260622T115650Z)
-# ci: re-trigger deploy (batch A — runner-starvation recovery 20260622T115650Z)
+# ci: ogpic batch 3 — db-migrate (prereq of notifications-worker) (2026-07-02)
+# ci: ogpic batch 3 — db-migrate (prereq of notifications-worker) (2026-07-02)
