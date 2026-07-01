@@ -72,7 +72,7 @@ variable "owner" {
 
 variable "repo" {
   type    = string
-  default = "lumen"
+  default = "ogpic"
 }
 
 variable "namespace" {

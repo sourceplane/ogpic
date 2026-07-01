@@ -1,4 +1,4 @@
-# Lumen SaaS — Spec Pack
+# Ogpic SaaS — Spec Pack
 
 Status: Normative index
 

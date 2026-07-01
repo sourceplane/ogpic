@@ -3,7 +3,7 @@
 // resolved from AWS Secrets Manager at deploy time (wire-live) or from the
 // committed wiring.fixture.json for offline dry-runs (wire-fixture).
 {
-  "name": "lumen-webhooks-worker",
+  "name": "ogpic-webhooks-worker",
   "compatibility_date": "2025-05-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/index.ts",
@@ -35,11 +35,11 @@
       "services": [
         {
           "binding": "MEMBERSHIP_WORKER",
-          "service": "lumen-membership-worker-stage"
+          "service": "ogpic-membership-worker-stage"
         },
         {
           "binding": "POLICY_WORKER",
-          "service": "lumen-policy-worker-stage"
+          "service": "ogpic-policy-worker-stage"
         }
       ]
     },
@@ -58,11 +58,11 @@
       "services": [
         {
           "binding": "MEMBERSHIP_WORKER",
-          "service": "lumen-membership-worker-prod"
+          "service": "ogpic-membership-worker-prod"
         },
         {
           "binding": "POLICY_WORKER",
-          "service": "lumen-policy-worker-prod"
+          "service": "ogpic-policy-worker-prod"
         }
       ]
     }

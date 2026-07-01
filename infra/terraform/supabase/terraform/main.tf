@@ -60,7 +60,7 @@ variable "owner" {
 
 variable "repo" {
   type    = string
-  default = "lumen"
+  default = "ogpic"
 }
 
 variable "namespace" {
@@ -121,8 +121,8 @@ variable "supabaseRegion" {
 locals {
   supabase_org_id = var.supabaseOrgId
   supabase_region = var.supabaseRegion
-  project_name    = "lumen-${var.environment}"
-  secret_name     = "${var.orgName}/lumen/supabase/${var.environment}"
+  project_name    = "ogpic-${var.environment}"
+  secret_name     = "${var.orgName}/ogpic/supabase/${var.environment}"
 
   supabase_secret_payload = {
     project_ref       = supabase_project.this.id

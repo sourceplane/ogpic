@@ -51,7 +51,7 @@ spec:
             type: string
           baseDomain:
             type: string
-            description: The root domain managed by this component (e.g. lumen.app)
+            description: The root domain managed by this component (e.g. ogpic.app)
           zoneMode:
             type: string
             enum:

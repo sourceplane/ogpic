@@ -1,5 +1,5 @@
-// `lumen webhook sign` — local cryptographic signing of a
-// Lumen outbound webhook payload (Task 0107).
+// `ogpic webhook sign` — local cryptographic signing of a
+// Ogpic outbound webhook payload (Task 0107).
 //
 // Symmetric counterpart to `webhook verify` (Task 0106). Wraps
 // `@saas/webhook-verifier`'s `signWebhookPayload` exactly; all crypto

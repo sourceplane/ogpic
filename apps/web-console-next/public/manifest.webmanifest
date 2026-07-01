@@ -1,6 +1,6 @@
 {
-  "name": "Lumen Console",
-  "short_name": "Lumen",
+  "name": "Ogpic Console",
+  "short_name": "Ogpic",
   "description": "Control plane for your projects, environments, and entitlements.",
   "start_url": "/orgs",
   "scope": "/",

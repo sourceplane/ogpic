@@ -27,9 +27,9 @@ spec:
     pnpmVersion: "10.12.1"
     awsRegion: us-east-1
     awsAccountId: "306024784101"
-    secretName: sourceplane/lumen/supabase
+    secretName: sourceplane/ogpic/supabase
     owner: sourceplane
-    repo: lumen
+    repo: ogpic
 
   subscribe:
     environments:

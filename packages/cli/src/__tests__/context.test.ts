@@ -54,14 +54,14 @@ describe("ContextStore", () => {
 });
 
 describe("resolveConfigDir", () => {
-  it("respects LUMEN_CONFIG_DIR override", () => {
-    const prev = process.env["LUMEN_CONFIG_DIR"];
-    process.env["LUMEN_CONFIG_DIR"] = "/tmp/cli-override";
+  it("respects OGPIC_CONFIG_DIR override", () => {
+    const prev = process.env["OGPIC_CONFIG_DIR"];
+    process.env["OGPIC_CONFIG_DIR"] = "/tmp/cli-override";
     try {
       expect(resolveConfigDir()).toBe("/tmp/cli-override");
     } finally {
-      if (prev === undefined) delete process.env["LUMEN_CONFIG_DIR"];
-      else process.env["LUMEN_CONFIG_DIR"] = prev;
+      if (prev === undefined) delete process.env["OGPIC_CONFIG_DIR"];
+      else process.env["OGPIC_CONFIG_DIR"] = prev;
     }
   });
 });

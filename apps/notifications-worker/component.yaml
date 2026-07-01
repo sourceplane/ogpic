@@ -40,7 +40,7 @@ spec:
     awsRegion: us-east-1
     orgName: sourceplane
     owner: sourceplane
-    repo: lumen
+    repo: ogpic
 
     turboFilter: "@saas/notifications-worker"
     wranglerConfig: wrangler.jsonc

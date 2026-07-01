@@ -72,7 +72,7 @@ variable "owner" {
 
 variable "repo" {
   type    = string
-  default = "lumen"
+  default = "ogpic"
 }
 
 variable "namespace" {
@@ -131,7 +131,7 @@ locals {
   database_name = local.supabase_secret.database_name
   database_user = local.supabase_secret.database_user
 
-  hyperdrive_name = "${var.namespacePrefix}lumen-${var.environment}"
+  hyperdrive_name = "${var.namespacePrefix}ogpic-${var.environment}"
 }
 
 # --- Fetch Cloudflare account ID from env or variable ---

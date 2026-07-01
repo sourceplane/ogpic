@@ -3,7 +3,7 @@
 // resolved from AWS Secrets Manager at deploy time (wire-live) or from the
 // committed wiring.fixture.json for offline dry-runs (wire-fixture).
 {
-  "name": "lumen-api-edge",
+  "name": "ogpic-api-edge",
   "compatibility_date": "2025-05-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/index.ts",
@@ -11,7 +11,7 @@
   "vars": {
     "ENVIRONMENT": "local",
     "CONSOLE_CUSTOM_DOMAIN": "",
-    // M0 / Solo profile (Lumen ships single-user). Set "false" to restore the
+    // M0 / Solo profile (Ogpic ships single-user). Set "false" to restore the
     // full multi-tenant baseline. See specs/profiles/solo-m0.md.
     "SOLO_MODE": "true"
   },
@@ -42,7 +42,7 @@
     "stage": {
       "vars": {
         "ENVIRONMENT": "stage",
-        "CONSOLE_CUSTOM_DOMAIN": "stage.lumen.app",
+        "CONSOLE_CUSTOM_DOMAIN": "stage.ogpic.app",
         "SOLO_MODE": "true"
       },
       "hyperdrive": [
@@ -60,43 +60,43 @@
       "services": [
         {
           "binding": "IDENTITY_WORKER",
-          "service": "lumen-identity-worker-stage"
+          "service": "ogpic-identity-worker-stage"
         },
         {
           "binding": "MEMBERSHIP_WORKER",
-          "service": "lumen-membership-worker-stage"
+          "service": "ogpic-membership-worker-stage"
         },
         {
           "binding": "PROJECTS_WORKER",
-          "service": "lumen-projects-worker-stage"
+          "service": "ogpic-projects-worker-stage"
         },
         {
           "binding": "EVENTS_WORKER",
-          "service": "lumen-events-worker-stage"
+          "service": "ogpic-events-worker-stage"
         },
         {
           "binding": "CONFIG_WORKER",
-          "service": "lumen-config-worker-stage"
+          "service": "ogpic-config-worker-stage"
         },
         {
           "binding": "WEBHOOKS_WORKER",
-          "service": "lumen-webhooks-worker-stage"
+          "service": "ogpic-webhooks-worker-stage"
         },
         {
           "binding": "METERING_WORKER",
-          "service": "lumen-metering-worker-stage"
+          "service": "ogpic-metering-worker-stage"
         },
         {
           "binding": "BILLING_WORKER",
-          "service": "lumen-billing-worker-stage"
+          "service": "ogpic-billing-worker-stage"
         },
         {
           "binding": "NOTIFICATIONS_WORKER",
-          "service": "lumen-notifications-worker-stage"
+          "service": "ogpic-notifications-worker-stage"
         },
         {
           "binding": "INTEGRATIONS_WORKER",
-          "service": "lumen-integrations-worker-stage"
+          "service": "ogpic-integrations-worker-stage"
         }
       ],
       "durable_objects": {
@@ -111,7 +111,7 @@
     "prod": {
       "vars": {
         "ENVIRONMENT": "prod",
-        "CONSOLE_CUSTOM_DOMAIN": "prod.lumen.app",
+        "CONSOLE_CUSTOM_DOMAIN": "prod.ogpic.app",
         "SOLO_MODE": "true"
       },
       "hyperdrive": [
@@ -129,43 +129,43 @@
       "services": [
         {
           "binding": "IDENTITY_WORKER",
-          "service": "lumen-identity-worker-prod"
+          "service": "ogpic-identity-worker-prod"
         },
         {
           "binding": "MEMBERSHIP_WORKER",
-          "service": "lumen-membership-worker-prod"
+          "service": "ogpic-membership-worker-prod"
         },
         {
           "binding": "PROJECTS_WORKER",
-          "service": "lumen-projects-worker-prod"
+          "service": "ogpic-projects-worker-prod"
         },
         {
           "binding": "EVENTS_WORKER",
-          "service": "lumen-events-worker-prod"
+          "service": "ogpic-events-worker-prod"
         },
         {
           "binding": "CONFIG_WORKER",
-          "service": "lumen-config-worker-prod"
+          "service": "ogpic-config-worker-prod"
         },
         {
           "binding": "WEBHOOKS_WORKER",
-          "service": "lumen-webhooks-worker-prod"
+          "service": "ogpic-webhooks-worker-prod"
         },
         {
           "binding": "METERING_WORKER",
-          "service": "lumen-metering-worker-prod"
+          "service": "ogpic-metering-worker-prod"
         },
         {
           "binding": "BILLING_WORKER",
-          "service": "lumen-billing-worker-prod"
+          "service": "ogpic-billing-worker-prod"
         },
         {
           "binding": "NOTIFICATIONS_WORKER",
-          "service": "lumen-notifications-worker-prod"
+          "service": "ogpic-notifications-worker-prod"
         },
         {
           "binding": "INTEGRATIONS_WORKER",
-          "service": "lumen-integrations-worker-prod"
+          "service": "ogpic-integrations-worker-prod"
         }
       ],
       "durable_objects": {

@@ -54,7 +54,7 @@ const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as Manifest;
 describe("secrets manifest (SS0)", () => {
   it("declares the escrow path under this repo's Secrets Manager namespace", () => {
     expect(manifest.escrowPath).toBe(
-      "sourceplane/lumen/worker-secrets/<env>",
+      "sourceplane/ogpic/worker-secrets/<env>",
     );
   });
 

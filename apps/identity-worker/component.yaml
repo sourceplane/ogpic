@@ -42,7 +42,7 @@ spec:
     awsRegion: us-east-1
     orgName: sourceplane
     owner: sourceplane
-    repo: lumen
+    repo: ogpic
 
     # SS2: manifest key for the secrets-live escrow sync (saas-secrets-sync).
     secretsWorker: identity-worker
