@@ -1,7 +1,10 @@
 # ogpic
 
-Reusable Cloudflare + Supabase multi-tenant SaaS starter, built as an
-[Orun](https://opencode.ai/docs) component-native desired-state repo. Identity,
+Ogpic is a photography equipment rental marketplace. It is built on the reusable
+Cloudflare + Supabase multi-tenant SaaS platform (forked from the Lumen
+baseline), delivered as an [Orun](https://opencode.ai/docs) component-native
+desired-state repo. The rental product is built on top of this platform; the
+platform foundation below ships as-is. Identity,
 organizations, projects, RBAC, audit, metering, billing, webhooks, and
 notifications ship as separate bounded-context Cloudflare Workers behind a single
 public edge API, with a Next.js console on Workers + Static Assets.

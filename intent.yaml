@@ -3,7 +3,7 @@ kind: Intent
 
 metadata:
   name: ogpic
-  description: Reusable Cloudflare and Supabase multi-tenant SaaS starter
+  description: Ogpic — photography equipment rental marketplace on Cloudflare and Supabase
   namespace: sourceplane
 
 execution:
