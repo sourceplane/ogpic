@@ -61,4 +61,4 @@ spec:
     layer: runtime
     surface: events
     runtime: cloudflare
-# ci: cycle-break pass 1 — deploy cluster with feedback edges stripped (20260622T135810Z)
+# ci: ogpic batch 3 cycle-break pass 1 — events-worker (2026-07-02)
