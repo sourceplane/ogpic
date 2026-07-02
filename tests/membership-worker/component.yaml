@@ -2,11 +2,21 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: membership-worker-tests
+  title: Membership Worker Tests
+  description: Test suite for the membership-worker.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-tests
+  language: typescript
+  tags:
+    - test
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/tests/membership-worker
+      icon: github
   subscribe:
     environments:
       - name: dev

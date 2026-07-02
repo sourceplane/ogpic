@@ -3,6 +3,7 @@ kind: Component
 metadata:
   name: api-edge
   description: Cloudflare Worker for the API edge Runtime
+  title: API Edge
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
@@ -22,6 +23,34 @@ spec:
     - component: membership-worker
     - component: metering-worker
     - component: notifications-worker
+  language: typescript
+  tags:
+    - edge
+    - api-gateway
+    - public-api
+    - cloudflare
+    - worker
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/apps/api-edge
+      icon: github
+  docs:
+    overview: overview.md
+  providesApis:
+    - edge-api
+  consumesApis:
+    - identity-api
+    - membership-api
+    - projects-api
+    - policy-api
+    - events-api
+    - config-api
+    - metering-api
+    - billing-api
+    - notifications-api
+    - webhooks-api
+    - integrations-api
+    - admin-api
   subscribe:
     environments:
       - name: dev

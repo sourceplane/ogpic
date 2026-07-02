@@ -3,6 +3,7 @@ kind: Component
 metadata:
   name: notifications-worker
   description: Cloudflare Worker for the Notifications bounded context
+  title: Notifications Worker
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
@@ -12,6 +13,26 @@ spec:
   dependsOn:
     - component: events-worker
     - component: db-migrate
+  language: typescript
+  tags:
+    - worker
+    - runtime
+    - notifications
+    - cloudflare
+    - orun
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/apps/notifications-worker
+      icon: github
+  docs:
+    overview: overview.md
+  providesApis:
+    - notifications-api
+  consumesApis:
+    - events-api
+  integrations:
+    cloudflare-email:
+      binding: send_email
   subscribe:
     environments:
       - name: dev

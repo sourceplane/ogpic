@@ -2,11 +2,21 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: api-edge-tests
+  title: Api Edge Tests
+  description: Test suite for the api-edge worker.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-tests
+  language: typescript
+  tags:
+    - test
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/tests/api-edge
+      icon: github
   subscribe:
     environments:
       - name: dev

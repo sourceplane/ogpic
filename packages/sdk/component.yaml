@@ -2,12 +2,28 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: sdk
+  title: SDK
   description: Runtime-agnostic TypeScript SDK for the Ogpic control plane API
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-sdk
+  language: typescript
+  tags:
+    - library
+    - package
+    - sdk
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/packages/sdk
+      icon: github
+    - title: README
+      url: https://github.com/sourceplane/ogpic/blob/main/packages/sdk/README.md
+      icon: book
+  docs:
+    overview: overview.md
   subscribe:
     environments:
       - name: dev

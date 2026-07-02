@@ -2,11 +2,25 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: shared
+  title: Shared
+  description: Generic ID and error helper utilities shared across Ogpic packages.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-shared
+  language: typescript
+  tags:
+    - library
+    - package
+    - shared
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/packages/shared
+      icon: github
+  docs:
+    overview: overview.md
   subscribe:
     environments:
       - name: dev

@@ -2,11 +2,26 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: policy-engine
+  title: Policy Engine
+  description: RBAC evaluation logic for the Ogpic platform.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-shared
+  language: typescript
+  tags:
+    - library
+    - package
+    - rbac
+    - authz
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/packages/policy-engine
+      icon: github
+  docs:
+    overview: overview.md
   subscribe:
     environments:
       - name: dev

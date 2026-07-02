@@ -3,6 +3,7 @@ kind: Component
 
 metadata:
   name: bootstrap
+  title: Terraform Bootstrap
   description: Proves S3 backend and Secrets Manager access for ogpic Terraform components
   labels:
     domain: infra
@@ -22,6 +23,21 @@ spec:
 
   env:
     AWS_EC2_METADATA_DISABLED: "true"
+
+  language: hcl
+  tags:
+    - infrastructure
+    - terraform
+    - bootstrap
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/infra/terraform/bootstrap
+      icon: github
+    - title: README
+      url: https://github.com/sourceplane/ogpic/blob/main/infra/terraform/bootstrap/README.md
+      icon: book
+  docs:
+    overview: overview.md
 
   subscribe:
     environments:

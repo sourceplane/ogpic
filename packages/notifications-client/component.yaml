@@ -2,11 +2,25 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: notifications-client
+  title: Notifications Client
+  description: Client library for the Ogpic notifications service.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-shared
+  language: typescript
+  tags:
+    - library
+    - package
+    - notifications
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/packages/notifications-client
+      icon: github
+  docs:
+    overview: overview.md
   subscribe:
     environments:
       - name: dev
