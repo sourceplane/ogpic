@@ -2,11 +2,28 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: webhook-verifier
+  title: Webhook Verifier
+  description: Verifies signatures on inbound webhooks for the Ogpic platform.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-shared
+  language: typescript
+  tags:
+    - library
+    - package
+    - webhooks
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/packages/webhook-verifier
+      icon: github
+    - title: README
+      url: https://github.com/sourceplane/ogpic/blob/main/packages/webhook-verifier/README.md
+      icon: book
+  docs:
+    overview: overview.md
   subscribe:
     environments:
       - name: dev

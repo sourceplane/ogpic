@@ -3,12 +3,26 @@ kind: Component
 
 metadata:
   name: stack-tectonic
+  title: Stack Tectonic
+  description: Repo-local Orun composition stack of golden paths, published to ghcr.io/sourceplane/stack-tectonic.
 
 spec:
   type: publish-stack
   lifecycle: production
   owner: platform
   domain: platform-stack
+  language: yaml
+  tags:
+    - orun
+    - composition
+    - golden-path
+    - stack
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/stack-tectonic
+      icon: github
+  docs:
+    overview: overview.md
   subscribe:
     environments:
       - name: dev
