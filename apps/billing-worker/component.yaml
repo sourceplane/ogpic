@@ -3,6 +3,7 @@ kind: Component
 metadata:
   name: billing-worker
   description: Cloudflare Worker for the Billing API surface (private, service-binding only)
+  title: Billing Worker
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
@@ -11,6 +12,26 @@ spec:
   path: apps/billing-worker
   dependsOn:
     - component: policy-worker
+  language: typescript
+  tags:
+    - worker
+    - runtime
+    - billing
+    - cloudflare
+    - orun
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/apps/billing-worker
+      icon: github
+  docs:
+    overview: overview.md
+  providesApis:
+    - billing-api
+  consumesApis:
+    - policy-api
+  integrations:
+    polar:
+      role: billing-provider
   subscribe:
     environments:
       - name: dev
