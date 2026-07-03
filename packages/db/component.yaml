@@ -2,11 +2,25 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: db
+  title: Database Migration Harness
+  description: Database migration harness, manifest, and runner for the Ogpic platform.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-data
+  language: typescript
+  tags:
+    - library
+    - package
+    - database
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/packages/db
+      icon: github
+  docs:
+    overview: overview.md
   subscribe:
     environments:
       - name: dev
