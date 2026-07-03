@@ -3,6 +3,7 @@ kind: Component
 
 metadata:
   name: cloudflare-hyperdrive
+  title: Cloudflare Hyperdrive
   description: Provisions Cloudflare Hyperdrive resources for stage and prod Supabase Postgres databases
   labels:
     domain: infra
@@ -28,6 +29,23 @@ spec:
   env:
     AWS_EC2_METADATA_DISABLED: "true"
 
+
+  language: hcl
+  tags:
+    - infrastructure
+    - terraform
+    - cloudflare
+    - hyperdrive
+    - postgres
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/infra/terraform/cloudflare-hyperdrive
+      icon: github
+    - title: README
+      url: https://github.com/sourceplane/ogpic/blob/main/infra/terraform/cloudflare-hyperdrive/README.md
+      icon: book
+  docs:
+    overview: overview.md
 
   subscribe:
     environments:

@@ -3,6 +3,7 @@ kind: Component
 
 metadata:
   name: cloudflare-kv
+  title: Cloudflare KV
   description: Provisions Cloudflare KV namespaces backing the api-edge idempotency replay store (stage and prod)
   labels:
     domain: infra
@@ -23,6 +24,22 @@ spec:
   env:
     AWS_EC2_METADATA_DISABLED: "true"
 
+
+  language: hcl
+  tags:
+    - infrastructure
+    - terraform
+    - cloudflare
+    - kv
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/infra/terraform/cloudflare-kv
+      icon: github
+    - title: README
+      url: https://github.com/sourceplane/ogpic/blob/main/infra/terraform/cloudflare-kv/README.md
+      icon: book
+  docs:
+    overview: overview.md
 
   subscribe:
     environments:

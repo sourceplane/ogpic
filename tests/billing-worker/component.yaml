@@ -2,12 +2,22 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: billing-worker-tests
+  title: Billing Worker Tests
+  description: Test suite for the billing-worker.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-tests
   path: tests/billing-worker
+  language: typescript
+  tags:
+    - test
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/tests/billing-worker
+      icon: github
   subscribe:
     environments:
       - name: dev

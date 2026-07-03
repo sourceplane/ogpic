@@ -2,11 +2,21 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: web-console-next-tests
+  title: Web Console Next Tests
+  description: Test suite for the web-console-next app.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-tests
+  language: typescript
+  tags:
+    - test
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/tests/web-console-next
+      icon: github
   subscribe:
     environments:
       - name: dev

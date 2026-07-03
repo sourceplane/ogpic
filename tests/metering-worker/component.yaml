@@ -2,12 +2,22 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: metering-worker-tests
+  title: Metering Worker Tests
+  description: Test suite for the metering-worker.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-tests
   path: tests/metering-worker
+  language: typescript
+  tags:
+    - test
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/tests/metering-worker
+      icon: github
   subscribe:
     environments:
       - name: dev

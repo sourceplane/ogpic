@@ -3,6 +3,7 @@ kind: Component
 
 metadata:
   name: supabase
+  title: Supabase Projects
   description: Provisions Supabase projects for stage and prod and stores credentials in AWS Secrets Manager
   labels:
     domain: infra
@@ -33,6 +34,22 @@ spec:
 
   env:
     AWS_EC2_METADATA_DISABLED: "true"
+
+  language: hcl
+  tags:
+    - infrastructure
+    - terraform
+    - supabase
+    - database
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/infra/terraform/supabase
+      icon: github
+    - title: README
+      url: https://github.com/sourceplane/ogpic/blob/main/infra/terraform/supabase/README.md
+      icon: book
+  docs:
+    overview: overview.md
 
   subscribe:
     environments:
