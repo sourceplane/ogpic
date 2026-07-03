@@ -6,6 +6,45 @@ metadata:
   description: Ogpic — photography equipment rental marketplace on Cloudflare and Supabase
   namespace: sourceplane
 
+# Repo/workspace self-description (orun v2.21.0, saas-workspace-overview WO3).
+# Resolves to a single `Repo` entity in the service catalog. Unlike component
+# docs (path pointers), the repo `docs.overview` markdown is read at plan time
+# and walked into the catalog closure as a content-addressed blob, so orun-cloud
+# renders it as the workspace front page without reaching back into git.
+repo:
+  displayName: Ogpic
+  description: >-
+    Photography-equipment rental marketplace on a reusable Cloudflare + Supabase
+    multi-tenant SaaS platform, delivered as an Orun component-native
+    desired-state repo.
+  owner: platform
+  docs:
+    overview: docs/overview.md
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic
+      icon: github
+    - title: README
+      url: https://github.com/sourceplane/ogpic/blob/main/README.md
+      icon: book
+    - title: Forking guide
+      url: https://github.com/sourceplane/ogpic/blob/main/FORKING.md
+      icon: book
+  tags:
+    - saas
+    - marketplace
+    - cloudflare
+    - supabase
+    - multi-tenant
+    - orun
+
+# Service-catalog resolution. `namespace` keys every catalog entity
+# (<namespace>/<repo>/<name>); align it with the repo's namespace identity
+# (metadata.namespace + the terraform namespace parameterDefaults) rather than
+# the implicit "default".
+catalog:
+  namespace: sourceplane
+
 execution:
   state:
     backendUrl: https://api-edge-prod.oruncloud.workers.dev
