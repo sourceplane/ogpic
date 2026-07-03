@@ -3,6 +3,7 @@ kind: Component
 metadata:
   name: projects-worker
   description: Cloudflare Worker for the Projects runtime
+  title: Projects Worker
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
@@ -13,6 +14,25 @@ spec:
     - component: membership-worker
     - component: policy-worker
     - component: billing-worker
+  language: typescript
+  tags:
+    - worker
+    - runtime
+    - projects
+    - cloudflare
+    - orun
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/apps/projects-worker
+      icon: github
+  docs:
+    overview: overview.md
+  providesApis:
+    - projects-api
+  consumesApis:
+    - membership-api
+    - policy-api
+    - billing-api
   subscribe:
     environments:
       - name: dev
