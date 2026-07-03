@@ -121,6 +121,35 @@ kiox -- orun run --plan plan.json --dry-run --runner github-actions
 Use `--changed` for PR-scoped checks; use a full plan when validating
 environment promotion or cross-component dependencies (`--view dag`).
 
+## Service catalog
+
+Every commit publishes a **service catalog** to Orun Cloud. `orun plan` resolves
+the repo into a catalog snapshot — one entity per component, plus the typed
+relation graph (`dependsOn`, `providesApi`/`consumesApi`, `partOf`) and a
+top-level `Repo` entity — and `execution.state.autopushCatalog: true` pushes it
+after every successful plan on `main` (no extra CI step). The tenancy claim
+(`execution.state.workspace`) scopes the push.
+
+The catalog is authored **in the repo**, next to the code:
+
+- **Workspace overview.** The `repo:` block in `intent.yaml` points at
+  [`docs/overview.md`](docs/overview.md). Its markdown bytes are walked into the
+  catalog closure as a content-addressed blob at plan time, so Orun Cloud renders
+  the workspace front page without reaching back into git.
+- **Per-component metadata.** Each `component.yaml` carries catalog-portal fields
+  — `metadata.title`, `spec.language`, `spec.tags`, `spec.links`,
+  `spec.providesApis`/`spec.consumesApis`, `spec.integrations`, and
+  `spec.docs.overview` (a per-component `overview.md`).
+
+Browse it locally with the object-model catalog commands:
+
+```bash
+kiox -- orun catalog refresh              # resolve the snapshot from the working tree
+kiox -- orun catalog list                 # every entity
+kiox -- orun catalog list --kind Repo     # the workspace Repo entity
+kiox -- orun catalog describe api-edge    # one component's resolved manifest
+```
+
 ## Infrastructure
 
 Terraform provisions Supabase projects, Cloudflare Hyperdrive, and the
