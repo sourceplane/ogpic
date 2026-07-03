@@ -2,11 +2,21 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: notifications-client-tests
+  title: Notifications Client Tests
+  description: Test suite for the notifications-client package.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-tests
+  language: typescript
+  tags:
+    - test
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/tests/notifications-client
+      icon: github
   subscribe:
     environments:
       - name: dev

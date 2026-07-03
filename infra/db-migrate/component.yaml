@@ -2,6 +2,7 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: db-migrate
+  title: Database Migrations
   description: Applies database migrations to stage and prod Supabase instances
   labels:
     domain: infra
@@ -30,6 +31,19 @@ spec:
     secretName: sourceplane/ogpic/supabase
     owner: sourceplane
     repo: ogpic
+
+  language: sql
+  tags:
+    - database
+    - migrations
+    - supabase
+    - orun
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/infra/db-migrate
+      icon: github
+  docs:
+    overview: overview.md
 
   subscribe:
     environments:

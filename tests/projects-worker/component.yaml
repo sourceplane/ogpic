@@ -2,12 +2,22 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: projects-worker-tests
+  title: Projects Worker Tests
+  description: Test suite for the projects-worker.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-tests
   path: tests/projects-worker
+  language: typescript
+  tags:
+    - test
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/tests/projects-worker
+      icon: github
   subscribe:
     environments:
       - name: dev

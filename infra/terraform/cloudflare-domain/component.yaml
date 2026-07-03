@@ -3,6 +3,7 @@ kind: Component
 
 metadata:
   name: cloudflare-domain
+  title: Cloudflare Domain
   description: Manages the Cloudflare zone and attaches custom domains to environment-specific Worker services (web-console-next)
   labels:
     domain: infra
@@ -41,6 +42,23 @@ spec:
 
   dependsOn:
     - component: web-console-next
+
+  language: hcl
+  tags:
+    - infrastructure
+    - terraform
+    - cloudflare
+    - dns
+    - domain
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/infra/terraform/cloudflare-domain
+      icon: github
+    - title: README
+      url: https://github.com/sourceplane/ogpic/blob/main/infra/terraform/cloudflare-domain/README.md
+      icon: book
+  docs:
+    overview: overview.md
 
   subscribe:
     environments:

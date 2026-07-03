@@ -2,12 +2,22 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: config-worker-tests
+  title: Config Worker Tests
+  description: Test suite for the config-worker.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-tests
   path: tests/config-worker
+  language: typescript
+  tags:
+    - test
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/tests/config-worker
+      icon: github
   subscribe:
     environments:
       - name: dev
