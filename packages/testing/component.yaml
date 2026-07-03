@@ -2,11 +2,25 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: testing
+  title: Testing
+  description: Shared test fixtures and utilities for the Ogpic monorepo.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-shared
+  language: typescript
+  tags:
+    - library
+    - package
+    - testing
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/packages/testing
+      icon: github
+  docs:
+    overview: overview.md
   subscribe:
     environments:
       - name: dev
