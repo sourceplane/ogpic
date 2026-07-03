@@ -3,6 +3,7 @@ kind: Component
 metadata:
   name: admin-worker
   description: Internal Cloudflare Worker for audited support/administration diagnostics
+  title: Admin Worker
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
@@ -11,6 +12,21 @@ spec:
   path: apps/admin-worker
   dependsOn:
     - component: cloudflare-hyperdrive
+  language: typescript
+  tags:
+    - worker
+    - runtime
+    - admin
+    - cloudflare
+    - orun
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/apps/admin-worker
+      icon: github
+  docs:
+    overview: overview.md
+  providesApis:
+    - admin-api
   subscribe:
     environments:
       - name: dev
