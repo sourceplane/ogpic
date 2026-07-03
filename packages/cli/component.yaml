@@ -2,12 +2,28 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: cli
+  title: CLI
   description: First-class TypeScript CLI for the Ogpic control plane API
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-cli
+  language: typescript
+  tags:
+    - library
+    - package
+    - cli
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/packages/cli
+      icon: github
+    - title: README
+      url: https://github.com/sourceplane/ogpic/blob/main/packages/cli/README.md
+      icon: book
+  docs:
+    overview: overview.md
   subscribe:
     environments:
       - name: dev

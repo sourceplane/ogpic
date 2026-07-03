@@ -2,11 +2,26 @@ apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
   name: contracts
+  title: Contracts
+  description: Shared TypeScript API, tenancy, event, and error types with validators for the Ogpic platform.
 spec:
   type: turbo-package
   lifecycle: production
   owner: platform
   domain: starter-contracts
+  language: typescript
+  tags:
+    - library
+    - package
+    - contracts
+    - typescript
+    - orun
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/packages/contracts
+      icon: github
+  docs:
+    overview: overview.md
   subscribe:
     environments:
       - name: dev
