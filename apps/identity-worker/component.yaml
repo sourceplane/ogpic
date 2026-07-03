@@ -3,6 +3,7 @@ kind: Component
 metadata:
   name: identity-worker
   description: Cloudflare Worker for the Identity auth runtime
+  title: Identity Worker
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
@@ -14,6 +15,25 @@ spec:
     - component: policy-worker
     - component: membership-worker
     - component: notifications-worker
+  language: typescript
+  tags:
+    - worker
+    - runtime
+    - identity
+    - cloudflare
+    - orun
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/apps/identity-worker
+      icon: github
+  docs:
+    overview: overview.md
+  providesApis:
+    - identity-api
+  consumesApis:
+    - policy-api
+    - membership-api
+    - notifications-api
   subscribe:
     environments:
       - name: dev
