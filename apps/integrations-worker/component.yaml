@@ -3,6 +3,7 @@ kind: Component
 metadata:
   name: integrations-worker
   description: Cloudflare Worker for the integrations bounded context — provider connections (GitHub App first), inbound delivery inbox, repo links, and the installation-token broker
+  title: Integrations Worker
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
@@ -14,6 +15,32 @@ spec:
     - component: policy-worker
     - component: billing-worker
     - component: projects-worker
+  language: typescript
+  tags:
+    - worker
+    - runtime
+    - integrations
+    - cloudflare
+    - orun
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/apps/integrations-worker
+      icon: github
+    - title: README
+      url: https://github.com/sourceplane/ogpic/blob/main/apps/integrations-worker/README.md
+      icon: book
+  docs:
+    overview: overview.md
+  providesApis:
+    - integrations-api
+  consumesApis:
+    - membership-api
+    - policy-api
+    - billing-api
+    - projects-api
+  integrations:
+    github:
+      kind: app
   subscribe:
     environments:
       - name: dev

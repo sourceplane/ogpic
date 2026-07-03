@@ -3,6 +3,7 @@ kind: Component
 metadata:
   name: events-worker
   description: Cloudflare Worker for the Events and Audit runtime
+  title: Events Worker
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
@@ -12,6 +13,25 @@ spec:
   dependsOn:
     - component: membership-worker
     - component: policy-worker
+  language: typescript
+  tags:
+    - worker
+    - runtime
+    - events
+    - audit
+    - cloudflare
+    - orun
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/apps/events-worker
+      icon: github
+  docs:
+    overview: overview.md
+  providesApis:
+    - events-api
+  consumesApis:
+    - membership-api
+    - policy-api
   subscribe:
     environments:
       - name: dev
