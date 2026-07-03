@@ -15,3 +15,6 @@ export const CONSOLE_WORKER_PREFIX = "ogpic-web-console-next";
 export function consoleWorkersDevOrigin(environment: string): string {
   return `https://${CONSOLE_WORKER_PREFIX}-${environment}.${WORKERS_DEV_SUBDOMAIN}.workers.dev`;
 }
+
+// ci: re-trigger PR #13 to re-verify orun coordination after the orun-cloud
+// rate-limit/404 fix (sourceplane/orun-cloud#303) deployed to prod. No-op.
