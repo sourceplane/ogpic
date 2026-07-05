@@ -20,6 +20,13 @@ repo:
   owner: platform
   docs:
     overview: docs/overview.md
+    # The repo doc set (saas-catalog-docs, orun >= v2.23.0): read at the pinned
+    # commit, carried as content-addressed blobs, browsable in the cloud's Docs
+    # hub. Older orun versions ignore `pages` (lenient intent parse).
+    pages:
+      - { path: docs/architecture.md, role: architecture }
+      - { path: docs/runbook.md, role: runbook }
+      - { path: FORKING.md, role: onboarding, title: Forking guide }
   links:
     - title: Source
       url: https://github.com/sourceplane/ogpic
@@ -44,6 +51,74 @@ repo:
 # the implicit "default".
 catalog:
   namespace: sourceplane
+  # Enrichment for the derived kinds (saas-catalog-docs CD2, orun >= v2.23.0):
+  # metadata + docs merged onto the Systems/Domains the components imply.
+  # Enrich-never-create: nothing appears unless a component references it.
+  entities:
+    domain/engagement:
+      description: "Email, Slack, and signed webhooks — reaching people and systems, fire-and-forget."
+      owner: platform
+      docs: { overview: docs/domains/engagement.md }
+    domain/identity:
+      description: "Authentication and deny-by-default authorization: who you are and what you may do."
+      owner: platform
+      docs: { overview: docs/domains/identity.md }
+    domain/platform:
+      description: "The horizontal foundation: edge, events, config, admin, integrations, libraries, infra, quality."
+      owner: platform
+      docs: { overview: docs/domains/platform.md }
+    domain/revenue:
+      description: "Plans, subscriptions, invoices (Polar), and the usage metering behind entitlements."
+      owner: platform
+      docs: { overview: docs/domains/revenue.md }
+    domain/storefront:
+      description: "The customer-facing marketplace experience rendered by the web console."
+      owner: platform
+      docs: { overview: docs/domains/storefront.md }
+    domain/tenancy:
+      description: "Organizations, members, teams, and the project/environment grain everything scopes to."
+      owner: platform
+      docs: { overview: docs/domains/tenancy.md }
+    system/billing:
+      description: "Subscriptions, invoices, and usage metering around the Polar provider."
+      owner: platform
+      docs: { overview: docs/systems/billing.md }
+    system/console:
+      description: "The Next.js product surface on Workers — a thin client of the public API."
+      owner: platform
+      docs: { overview: docs/systems/console.md }
+    system/edge:
+      description: "The single public entry point: tenancy resolution, rate limits, per-context facades."
+      owner: platform
+      docs: { overview: docs/systems/edge.md }
+    system/identity:
+      description: "Session/key verification and fail-closed policy evaluation."
+      owner: platform
+      docs: { overview: docs/systems/identity.md }
+    system/infrastructure:
+      description: "Postgres, Hyperdrive, KV, domains, migrations, and the golden-path stack."
+      owner: platform
+      docs: { overview: docs/systems/infrastructure.md }
+    system/messaging:
+      description: "The append-only event log, notification delivery, and outgoing webhooks."
+      owner: platform
+      docs: { overview: docs/systems/messaging.md }
+    system/operations:
+      description: "Config/flags/secrets, admin support tooling, and provider integrations."
+      owner: platform
+      docs: { overview: docs/systems/operations.md }
+    system/platform-libraries:
+      description: "The shared workspace packages — merging is releasing."
+      owner: platform
+      docs: { overview: docs/systems/platform-libraries.md }
+    system/quality:
+      description: "Per-component verification suites, deterministic and cloud-free."
+      owner: platform
+      docs: { overview: docs/systems/quality.md }
+    system/tenancy:
+      description: "Workspace, membership, team, and project/environment services."
+      owner: platform
+      docs: { overview: docs/systems/tenancy.md }
 
 execution:
   state:
@@ -84,7 +159,7 @@ discovery:
 automation:
   triggerBindings:
     github-pull-request:
-      description: Pull request validation
+      description: "Pull request validation"
       on:
         provider: github
         event: pull_request
@@ -101,7 +176,7 @@ automation:
         head: pull_request.head.sha
 
     github-push-main:
-      description: Main branch stack convergence after merge
+      description: "Main branch stack convergence after merge"
       on:
         provider: github
         event: push
@@ -109,7 +184,7 @@ automation:
           - main
 
     local-development:
-      description: Local testing with full Terraform execution
+      description: "Local testing with full Terraform execution"
       on:
         provider: local
 

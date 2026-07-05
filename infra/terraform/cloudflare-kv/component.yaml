@@ -12,8 +12,9 @@ metadata:
 spec:
   type: terraform
   lifecycle: production
+  system: infrastructure
   owner: platform
-  domain: infra
+  domain: platform
 
   parameters:
     orgName: sourceplane
@@ -40,6 +41,8 @@ spec:
       icon: book
   docs:
     overview: overview.md
+    pages:
+      - { path: runbook.md, role: runbook }
 
   subscribe:
     environments:

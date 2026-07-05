@@ -7,8 +7,9 @@ metadata:
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
+  system: edge
   owner: platform
-  domain: starter-runtime
+  domain: platform
   path: apps/api-edge
   dependsOn:
     - component: cloudflare-hyperdrive
@@ -36,6 +37,9 @@ spec:
       icon: github
   docs:
     overview: overview.md
+    pages:
+      - { path: runbook.md, role: runbook }
+      - { path: architecture.md, role: architecture }
   providesApis:
     - edge-api
   consumesApis:

@@ -7,8 +7,9 @@ metadata:
 spec:
   type: cloudflare-workers-assets-turbo
   lifecycle: production
+  system: console
   owner: platform
-  domain: starter-ui
+  domain: storefront
   path: apps/web-console-next
   # The deploy smoke health-checks the api-edge worker
   # (ogpic-api-edge-<env>/health), so api-edge must be live before this
@@ -32,6 +33,9 @@ spec:
       icon: book
   docs:
     overview: overview.md
+    pages:
+      - { path: runbook.md, role: runbook }
+      - { path: architecture.md, role: architecture }
   consumesApis:
     - edge-api
   subscribe:

@@ -13,8 +13,9 @@ metadata:
 spec:
   type: db-migrate
   lifecycle: production
+  system: infrastructure
   owner: platform
-  domain: infra
+  domain: platform
 
   dependsOn:
     - component: db
@@ -44,6 +45,8 @@ spec:
       icon: github
   docs:
     overview: overview.md
+    pages:
+      - { path: runbook.md, role: runbook }
 
   subscribe:
     environments:
