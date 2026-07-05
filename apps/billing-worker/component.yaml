@@ -7,8 +7,9 @@ metadata:
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
+  system: billing
   owner: platform
-  domain: starter-runtime
+  domain: revenue
   path: apps/billing-worker
   dependsOn:
     - component: policy-worker
@@ -25,6 +26,8 @@ spec:
       icon: github
   docs:
     overview: overview.md
+    pages:
+      - { path: runbook.md, role: runbook }
   providesApis:
     - billing-api
   consumesApis:

@@ -9,8 +9,9 @@ metadata:
 spec:
   type: publish-stack
   lifecycle: production
+  system: infrastructure
   owner: platform
-  domain: platform-stack
+  domain: platform
   language: yaml
   tags:
     - orun
@@ -23,6 +24,8 @@ spec:
       icon: github
   docs:
     overview: overview.md
+    pages:
+      - { path: runbook.md, role: runbook }
   subscribe:
     environments:
       - name: dev

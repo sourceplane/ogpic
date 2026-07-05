@@ -7,8 +7,9 @@ metadata:
 spec:
   type: turbo-package
   lifecycle: production
+  system: platform-libraries
   owner: platform
-  domain: starter-shared
+  domain: platform
   language: typescript
   tags:
     - library
@@ -21,6 +22,8 @@ spec:
       icon: github
   docs:
     overview: overview.md
+    pages:
+      - { path: runbook.md, role: runbook }
   subscribe:
     environments:
       - name: dev

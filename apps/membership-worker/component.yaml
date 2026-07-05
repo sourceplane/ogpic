@@ -7,8 +7,9 @@ metadata:
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
+  system: tenancy
   owner: platform
-  domain: starter-runtime
+  domain: tenancy
   path: apps/membership-worker
   dependsOn:
     - component: policy-worker
@@ -26,6 +27,8 @@ spec:
       icon: github
   docs:
     overview: overview.md
+    pages:
+      - { path: runbook.md, role: runbook }
   providesApis:
     - membership-api
   consumesApis:

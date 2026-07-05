@@ -7,8 +7,13 @@ metadata:
 spec:
   type: turbo-package
   lifecycle: production
+  system: quality
   owner: platform
-  domain: starter-tests
+  docs:
+    overview: overview.md
+    pages:
+      - { path: ../../docs/testing/triage-runbook.md, role: runbook }
+  domain: platform
   path: tests/projects-worker
   language: typescript
   tags:

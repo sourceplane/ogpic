@@ -7,8 +7,9 @@ metadata:
 spec:
   type: cloudflare-worker-turbo
   lifecycle: production
+  system: operations
   owner: platform
-  domain: starter-runtime
+  domain: platform
   path: apps/admin-worker
   dependsOn:
     - component: cloudflare-hyperdrive
@@ -25,6 +26,8 @@ spec:
       icon: github
   docs:
     overview: overview.md
+    pages:
+      - { path: runbook.md, role: runbook }
   providesApis:
     - admin-api
   subscribe:

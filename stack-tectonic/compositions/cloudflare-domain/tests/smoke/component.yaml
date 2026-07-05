@@ -11,8 +11,9 @@ metadata:
 spec:
   type: cloudflare-domain
   lifecycle: production
+  system: infrastructure
   owner: platform
-  domain: infra
+  domain: platform
 
   parameters:
     orgName: sourceplane

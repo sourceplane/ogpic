@@ -7,8 +7,9 @@ metadata:
 spec:
   type: cloudflare-pages-terraform
   lifecycle: production
+  system: infrastructure
   owner: platform
-  domain: platform-docs
+  domain: platform
   path: infra/cloudflare-pages-docs
   subscribe:
     environments:

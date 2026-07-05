@@ -7,8 +7,9 @@ metadata:
 spec:
   type: cloudflare-pages
   lifecycle: production
+  system: infrastructure
   owner: platform
-  domain: platform-docs
+  domain: platform
   path: website
   subscribe:
     environments:

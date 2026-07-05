@@ -20,8 +20,8 @@ browsable in the cloud console (Docs hub · reader · real entity Docs tabs).
 
 | Field | Value |
 |-------|-------|
-| Status | **Draft — waiting on upstream.** Doc files pre-authored here (this PR); the manifest diff lands when the pinned orun provider carries CD1/CD2. |
-| Blocked on | `orun` ≥ the first release with CD1 (`docs.pages` + universal walk) and CD2 (`catalog.entities` enrichment); this repo pins orun via `kiox.yaml` (`ghcr.io/sourceplane/orun`, currently `v2.21.0`) |
+| Status | **✅ Shipped — and expanded into the full standard.** orun **v2.23.0** (CD1+CD2) released and pinned (`ci.yml` orun-action + `kiox.yaml`); A1 repo doc set (overview · architecture · runbook · forking guide) declared; A2 shipped for **every** derived kind (6 domains + 10 systems enriched with descriptions, owners, and docs); A3 completed wholesale rather than incrementally — every app worker carries a component-specific runbook (+ architecture for `api-edge`/`web-console-next`), every package a maintenance runbook, every infra component an operations runbook, and every test suite an overview + the shared triage runbook (one content-addressed blob attached to 17 suites). A full `system:` taxonomy landed alongside (10 systems · 6 domains). Verified end-to-end with the v2.23.0 CLI: every doc attaches `attached@<commit>`; `orun validate` + a full `orun plan` pass. |
+| Note | `kiox.lock` still records the v2.21.0 digest — its `store` hash is computed by a local `kiox` run, which this environment cannot execute; the next `kiox -- orun …` invocation refreshes it. CI is unaffected (the operative pin is `ci.yml`'s orun-action version, now v2.23.0; resolved ghcr digest for v2.23.0: `sha256:ebdd02ca9dd908aee8f6298b99611f16d4e2e4e7eb2ca846a6d2365ba68df2e2`). |
 | Owner(s) | `intent.yaml`, `docs/*`, per-worker `component.yaml` docs blocks |
 | Gate | Human-independent once the provider bump lands (a `kiox.yaml` version bump + manifest-only diff) |
 

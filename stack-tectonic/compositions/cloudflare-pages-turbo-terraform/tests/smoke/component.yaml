@@ -7,8 +7,9 @@ metadata:
 spec:
   type: cloudflare-pages-turbo-terraform
   lifecycle: production
+  system: infrastructure
   owner: platform
-  domain: platform-ui
+  domain: platform
   path: apps/admin-console
   subscribe:
     environments:
