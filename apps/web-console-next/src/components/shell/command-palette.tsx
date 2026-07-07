@@ -16,6 +16,7 @@ import { useSession } from "@/lib/session";
 import { useToast } from "@/components/ui/toast";
 import {
   Building2,
+  LayoutDashboard,
   FolderKanban,
   Boxes,
   KeyRound,
@@ -48,6 +49,7 @@ import {
 // names only) while the renderer owns the concrete icon set.
 const ICONS: Record<string, LucideIcon> = {
   Building2,
+  LayoutDashboard,
   FolderKanban,
   Boxes,
   KeyRound,

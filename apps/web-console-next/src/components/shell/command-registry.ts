@@ -114,6 +114,12 @@ export function buildBaseCommands(ctx: CommandContext): CommandDescriptor[] {
   if (orgBase) {
     const settingsBase = `${orgBase}/settings`;
     out.push(
+      navItem("nav.overview", "Overview", `${orgBase}/overview`, "LayoutDashboard", [
+        "overview",
+        "home",
+        "dashboard",
+        "start",
+      ]),
       navItem("nav.projects", "Projects", `${orgBase}/projects`, "FolderKanban", ["project"]),
       navItem("nav.usage", "Usage & quota", `${orgBase}/usage`, "Gauge", [
         "usage",

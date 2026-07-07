@@ -32,10 +32,17 @@ describe("buildNavSections", () => {
   it("adds a product-focused org section when orgSlug is present", () => {
     const org = buildNavSections({ orgSlug: "acme" }).find((s) => s.id === "org")!;
     const hrefs = org.links.map((l) => l.href);
+    expect(hrefs).toContain("/orgs/acme/overview");
     expect(hrefs).toContain("/orgs/acme/projects");
     expect(hrefs).toContain("/orgs/acme/usage");
     expect(hrefs).toContain("/orgs/acme/settings");
     expect(org.label).toBe("Org · acme");
+  });
+
+  it("leads the org section with the Overview home link", () => {
+    const org = buildNavSections({ orgSlug: "acme" }).find((s) => s.id === "org")!;
+    expect(org.links[0]!.href).toBe("/orgs/acme/overview");
+    expect(org.links[0]!.subPanel ?? false).toBe(false);
   });
 
   it("keeps org administration out of the primary sidebar (moved under Settings)", () => {
@@ -61,11 +68,11 @@ describe("buildNavSections", () => {
 });
 
 describe("buildNavSections under the Solo (M0) profile", () => {
-  it("relabels the org section to 'Account' and drops Projects + Usage", () => {
+  it("relabels the org section to 'Account' and drops Projects + Usage (Overview + Settings survive)", () => {
     const org = buildNavSections({ orgSlug: "acme" }, true).find((s) => s.id === "org")!;
     expect(org.label).toBe("Account");
     const hrefs = org.links.map((l) => l.href);
-    expect(hrefs).toEqual(["/orgs/acme/settings"]); // only Settings survives
+    expect(hrefs).toEqual(["/orgs/acme/overview", "/orgs/acme/settings"]);
     expect(hrefs).not.toContain("/orgs/acme/projects");
     expect(hrefs).not.toContain("/orgs/acme/usage");
   });
@@ -79,6 +86,7 @@ describe("buildNavSections under the Solo (M0) profile", () => {
     const org = buildNavSections({ orgSlug: "acme" }, false).find((s) => s.id === "org")!;
     expect(org.label).toBe("Org · acme");
     expect(org.links.map((l) => l.href)).toEqual([
+      "/orgs/acme/overview",
       "/orgs/acme/projects",
       "/orgs/acme/usage",
       "/orgs/acme/settings",

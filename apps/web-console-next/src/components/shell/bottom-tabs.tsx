@@ -3,9 +3,18 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { Building2, FolderKanban, Gauge, Settings, User2, type LucideIcon } from "lucide-react";
+import {
+  Building2,
+  FolderKanban,
+  Gauge,
+  LayoutDashboard,
+  Settings,
+  User2,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/cn";
 import { isLinkActive } from "./nav-items";
+import { SOLO_MODE } from "@/lib/solo-mode";
 
 interface Tab {
   href: string;
@@ -24,13 +33,22 @@ export function BottomTabs() {
   const pathname = usePathname();
   const orgSlug = params?.orgSlug ?? null;
 
+  // Profile-aware tabs. Overview is the home surface under both profiles; Solo
+  // suppresses the projects/usage/org-list plumbing, so its tabs collapse to
+  // Overview · Settings · Account.
   const tabs: Tab[] = orgSlug
-    ? [
-        { href: "/orgs", label: "Orgs", icon: Building2 },
-        { href: `/orgs/${orgSlug}/projects`, label: "Projects", icon: FolderKanban },
-        { href: `/orgs/${orgSlug}/usage`, label: "Usage", icon: Gauge },
-        { href: `/orgs/${orgSlug}/settings`, label: "Settings", icon: Settings },
-      ]
+    ? SOLO_MODE
+      ? [
+          { href: `/orgs/${orgSlug}/overview`, label: "Overview", icon: LayoutDashboard },
+          { href: `/orgs/${orgSlug}/settings`, label: "Settings", icon: Settings },
+          { href: "/account", label: "Account", icon: User2 },
+        ]
+      : [
+          { href: `/orgs/${orgSlug}/overview`, label: "Overview", icon: LayoutDashboard },
+          { href: `/orgs/${orgSlug}/projects`, label: "Projects", icon: FolderKanban },
+          { href: `/orgs/${orgSlug}/usage`, label: "Usage", icon: Gauge },
+          { href: `/orgs/${orgSlug}/settings`, label: "Settings", icon: Settings },
+        ]
     : [
         { href: "/orgs", label: "Organizations", icon: Building2 },
         { href: "/account", label: "Account", icon: User2 },

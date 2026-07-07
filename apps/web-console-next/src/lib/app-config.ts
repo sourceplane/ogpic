@@ -10,9 +10,12 @@ export const PRODUCT_NAME = "Ogpic";
 /** Browser/document title of the console. */
 export const CONSOLE_TITLE = `${PRODUCT_NAME} Console`;
 
+/** Short descriptor shown under the wordmark (sign-in, sidebar brand mark). */
+export const PRODUCT_TAGLINE = "Photography & video gear rental";
+
 /** Marketing-facing product description (document metadata). */
 export const PRODUCT_DESCRIPTION =
-  "Next-gen control plane for your projects, environments, and entitlements.";
+  "Rent professional photography and video gear — cameras, lenses, lighting, and grip — and manage every booking from one place.";
 
 /** The Cloudflare account's workers.dev subdomain serving this instance. */
 export const WORKERS_DEV_SUBDOMAIN = "rahulvarghesepullely";

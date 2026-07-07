@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
-import { SOLO_MODE } from "@/lib/solo-mode";
 
 export default function OrgRoot({ params }: { params: { orgSlug: string } }) {
-  // The org root resolves to the profile's home surface. Baseline → Projects;
-  // Solo → the Account (settings) surface, since projects are suppressed.
-  redirect(`/orgs/${params.orgSlug}/${SOLO_MODE ? "settings" : "projects"}`);
+  // The org root resolves to the Overview — the console's home surface under
+  // every profile.
+  redirect(`/orgs/${params.orgSlug}/overview`);
 }

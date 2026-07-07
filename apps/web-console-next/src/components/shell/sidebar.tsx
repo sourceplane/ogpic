@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  LayoutDashboard,
   FolderKanban,
   Boxes,
   KeyRound,
@@ -35,6 +36,7 @@ import { SidebarFind } from "./sidebar-find";
 
 const ICONS: Record<string, LucideIcon> = {
   Building2,
+  LayoutDashboard,
   FolderKanban,
   Boxes,
   KeyRound,
@@ -170,7 +172,7 @@ function SettingsNavContent({
       {/* Back button on the left, "Settings" centered (Vercel pattern). */}
       <div className={cn("relative mb-2 flex items-center justify-center", mobile ? "h-11" : "h-8")}>
         <Link
-          href={`/orgs/${orgSlug}/projects`}
+          href={`/orgs/${orgSlug}/overview`}
           {...(onNavigate ? { onClick: onNavigate } : {})}
           aria-label="Back to app"
           className={cn(

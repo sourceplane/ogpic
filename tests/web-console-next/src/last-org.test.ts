@@ -4,23 +4,19 @@ import {
 } from "@web-console-next/lib/last-org";
 
 describe("defaultOrgDestination", () => {
-  it("routes to the last-used org's projects when one is remembered", () => {
-    expect(defaultOrgDestination("acme")).toBe("/orgs/acme/projects");
+  it("routes to the last-used org's Overview when one is remembered", () => {
+    expect(defaultOrgDestination("acme")).toBe("/orgs/acme/overview");
   });
 
   it("falls back to onboarding when none is remembered — there is no org-less landing view", () => {
     expect(defaultOrgDestination(null)).toBe("/onboarding");
   });
 
-  it("Solo: lands on the Account (settings) surface, not projects", () => {
-    expect(defaultOrgDestination("acme", true)).toBe("/orgs/acme/settings");
-    // No remembered org still routes to onboarding (which forwards to the
-    // auto-provisioned personal org once it loads).
-    expect(defaultOrgDestination(null, true)).toBe("/onboarding");
-  });
-
-  it("baseline (soloMode=false) still lands on projects", () => {
-    expect(defaultOrgDestination("acme", false)).toBe("/orgs/acme/projects");
+  it("lands on the Overview under every profile — Solo and baseline share the home surface", () => {
+    // The landing target no longer branches on the profile; the Overview page
+    // exists (and is useful) under both Solo and baseline.
+    expect(defaultOrgDestination("acme")).toBe("/orgs/acme/overview");
+    expect(defaultOrgDestination(null)).toBe("/onboarding");
   });
 });
 
@@ -40,7 +36,7 @@ describe("resolvePostAuthDestination", () => {
       auth: profile("acme"),
       organizations: { list: async () => ({ organizations: [] }) },
     });
-    expect(dest).toBe("/orgs/acme/projects");
+    expect(dest).toBe("/orgs/acme/overview");
   });
 
   it("sends a first sign-in (no orgs) to mandatory onboarding", async () => {
@@ -63,7 +59,7 @@ describe("resolvePostAuthDestination", () => {
         }),
       },
     });
-    expect(dest).toBe("/orgs/alpha/projects");
+    expect(dest).toBe("/orgs/alpha/overview");
   });
 
   it("still resolves via the org list when the profile read fails", async () => {
@@ -73,7 +69,7 @@ describe("resolvePostAuthDestination", () => {
         list: async () => ({ organizations: [org("org_a", "alpha", "2026-01-01T00:00:00Z")] }),
       },
     });
-    expect(dest).toBe("/orgs/alpha/projects");
+    expect(dest).toBe("/orgs/alpha/overview");
   });
 
   it("falls back to the local cache (empty here) when every read fails", async () => {

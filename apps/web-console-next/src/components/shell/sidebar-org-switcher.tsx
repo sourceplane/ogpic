@@ -15,6 +15,7 @@ import { useSession } from "@/lib/session";
 import { wrap } from "@/lib/api";
 import { useApiQuery, qk } from "@/lib/query";
 import { SOLO_MODE } from "@/lib/solo-mode";
+import { BrandMark } from "./brand-mark";
 
 /**
  * Org switcher anchored at the top of the sidebar (Vercel's team-switcher
@@ -45,17 +46,11 @@ export function SidebarOrgSwitcher({ onNavigate }: { onNavigate?: () => void } =
   const seed = (label.trim()[0] ?? "S").toUpperCase();
 
   // Solo profile: there is exactly one (invisible) workspace, so there is no
-  // switching, no "view all", and no "create org". Render a static account
-  // chip instead of the switcher dropdown.
+  // switching, no "view all", and no "create org". Render the product brand
+  // mark instead of the switcher dropdown — the console belongs to one user, so
+  // the top of the rail is the product's identity, not an org selector.
   if (SOLO_MODE) {
-    return (
-      <div className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left">
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-gradient-to-br from-primary to-primary/40 text-xs font-bold text-primary-foreground">
-          {seed}
-        </span>
-        <span className="min-w-0 flex-1 truncate text-sm font-semibold tracking-tight">{label}</span>
-      </div>
-    );
+    return <BrandMark size="sm" className="px-2 py-1.5" />;
   }
 
   return (
@@ -70,7 +65,7 @@ export function SidebarOrgSwitcher({ onNavigate }: { onNavigate?: () => void } =
       <DropdownMenuContent align="start" className="min-w-[240px]">
         <DropdownMenuLabel>Organizations</DropdownMenuLabel>
         {orgs?.map((o) => (
-          <DropdownMenuItem key={o.id} onSelect={() => go(`/orgs/${o.slug}/projects`)}>
+          <DropdownMenuItem key={o.id} onSelect={() => go(`/orgs/${o.slug}/overview`)}>
             <Building2 className="h-4 w-4 opacity-70" />
             <span className="truncate">{o.name}</span>
             {o.slug === orgSlug && <Check className="ml-auto h-4 w-4" />}

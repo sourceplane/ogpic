@@ -1,8 +1,8 @@
 {
   "name": "Ogpic Console",
   "short_name": "Ogpic",
-  "description": "Control plane for your projects, environments, and entitlements.",
-  "start_url": "/orgs",
+  "description": "Rent professional photography and video gear and manage every booking from one place.",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#09090b",

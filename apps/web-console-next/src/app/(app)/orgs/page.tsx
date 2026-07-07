@@ -148,7 +148,7 @@ export default function OrgsPage() {
           {orgs.data.map((o) => (
             <Link
               key={o.id}
-              href={`/orgs/${o.slug}/projects`}
+              href={`/orgs/${o.slug}/overview`}
               className="group"
               onMouseEnter={() =>
                 prefetch(qk.projects(o.id), () =>

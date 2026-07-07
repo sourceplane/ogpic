@@ -14,8 +14,9 @@
     --card-foreground: 240 10% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 4%;
-    --primary: 245 80% 60%;
-    --primary-foreground: 0 0% 100%;
+    /* Brand accent — "golden hour" amber, evoking warm photographic light. */
+    --primary: 22 88% 45%;
+    --primary-foreground: 40 100% 98%;
     --secondary: 240 5% 96%;
     --secondary-foreground: 240 6% 10%;
     --muted: 240 5% 96%;
@@ -30,7 +31,7 @@
     --success-foreground: 0 0% 100%;
     --border: 240 6% 90%;
     --input: 240 6% 90%;
-    --ring: 245 80% 60%;
+    --ring: 22 88% 45%;
     --radius: 0.625rem;
   }
 
@@ -42,8 +43,9 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 8% 7%;
     --popover-foreground: 0 0% 98%;
-    --primary: 245 90% 68%;
-    --primary-foreground: 240 10% 4%;
+    /* Brand accent — brighter golden amber that carries on the carbon surface. */
+    --primary: 30 96% 56%;
+    --primary-foreground: 24 45% 8%;
     --secondary: 240 6% 12%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 6% 12%;
@@ -58,7 +60,7 @@
     --success-foreground: 0 0% 100%;
     --border: 240 6% 16%;
     --input: 240 6% 16%;
-    --ring: 245 90% 68%;
+    --ring: 30 96% 56%;
   }
 
   * {
