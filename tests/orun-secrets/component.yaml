@@ -25,12 +25,21 @@ spec:
     environments:
       - name: dev
         profile: verify
+      - name: stage
+        profile: verify
+      - name: prod
+        profile: verify
   parameters:
     nodeVersion: "20"
     pnpmVersion: "10.12.1"
     buildCommand: pnpm exec turbo run build --filter=./
     typecheckCommand: pnpm exec turbo run typecheck --filter=./
-    preBuildCommand: pnpm exec turbo run test --filter=./
+    # DEMO: seed the ORUN_SECRET_<KEY> local-fallback with a throwaway,
+    # runtime-generated smoke value so the verify lane has something to
+    # resolve, then run the suite (print-secret.test.ts logs it). This is the
+    # cloud-free fallback path — NOT a real orun-cloud secret, which the runner
+    # would inject and REDACT from logs. Never seed a real secret value here.
+    preBuildCommand: 'ORUN_SECRET_OGPIC_ORUN_SMOKE="ogpic-orun-smoke-ci-$RANDOM" pnpm test'
   labels:
     team: platform
     layer: test
