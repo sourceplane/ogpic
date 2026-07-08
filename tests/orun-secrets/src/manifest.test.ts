@@ -23,30 +23,32 @@ interface Manifest {
 const raw = fs.readFileSync(manifestPath, "utf8");
 const manifest = JSON.parse(raw) as Manifest;
 
-function onlySecret(): SmokeSecret {
-  const secret = manifest.secrets[0];
-  if (!secret) throw new Error("manifest declares no secret");
-  return secret;
-}
+// The smoke key is provisioned with a separate value in each environment.
+const ENVIRONMENTS = ["dev", "stage", "prod"];
 
 describe("orun-secrets smoke manifest (OS0)", () => {
-  it("declares exactly the smoke reference this component consumes", () => {
+  it("declares the smoke reference in every environment", () => {
     expect(manifest.workspace).toBe("sourceplane");
     expect(manifest.project).toBe("ogpic");
     expect(manifest.consumer).toBe("orun-secrets-tests");
-    expect(manifest.secrets).toHaveLength(1);
+    expect(manifest.secrets).toHaveLength(ENVIRONMENTS.length);
+    expect(manifest.secrets.map((s) => s.env)).toEqual(ENVIRONMENTS);
+    for (const secret of manifest.secrets) {
+      expect(secret.key).toBe("OGPIC_ORUN_SMOKE");
+    }
   });
 
-  it("carries a well-formed secret:// reference scoped to the declared env", () => {
-    const secret = onlySecret();
-    const parsed = parseSecretRef(secret.ref);
-    expect(parsed.workspace).toBe(manifest.workspace);
-    expect(parsed.project).toBe(manifest.project);
-    expect(parsed.env).toBe(secret.env);
-    expect(parsed.key).toBe(secret.key);
+  it("carries a well-formed secret:// reference scoped to each declared env", () => {
+    for (const secret of manifest.secrets) {
+      const parsed = parseSecretRef(secret.ref);
+      expect(parsed.workspace).toBe(manifest.workspace);
+      expect(parsed.project).toBe(manifest.project);
+      expect(parsed.env).toBe(secret.env);
+      expect(parsed.key).toBe(secret.key);
+    }
   });
 
-  it("names the local fallback as ORUN_SECRET_<KEY>", () => {
+  it("names the local fallback as ORUN_SECRET_<KEY> for each env", () => {
     for (const secret of manifest.secrets) {
       expect(secret.localFallbackEnv).toBe(`ORUN_SECRET_${secret.key}`);
     }

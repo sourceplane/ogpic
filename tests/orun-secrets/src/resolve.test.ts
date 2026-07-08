@@ -62,6 +62,35 @@ describe("runtime consume contract (SEC3 precedence)", () => {
   });
 });
 
+describe("per-environment resolution (separate value per env)", () => {
+  // Each environment holds its OWN value for the same key; the consumer must
+  // resolve whichever value the runner injected for the env it runs in.
+  const perEnv: Record<string, string> = {
+    dev: "ogpic-orun-smoke-dev-x",
+    stage: "ogpic-orun-smoke-stage-x",
+    prod: "ogpic-orun-smoke-prod-x",
+  };
+
+  it("resolves each env's injected value independently", () => {
+    for (const [env, value] of Object.entries(perEnv)) {
+      const ref = `secret://sourceplane/ogpic/${env}/OGPIC_ORUN_SMOKE`;
+      expect(parseSecretRef(ref).env).toBe(env);
+      expect(resolveSecret(ref, { env: { OGPIC_ORUN_SMOKE: value } })).toBe(
+        value,
+      );
+    }
+  });
+
+  it("keeps env values distinct — dev, stage, and prod never collide", () => {
+    const resolved = Object.entries(perEnv).map(([env, value]) =>
+      resolveSecret(`secret://sourceplane/ogpic/${env}/OGPIC_ORUN_SMOKE`, {
+        env: { OGPIC_ORUN_SMOKE: value },
+      }),
+    );
+    expect(new Set(resolved).size).toBe(3);
+  });
+});
+
 describe("redaction discipline", () => {
   it("masks all but the last four characters", () => {
     expect(redact("supersecretvalue")).toBe("************alue");
