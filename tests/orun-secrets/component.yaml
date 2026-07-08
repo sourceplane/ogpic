@@ -1,0 +1,36 @@
+apiVersion: sourceplane.io/v1
+kind: Component
+metadata:
+  name: orun-secrets-tests
+  title: Orun Secrets Tests
+  description: OS0 first-task smoke suite for the saas-orun-secrets migration — proves the orun-secrets write+consume contract cloud-free.
+spec:
+  type: turbo-package
+  lifecycle: production
+  system: quality
+  owner: platform
+  docs:
+    overview: overview.md
+  domain: platform
+  language: typescript
+  tags:
+    - test
+    - typescript
+    - orun-secrets
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/tests/orun-secrets
+      icon: github
+  subscribe:
+    environments:
+      - name: dev
+        profile: verify
+  parameters:
+    nodeVersion: "20"
+    pnpmVersion: "10.12.1"
+    buildCommand: pnpm exec turbo run build --filter=./
+    typecheckCommand: pnpm exec turbo run typecheck --filter=./
+    preBuildCommand: pnpm exec turbo run test --filter=./
+  labels:
+    team: platform
+    layer: test
