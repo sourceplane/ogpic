@@ -32,14 +32,13 @@ spec:
   parameters:
     nodeVersion: "20"
     pnpmVersion: "10.12.1"
+    # NOTE: the turbo-package verify job template skips preBuildCommand (its
+    # guard reads .preBuildCommand, but the value is at .parameters.*), so the
+    # jest suite is run from the `build` script instead (tsc --noEmit && jest).
+    # That is the step that actually executes in CI and prints the smoke value.
     buildCommand: pnpm exec turbo run build --filter=./
     typecheckCommand: pnpm exec turbo run typecheck --filter=./
-    # DEMO: seed the ORUN_SECRET_<KEY> local-fallback with a throwaway,
-    # runtime-generated smoke value so the verify lane has something to
-    # resolve, then run the suite (print-secret.test.ts logs it). This is the
-    # cloud-free fallback path — NOT a real orun-cloud secret, which the runner
-    # would inject and REDACT from logs. Never seed a real secret value here.
-    preBuildCommand: 'ORUN_SECRET_OGPIC_ORUN_SMOKE="ogpic-orun-smoke-ci-$RANDOM" pnpm test'
+    preBuildCommand: pnpm exec turbo run test --filter=./
   labels:
     team: platform
     layer: test
