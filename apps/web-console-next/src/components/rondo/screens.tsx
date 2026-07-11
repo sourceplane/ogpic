@@ -340,7 +340,7 @@ export function SquadScreen({ vm }: { vm: RondoVM }) {
         <div style={{ fontSize: 16, fontWeight: 800, color: "#F4F3F0", letterSpacing: "-.3px" }}>Squad</div>
         <Mono style={{ fontSize: 11, color: "#8A8D93" }}>{vm.players.length} PLAYERS</Mono>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 11 }}>
+      <div className="rondo-roster-grid">
         {vm.players.map((p) => (
           <PlayerCard key={p.id} p={p} showStats={vm.showCardStats} />
         ))}
@@ -846,7 +846,9 @@ export function CommunityScreen({ vm }: { vm: RondoVM }) {
       <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-1.2px", color: "#F4F3F0" }}>Community</div>
       <div style={{ marginTop: 6, fontSize: 13.5, color: "#8A8D93" }}>Results, news and where your squad ranks.</div>
 
-      <div style={{ marginTop: 18, borderRadius: 18, background: "linear-gradient(160deg,#15181c,#0d0f12)", border: "1px solid rgba(255,255,255,.08)", padding: 16 }}>
+      <div className="rondo-two-col" style={{ marginTop: 18 }}>
+      <div>
+      <div style={{ borderRadius: 18, background: "linear-gradient(160deg,#15181c,#0d0f12)", border: "1px solid rgba(255,255,255,.08)", padding: 16 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <Mono style={{ fontSize: 11, color: "#63666C", letterSpacing: "1px" }}>LOCAL LEADERBOARD</Mono>
           <Mono style={{ fontSize: 10, color: "#E0C074" }}>SEASON 26</Mono>
@@ -861,8 +863,10 @@ export function CommunityScreen({ vm }: { vm: RondoVM }) {
           ))}
         </div>
       </div>
+      </div>
 
-      <Mono style={{ fontSize: 11, color: "#63666C", letterSpacing: "1px", margin: "24px 2px 12px", display: "block" }}>LATEST</Mono>
+      <div>
+      <Mono style={{ fontSize: 11, color: "#63666C", letterSpacing: "1px", margin: "0 2px 12px", display: "block" }}>LATEST</Mono>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {FEED.map((f) => (
           <div key={f.id} style={{ borderRadius: 16, background: "#111316", border: "1px solid rgba(255,255,255,.07)", padding: "14px 15px" }}>
@@ -888,6 +892,8 @@ export function CommunityScreen({ vm }: { vm: RondoVM }) {
             )}
           </div>
         ))}
+      </div>
+      </div>
       </div>
     </div>
   );
