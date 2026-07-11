@@ -74,3 +74,8 @@ spec:
     surface: policy
     runtime: cloudflare
 # ci: ogpic bring-up batch 2 — policy-worker leaf deploy (2026-07-02)
+# ci: redeploy for the matchmaker RBAC actions (organization.roster/draft/fixture.*).
+#     policy-worker bundles @saas/policy-engine; a change to the engine package
+#     does NOT select this worker in orun's changed-only plan, so the new actions
+#     stayed dark on stage/prod and every roster/fixture request denied as 404.
+#     Touch this file alongside a policy-engine action change to redeploy. (2026-07-11)
