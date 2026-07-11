@@ -8,6 +8,7 @@ const ORG_PLAYERS_RE = /^\/v1\/organizations\/[^/]+\/players(?:\/[^/]+)?$/;
 const ORG_ROSTER_SUMMARY_RE = /^\/v1\/organizations\/[^/]+\/roster\/summary$/;
 const ORG_DRAFT_RE = /^\/v1\/organizations\/[^/]+\/draft$/;
 const ORG_MATCHES_RE = /^\/v1\/organizations\/[^/]+\/matches(?:\/[^/]+(?:\/share)?)?$/;
+const ORG_AVAILABILITY_RE = /^\/v1\/organizations\/[^/]+\/availability(?:\/[^/]+)?$/;
 
 const FORWARDED_HEADERS = [
   "content-type",
@@ -21,7 +22,8 @@ export function isMatchmakerRoute(pathname: string): boolean {
     ORG_PLAYERS_RE.test(pathname) ||
     ORG_ROSTER_SUMMARY_RE.test(pathname) ||
     ORG_DRAFT_RE.test(pathname) ||
-    ORG_MATCHES_RE.test(pathname)
+    ORG_MATCHES_RE.test(pathname) ||
+    ORG_AVAILABILITY_RE.test(pathname)
   );
 }
 

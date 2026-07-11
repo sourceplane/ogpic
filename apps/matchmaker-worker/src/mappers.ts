@@ -1,5 +1,5 @@
-import type { PublicMatch, PublicPlayer } from "@saas/contracts/matchmaker";
-import type { Match, Player } from "@saas/db/matchmaker";
+import type { PublicAvailability, PublicMatch, PublicPlayer } from "@saas/contracts/matchmaker";
+import type { Availability, Match, Player } from "@saas/db/matchmaker";
 import { matchPublicId, orgPublicId, playerPublicId } from "./ids.js";
 
 export function toPublicPlayer(player: Player): PublicPlayer {
@@ -33,5 +33,13 @@ export function toPublicMatch(match: Match): PublicMatch {
     shareToken: match.shareToken,
     createdAt: match.createdAt.toISOString(),
     updatedAt: match.updatedAt.toISOString(),
+  };
+}
+
+export function toPublicAvailability(a: Availability): PublicAvailability {
+  return {
+    playerId: playerPublicId(a.playerId),
+    state: a.state,
+    updatedAt: a.updatedAt.toISOString(),
   };
 }

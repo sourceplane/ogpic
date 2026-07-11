@@ -11,7 +11,7 @@
 | RX1 | **Built (front-end)** | Login + Join screens |
 | RX2 | **Built + roster live-wired** | Squad home + team-switcher sheet; the authenticated `/rondo/[orgSlug]` route loads the org's **real roster** over `client.roster.list` and feeds the same app. Draft/fixtures live-wiring + real team switcher pending |
 | RX3 | **Built (UI, local state)** | Rate teammates + vote sheet (per-skill stars) — backend voting slice pending |
-| RX4 | **Built (UI, local state)** | Availability + Play with live client-side balance + tap-to-swap — backend availability slice + server `/draft` wiring pending |
+| RX4 | **UI built + availability backend shipped** | Play with live client-side balance + tap-to-swap; the **availability backend slice** is live (contract → `matchmaker.availability` migration → worker `GET/PUT /availability` → edge → SDK `client.availability` → CLI `matchmaker availability`, with `organization.availability.read/set` RBAC + handler tests). UI wiring of Play → live availability + server `/draft` pending |
 | RX5 | **Built (UI, local state)** | Live match: scoreboard, goals, scorer sheet, timeline, MOTM — backend events slice pending |
 | RX6 | **Built (UI, seed data)** | Fixtures schedule + results — live matches API wiring pending |
 | RX7 | **Built (UI, local state)** | Manage squad: invite code, pending requests, members & roles — membership API wiring pending |

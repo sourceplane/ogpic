@@ -20,6 +20,9 @@ import type {
   UpdateMatchResponse,
   UpdatePlayerRequest,
   UpdatePlayerResponse,
+  ListAvailabilityResponse,
+  SetAvailabilityRequest,
+  SetAvailabilityResponse,
 } from "@saas/contracts/matchmaker";
 
 import type { Transport, RequestOptions } from "./transport.js";
@@ -174,6 +177,30 @@ export class FixturesClient {
   share(orgId: string, matchId: string, opts: RequestOptions = {}): Promise<MatchShareResponse> {
     return this.transport.request<MatchShareResponse>(
       { method: "GET", path: `${orgBase(orgId)}/matches/${encodeURIComponent(matchId)}/share` },
+      opts,
+    );
+  }
+}
+
+/**
+ * Availability resource client — per-player in/maybe/out for the next practice
+ * match. Org-scoped; the draft picks from the `in` set.
+ */
+export class AvailabilityClient {
+  constructor(private readonly transport: Transport) {}
+
+  /** GET /v1/organizations/:orgId/availability */
+  list(orgId: string, opts: RequestOptions = {}): Promise<ListAvailabilityResponse> {
+    return this.transport.request<ListAvailabilityResponse>(
+      { method: "GET", path: `${orgBase(orgId)}/availability` },
+      opts,
+    );
+  }
+
+  /** PUT /v1/organizations/:orgId/availability/:playerId */
+  set(orgId: string, playerId: string, body: SetAvailabilityRequest, opts: RequestOptions = {}): Promise<SetAvailabilityResponse> {
+    return this.transport.request<SetAvailabilityResponse>(
+      { method: "PUT", path: `${orgBase(orgId)}/availability/${encodeURIComponent(playerId)}`, body },
       opts,
     );
   }

@@ -14,6 +14,8 @@ import { handleGetMatch } from "./handlers/get-match.js";
 import { handleUpdateMatch } from "./handlers/update-match.js";
 import { handleCancelMatch } from "./handlers/cancel-match.js";
 import { handleShareMatch } from "./handlers/share-match.js";
+import { handleListAvailability } from "./handlers/list-availability.js";
+import { handleSetAvailability } from "./handlers/set-availability.js";
 import { errorResponse, notFound, methodNotAllowed } from "./http.js";
 import { generateRequestId, parseOrgPublicId, parsePlayerPublicId, parseMatchPublicId } from "./ids.js";
 
@@ -45,6 +47,8 @@ const ORG_DRAFT_RE = /^\/v1\/organizations\/([^/]+)\/draft$/;
 const ORG_MATCHES_RE = /^\/v1\/organizations\/([^/]+)\/matches$/;
 const ORG_MATCH_SHARE_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/share$/;
 const ORG_MATCH_ID_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)$/;
+const ORG_AVAILABILITY_RE = /^\/v1\/organizations\/([^/]+)\/availability$/;
+const ORG_AVAILABILITY_PLAYER_RE = /^\/v1\/organizations\/([^/]+)\/availability\/([^/]+)$/;
 
 function unauthenticated(requestId: string): Response {
   return errorResponse("unauthenticated", "Authentication required", 401, requestId);
@@ -154,6 +158,29 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (request.method === "PATCH") return handleUpdateMatch(request, env, requestId, actor, orgUuid, matchUuid);
       if (request.method === "DELETE") return handleCancelMatch(env, requestId, actor, orgUuid, matchUuid);
       return methodNotAllowed(requestId);
+    }
+
+    // ── Availability: single player (fixed segment; must precede collection is n/a) ──
+    const availPlayerMatch = url.pathname.match(ORG_AVAILABILITY_PLAYER_RE);
+    if (availPlayerMatch) {
+      if (request.method !== "PUT") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(availPlayerMatch[1]!);
+      const playerUuid = parsePlayerPublicId(availPlayerMatch[2]!);
+      if (!orgUuid || !playerUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleSetAvailability(request, env, requestId, actor, orgUuid, playerUuid);
+    }
+
+    // ── Availability: collection ──
+    const availMatch = url.pathname.match(ORG_AVAILABILITY_RE);
+    if (availMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(availMatch[1]!);
+      if (!orgUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleListAvailability(env, requestId, actor, orgUuid);
     }
 
     return notFound(requestId, url.pathname);

@@ -1,5 +1,7 @@
 import type { SqlExecutor } from "../hyperdrive/executor.js";
 import type {
+  Availability,
+  AvailabilityState,
   CreateMatchInput,
   CreatePlayerInput,
   CursorPosition,
@@ -72,6 +74,15 @@ function mapMatch(row: Record<string, unknown>): Match {
 
 function safeError(message: string): MatchmakerResult<never> {
   return { ok: false, error: { kind: "internal", message } };
+}
+
+function mapAvailability(row: Record<string, unknown>): Availability {
+  return {
+    orgId: row.org_id as string,
+    playerId: row.player_id as string,
+    state: row.state as AvailabilityState,
+    updatedAt: new Date(row.updated_at as string),
+  };
 }
 
 function isUniqueViolation(err: unknown): boolean {
@@ -386,6 +397,42 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
         return { ok: true, value: { items: rows, nextCursor } };
       } catch {
         return safeError("Failed to list matches");
+      }
+    },
+
+    async listAvailability(orgId: string): Promise<MatchmakerResult<Availability[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT org_id, player_id, state, updated_at
+           FROM matchmaker.availability
+           WHERE org_id = $1
+           ORDER BY player_id`,
+          [orgId],
+        );
+        return { ok: true, value: result.rows.map(mapAvailability) };
+      } catch {
+        return safeError("Failed to list availability");
+      }
+    },
+
+    async setAvailability(
+      orgId: string,
+      playerId: string,
+      state: AvailabilityState,
+      now: Date,
+    ): Promise<MatchmakerResult<Availability>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `INSERT INTO matchmaker.availability (org_id, player_id, state, updated_at)
+           VALUES ($1, $2, $3, $4)
+           ON CONFLICT (org_id, player_id)
+           DO UPDATE SET state = EXCLUDED.state, updated_at = EXCLUDED.updated_at
+           RETURNING org_id, player_id, state, updated_at`,
+          [orgId, playerId, state, now.toISOString()],
+        );
+        return { ok: true, value: mapAvailability(result.rows[0]!) };
+      } catch {
+        return safeError("Failed to set availability");
       }
     },
   };
