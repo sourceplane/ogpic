@@ -517,9 +517,9 @@ export function PlayScreen({ vm }: { vm: RondoVM }) {
           </div>
           <AvailabilityList vm={vm} />
 
-          <button onClick={vm.doBalance} style={{ width: "100%", height: 56, marginTop: 18, border: "none", borderRadius: 16, background: ACCENT, color: "#07130D", fontSize: 15, fontWeight: 800, letterSpacing: "-.2px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 9 }}>
+          <button disabled={vm.drafting} onClick={vm.doBalance} style={{ width: "100%", height: 56, marginTop: 18, border: "none", borderRadius: 16, background: ACCENT, color: "#07130D", fontSize: 15, fontWeight: 800, letterSpacing: "-.2px", cursor: vm.drafting ? "default" : "pointer", opacity: vm.drafting ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 9 }}>
             <Zap size={20} strokeWidth={2.4} color="#07130D" fill="#07130D" />
-            Draft {vm.availableCount} available players
+            {vm.drafting ? "Drafting…" : `Draft ${vm.availableCount} available players`}
           </button>
         </>
       ) : (
@@ -648,7 +648,14 @@ const TURFS = [
   { id: "dome", name: "Central Sports Dome", fmt: "11-a-side · Grass", dist: "3.1 mi", price: "£90/hr" },
 ];
 
+const DEMO_RESULTS = [
+  { id: "d1", dateLabel: "05 JUL", score: "4 – 3", color: "#56C98D" },
+  { id: "d2", dateLabel: "28 JUN", score: "2 – 2", color: "#C9CBCE" },
+];
+
 export function FixturesScreen({ vm }: { vm: RondoVM }) {
+  const [scheduling, setScheduling] = React.useState(false);
+  const results = vm.liveMatches ?? DEMO_RESULTS;
   return (
     <div style={{ minHeight: "100%", padding: "60px 20px 96px" }} className={RISE}>
       <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-1.2px", color: "#F4F3F0" }}>Fixtures</div>
@@ -688,24 +695,41 @@ export function FixturesScreen({ vm }: { vm: RondoVM }) {
             );
           })}
         </div>
-        <button onClick={() => vm.go("play")} style={{ width: "100%", height: 50, marginTop: 16, border: "none", borderRadius: 14, background: ACCENT, color: "#07130D", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
-          Confirm &amp; notify squad
+        <button
+          disabled={scheduling}
+          onClick={async () => {
+            if (vm.onSchedule) {
+              setScheduling(true);
+              const at = new Date(Date.now() + 3 * 86400000).toISOString();
+              const ok = await vm.onSchedule({ scheduledAt: at, turf: vm.turf });
+              setScheduling(false);
+              if (ok) vm.go("play");
+            } else {
+              vm.go("play");
+            }
+          }}
+          style={{ width: "100%", height: 50, marginTop: 16, border: "none", borderRadius: 14, background: ACCENT, color: "#07130D", fontSize: 14, fontWeight: 800, cursor: scheduling ? "default" : "pointer", opacity: scheduling ? 0.7 : 1 }}
+        >
+          {scheduling ? "Scheduling…" : "Confirm & notify squad"}
         </button>
       </div>
 
       <Mono style={{ fontSize: 11, color: "#63666C", letterSpacing: "1px", margin: "26px 2px 12px", display: "block" }}>RECENT RESULTS</Mono>
-      <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-        {[
-          { d: "05 JUL", s: "4 – 3", c: "#56C98D" },
-          { d: "28 JUN", s: "2 – 2", c: "#C9CBCE" },
-        ].map((r) => (
-          <div key={r.d} style={{ display: "flex", alignItems: "center", gap: 12, padding: 13, borderRadius: 15, background: "#111316", border: "1px solid rgba(255,255,255,.07)" }}>
-            <Mono style={{ fontSize: 10, color: "#8A8D93", width: 52 }}>{r.d}</Mono>
-            <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: "#F4F3F0" }}>Home <span style={{ color: "#8A8D93" }}>vs</span> Away</div>
-            <div style={{ fontSize: 15, fontWeight: 900, color: r.c }}>{r.s}</div>
-          </div>
-        ))}
-      </div>
+      {results.length === 0 ? (
+        <div style={{ padding: 22, textAlign: "center", borderRadius: 15, background: "#0F1114", border: "1px dashed rgba(255,255,255,.1)" }}>
+          <div style={{ fontSize: 13, color: "#8A8D93" }}>No fixtures yet — schedule one above.</div>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+          {results.map((r) => (
+            <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: 13, borderRadius: 15, background: "#111316", border: "1px solid rgba(255,255,255,.07)" }}>
+              <Mono style={{ fontSize: 10, color: "#8A8D93", width: 52 }}>{r.dateLabel}</Mono>
+              <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: "#F4F3F0" }}>Home <span style={{ color: "#8A8D93" }}>vs</span> Away</div>
+              <div style={{ fontSize: 15, fontWeight: 900, color: r.color }}>{r.score}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

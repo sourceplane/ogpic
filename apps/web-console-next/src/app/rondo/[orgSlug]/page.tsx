@@ -1,8 +1,9 @@
 /*
- * /rondo/:orgSlug — the authenticated, live Rondo experience for a squad (RX2).
+ * /rondo/:orgSlug — the authenticated, live Rondo experience for a squad (RX2/RX4).
  * Standalone (outside the console shell) so the app is full-screen; resolves the
- * org by slug, loads its real roster, and feeds it into the same RondoApp used by
- * the demo. Gated by the session like the rest of the console.
+ * org by slug, loads its real roster + availability + fixtures, and wires the live
+ * backend actions (set availability, run the server draft) into RondoApp. Voting /
+ * live-scoring / community stay local until their slices land.
  */
 "use client";
 
@@ -10,10 +11,13 @@ import * as React from "react";
 import { useParams } from "next/navigation";
 import "../../../styles/rondo.css";
 import { RondoApp } from "@/components/rondo/rondo-app";
-import { buildLiveSeed } from "@/components/rondo/live";
+import { buildLiveSeed, availabilityMap, matchRows } from "@/components/rondo/live";
+import type { RondoLive } from "@/components/rondo/use-rondo";
+import type { Availability } from "@/components/rondo/logic";
 import { useRequireAuth } from "@/lib/use-async";
 import { useSession } from "@/lib/session";
 import { useApiQuery, qk } from "@/lib/query";
+import { useQueryClient } from "@tanstack/react-query";
 import { wrap } from "@/lib/api";
 
 export default function ConnectedRondoPage() {
@@ -21,6 +25,7 @@ export default function ConnectedRondoPage() {
   const slug = params?.orgSlug ?? "";
   const ready = useRequireAuth();
   const { client } = useSession();
+  const qc = useQueryClient();
 
   const orgs = useApiQuery(
     qk.orgs(),
@@ -28,26 +33,60 @@ export default function ConnectedRondoPage() {
     { enabled: ready },
   );
   const org = orgs.data?.find((o) => o.slug === slug);
+  const orgId = org?.id;
 
   const roster = useApiQuery(
-    org ? qk.roster(org.id) : ["roster", "pending"],
-    () => wrap(async () => (await client.roster.list(org!.id)).players),
-    { enabled: !!org },
+    orgId ? qk.roster(orgId) : ["roster", "pending"],
+    () => wrap(async () => (await client.roster.list(orgId!)).players),
+    { enabled: !!orgId },
+  );
+  const availability = useApiQuery(
+    orgId ? ["availability", orgId] : ["availability", "pending"],
+    () => wrap(async () => (await client.availability.list(orgId!)).availability),
+    { enabled: !!orgId },
+  );
+  const fixtures = useApiQuery(
+    orgId ? qk.fixtures(orgId) : ["fixtures", "pending"],
+    () => wrap(async () => (await client.fixtures.list(orgId!)).matches),
+    { enabled: !!orgId },
   );
 
-  if (!ready || orgs.loading || (org && roster.loading)) {
-    return <RondoBoot label="Loading your squad…" />;
-  }
-  if (!org) {
-    return <RondoBoot label={`No squad found for “${slug}”.`} />;
-  }
+  // Live backend handlers — memoised so RondoApp's hook keeps a stable reference.
+  const live = React.useMemo<RondoLive>(() => {
+    if (!orgId) return {};
+    return {
+      setAvailability: (playerId: string, state: Availability) => {
+        void wrap(() => client.availability.set(orgId, playerId, { state })).then(() =>
+          qc.invalidateQueries({ queryKey: ["availability", orgId] }),
+        );
+      },
+      draft: async (playerIds: string[]) => {
+        const res = await wrap(() => client.draft.run(orgId, { playerIds, teamCount: 2 }));
+        if (!res.ok || res.data.teams.length < 2) return null;
+        const [home, away] = res.data.teams;
+        return {
+          homeIds: home!.players.map((p) => p.id),
+          awayIds: away!.players.map((p) => p.id),
+        };
+      },
+    };
+  }, [orgId, client, qc]);
+
+  const loading =
+    !ready ||
+    orgs.loading ||
+    (orgId != null && (roster.loading || availability.loading || fixtures.loading));
+
+  if (loading) return <RondoBoot label="Loading your squad…" />;
+  if (!org || !orgId) return <RondoBoot label={`No squad found for “${slug}”.`} />;
 
   const seed = buildLiveSeed({
     orgName: org.name,
     players: roster.data ?? [],
-    // Manager affordances follow the caller's role; refined when the RBAC role
-    // is surfaced on the org membership (RX7). Default to organizer view.
-    isManager: true,
+    isManager: true, // refined when the RBAC role is surfaced on membership (RX7)
+    availability: availabilityMap(availability.data ?? []),
+    matches: matchRows(fixtures.data ?? []),
+    live,
   });
 
   return <RondoApp seed={seed} />;
