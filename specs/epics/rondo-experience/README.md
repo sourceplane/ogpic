@@ -16,7 +16,7 @@ on phones, framed and widened on desktop).
 
 | Field | Value |
 |-------|-------|
-| Status | **Draft** (RX0 ready; RX1–RX10 planned) |
+| Status | **In progress** (front-end of RX0–RX8 built as the demoable `/rondo` route; additive backend slices + live-data wiring + RX9/RX10 next) |
 | Cluster | **RX** (RX0–RX10) — the product-experience revamp; extends **U** (design system) and **MM** (matchmaker product) |
 | Owner(s) | `apps/web-console-next`, `packages/ui`, `apps/matchmaker-worker`, `apps/api-edge`, `packages/{contracts,db,sdk,cli,policy-engine}` |
 | Target branch | `main` (developed on `claude/ui-revamp-epic-nphrcb`) |
