@@ -201,5 +201,14 @@ export const manifest: MigrationManifest = {
       description:
         "Per-player availability (in/maybe/out) for a community's next practice match, keyed on (org_id, player_id) and owned by the matchmaker worker",
     },
+    {
+      id: "220_matchmaker_captain",
+      context: "matchmaker",
+      path: "220_matchmaker_captain/up.sql",
+      checksum:
+        "de9855849981614f0db41074829edd4d289d367615d0afae26ef0f3a015cef86",
+      description:
+        "Team captain designation on the roster (is_captain, at most one per org via a partial unique index), owned by the matchmaker worker",
+    },
   ],
 };

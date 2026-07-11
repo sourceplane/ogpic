@@ -30,6 +30,7 @@ export interface Player {
   rating: number;
   attributes: Record<string, number>;
   status: PlayerStatus;
+  isCaptain: boolean;
   createdAt: Date;
   updatedAt: Date;
   archivedAt: Date | null;
@@ -147,6 +148,8 @@ export interface MatchmakerRepository {
   getPlayerById(orgId: Uuid, playerId: Uuid): Promise<MatchmakerResult<Player>>;
   updatePlayer(orgId: Uuid, playerId: Uuid, input: UpdatePlayerInput): Promise<MatchmakerResult<Player>>;
   archivePlayer(orgId: Uuid, playerId: Uuid, archivedAt: Date): Promise<MatchmakerResult<Player>>;
+  /** Make `playerId` the sole captain of the org (clears any other captain). */
+  setCaptain(orgId: Uuid, playerId: Uuid, now: Date): Promise<MatchmakerResult<Player>>;
   listPlayersPaged(
     orgId: Uuid,
     params: PageQueryParams,

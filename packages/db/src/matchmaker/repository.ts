@@ -46,6 +46,7 @@ function mapPlayer(row: Record<string, unknown>): Player {
     rating: Number(row.rating),
     attributes: parseJson<Record<string, number>>(row.attributes, {}),
     status: row.status as Player["status"],
+    isCaptain: row.is_captain === true,
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
     archivedAt: row.archived_at ? new Date(row.archived_at as string) : null,
@@ -433,6 +434,30 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
         return { ok: true, value: mapAvailability(result.rows[0]!) };
       } catch {
         return safeError("Failed to set availability");
+      }
+    },
+
+    async setCaptain(orgId: string, playerId: string, now: Date): Promise<MatchmakerResult<Player>> {
+      try {
+        const iso = now.toISOString();
+        const target = await executor.execute<Record<string, unknown>>(
+          `SELECT id FROM matchmaker.players WHERE org_id = $1 AND id = $2 AND status = 'active'`,
+          [orgId, playerId],
+        );
+        if (target.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
+        // Clear any existing captain, then set the target (no overlap → the
+        // partial unique index is never transiently violated).
+        await executor.execute(
+          `UPDATE matchmaker.players SET is_captain = false, updated_at = $2 WHERE org_id = $1 AND is_captain = true`,
+          [orgId, iso],
+        );
+        const set = await executor.execute<Record<string, unknown>>(
+          `UPDATE matchmaker.players SET is_captain = true, updated_at = $3 WHERE org_id = $1 AND id = $2 RETURNING *`,
+          [orgId, playerId, iso],
+        );
+        return { ok: true, value: mapPlayer(set.rows[0]!) };
+      } catch {
+        return safeError("Failed to set captain");
       }
     },
   };

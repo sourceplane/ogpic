@@ -16,6 +16,7 @@ import { handleCancelMatch } from "./handlers/cancel-match.js";
 import { handleShareMatch } from "./handlers/share-match.js";
 import { handleListAvailability } from "./handlers/list-availability.js";
 import { handleSetAvailability } from "./handlers/set-availability.js";
+import { handleSetCaptain } from "./handlers/set-captain.js";
 import { errorResponse, notFound, methodNotAllowed } from "./http.js";
 import { generateRequestId, parseOrgPublicId, parsePlayerPublicId, parseMatchPublicId } from "./ids.js";
 
@@ -41,6 +42,7 @@ function resolveActor(request: Request): ActorContext | null {
 
 const ORG_PLAYERS_RE = /^\/v1\/organizations\/([^/]+)\/players$/;
 const ORG_PLAYER_SUGGEST_RE = /^\/v1\/organizations\/([^/]+)\/players\/suggest-position$/;
+const ORG_PLAYER_CAPTAIN_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)\/captain$/;
 const ORG_PLAYER_ID_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)$/;
 const ORG_ROSTER_SUMMARY_RE = /^\/v1\/organizations\/([^/]+)\/roster\/summary$/;
 const ORG_DRAFT_RE = /^\/v1\/organizations\/([^/]+)\/draft$/;
@@ -72,6 +74,18 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return unauthenticated(requestId);
       return handleSuggestPosition(request, env, requestId, actor, orgUuid);
+    }
+
+    // ── Roster: captain (fixed segment; must precede /players/:id) ──
+    const captainMatch = url.pathname.match(ORG_PLAYER_CAPTAIN_RE);
+    if (captainMatch) {
+      if (request.method !== "PUT") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(captainMatch[1]!);
+      const playerUuid = parsePlayerPublicId(captainMatch[2]!);
+      if (!orgUuid || !playerUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleSetCaptain(env, requestId, actor, orgUuid, playerUuid);
     }
 
     // ── Roster: collection ──
