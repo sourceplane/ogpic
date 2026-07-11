@@ -18,6 +18,7 @@ export interface CardPlayer {
   tierLabel: string;
   posColor: string;
   statList: { k: string; v: number }[];
+  isCaptain?: boolean;
 }
 
 export function PlayerCard({ p, showStats = true }: { p: CardPlayer; showStats?: boolean }) {
@@ -34,6 +35,9 @@ export function PlayerCard({ p, showStats = true }: { p: CardPlayer; showStats?:
       }}
     >
       <div style={{ position: "absolute", top: 0, left: 16, right: 16, height: 2, background: p.tierAccent, borderRadius: 2 }} />
+      {p.isCaptain && (
+        <div style={{ position: "absolute", top: 9, right: 10, width: 18, height: 18, borderRadius: "50%", background: "rgba(86,201,141,.18)", border: "1px solid rgba(86,201,141,.45)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#56C98D" }} title="Captain">Ⓒ</div>
+      )}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <div style={{ fontSize: 32, fontWeight: 900, lineHeight: 0.85, color: p.tierAccent, letterSpacing: "-1.5px" }}>

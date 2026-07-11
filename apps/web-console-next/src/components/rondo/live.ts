@@ -47,6 +47,7 @@ export function mapPlayer(p: PublicPlayer): Player {
     ovr: p.rating,
     skills: { ...p.attributes },
     myStars: {},
+    isCaptain: p.isCaptain,
   };
 }
 
