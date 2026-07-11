@@ -65,8 +65,13 @@ export function buildNavSections(scope: NavScope, soloMode: boolean = SOLO_MODE)
         ? [
             // Overview is the home surface under every profile.
             { href: `${orgBase}/overview`, label: "Overview", icon: "LayoutDashboard" },
-            // Solo: projects & usage/quota are platform plumbing the B2C user
-            // never sees; their surfaces collapse to the Settings (Account) panel.
+            // The Matchmaker product is the instance's app — it is the primary
+            // surface under Solo too (a single user still runs their roster,
+            // drafts teams, and schedules fixtures). Projects & usage/quota stay
+            // hidden as platform plumbing the B2C user never sees.
+            { href: `${orgBase}/roster`, label: "Roster", icon: "Users" },
+            { href: `${orgBase}/draft`, label: "Draft Board", icon: "Shuffle" },
+            { href: `${orgBase}/fixtures`, label: "Fixtures", icon: "CalendarDays" },
             { href: `${orgBase}/settings`, label: "Settings", icon: "Settings", subPanel: true },
           ]
         : [

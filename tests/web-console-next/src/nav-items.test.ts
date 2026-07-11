@@ -68,11 +68,17 @@ describe("buildNavSections", () => {
 });
 
 describe("buildNavSections under the Solo (M0) profile", () => {
-  it("relabels the org section to 'Account' and drops Projects + Usage (Overview + Settings survive)", () => {
+  it("relabels the org section to 'Account' and drops Projects + Usage (Overview, the Matchmaker product, and Settings survive)", () => {
     const org = buildNavSections({ orgSlug: "acme" }, true).find((s) => s.id === "org")!;
     expect(org.label).toBe("Account");
     const hrefs = org.links.map((l) => l.href);
-    expect(hrefs).toEqual(["/orgs/acme/overview", "/orgs/acme/settings"]);
+    expect(hrefs).toEqual([
+      "/orgs/acme/overview",
+      "/orgs/acme/roster",
+      "/orgs/acme/draft",
+      "/orgs/acme/fixtures",
+      "/orgs/acme/settings",
+    ]);
     expect(hrefs).not.toContain("/orgs/acme/projects");
     expect(hrefs).not.toContain("/orgs/acme/usage");
   });
@@ -88,6 +94,9 @@ describe("buildNavSections under the Solo (M0) profile", () => {
     expect(org.links.map((l) => l.href)).toEqual([
       "/orgs/acme/overview",
       "/orgs/acme/projects",
+      "/orgs/acme/roster",
+      "/orgs/acme/draft",
+      "/orgs/acme/fixtures",
       "/orgs/acme/usage",
       "/orgs/acme/settings",
     ]);
