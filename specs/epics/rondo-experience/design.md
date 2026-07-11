@@ -133,27 +133,30 @@ reusable atoms every screen composes:
 
 ## 4. The responsive model (the load-bearing decision)
 
-One React tree, breakpoint-driven presentation. No route or component is
-mobile-only.
+One React tree, breakpoint-driven presentation — a **real app at every width**, not
+a phone mockup floating on a desktop page. (An early build framed the app in a
+device bezel on desktop; that was wrong and has been replaced by the model below.)
 
-- **`< 768px` (phone):** full-bleed. The screen fills the viewport; the bottom nav
-  is fixed with `pb-safe`; sheets slide from the bottom edge. This is the primary
-  target and the pixel-match reference.
-- **`≥ 768px` (tablet/desktop), single-column screens** (Login, Join, Squad, Vote,
-  Play, Match): the same tree renders inside a **centered 390-wide device frame**
-  on the radial backdrop — literally the prototype's presentation — so nothing is
-  stretched past its designed width. The faux status bar shows only here.
-- **`≥ 1024px`, list/detail screens** (Fixtures, Members, Community, Roster): widen
-  to a **multi-column** layout — the bottom nav becomes a left rail, sheets become
-  centered dialogs (`rpop`), grids gain columns. RX9 owns these adaptations; every
-  earlier RX milestone ships the framed-mobile desktop view so nothing is broken in
-  the interim.
+- **`< 1024px` (phone/tablet):** full-bleed. The screen fills the viewport; a fixed
+  **bottom tab bar** (`SQUAD·VOTE·PLAY·FEED·FIXTURES`) with `pb-safe` is the nav;
+  sheets slide from the bottom edge. This is the pixel-match reference.
+- **`≥ 1024px` (desktop):** a **persistent left sidebar** (brand, team switcher,
+  vertical nav, account) + a **wide, fluid content area** (`.rondo-main`, its own
+  scroll) with content centered at a generous `max-width` (~940px). No device
+  frame, no faux status bar. Internal grids widen — the roster becomes an
+  auto-fill FUT-card grid; Community splits into leaderboard **|** feed columns;
+  the draft board keeps its two side-by-side team columns. Bottom sheets become
+  centered dialogs.
+- **Pre-auth screens (Login, Join):** full-bleed on mobile; a centered auth **card**
+  on desktop (no sidebar).
 - **Touch & input:** all tap targets ≥44px (prototype already ≥34–56px);
   hover states are additive, never required; `:focus-visible` rings on every
   control (a11y, RX9).
 
-The existing `bottom-tabs.tsx` + `mobile-nav.tsx` + safe-area helpers (`pb-safe`
-etc. in `globals.css`) are the starting point for `AppShell`.
+The shell (`rondo-app.tsx` + the `.rondo-shell/.rondo-sidebar/.rondo-main/
+.rondo-bottomnav` classes in `rondo.css`) is the `AppShell`; it supersedes the
+device-frame idea entirely. `bottom-tabs.tsx`/`mobile-nav.tsx` patterns and the
+`pb-safe`/safe-area helpers informed it.
 
 ## 5. Screen catalogue (per-screen pixel + behaviour spec)
 

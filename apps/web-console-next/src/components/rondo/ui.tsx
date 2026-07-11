@@ -81,22 +81,25 @@ export function BottomSheet({
   return (
     <div
       style={{
-        position: "absolute",
+        position: "fixed",
         inset: 0,
         zIndex: 60,
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-end",
+        alignItems: "center",
         background: "rgba(4,5,6,.72)",
         backdropFilter: "blur(3px)",
       }}
     >
-      <div onClick={onClose} style={{ flex: 1 }} aria-hidden />
+      <div onClick={onClose} style={{ position: "absolute", inset: 0 }} aria-hidden />
       <div
-        className="r-anim-sheet"
+        className="r-anim-sheet rondo-sheet-panel"
         role="dialog"
         aria-modal="true"
         style={{
+          position: "relative",
+          width: "100%",
           background: "#121417",
           borderTop: "1px solid rgba(255,255,255,.1)",
           borderRadius: "28px 28px 0 0",
