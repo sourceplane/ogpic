@@ -65,3 +65,8 @@ spec:
               triggerRef: github-push-main
 # ci: ogpic batch 3 — db-migrate (prereq of notifications-worker) (2026-07-02)
 # ci: ogpic batch 3 — db-migrate (prereq of notifications-worker) (2026-07-02)
+# ci: apply 200_matchmaker_core — nudge db-migrate into the changed-only plan so
+#     the matchmaker schema is applied to stage+prod. The migration SQL lives
+#     under the `db` component's tree (packages/db/src/migrations), so adding a
+#     migration does not by itself mark db-migrate changed; touch this file
+#     alongside a new migration to trigger the apply lane. (2026-07-11)
