@@ -209,3 +209,27 @@ export interface MatchShareResponse {
   whatsappUrl: string;
   mailtoUrl: string;
 }
+
+// ── Availability ────────────────────────────────────────────────
+// Per-player availability for the community's next practice match. The
+// organizer toggles each player in / maybe / out; the draft picks from `in`.
+
+export type AvailabilityState = "in" | "maybe" | "out";
+
+export interface PublicAvailability {
+  playerId: string;
+  state: AvailabilityState;
+  updatedAt: string;
+}
+
+export interface ListAvailabilityResponse {
+  availability: PublicAvailability[];
+}
+
+export interface SetAvailabilityRequest {
+  state: AvailabilityState;
+}
+
+export interface SetAvailabilityResponse {
+  availability: PublicAvailability;
+}

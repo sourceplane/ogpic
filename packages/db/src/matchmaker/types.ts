@@ -13,6 +13,14 @@ export type MatchmakerResult<T> =
 export type PlayerPosition = "GK" | "DEF" | "MID" | "FWD" | "ALL";
 export type PlayerStatus = "active" | "archived";
 export type MatchStatus = "scheduled" | "played" | "cancelled";
+export type AvailabilityState = "in" | "maybe" | "out";
+
+export interface Availability {
+  orgId: string;
+  playerId: string;
+  state: AvailabilityState;
+  updatedAt: Date;
+}
 
 export interface Player {
   id: string;
@@ -154,4 +162,12 @@ export interface MatchmakerRepository {
   getMatchById(orgId: Uuid, matchId: Uuid): Promise<MatchmakerResult<Match>>;
   updateMatch(orgId: Uuid, matchId: Uuid, input: UpdateMatchInput): Promise<MatchmakerResult<Match>>;
   listMatchesPaged(orgId: Uuid, params: MatchPageQueryParams): Promise<MatchmakerResult<MatchPagedResult<Match>>>;
+
+  listAvailability(orgId: Uuid): Promise<MatchmakerResult<Availability[]>>;
+  setAvailability(
+    orgId: Uuid,
+    playerId: Uuid,
+    state: AvailabilityState,
+    now: Date,
+  ): Promise<MatchmakerResult<Availability>>;
 }

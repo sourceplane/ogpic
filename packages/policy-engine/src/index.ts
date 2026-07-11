@@ -62,6 +62,8 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "organization.draft.run",
     "organization.fixture.read",
     "organization.fixture.write",
+    "organization.availability.read",
+    "organization.availability.set",
   ],
   admin: [
     "organization.read",
@@ -108,6 +110,8 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "organization.draft.run",
     "organization.fixture.read",
     "organization.fixture.write",
+    "organization.availability.read",
+    "organization.availability.set",
   ],
   builder: [
     "organization.read",
@@ -129,6 +133,8 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "organization.draft.run",
     "organization.fixture.read",
     "organization.fixture.write",
+    "organization.availability.read",
+    "organization.availability.set",
   ],
   viewer: [
     "organization.read",
@@ -143,6 +149,7 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "organization.integration.read",
     "organization.roster.read",
     "organization.fixture.read",
+    "organization.availability.read",
   ],
   billing_admin: [
     "organization.read",
@@ -269,6 +276,8 @@ const ALL_KNOWN_ACTIONS: ReadonlySet<string> = new Set([
   "organization.draft.run",
   "organization.fixture.read",
   "organization.fixture.write",
+  "organization.availability.read",
+  "organization.availability.set",
 ]);
 
 function isOrgRole(role: string): role is OrganizationRole {

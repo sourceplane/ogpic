@@ -192,5 +192,14 @@ export const manifest: MigrationManifest = {
       description:
         "Matchmaker product persistence foundation — the shared roster (players with computed OVR + attribute sets) and fixtures (matches with immutable lineup snapshots + share token), tenant-isolated by org_id and owned by the matchmaker worker",
     },
+    {
+      id: "210_matchmaker_availability",
+      context: "matchmaker",
+      path: "210_matchmaker_availability/up.sql",
+      checksum:
+        "833bd41a231cf1037d4d3c4eceae383588300b7acd352a96e13fa972b6958a58",
+      description:
+        "Per-player availability (in/maybe/out) for a community's next practice match, keyed on (org_id, player_id) and owned by the matchmaker worker",
+    },
   ],
 };

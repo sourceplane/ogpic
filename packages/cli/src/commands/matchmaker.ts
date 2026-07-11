@@ -293,3 +293,44 @@ export async function fixtureCancelCommand(ctx: CommandContext): Promise<Command
   emit(ctx, { id: m.id, status: m.status }, result, `Fixture cancelled`);
   return { exitCode: 0 };
 }
+
+// ── Availability ────────────────────────────────────────────────
+
+export async function availabilityListCommand(ctx: CommandContext): Promise<CommandResult> {
+  const orgId = await resolveOrgId(ctx, false);
+  const sdk = await ctx.sdk();
+  const result = await sdk.availability.list(orgId);
+  if (ctx.outputMode === "json") {
+    ctx.stdout(formatOutput({ mode: "json", data: result }));
+    return { exitCode: 0 };
+  }
+  const rows = result.availability.map((a) => ({
+    playerId: a.playerId,
+    state: a.state,
+    updatedAt: a.updatedAt,
+  }));
+  ctx.stdout(
+    formatOutput({ mode: "human", columns: ["playerId", "state", "updatedAt"], rows, title: `Availability in ${orgId}` }),
+  );
+  return { exitCode: 0 };
+}
+
+export async function availabilitySetCommand(ctx: CommandContext): Promise<CommandResult> {
+  const orgId = await resolveOrgId(ctx, false);
+  const playerId = flagString(ctx, "player");
+  const state = flagString(ctx, "state");
+  if (!playerId) throw new UsageError("--player <playerId> is required");
+  if (state !== "in" && state !== "maybe" && state !== "out") {
+    throw new UsageError("--state must be one of: in, maybe, out");
+  }
+  const sdk = await ctx.sdk();
+  const idempotencyKey = readIdempotencyKey(ctx);
+  const result = await sdk.availability.set(orgId, playerId, { state }, idempotencyKey !== undefined ? { idempotencyKey } : {});
+  emit(
+    ctx,
+    { playerId: result.availability.playerId, state: result.availability.state, updatedAt: result.availability.updatedAt },
+    result,
+    "Availability updated",
+  );
+  return { exitCode: 0 };
+}

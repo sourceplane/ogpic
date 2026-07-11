@@ -125,6 +125,8 @@ export const ORGANIZATION_ACTIONS = [
   "organization.draft.run",
   "organization.fixture.read",
   "organization.fixture.write",
+  "organization.availability.read",
+  "organization.availability.set",
 ] as const;
 
 export type OrganizationAction = (typeof ORGANIZATION_ACTIONS)[number];

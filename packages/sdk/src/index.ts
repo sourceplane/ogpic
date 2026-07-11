@@ -22,7 +22,7 @@ import { MeteringClient } from "./metering.js";
 import { NotificationsClient } from "./notifications.js";
 import { OrganizationsClient } from "./organizations.js";
 import { ProjectsClient } from "./projects.js";
-import { RosterClient, DraftClient, FixturesClient } from "./matchmaker.js";
+import { RosterClient, DraftClient, FixturesClient, AvailabilityClient } from "./matchmaker.js";
 import { SecurityEventsClient } from "./securityEvents.js";
 import { WebhooksClient } from "./webhooks.js";
 import { Transport, type ClientOptions } from "./transport.js";
@@ -45,6 +45,7 @@ export class Ogpic {
   readonly roster: RosterClient;
   readonly draft: DraftClient;
   readonly fixtures: FixturesClient;
+  readonly availability: AvailabilityClient;
   /** Underlying HTTP transport. Exposed for advanced extension. */
   readonly transport: Transport;
 
@@ -67,6 +68,7 @@ export class Ogpic {
     this.roster = new RosterClient(this.transport);
     this.draft = new DraftClient(this.transport);
     this.fixtures = new FixturesClient(this.transport);
+    this.availability = new AvailabilityClient(this.transport);
   }
 }
 
@@ -105,7 +107,7 @@ export { ConfigClient, type ConfigScope } from "./config.js";
 export { NotificationsClient } from "./notifications.js";
 export { AuthClient } from "./auth.js";
 export { IntegrationsClient } from "./integrations.js";
-export { RosterClient, DraftClient, FixturesClient } from "./matchmaker.js";
+export { RosterClient, DraftClient, FixturesClient, AvailabilityClient } from "./matchmaker.js";
 
 // Transport surface.
 export {
@@ -339,6 +341,11 @@ export type {
   ListMatchesResponse,
   CancelMatchResponse,
   MatchShareResponse,
+  AvailabilityState,
+  PublicAvailability,
+  ListAvailabilityResponse,
+  SetAvailabilityRequest,
+  SetAvailabilityResponse,
 } from "@saas/contracts/matchmaker";
 export {
   PLAYER_POSITIONS,

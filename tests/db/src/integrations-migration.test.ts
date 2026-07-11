@@ -26,10 +26,15 @@ describe("Integrations Migration Verification", () => {
     );
   });
 
-  it("orders the integrations migrations at the manifest tail", () => {
+  it("keeps the integrations migrations adjacent and in order", () => {
+    // The two integrations migrations must stay together and in sequence.
+    // (They are no longer the manifest tail: later bounded contexts — e.g.
+    // matchmaker's 200/210 — append after them, which is expected.)
     const ids = manifest.migrations.map((m) => m.id);
-    expect(ids.indexOf("180_integrations_foundation")).toBe(ids.length - 2);
-    expect(ids.indexOf("190_integrations_delivery_attribution")).toBe(ids.length - 1);
+    const foundation = ids.indexOf("180_integrations_foundation");
+    const delivery = ids.indexOf("190_integrations_delivery_attribution");
+    expect(foundation).toBeGreaterThanOrEqual(0);
+    expect(delivery).toBe(foundation + 1);
   });
 
   it("manifest checksums match the on-disk up.sql files", () => {

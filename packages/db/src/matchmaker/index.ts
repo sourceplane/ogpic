@@ -2,6 +2,8 @@ export type {
   Player,
   PlayerPosition,
   PlayerStatus,
+  Availability,
+  AvailabilityState,
   Match,
   MatchStatus,
   MatchTeamPlayer,

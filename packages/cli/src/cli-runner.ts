@@ -49,6 +49,8 @@ import {
   fixtureShareCommand,
   fixtureResultCommand,
   fixtureCancelCommand,
+  availabilityListCommand,
+  availabilitySetCommand,
 } from "./commands/matchmaker.js";
 import {
   usageSummaryCommand,
@@ -221,6 +223,8 @@ function buildRouter(opts: RunOptions): Router {
   r.register(["matchmaker", "fixture", "share"], "Print the shareable fixture summary", fixtureShareCommand);
   r.register(["matchmaker", "fixture", "result"], "Record a fixture result (--a=N --b=N)", fixtureResultCommand);
   r.register(["matchmaker", "fixture", "cancel"], "Cancel a fixture", fixtureCancelCommand);
+  r.register(["matchmaker", "availability", "list"], "List player availability", availabilityListCommand);
+  r.register(["matchmaker", "availability", "set"], "Set a player's availability (--player=ID --state=in|maybe|out)", availabilitySetCommand);
   return r;
 }
 
