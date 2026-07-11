@@ -57,7 +57,7 @@ area plugs into the ogpic baseline."
 | MM1 | Roster: players CRUD + squad-depth summary + position auto-suggest (contract→worker→edge→SDK→CLI) | Built — pending stage verify |
 | MM2 | Draft engine: deterministic balancing compute (`POST /draft`), N-team, unit-tested | Built — pending stage verify |
 | MM3 | Fixtures: schedule from a draft, list/get, reschedule/result, cancel, server-generated share payload | Built — pending stage verify |
-| MM4 | Console surface: Roster / Draft Board / Fixtures pages on the design system, over the live API | Ready |
+| MM4 | Console surface: Roster / Draft Board / Fixtures pages on the design system, over the live API | Built — pending stage verify |
 | MM5 | Public share link: unauthenticated `GET /v1/shared/matches/:token` read | Ready |
 | MM6 | Audit trail: emit `matchmaker.*` events to `events-worker` on roster/fixture mutations | Ready |
 | MM7 | Portability: bulk roster import/export API (migrate the HTML's JSON backup) | Planned |

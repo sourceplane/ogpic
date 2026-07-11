@@ -10,7 +10,7 @@
 | MM1 | Built in introducing PR — pending stage verify | Roster CRUD + summary + suggest-position: contract→worker→edge→SDK→CLI |
 | MM2 | Built in introducing PR — pending stage verify | Deterministic balancing draft (`POST /draft`), N-team, unit-tested |
 | MM3 | Built in introducing PR — pending stage verify | Fixtures CRUD + result + server-generated share payload |
-| MM4 | Not started | Console surface (Roster / Draft Board / Fixtures) |
+| MM4 | Built in introducing PR — pending stage verify | Console surface (Roster / Draft Board / Fixtures) on the design system, over the live SDK |
 | MM5 | Not started | Public unauthenticated share link |
 | MM6 | Not started | `matchmaker.*` events → audit trail |
 | MM7 | Not started | Bulk roster import/export |
@@ -45,6 +45,16 @@ New bounded context `matchmaker`, wired end to end:
 - **CLI** — `packages/cli/src/commands/matchmaker.ts` (`matchmaker player …`,
   `roster summary`, `draft run`, `fixture …`) registered in `cli-runner.ts` with
   `--output json` parity and help text.
+- **Console (MM4)** — three sibling routes under
+  `apps/web-console-next/src/app/(app)/orgs/[orgSlug]/`: **Roster** (FUT-style
+  player-card grid + squad-depth chips + scout/edit dialog with live OVR preview
+  and attribute steppers + auto-suggest + release confirm), **Draft Board** (team
+  count + auto-draft → two balanced pitches with rating-spread badge → schedule
+  bar), **Fixtures** (history rows with score + status + record-result + cancel +
+  a server-generated share sheet with copy/WhatsApp/email). Shared FUT card in
+  `src/components/matchmaker/player-card.tsx`. Registered in the sidebar
+  (`nav-items.ts` + icons), Cmd-K palette (`command-registry.ts`), and
+  `query-keys.ts`. All three routes compile and route (200) under `next dev`.
 - **Tests** — `tests/matchmaker-worker` (Jest, ts-jest ESM): 31 tests across the
   engine (OVR, positions, balance, share) and the draft handler (auth gate +
   validation + 412), all passing.
