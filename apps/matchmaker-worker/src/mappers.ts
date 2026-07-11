@@ -11,6 +11,7 @@ export function toPublicPlayer(player: Player): PublicPlayer {
     rating: player.rating,
     attributes: player.attributes,
     status: player.status,
+    isCaptain: player.isCaptain,
     createdAt: player.createdAt.toISOString(),
     updatedAt: player.updatedAt.toISOString(),
     archivedAt: player.archivedAt ? player.archivedAt.toISOString() : null,

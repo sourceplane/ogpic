@@ -51,6 +51,7 @@ import {
   fixtureCancelCommand,
   availabilityListCommand,
   availabilitySetCommand,
+  playerCaptainCommand,
 } from "./commands/matchmaker.js";
 import {
   usageSummaryCommand,
@@ -215,6 +216,7 @@ function buildRouter(opts: RunOptions): Router {
   r.register(["matchmaker", "player", "show"], "Show a player", playerShowCommand);
   r.register(["matchmaker", "player", "edit"], "Update a player (--data=JSON)", playerEditCommand);
   r.register(["matchmaker", "player", "release"], "Release (archive) a player", playerReleaseCommand);
+  r.register(["matchmaker", "player", "captain"], "Make a player the team captain (--player=ID)", playerCaptainCommand);
   r.register(["matchmaker", "roster", "summary"], "Show squad depth by position", rosterSummaryCommand);
   r.register(["matchmaker", "draft", "run"], "Draft balanced teams from the roster", draftRunCommand);
   r.register(["matchmaker", "fixture", "list"], "List fixtures", fixtureListCommand);

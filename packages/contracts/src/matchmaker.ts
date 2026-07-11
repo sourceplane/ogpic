@@ -41,9 +41,16 @@ export interface PublicPlayer {
   rating: number;
   attributes: PlayerAttributes;
   status: PlayerStatus;
+  /** True for the team captain (at most one active captain per org). */
+  isCaptain: boolean;
   createdAt: string;
   updatedAt: string;
   archivedAt: string | null;
+}
+
+/** Response for setting/clearing the team captain. */
+export interface SetCaptainResponse {
+  player: PublicPlayer;
 }
 
 // ── Roster (players) ────────────────────────────────────────────

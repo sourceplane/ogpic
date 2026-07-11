@@ -346,6 +346,7 @@ export type {
   ListAvailabilityResponse,
   SetAvailabilityRequest,
   SetAvailabilityResponse,
+  SetCaptainResponse,
 } from "@saas/contracts/matchmaker";
 export {
   PLAYER_POSITIONS,

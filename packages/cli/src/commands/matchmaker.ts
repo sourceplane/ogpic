@@ -334,3 +334,14 @@ export async function availabilitySetCommand(ctx: CommandContext): Promise<Comma
   );
   return { exitCode: 0 };
 }
+
+export async function playerCaptainCommand(ctx: CommandContext): Promise<CommandResult> {
+  const orgId = await resolveOrgId(ctx, false);
+  const playerId = flagString(ctx, "player");
+  if (!playerId) throw new UsageError("--player <playerId> is required");
+  const sdk = await ctx.sdk();
+  const idempotencyKey = readIdempotencyKey(ctx);
+  const result = await sdk.roster.setCaptain(orgId, playerId, idempotencyKey !== undefined ? { idempotencyKey } : {});
+  emit(ctx, { id: result.player.id, name: result.player.name, captain: "true" }, result, "Captain set");
+  return { exitCode: 0 };
+}

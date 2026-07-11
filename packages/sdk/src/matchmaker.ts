@@ -14,6 +14,7 @@ import type {
   MatchShareResponse,
   PlayerPosition,
   RosterSummaryResponse,
+  SetCaptainResponse,
   SuggestPositionRequest,
   SuggestPositionResponse,
   UpdateMatchRequest,
@@ -102,6 +103,14 @@ export class RosterClient {
   ): Promise<SuggestPositionResponse> {
     return this.transport.request<SuggestPositionResponse>(
       { method: "POST", path: `${orgBase(orgId)}/players/suggest-position`, body },
+      opts,
+    );
+  }
+
+  /** PUT /v1/organizations/:orgId/players/:playerId/captain — make this player the captain */
+  setCaptain(orgId: string, playerId: string, opts: RequestOptions = {}): Promise<SetCaptainResponse> {
+    return this.transport.request<SetCaptainResponse>(
+      { method: "PUT", path: `${orgBase(orgId)}/players/${encodeURIComponent(playerId)}/captain` },
       opts,
     );
   }
