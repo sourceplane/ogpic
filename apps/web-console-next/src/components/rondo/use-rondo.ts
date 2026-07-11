@@ -27,6 +27,22 @@ import {
   type TeamMeta,
 } from "./logic";
 
+/** A recent-results row for the Fixtures screen, from the live matches API. */
+export interface LiveMatchRow {
+  id: string;
+  dateLabel: string;
+  score: string;
+  color: string;
+}
+
+/** Live backend handlers. When present, actions hit the real API; otherwise the
+ *  hook runs fully on local state (demo mode). */
+export interface RondoLive {
+  setAvailability?: (playerId: string, state: Availability) => void;
+  draft?: (playerIds: string[], teamSize: number) => Promise<{ homeIds: string[]; awayIds: string[] } | null>;
+  schedule?: (payload: { scheduledAt: string; turf: string }) => Promise<boolean>;
+}
+
 export interface RondoSeed {
   players?: Player[];
   teams?: TeamMeta[];
@@ -34,9 +50,17 @@ export interface RondoSeed {
   accent?: string;
   showCardStats?: boolean;
   startScreen?: Screen;
+  availability?: Record<string, Availability>;
+  matches?: LiveMatchRow[];
+  live?: RondoLive;
 }
 
 const nextAvail: Record<Availability, Availability> = { in: "out", out: "maybe", maybe: "in" };
+
+const DEMO_AVAILABILITY: Record<string, Availability> = {
+  p1: "in", p2: "in", p3: "in", p4: "in", p5: "maybe", p6: "in",
+  p7: "in", p8: "out", p9: "in", p10: "in", p11: "maybe", p12: "in",
+};
 
 export function useRondo(seed: RondoSeed = {}) {
   const accent = seed.accent ?? "#56C98D";
@@ -59,10 +83,9 @@ export function useRondo(seed: RondoSeed = {}) {
   const [currentTeam, setCurrentTeam] = React.useState(teamsData[0]?.id ?? "northside");
   const [showTeams, setShowTeams] = React.useState(false);
   const [teamSize, setTeamSize] = React.useState(7);
-  const [availability, setAvailability] = React.useState<Record<string, Availability>>({
-    p1: "in", p2: "in", p3: "in", p4: "in", p5: "maybe", p6: "in",
-    p7: "in", p8: "out", p9: "in", p10: "in", p11: "maybe", p12: "in",
-  });
+  const [availability, setAvailability] = React.useState<Record<string, Availability>>(
+    seed.availability ?? DEMO_AVAILABILITY,
+  );
   const [membersRemoved, setMembersRemoved] = React.useState<string[]>([]);
   const [invitesResolved, setInvitesResolved] = React.useState<Record<string, "accepted" | "declined">>({});
   const [seq, setSeq] = React.useState(0); // deterministic id source (no Date.now in render)
@@ -71,7 +94,11 @@ export function useRondo(seed: RondoSeed = {}) {
   const availOf = React.useCallback((id: string): Availability => availability[id] ?? "in", [availability]);
 
   const cycleAvail = (id: string) =>
-    setAvailability((a) => ({ ...a, [id]: nextAvail[a[id] ?? "in"] }));
+    setAvailability((a) => {
+      const next = nextAvail[a[id] ?? "in"];
+      seed.live?.setAvailability?.(id, next); // persist optimistically
+      return { ...a, [id]: next };
+    });
 
   const selectTeam = (id: string) => {
     setCurrentTeam(id);
@@ -81,11 +108,33 @@ export function useRondo(seed: RondoSeed = {}) {
     setAwayIds(null);
   };
 
+  const [drafting, setDrafting] = React.useState(false);
   const doBalance = () => {
-    const { homeIds: h, awayIds: a } = balance(players, availOf, teamSize);
-    setHomeIds(h);
-    setAwayIds(a);
-    setSwapSel([]);
+    const localBalance = () => {
+      const { homeIds: h, awayIds: a } = balance(players, availOf, teamSize);
+      setHomeIds(h);
+      setAwayIds(a);
+      setSwapSel([]);
+    };
+    if (seed.live?.draft) {
+      const availableIds = players.filter((p) => availOf(p.id) === "in").map((p) => p.id);
+      setDrafting(true);
+      seed.live
+        .draft(availableIds, teamSize)
+        .then((res) => {
+          if (res) {
+            setHomeIds(res.homeIds);
+            setAwayIds(res.awayIds);
+            setSwapSel([]);
+          } else {
+            localBalance(); // server draft unavailable → deterministic local split
+          }
+        })
+        .catch(() => localBalance())
+        .finally(() => setDrafting(false));
+      return;
+    }
+    localBalance();
   };
 
   const toggleSwap = (id: string) => {
@@ -217,6 +266,10 @@ export function useRondo(seed: RondoSeed = {}) {
     ratedCount: rated.length,
     totalRatable: players.length,
     byId,
+    // live
+    drafting,
+    liveMatches: seed.matches ?? null,
+    onSchedule: seed.live?.schedule ?? null,
     // actions
     go,
     setScreen,

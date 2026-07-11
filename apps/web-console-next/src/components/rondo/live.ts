@@ -4,9 +4,40 @@
  * the org's real roster instead of the demo seed. Voting / availability / live
  * scoring / community remain local state until their backend slices land.
  */
-import type { PublicPlayer } from "@saas/contracts/matchmaker";
-import type { Player, Position, TeamMeta } from "./logic";
-import type { RondoSeed } from "./use-rondo";
+import type { PublicAvailability, PublicMatch, PublicPlayer } from "@saas/contracts/matchmaker";
+import type { Availability, Player, Position, TeamMeta } from "./logic";
+import type { LiveMatchRow, RondoSeed } from "./use-rondo";
+
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${String(d.getUTCDate()).padStart(2, "0")} ${MONTHS[d.getUTCMonth()]}`;
+}
+
+/** API availability rows → the view-model's playerId→state map. */
+export function availabilityMap(rows: PublicAvailability[]): Record<string, Availability> {
+  const m: Record<string, Availability> = {};
+  for (const r of rows) m[r.playerId] = r.state;
+  return m;
+}
+
+/** API matches → recent-results rows (most recent first), win/draw/loss coloured. */
+export function matchRows(matches: PublicMatch[]): LiveMatchRow[] {
+  return matches.slice(0, 8).map((m) => {
+    const played = m.status === "played" && m.scoreA != null && m.scoreB != null;
+    const color = played
+      ? m.scoreA! > m.scoreB!
+        ? "#56C98D"
+        : m.scoreA! < m.scoreB!
+          ? "#FF7A6B"
+          : "#C9CBCE"
+      : "#8A8D93";
+    const score = played ? `${m.scoreA} – ${m.scoreB}` : m.status === "cancelled" ? "CXL" : "—";
+    return { id: m.id, dateLabel: formatDate(m.scheduledAt), score, color };
+  });
+}
 
 export function mapPlayer(p: PublicPlayer): Player {
   return {
@@ -27,6 +58,9 @@ export function buildLiveSeed(args: {
   orgName: string;
   players: PublicPlayer[];
   isManager: boolean;
+  availability?: Record<string, Availability>;
+  matches?: LiveMatchRow[];
+  live?: RondoSeed["live"];
 }): RondoSeed {
   const team: TeamMeta = {
     id: "org",
@@ -45,5 +79,8 @@ export function buildLiveSeed(args: {
     teams: [team],
     teamName: args.orgName,
     startScreen: "squad",
+    ...(args.availability ? { availability: args.availability } : {}),
+    ...(args.matches ? { matches: args.matches } : {}),
+    ...(args.live ? { live: args.live } : {}),
   };
 }
