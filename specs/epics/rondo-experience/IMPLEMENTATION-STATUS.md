@@ -9,7 +9,7 @@
 |----|--------|-------|
 | RX0 | **Built (front-end)** | Rondo design system (`rondo.css` scoped tokens/motion, self-hosted Archivo + JetBrains Mono via next/font) + primitives (FUT card, bottom sheet, avatar, mono label, icon chip) + responsive `AppShell` (phone-on-desktop / full-bleed mobile) + `SQUAD·VOTE·PLAY·FEED·FIXTURES` bottom nav |
 | RX1 | **Built (front-end)** | Login + Join screens |
-| RX2 | **Built (UI, seed data)** | Squad home + team-switcher sheet — live-data wiring pending |
+| RX2 | **Built + roster live-wired** | Squad home + team-switcher sheet; the authenticated `/rondo/[orgSlug]` route loads the org's **real roster** over `client.roster.list` and feeds the same app. Draft/fixtures live-wiring + real team switcher pending |
 | RX3 | **Built (UI, local state)** | Rate teammates + vote sheet (per-skill stars) — backend voting slice pending |
 | RX4 | **Built (UI, local state)** | Availability + Play with live client-side balance + tap-to-swap — backend availability slice + server `/draft` wiring pending |
 | RX5 | **Built (UI, local state)** | Live match: scoreboard, goals, scorer sheet, timeline, MOTM — backend events slice pending |

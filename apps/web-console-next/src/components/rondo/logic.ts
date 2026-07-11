@@ -7,7 +7,7 @@
  * (demo mode) and gives the live-data wiring a clean shape to target.
  */
 
-export type Position = "GK" | "DEF" | "MID" | "FWD";
+export type Position = "GK" | "DEF" | "MID" | "FWD" | "ALL";
 export type Availability = "in" | "maybe" | "out";
 export type Skills = Record<string, number>;
 
@@ -54,7 +54,7 @@ export function tierOf(ovr: number): Tier {
 }
 
 export function posColor(pos: Position): string {
-  return ({ GK: "#E0C074", DEF: "#6EA8FF", MID: "#56C98D", FWD: "#FF7A6B" } as const)[pos] ?? "#9A9DA3";
+  return ({ GK: "#E0C074", DEF: "#6EA8FF", MID: "#56C98D", FWD: "#FF7A6B", ALL: "#4EC9C4" } as const)[pos] ?? "#9A9DA3";
 }
 
 export function skillsFor(pos: Position): readonly string[] {

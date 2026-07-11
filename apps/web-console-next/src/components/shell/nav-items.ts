@@ -65,6 +65,9 @@ export function buildNavSections(scope: NavScope, soloMode: boolean = SOLO_MODE)
         ? [
             // Overview is the home surface under every profile.
             { href: `${orgBase}/overview`, label: "Overview", icon: "LayoutDashboard" },
+            // Rondo — the immersive, mobile-first football app (the RX product
+            // surface). Opens full-screen outside the console shell.
+            { href: `/rondo/${orgSlug}`, label: "Rondo", icon: "Trophy" },
             // The Matchmaker product is the instance's app — it is the primary
             // surface under Solo too (a single user still runs their roster,
             // drafts teams, and schedules fixtures). Projects & usage/quota stay
@@ -76,6 +79,7 @@ export function buildNavSections(scope: NavScope, soloMode: boolean = SOLO_MODE)
           ]
         : [
             { href: `${orgBase}/overview`, label: "Overview", icon: "LayoutDashboard" },
+            { href: `/rondo/${orgSlug}`, label: "Rondo", icon: "Trophy" },
             { href: `${orgBase}/projects`, label: "Projects", icon: "FolderKanban" },
             { href: `${orgBase}/roster`, label: "Roster", icon: "Users" },
             { href: `${orgBase}/draft`, label: "Draft Board", icon: "Shuffle" },
