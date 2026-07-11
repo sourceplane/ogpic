@@ -8,7 +8,7 @@
 | ID | Status | Notes |
 |----|--------|-------|
 | RX0 | **Built (front-end)** | Rondo design system (`rondo.css` scoped tokens/motion, self-hosted Archivo + JetBrains Mono via next/font) + primitives (FUT card, bottom sheet, avatar, mono label, icon chip) + responsive `AppShell` (phone-on-desktop / full-bleed mobile) + `SQUAD·VOTE·PLAY·FEED·FIXTURES` bottom nav |
-| RX1 | **Built (front-end)** | Login + Join screens |
+| RX1 | **Live auth + team creation** | `/rondo` is the real entry gate: Rondo-branded sign-in/sign-up over the platform's unified auth — one-tap **Google** (OAuth, shown when configured) + email code — with `/rondo/callback` for the OAuth return. Signed-in users route to their squad; those with no team go to `/rondo/new` (**create team** → `client.organizations.create`, creator = manager/owner). Token-free preview moved to `/rondo/demo`. |
 | RX2 | **Built + roster live-wired** | Squad home + team-switcher sheet; the authenticated `/rondo/[orgSlug]` route loads the org's **real roster** over `client.roster.list` and feeds the same app. Draft/fixtures live-wiring + real team switcher pending |
 | RX3 | **Built (UI, local state)** | Rate teammates + vote sheet (per-skill stars) — backend voting slice pending |
 | RX4 | **Live** | Availability backend slice shipped **and wired**: the `/rondo/[orgSlug]` route loads live availability, persists cycles via `client.availability.set`, and the Play "Draft" button runs the real server `/draft` endpoint (falls back to the deterministic local split if unavailable). Fixtures recent-results read live via `client.fixtures.list`. Fixture creation (schedule) is the next increment |
