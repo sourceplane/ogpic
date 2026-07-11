@@ -27,6 +27,7 @@ import {
   GitBranch,
   Shuffle,
   CalendarDays,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -57,6 +58,7 @@ const ICONS: Record<string, LucideIcon> = {
   GitBranch,
   Shuffle,
   CalendarDays,
+  Trophy,
 };
 
 /**
