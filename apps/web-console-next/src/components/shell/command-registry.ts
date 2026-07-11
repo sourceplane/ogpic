@@ -121,6 +121,9 @@ export function buildBaseCommands(ctx: CommandContext): CommandDescriptor[] {
         "start",
       ]),
       navItem("nav.projects", "Projects", `${orgBase}/projects`, "FolderKanban", ["project"]),
+      navItem("nav.roster", "Roster", `${orgBase}/roster`, "Users", ["roster", "players", "squad", "matchmaker"]),
+      navItem("nav.draft", "Draft Board", `${orgBase}/draft`, "Shuffle", ["draft", "balance", "teams", "matchmaker"]),
+      navItem("nav.fixtures", "Fixtures", `${orgBase}/fixtures`, "CalendarDays", ["fixture", "match", "schedule", "matchmaker"]),
       navItem("nav.usage", "Usage & quota", `${orgBase}/usage`, "Gauge", [
         "usage",
         "quota",
@@ -193,6 +196,7 @@ export function buildBaseCommands(ctx: CommandContext): CommandDescriptor[] {
   if (orgBase) {
     out.push(
       navItem("create.project", "Create project", `${orgBase}/projects?new=1`, "PlusCircle", ["new", "project"], "Create"),
+      navItem("create.player", "Scout player", `${orgBase}/roster?new=1`, "UserPlus", ["new", "player", "scout", "roster"], "Create"),
       navItem("create.invitation", "Create invitation", `${orgBase}/settings/invitations?new=1`, "UserPlus", ["invite", "new"], "Create"),
       navItem("create.api-key", "Create API key", `${orgBase}/settings/api-keys?new=1`, "KeyRound", ["key", "new"], "Create"),
     );

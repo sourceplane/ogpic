@@ -35,6 +35,8 @@ import {
   ShieldCheck,
   User2,
   Webhook,
+  Shuffle,
+  CalendarDays,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -68,6 +70,8 @@ const ICONS: Record<string, LucideIcon> = {
   ShieldCheck,
   User2,
   Webhook,
+  Shuffle,
+  CalendarDays,
 };
 
 // --- Registration context --------------------------------------------------
