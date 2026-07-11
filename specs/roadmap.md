@@ -6,8 +6,8 @@ Status: Normative direction. Sequencing is the Orchestrator's call.
 
 This is the **cross-epic index** for the Ogpic SaaS starter. It groups the
 forward direction into clusters — **Baseline SaaS (B)**, **UI / Design (U)**,
-**Product Areas (P)**, and **Performance (PERF)** — and points at the epic folders
-that own the per-milestone detail. Read this to understand which leg a candidate
+**Product Areas (P)**, **Performance (PERF)**, and the **Rondo experience revamp
+(RX)** — and points at the epic folders that own the per-milestone detail. Read this to understand which leg a candidate
 task belongs to and where its durable plan lives.
 
 The per-milestone bodies, status, and as-built records now live under
@@ -40,6 +40,7 @@ The architect-style ground rules:
 | **SS** | [`epics/saas-secrets-sync/`](./epics/saas-secrets-sync/) | Draft (SS0/SS1 in progress) | One write path for every secret: SS0 escrow convention + manifest · SS1 drift checker enforced in verify lanes · SS2 deploy-lane sync · SS3 escrow seeding (human-gated) · SS4 Secrets Store for shared keys · SS5 rotation runbook + BF9 preflight. |
 | **P1, P3–P7** | [`epics/saas-product-areas/`](./epics/saas-product-areas/) | Holding register | P1 promote-flow · P3 observability · P4 notification inbox · P5 marketplace (⬆ promoted → `saas-integrations`) · P6 changelog/status · P7 AI-native. |
 | **MM** | [`epics/matchmaker/`](./epics/matchmaker/) | In progress | The first product bounded context: MM1 roster · MM2 balancing draft engine · MM3 fixtures + share (backend built) · MM4 console surface · MM5 public share link · MM6 audit trail · MM7 bulk import/export. |
+| **RX** | [`epics/rondo-experience/`](./epics/rondo-experience/) | Draft (RX0 ready) | Complete UI revamp to *Rondo* — a mobile-first, pixel-matched, fully-responsive football-community app — and the social loop it implies. RX0 design system + app shell · RX1 auth/onboarding · RX2 squad home · RX3 voting→OVR · RX4 availability+draft · RX5 live match · RX6 fixtures · RX7 members · RX8 community · RX9 desktop/theming/a11y · RX10 verify. Extends **U** (design system) + **MM** (product). |
 
 For the status legend (`Draft → In progress → ✅ Shipped → ⛔ Blocked → Closed`),
 see [`README.md`](./README.md).
@@ -52,6 +53,15 @@ see [`README.md`](./README.md).
   human-blocked tails — see the `saas-baseline` risks.)
 - **U-track** is structurally complete (U1–U11) and continues as incremental
   polish under `saas-console-ux`; after U10, the SDK client is in place.
+- **RX (Rondo experience)** is the largest UI unit on the register: it re-skins
+  the whole console to the Rondo design system and grows the matchmaker product
+  into its full social loop. **RX0 (design system + responsive app shell) gates
+  everything** and is human-independent (Q1/Q5 theming calls are reversible token
+  edits). RX2 unblocks the org-scoped screens; the product slices RX3 (voting→OVR),
+  RX4 (availability), RX5 (live scoring), RX8 (points) are additive backend work in
+  the `matchmaker` context and must be coordinated with the MM data model, not
+  forked (see the epic's R2). RX supersedes MM4's desktop pages once each RX screen
+  lands. Answer Q2/Q6 (player↔member link, role mapping) before RX3.
 - **P2 is the differentiator and the largest single program.** Do not start it
   before **B4 (SDK)** — the resources contract should ship as a typed client
   surface from day one.
