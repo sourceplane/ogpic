@@ -41,6 +41,8 @@ export interface RondoLive {
   setAvailability?: (playerId: string, state: Availability) => void;
   draft?: (playerIds: string[], teamSize: number) => Promise<{ homeIds: string[]; awayIds: string[] } | null>;
   schedule?: (payload: { scheduledAt: string; turf: string }) => Promise<boolean>;
+  setCaptain?: (playerId: string) => void;
+  releasePlayer?: (playerId: string) => void;
 }
 
 export interface RondoSeed {
@@ -99,6 +101,16 @@ export function useRondo(seed: RondoSeed = {}) {
       seed.live?.setAvailability?.(id, next); // persist optimistically
       return { ...a, [id]: next };
     });
+
+  const makeCaptain = (id: string) => {
+    setPlayers((ps) => ps.map((p) => ({ ...p, isCaptain: p.id === id })));
+    seed.live?.setCaptain?.(id);
+  };
+
+  const releasePlayer = (id: string) => {
+    setPlayers((ps) => ps.filter((p) => p.id !== id));
+    seed.live?.releasePlayer?.(id);
+  };
 
   const selectTeam = (id: string) => {
     setCurrentTeam(id);
@@ -268,8 +280,12 @@ export function useRondo(seed: RondoSeed = {}) {
     byId,
     // live
     drafting,
+    isLive: !!seed.live,
     liveMatches: seed.matches ?? null,
     onSchedule: seed.live?.schedule ?? null,
+    captain: enriched.find((p) => p.isCaptain) ?? null,
+    makeCaptain,
+    releasePlayer,
     // actions
     go,
     setScreen,

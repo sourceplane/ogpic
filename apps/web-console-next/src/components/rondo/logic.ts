@@ -18,6 +18,7 @@ export interface Player {
   ovr: number;
   skills: Skills;
   myStars: Skills;
+  isCaptain?: boolean;
 }
 
 export interface Tier {

@@ -279,8 +279,10 @@ export function SquadScreen({ vm }: { vm: RondoVM }) {
       {/* manager + captain */}
       <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
         {[
-          { i: "DS", l: "MANAGER", lc: "#E0C074", n: "D. Silva" },
-          { i: "MS", l: "CAPTAIN", lc: "#56C98D", n: "M. Silva" },
+          { i: "MG", l: "MANAGER", lc: "#E0C074", n: vm.isManager ? "You" : "Manager" },
+          vm.captain
+            ? { i: vm.captain.initials, l: "CAPTAIN", lc: "#56C98D", n: vm.captain.shortName }
+            : { i: "—", l: "CAPTAIN", lc: "#56C98D", n: "Not set" },
         ].map((m) => (
           <div key={m.l} style={{ flex: 1, background: "#111316", border: "1px solid rgba(255,255,255,.07)", borderRadius: 16, padding: 13, display: "flex", alignItems: "center", gap: 11 }}>
             <Avatar initials={m.i} size={42} fontSize={13} color="#8A8D93" />
@@ -741,23 +743,22 @@ const PENDING = [
 ];
 
 export function MembersScreen({ vm }: { vm: RondoVM }) {
+  const rosterMembers = vm.players
+    .filter((p) => !vm.membersRemoved.includes(p.id))
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      initials: p.initials,
+      role: p.isCaptain ? "Captain" : "Player",
+      roleColor: p.isCaptain ? "#56C98D" : "#9A9DA3",
+      pos: p.pos,
+      posColor: p.posColor,
+      isCaptain: !!p.isCaptain,
+      manager: false,
+    }));
   const membersList = [
-    { id: "mgr", name: "D. Silva", initials: "DS", role: "Manager", roleColor: "#E0C074", pos: "MGR", posColor: "#E0C074", removable: false },
-    ...vm.players
-      .filter((p) => !vm.membersRemoved.includes(p.id))
-      .map((p) => {
-        const captain = p.id === "p2";
-        return {
-          id: p.id,
-          name: p.name,
-          initials: p.initials,
-          role: captain ? "Captain" : "Player",
-          roleColor: captain ? "#56C98D" : "#9A9DA3",
-          pos: p.pos,
-          posColor: p.posColor,
-          removable: vm.isManager,
-        };
-      }),
+    { id: "mgr", name: "Manager", initials: "MG", role: "Manager", roleColor: "#E0C074", pos: "MGR", posColor: "#E0C074", isCaptain: false, manager: true },
+    ...rosterMembers,
   ];
   const pendingCount = PENDING.filter((iv) => !vm.invitesResolved[iv.id]).length;
 
@@ -838,10 +839,21 @@ export function MembersScreen({ vm }: { vm: RondoVM }) {
               <Mono style={{ fontSize: 9.5, color: m.roleColor, marginTop: 1, letterSpacing: ".5px", display: "block" }}>{m.role}</Mono>
             </div>
             <Mono style={{ fontSize: 10, color: m.posColor }}>{m.pos}</Mono>
-            {m.removable && (
-              <button onClick={() => vm.setMembersRemoved((prev) => [...prev, m.id])} style={{ width: 32, height: 32, borderRadius: 9, background: "#1C1F23", border: "1px solid rgba(255,255,255,.06)", color: "#8A8D93", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} aria-label={`Remove ${m.name}`}>
-                <Trash2 size={15} strokeWidth={2} />
-              </button>
+            {vm.isManager && !m.manager && (
+              <div style={{ display: "flex", gap: 6 }}>
+                <button
+                  onClick={() => vm.makeCaptain(m.id)}
+                  disabled={m.isCaptain}
+                  title={m.isCaptain ? "Captain" : "Make captain"}
+                  aria-label={m.isCaptain ? "Captain" : `Make ${m.name} captain`}
+                  style={{ width: 32, height: 32, borderRadius: 9, background: m.isCaptain ? "rgba(86,201,141,.14)" : "#1C1F23", border: `1px solid ${m.isCaptain ? "rgba(86,201,141,.4)" : "rgba(255,255,255,.06)"}`, color: m.isCaptain ? "#56C98D" : "#8A8D93", cursor: m.isCaptain ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 900 }}
+                >
+                  Ⓒ
+                </button>
+                <button onClick={() => vm.releasePlayer(m.id)} style={{ width: 32, height: 32, borderRadius: 9, background: "#1C1F23", border: "1px solid rgba(255,255,255,.06)", color: "#8A8D93", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} aria-label={`Remove ${m.name}`}>
+                  <Trash2 size={15} strokeWidth={2} />
+                </button>
+              </div>
             )}
           </div>
         ))}

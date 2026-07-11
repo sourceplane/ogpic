@@ -69,6 +69,16 @@ export default function ConnectedRondoPage() {
           awayIds: away!.players.map((p) => p.id),
         };
       },
+      setCaptain: (playerId: string) => {
+        void wrap(() => client.roster.setCaptain(orgId, playerId)).then(() =>
+          qc.invalidateQueries({ queryKey: qk.roster(orgId) }),
+        );
+      },
+      releasePlayer: (playerId: string) => {
+        void wrap(() => client.roster.release(orgId, playerId)).then(() =>
+          qc.invalidateQueries({ queryKey: qk.roster(orgId) }),
+        );
+      },
     };
   }, [orgId, client, qc]);
 
