@@ -57,6 +57,11 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "organization.integration.manage",
     "organization.integration.token.issue",
     "project.repo_link.write",
+    "organization.roster.read",
+    "organization.roster.write",
+    "organization.draft.run",
+    "organization.fixture.read",
+    "organization.fixture.write",
   ],
   admin: [
     "organization.read",
@@ -98,6 +103,11 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "organization.integration.manage",
     "organization.integration.token.issue",
     "project.repo_link.write",
+    "organization.roster.read",
+    "organization.roster.write",
+    "organization.draft.run",
+    "organization.fixture.read",
+    "organization.fixture.write",
   ],
   builder: [
     "organization.read",
@@ -114,6 +124,11 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "project.webhook.read",
     "organization.metering.read",
     "organization.integration.read",
+    "organization.roster.read",
+    "organization.roster.write",
+    "organization.draft.run",
+    "organization.fixture.read",
+    "organization.fixture.write",
   ],
   viewer: [
     "organization.read",
@@ -126,6 +141,8 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "project.webhook.read",
     "organization.metering.read",
     "organization.integration.read",
+    "organization.roster.read",
+    "organization.fixture.read",
   ],
   billing_admin: [
     "organization.read",
@@ -247,6 +264,11 @@ const ALL_KNOWN_ACTIONS: ReadonlySet<string> = new Set([
   "organization.integration.manage",
   "organization.integration.token.issue",
   "project.repo_link.write",
+  "organization.roster.read",
+  "organization.roster.write",
+  "organization.draft.run",
+  "organization.fixture.read",
+  "organization.fixture.write",
 ]);
 
 function isOrgRole(role: string): role is OrganizationRole {

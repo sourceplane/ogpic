@@ -1,0 +1,82 @@
+apiVersion: sourceplane.io/v1
+kind: Component
+metadata:
+  name: matchmaker-worker
+  description: Cloudflare Worker for the Matchmaker runtime (roster, draft, fixtures)
+  title: Matchmaker Worker
+spec:
+  type: cloudflare-worker-turbo
+  lifecycle: production
+  system: product
+  owner: platform
+  domain: product
+  path: apps/matchmaker-worker
+  dependsOn:
+    - component: membership-worker
+    - component: policy-worker
+  language: typescript
+  tags:
+    - worker
+    - runtime
+    - matchmaker
+    - cloudflare
+    - orun
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/apps/matchmaker-worker
+      icon: github
+  docs:
+    overview: overview.md
+    pages:
+      - { path: runbook.md, role: runbook }
+  providesApis:
+    - matchmaker-api
+  consumesApis:
+    - membership-api
+    - policy-api
+  subscribe:
+    environments:
+      - name: dev
+        profile: verify
+      - name: stage
+        profile: verify
+        profileRules:
+          - profile: deploy
+            when:
+              triggerRef: github-push-main
+      - name: prod
+        profile: verify
+        profileRules:
+          - profile: deploy
+            when:
+              triggerRef: github-push-main
+  parameters:
+    nodeVersion: "22"
+    pnpmVersion: "10.12.1"
+    workspaceDir: ../..
+    appDir: .
+    awsAccountId: "306024784101"
+    awsRegion: us-east-1
+    orgName: sourceplane
+    owner: sourceplane
+    repo: ogpic
+
+    turboFilter: "@saas/matchmaker-worker"
+    wranglerConfig: wrangler.jsonc
+    wranglerTemplate: wrangler.template.jsonc
+    wiringComponents: "cloudflare-hyperdrive"
+    wiringEnvs: "stage,prod"
+    wiringFixture: wiring.fixture.json
+    installCommand: pnpm install --frozen-lockfile
+    buildCommand: pnpm exec turbo run build --filter=@saas/matchmaker-worker
+    typecheckCommand: pnpm exec turbo run typecheck --filter=@saas/matchmaker-worker
+    dryRunCommand: pnpm exec wrangler deploy --dry-run --config wrangler.jsonc --env prod
+    deployCommand: pnpm exec wrangler deploy --config wrangler.jsonc --env prod
+    preDeployCommand: "echo 'No pre-deploy step configured.'"
+    migrationCommand: "echo 'No migrations configured.'"
+    smokeCommand: "echo 'No smoke test configured.'"
+  labels:
+    team: platform
+    layer: runtime
+    surface: matchmaker
+    runtime: cloudflare

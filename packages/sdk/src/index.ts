@@ -22,6 +22,7 @@ import { MeteringClient } from "./metering.js";
 import { NotificationsClient } from "./notifications.js";
 import { OrganizationsClient } from "./organizations.js";
 import { ProjectsClient } from "./projects.js";
+import { RosterClient, DraftClient, FixturesClient } from "./matchmaker.js";
 import { SecurityEventsClient } from "./securityEvents.js";
 import { WebhooksClient } from "./webhooks.js";
 import { Transport, type ClientOptions } from "./transport.js";
@@ -41,6 +42,9 @@ export class Ogpic {
   readonly notifications: NotificationsClient;
   readonly auth: AuthClient;
   readonly integrations: IntegrationsClient;
+  readonly roster: RosterClient;
+  readonly draft: DraftClient;
+  readonly fixtures: FixturesClient;
   /** Underlying HTTP transport. Exposed for advanced extension. */
   readonly transport: Transport;
 
@@ -60,6 +64,9 @@ export class Ogpic {
     this.notifications = new NotificationsClient(this.transport);
     this.auth = new AuthClient(this.transport);
     this.integrations = new IntegrationsClient(this.transport);
+    this.roster = new RosterClient(this.transport);
+    this.draft = new DraftClient(this.transport);
+    this.fixtures = new FixturesClient(this.transport);
   }
 }
 
@@ -98,6 +105,7 @@ export { ConfigClient, type ConfigScope } from "./config.js";
 export { NotificationsClient } from "./notifications.js";
 export { AuthClient } from "./auth.js";
 export { IntegrationsClient } from "./integrations.js";
+export { RosterClient, DraftClient, FixturesClient } from "./matchmaker.js";
 
 // Transport surface.
 export {
@@ -299,6 +307,44 @@ export type {
   SuppressRecipientRequest,
   SuppressRecipientResponse,
 } from "@saas/contracts/notifications";
+
+export type {
+  PlayerPosition,
+  PlayerAttributes,
+  PlayerStatus,
+  PublicPlayer,
+  CreatePlayerRequest,
+  CreatePlayerResponse,
+  UpdatePlayerRequest,
+  UpdatePlayerResponse,
+  GetPlayerResponse,
+  ListPlayersResponse,
+  ArchivePlayerResponse,
+  RosterSummaryEntry,
+  RosterSummaryResponse,
+  SuggestPositionRequest,
+  SuggestPositionResponse,
+  DraftRequest,
+  DraftedPlayer,
+  DraftedTeam,
+  DraftResponse,
+  MatchStatus,
+  MatchTeam,
+  PublicMatch,
+  CreateMatchRequest,
+  CreateMatchResponse,
+  UpdateMatchRequest,
+  UpdateMatchResponse,
+  GetMatchResponse,
+  ListMatchesResponse,
+  CancelMatchResponse,
+  MatchShareResponse,
+} from "@saas/contracts/matchmaker";
+export {
+  PLAYER_POSITIONS,
+  OUTFIELD_ATTRIBUTE_KEYS,
+  GK_ATTRIBUTE_KEYS,
+} from "@saas/contracts/matchmaker";
 
 export { ERROR_CODES, type ErrorCode } from "@saas/contracts/errors";
 

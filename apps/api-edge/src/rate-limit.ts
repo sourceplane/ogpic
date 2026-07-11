@@ -57,7 +57,8 @@ export type RouteFamily =
   | "billing"
   | "audit"
   | "notifications"
-  | "integrations";
+  | "integrations"
+  | "matchmaker";
 
 interface BucketLimits {
   /** Bucket capacity (max tokens). */
@@ -117,6 +118,10 @@ const LIMITS: Record<RouteFamily, FamilyConfig> = {
     org: { limit: 300, windowSec: 60 },
   },
   integrations: {
+    identity: { limit: 60, windowSec: 60 },
+    org: { limit: 300, windowSec: 60 },
+  },
+  matchmaker: {
     identity: { limit: 60, windowSec: 60 },
     org: { limit: 300, windowSec: 60 },
   },

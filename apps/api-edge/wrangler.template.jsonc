@@ -97,6 +97,10 @@
         {
           "binding": "INTEGRATIONS_WORKER",
           "service": "ogpic-integrations-worker-stage"
+        },
+        {
+          "binding": "MATCHMAKER_WORKER",
+          "service": "ogpic-matchmaker-worker-stage"
         }
       ],
       "durable_objects": {
@@ -166,6 +170,10 @@
         {
           "binding": "INTEGRATIONS_WORKER",
           "service": "ogpic-integrations-worker-prod"
+        },
+        {
+          "binding": "MATCHMAKER_WORKER",
+          "service": "ogpic-matchmaker-worker-prod"
         }
       ],
       "durable_objects": {

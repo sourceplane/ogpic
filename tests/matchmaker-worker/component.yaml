@@ -1,0 +1,38 @@
+apiVersion: sourceplane.io/v1
+kind: Component
+metadata:
+  name: matchmaker-worker-tests
+  title: Matchmaker Worker Tests
+  description: Test suite for the matchmaker-worker.
+spec:
+  type: turbo-package
+  lifecycle: production
+  system: quality
+  owner: platform
+  docs:
+    overview: overview.md
+    pages:
+      - { path: ../../docs/testing/triage-runbook.md, role: runbook }
+  domain: platform
+  path: tests/matchmaker-worker
+  language: typescript
+  tags:
+    - test
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/tests/matchmaker-worker
+      icon: github
+  subscribe:
+    environments:
+      - name: dev
+        profile: quick-check
+  parameters:
+    nodeVersion: "22"
+    pnpmVersion: "10.12.1"
+    buildCommand: pnpm exec turbo run build --filter=./
+    typecheckCommand: pnpm exec turbo run typecheck --filter=./
+    preBuildCommand: pnpm exec turbo run test --filter=./
+  labels:
+    team: platform
+    layer: test
