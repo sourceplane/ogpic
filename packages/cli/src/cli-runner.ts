@@ -36,6 +36,21 @@ import {
 } from "./commands/notification-preferences.js";
 import { integrationsGithubTokenCommand } from "./commands/integrations-token.js";
 import {
+  playerListCommand,
+  playerScoutCommand,
+  playerShowCommand,
+  playerEditCommand,
+  playerReleaseCommand,
+  rosterSummaryCommand,
+  draftRunCommand,
+  fixtureListCommand,
+  fixtureScheduleCommand,
+  fixtureShowCommand,
+  fixtureShareCommand,
+  fixtureResultCommand,
+  fixtureCancelCommand,
+} from "./commands/matchmaker.js";
+import {
   usageSummaryCommand,
   billingSummaryCommand,
   auditListCommand,
@@ -192,6 +207,20 @@ function buildRouter(opts: RunOptions): Router {
   r.register(["notifications", "preferences"], "Show your email notification preferences for an org", notificationPreferencesGetCommand);
   r.register(["notifications", "preferences", "set"], "Enable/disable an email notification category", notificationPreferencesSetCommand);
   r.register(["integrations", "github", "token"], "Mint a short-lived, repo-scoped GitHub installation token", integrationsGithubTokenCommand);
+
+  r.register(["matchmaker", "player", "list"], "List the roster (optionally --position=POS)", playerListCommand);
+  r.register(["matchmaker", "player", "scout"], "Scout a player onto the roster", playerScoutCommand);
+  r.register(["matchmaker", "player", "show"], "Show a player", playerShowCommand);
+  r.register(["matchmaker", "player", "edit"], "Update a player (--data=JSON)", playerEditCommand);
+  r.register(["matchmaker", "player", "release"], "Release (archive) a player", playerReleaseCommand);
+  r.register(["matchmaker", "roster", "summary"], "Show squad depth by position", rosterSummaryCommand);
+  r.register(["matchmaker", "draft", "run"], "Draft balanced teams from the roster", draftRunCommand);
+  r.register(["matchmaker", "fixture", "list"], "List fixtures", fixtureListCommand);
+  r.register(["matchmaker", "fixture", "schedule"], "Schedule a fixture (--data=JSON)", fixtureScheduleCommand);
+  r.register(["matchmaker", "fixture", "show"], "Show a fixture", fixtureShowCommand);
+  r.register(["matchmaker", "fixture", "share"], "Print the shareable fixture summary", fixtureShareCommand);
+  r.register(["matchmaker", "fixture", "result"], "Record a fixture result (--a=N --b=N)", fixtureResultCommand);
+  r.register(["matchmaker", "fixture", "cancel"], "Cancel a fixture", fixtureCancelCommand);
   return r;
 }
 
@@ -240,6 +269,18 @@ function printHelp(stdout: (line: string) => void): void {
       "",
       "SECURITY:",
       `  ${CLI_BIN} security events [--limit=N] [--cursor=CURSOR] [--all] [--output=human|json]`,
+      "",
+      "MATCHMAKER:",
+      `  ${CLI_BIN} matchmaker player list [--position=GK|DEF|MID|FWD|ALL]`,
+      `  ${CLI_BIN} matchmaker player scout <name> --position=POS --attributes='{"PAC":80,...}'`,
+      `  ${CLI_BIN} matchmaker player show|release <playerId>`,
+      `  ${CLI_BIN} matchmaker player edit <playerId> --data='{...}'`,
+      `  ${CLI_BIN} matchmaker roster summary`,
+      `  ${CLI_BIN} matchmaker draft run [--team-count=N] [--players=id1,id2,...]`,
+      `  ${CLI_BIN} matchmaker fixture list`,
+      `  ${CLI_BIN} matchmaker fixture schedule --data='<CreateMatchRequest JSON>'`,
+      `  ${CLI_BIN} matchmaker fixture show|share|cancel <matchId>`,
+      `  ${CLI_BIN} matchmaker fixture result <matchId> --a=N --b=N`,
       "",
       "GLOBAL FLAGS:",
       "  --output=human|json   Output format (default: human)",

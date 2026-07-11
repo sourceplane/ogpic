@@ -39,6 +39,7 @@ The architect-style ground rules:
 | **IG** | [`epics/saas-integrations/`](./epics/saas-integrations/) | Draft | Pluggable integrations platform (promotes P5), GitHub App first: IG0 foundation · IG1 connect flow · IG2 inbound `scm.*` events · IG3 repo links · IG4 token broker · IG5 console · IG6 lifecycle hardening · IG7 pluggability/instance proof. |
 | **SS** | [`epics/saas-secrets-sync/`](./epics/saas-secrets-sync/) | Draft (SS0/SS1 in progress) | One write path for every secret: SS0 escrow convention + manifest · SS1 drift checker enforced in verify lanes · SS2 deploy-lane sync · SS3 escrow seeding (human-gated) · SS4 Secrets Store for shared keys · SS5 rotation runbook + BF9 preflight. |
 | **P1, P3–P7** | [`epics/saas-product-areas/`](./epics/saas-product-areas/) | Holding register | P1 promote-flow · P3 observability · P4 notification inbox · P5 marketplace (⬆ promoted → `saas-integrations`) · P6 changelog/status · P7 AI-native. |
+| **MM** | [`epics/matchmaker/`](./epics/matchmaker/) | In progress | The first product bounded context: MM1 roster · MM2 balancing draft engine · MM3 fixtures + share (backend built) · MM4 console surface · MM5 public share link · MM6 audit trail · MM7 bulk import/export. |
 
 For the status legend (`Draft → In progress → ✅ Shipped → ⛔ Blocked → Closed`),
 see [`README.md`](./README.md).

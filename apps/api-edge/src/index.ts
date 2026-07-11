@@ -19,6 +19,7 @@ import {
   handleIntegrationsRoute,
   handleIntegrationsIngressRoute,
 } from "./integrations-facade";
+import { isMatchmakerRoute, handleMatchmakerRoute } from "./matchmaker-facade";
 import { isSoloMode, isSoloSuppressed } from "./solo-mode";
 
 // Durable Object class backing the PERF5 Stage B rate-limit counters. Must be
@@ -70,6 +71,8 @@ export default {
       response = await handleBillingRoute(request, env, requestId, url.pathname);
     } else if (isProjectRoute(url.pathname)) {
       response = await handleProjectRoute(request, env, requestId, url.pathname);
+    } else if (isMatchmakerRoute(url.pathname)) {
+      response = await handleMatchmakerRoute(request, env, requestId, url.pathname);
     } else if (isOrgRoute(url.pathname)) {
       response = await handleOrgRoute(request, env, requestId, url.pathname);
     } else {

@@ -183,5 +183,14 @@ export const manifest: MigrationManifest = {
       description:
         "Connection pointer on the inbound-delivery inbox (nullable connection_id + partial index) — lets the per-connection delivery log scope precisely; attributed by the IG2 cron drain",
     },
+    {
+      id: "200_matchmaker_core",
+      context: "matchmaker",
+      path: "200_matchmaker_core/up.sql",
+      checksum:
+        "86a9e5b279d7e96dcc2766bb095054b1c9afd81e083460bb392e67757b7cc599",
+      description:
+        "Matchmaker product persistence foundation — the shared roster (players with computed OVR + attribute sets) and fixtures (matches with immutable lineup snapshots + share token), tenant-isolated by org_id and owned by the matchmaker worker",
+    },
   ],
 };
