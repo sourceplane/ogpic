@@ -38,10 +38,11 @@ const nextConfig = {
   },
   env: {
     NEXT_PUBLIC_DEPLOY_ENV: process.env.NEXT_PUBLIC_DEPLOY_ENV ?? "",
-    // M0 / Solo profile (Ogpic ships single-user). Build with
-    // NEXT_PUBLIC_SOLO_MODE=false to restore the full multi-tenant baseline.
-    // See specs/profiles/solo-m0.md.
-    NEXT_PUBLIC_SOLO_MODE: process.env.NEXT_PUBLIC_SOLO_MODE ?? "true",
+    // Rondo is inherently multi-team (create / join / leave squads), so the
+    // console runs on the full multi-tenant baseline — SOLO_MODE is off, matching
+    // api-edge. Build with NEXT_PUBLIC_SOLO_MODE=true to restore the single-user
+    // Solo profile. See specs/profiles/solo-m0.md.
+    NEXT_PUBLIC_SOLO_MODE: process.env.NEXT_PUBLIC_SOLO_MODE ?? "false",
   },
   // Rondo-first: the generic multi-tenant console surface is retired. Any stray
   // link or bookmark into it lands back in the Rondo experience. (The Rondo

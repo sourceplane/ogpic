@@ -1,3 +1,8 @@
+/// <reference types="@cloudflare/workers-types" />
+// The workers-types reference keeps this shared source self-contained: consumers
+// that transform it directly (e.g. identity-worker-tests via ts-jest, whose
+// tsconfig scopes `types` to jest/node) still resolve the `Fetcher` global below.
+
 import type {
   EnqueueNotificationRequest,
   EnqueueNotificationResponse,

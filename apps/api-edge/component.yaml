@@ -24,6 +24,7 @@ spec:
     - component: membership-worker
     - component: metering-worker
     - component: notifications-worker
+    - component: matchmaker-worker
   language: typescript
   tags:
     - edge

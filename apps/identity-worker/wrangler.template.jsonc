@@ -25,7 +25,9 @@
     "GOOGLE_OAUTH_CLIENT_ID": "",
     "OAUTH_REDIRECT_BASE_URL": "http://localhost:8787",
     "OAUTH_ALLOWED_CONSOLE_ORIGINS": "http://localhost:3000",
-    "SOLO_MODE": "true"
+    // Off for Rondo: no phantom personal org is auto-provisioned on login —
+    // users start with no squad and create or join one. See specs/profiles/solo-m0.md.
+    "SOLO_MODE": "false"
   },
   "env": {
     "dev": {
@@ -36,7 +38,7 @@
         "GOOGLE_OAUTH_CLIENT_ID": "",
         "OAUTH_REDIRECT_BASE_URL": "",
         "OAUTH_ALLOWED_CONSOLE_ORIGINS": "https://ogpic-web-console-next-dev.rahulvarghesepullely.workers.dev",
-        "SOLO_MODE": "true"
+        "SOLO_MODE": "false"
       }
     },
     "stage": {
@@ -47,7 +49,7 @@
         "GOOGLE_OAUTH_CLIENT_ID": "441163126775-7fabhvpbl9tsga921rklpdlde7mduq34.apps.googleusercontent.com",
         "OAUTH_REDIRECT_BASE_URL": "https://ogpic-api-edge-stage.rahulvarghesepullely.workers.dev",
         "OAUTH_ALLOWED_CONSOLE_ORIGINS": "https://stage.ogpic.app,https://ogpic-web-console-next-stage.rahulvarghesepullely.workers.dev",
-        "SOLO_MODE": "true"
+        "SOLO_MODE": "false"
       },
       "hyperdrive": [
         {
@@ -78,7 +80,7 @@
         "GOOGLE_OAUTH_CLIENT_ID": "441163126775-7fabhvpbl9tsga921rklpdlde7mduq34.apps.googleusercontent.com",
         "OAUTH_REDIRECT_BASE_URL": "https://ogpic-api-edge-prod.rahulvarghesepullely.workers.dev",
         "OAUTH_ALLOWED_CONSOLE_ORIGINS": "https://prod.ogpic.app,https://ogpic-web-console-next-prod.rahulvarghesepullely.workers.dev",
-        "SOLO_MODE": "true"
+        "SOLO_MODE": "false"
       },
       "hyperdrive": [
         {

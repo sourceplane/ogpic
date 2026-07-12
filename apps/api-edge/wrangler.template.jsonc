@@ -11,9 +11,11 @@
   "vars": {
     "ENVIRONMENT": "local",
     "CONSOLE_CUSTOM_DOMAIN": "",
-    // M0 / Solo profile (Ogpic ships single-user). Set "false" to restore the
-    // full multi-tenant baseline. See specs/profiles/solo-m0.md.
-    "SOLO_MODE": "true"
+    // Rondo is an inherently multi-team product (create / join / leave teams,
+    // rosters, invitations), so it runs on the full multi-tenant baseline —
+    // SOLO_MODE is off. Flip to "true" to restore the single-user Solo profile.
+    // See specs/profiles/solo-m0.md.
+    "SOLO_MODE": "false"
   },
   "durable_objects": {
     "bindings": [
@@ -28,7 +30,7 @@
       "vars": {
         "ENVIRONMENT": "dev",
         "CONSOLE_CUSTOM_DOMAIN": "",
-        "SOLO_MODE": "true"
+        "SOLO_MODE": "false"
       },
       "durable_objects": {
         "bindings": [
@@ -43,7 +45,7 @@
       "vars": {
         "ENVIRONMENT": "stage",
         "CONSOLE_CUSTOM_DOMAIN": "stage.ogpic.app",
-        "SOLO_MODE": "true"
+        "SOLO_MODE": "false"
       },
       "hyperdrive": [
         {
@@ -116,7 +118,7 @@
       "vars": {
         "ENVIRONMENT": "prod",
         "CONSOLE_CUSTOM_DOMAIN": "prod.ogpic.app",
-        "SOLO_MODE": "true"
+        "SOLO_MODE": "false"
       },
       "hyperdrive": [
         {
