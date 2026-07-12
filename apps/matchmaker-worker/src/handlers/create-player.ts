@@ -7,7 +7,8 @@ import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { requireOrgAction } from "../authz.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { toPublicPlayer } from "../mappers.js";
-import { computeOvr, isPlayerPosition, validateAttributes } from "../engine/index.js";
+import { computeOvr, defaultAttributes, isPlayerPosition, validateAttributes } from "../engine/index.js";
+import { validateEmail } from "./player-email.js";
 
 const NAME_MIN = 1;
 const NAME_MAX = 80;
@@ -17,6 +18,7 @@ export interface ValidatedPlayer {
   position: PlayerPosition;
   attributes: Record<string, number>;
   rating: number;
+  email: string | null;
 }
 
 export function validatePlayerBody(
@@ -36,15 +38,24 @@ export function validatePlayerBody(
     fields.position = ["Must be one of GK, DEF, MID, FWD, ALL"];
   }
 
+  // Attributes are optional: a manager can add a player with just a name and
+  // position and the roster seeds a default strength (OVR 60), adjustable later
+  // or shifted by community voting.
   let attributes: Record<string, number> = {};
   if (isPlayerPosition(req.position)) {
-    const attrCheck = validateAttributes(req.position, req.attributes);
-    if (!attrCheck.valid) {
-      fields.attributes = [attrCheck.reason];
+    if (req.attributes === undefined || req.attributes === null) {
+      attributes = defaultAttributes(req.position);
     } else {
-      attributes = attrCheck.attributes;
+      const attrCheck = validateAttributes(req.position, req.attributes);
+      if (!attrCheck.valid) {
+        fields.attributes = [attrCheck.reason];
+      } else {
+        attributes = attrCheck.attributes;
+      }
     }
   }
+
+  const email = validateEmail(req.email, fields);
 
   if (Object.keys(fields).length > 0) {
     return { valid: false, fields };
@@ -53,7 +64,7 @@ export function validatePlayerBody(
   const position = req.position as PlayerPosition;
   return {
     valid: true,
-    value: { name: (req.name as string).trim(), position, attributes, rating: computeOvr(attributes) },
+    value: { name: (req.name as string).trim(), position, attributes, rating: computeOvr(attributes), email },
   };
 }
 
@@ -98,6 +109,7 @@ export async function handleCreatePlayer(
       position: validation.value.position,
       rating: validation.value.rating,
       attributes: validation.value.attributes,
+      email: validation.value.email,
       createdAt: new Date(),
     });
     if (!result.ok) {

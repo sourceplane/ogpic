@@ -237,5 +237,14 @@ export const manifest: MigrationManifest = {
       description:
         "Practice-match venue on fixtures (venue_name, venue_address, venue_booked) so a manager can record or secure a pitch, owned by the matchmaker worker",
     },
+    {
+      id: "260_matchmaker_player_email",
+      context: "matchmaker",
+      path: "260_matchmaker_player_email/up.sql",
+      checksum:
+        "9ba23b586605c878bd7de6cb58a48743a4aa56d613c67a55dce61a516f2b1a8b",
+      description:
+        "Optional contact email on roster players (groundwork for match availability-request emails), owned by the matchmaker worker",
+    },
   ],
 };

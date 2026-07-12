@@ -17,6 +17,7 @@ function player(): Player {
     attributes: { PAC: 60, SHO: 60, PAS: 60, DRI: 60, DEF: 60, PHY: 60 },
     status: "active",
     isCaptain: false,
+    email: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     archivedAt: null,

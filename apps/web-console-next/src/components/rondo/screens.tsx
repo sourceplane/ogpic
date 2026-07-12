@@ -749,7 +749,20 @@ const PENDING = [
   { id: "inv2", name: "Pavel Novak", initials: "PN", via: "LINK · rondo.app/j" },
 ];
 
+const ADD_POSITIONS = ["GK", "DEF", "MID", "FWD", "ALL"] as const;
+
 export function MembersScreen({ vm }: { vm: RondoVM }) {
+  const [addName, setAddName] = React.useState("");
+  const [addPos, setAddPos] = React.useState<(typeof ADD_POSITIONS)[number]>("MID");
+  const [addEmail, setAddEmail] = React.useState("");
+  const canAdd = addName.trim().length > 0;
+  const submitAdd = () => {
+    if (!canAdd) return;
+    vm.addPlayer({ name: addName.trim(), position: addPos, email: addEmail.trim() || null });
+    setAddName("");
+    setAddEmail("");
+    setAddPos("MID");
+  };
   const rosterMembers = vm.players
     .filter((p) => !vm.membersRemoved.includes(p.id))
     .map((p) => ({
@@ -797,9 +810,36 @@ export function MembersScreen({ vm }: { vm: RondoVM }) {
                 <Copy size={18} strokeWidth={2} />
               </button>
             </div>
+            <Mono style={{ fontSize: 9, color: "#8A9B92", letterSpacing: ".5px", margin: "14px 0 8px", display: "block" }}>ADD A PLAYER</Mono>
+            <div style={{ display: "flex", gap: 9 }}>
+              <input
+                value={addName}
+                onChange={(e) => setAddName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && submitAdd()}
+                placeholder="Player name"
+                style={{ flex: 1, height: 44, borderRadius: 12, background: "#0C110E", border: "1px solid rgba(255,255,255,.08)", color: "#F4F3F0", padding: "0 13px", fontSize: 12.5, outline: "none" }}
+              />
+              <select
+                value={addPos}
+                onChange={(e) => setAddPos(e.target.value as (typeof ADD_POSITIONS)[number])}
+                aria-label="Position"
+                style={{ width: 80, height: 44, borderRadius: 12, background: "#0C110E", border: "1px solid rgba(255,255,255,.08)", color: "#F4F3F0", padding: "0 8px", fontSize: 12.5, outline: "none" }}
+              >
+                {ADD_POSITIONS.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
             <div style={{ display: "flex", gap: 9, marginTop: 9 }}>
-              <div style={{ flex: 1, height: 44, borderRadius: 12, background: "#0C110E", border: "1px solid rgba(255,255,255,.08)", display: "flex", alignItems: "center", padding: "0 13px", fontSize: 12.5, color: "#63666C" }}>Add player by ID…</div>
-              <button style={{ padding: "0 18px", borderRadius: 12, background: "#141619", border: "1px solid rgba(255,255,255,.12)", color: "#F4F3F0", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>Add</button>
+              <input
+                value={addEmail}
+                onChange={(e) => setAddEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && submitAdd()}
+                placeholder="Email for RSVP (optional)"
+                type="email"
+                style={{ flex: 1, height: 44, borderRadius: 12, background: "#0C110E", border: "1px solid rgba(255,255,255,.08)", color: "#F4F3F0", padding: "0 13px", fontSize: 12.5, outline: "none" }}
+              />
+              <button onClick={submitAdd} disabled={!canAdd} style={{ padding: "0 18px", borderRadius: 12, background: canAdd ? "#56C98D" : "#141619", border: canAdd ? "none" : "1px solid rgba(255,255,255,.12)", color: canAdd ? "#07130D" : "#63666C", fontSize: 12.5, fontWeight: 800, cursor: canAdd ? "pointer" : "default" }}>Add</button>
             </div>
             <button style={{ width: "100%", height: 44, marginTop: 9, borderRadius: 12, background: "none", border: "1px solid rgba(86,201,141,.3)", color: "#56C98D", fontSize: 12.5, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
               <Upload size={15} strokeWidth={2} />

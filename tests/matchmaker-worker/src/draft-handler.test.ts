@@ -16,6 +16,7 @@ function player(id: string, position: Player["position"], rating: number): Playe
     attributes: {},
     status: "active",
     isCaptain: false,
+    email: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     archivedAt: null,

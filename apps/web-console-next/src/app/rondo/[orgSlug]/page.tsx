@@ -106,6 +106,16 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: qk.roster(orgId) }),
         );
       },
+      addPlayer: (input: { name: string; position: string; email?: string | null }) => {
+        // Attributes omitted → the server seeds a default OVR-60 strength.
+        void wrap(() =>
+          client.roster.scout(orgId, {
+            name: input.name,
+            position: input.position as "GK" | "DEF" | "MID" | "FWD" | "ALL",
+            ...(input.email ? { email: input.email } : {}),
+          }),
+        ).then(() => qc.invalidateQueries({ queryKey: qk.roster(orgId) }));
+      },
       schedule: async ({ scheduledAt, venue }) => {
         // Auto-balance the available squad into two sides, then persist the
         // fixture with the chosen venue. Voting-blended ratings drive the draft.

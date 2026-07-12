@@ -8,6 +8,7 @@ import { requireOrgAction } from "../authz.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { toPublicPlayer } from "../mappers.js";
 import { computeOvr, isPlayerPosition, validateAttributes } from "../engine/index.js";
+import { validateEmail } from "./player-email.js";
 
 const NAME_MIN = 1;
 const NAME_MAX = 80;
@@ -17,6 +18,7 @@ export interface ResolvedUpdate {
   position: PlayerPosition;
   attributes: Record<string, number>;
   rating: number;
+  email: string | null;
 }
 
 /**
@@ -25,7 +27,7 @@ export interface ResolvedUpdate {
  * no longer fit the new position class), otherwise the request is a 422.
  */
 export function resolvePlayerUpdate(
-  existing: Pick<Player, "name" | "position" | "attributes">,
+  existing: Pick<Player, "name" | "position" | "attributes" | "email">,
   body: unknown,
 ): { valid: true; value: ResolvedUpdate } | { valid: false; fields: Record<string, string[]> } {
   if (!body || typeof body !== "object") {
@@ -67,11 +69,16 @@ export function resolvePlayerUpdate(
     fields.attributes = ["A matching attributes set is required when changing position"];
   }
 
+  let email = existing.email;
+  if (req.email !== undefined) {
+    email = validateEmail(req.email, fields);
+  }
+
   if (Object.keys(fields).length > 0) {
     return { valid: false, fields };
   }
 
-  return { valid: true, value: { name, position, attributes, rating: computeOvr(attributes) } };
+  return { valid: true, value: { name, position, attributes, rating: computeOvr(attributes), email } };
 }
 
 export interface HandleUpdatePlayerDeps {
@@ -119,6 +126,7 @@ export async function handleUpdatePlayer(
       position: resolved.value.position,
       rating: resolved.value.rating,
       attributes: resolved.value.attributes,
+      email: resolved.value.email,
       updatedAt: new Date(),
     });
     if (!result.ok) {

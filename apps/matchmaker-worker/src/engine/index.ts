@@ -2,6 +2,8 @@ export { computeOvr } from "./ovr.js";
 export {
   ATTRIBUTE_MIN,
   ATTRIBUTE_MAX,
+  DEFAULT_ATTRIBUTE_VALUE,
+  defaultAttributes,
   isPlayerPosition,
   expectedKeysForPosition,
   validateAttributes,

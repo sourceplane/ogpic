@@ -47,6 +47,7 @@ function mapPlayer(row: Record<string, unknown>): Player {
     position: row.position as PlayerPosition,
     rating: Number(row.rating),
     attributes: parseJson<Record<string, number>>(row.attributes, {}),
+    email: (row.email as string | null) ?? null,
     status: row.status as Player["status"],
     isCaptain: row.is_captain === true,
     createdAt: new Date(row.created_at as string),
@@ -107,8 +108,8 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
     async createPlayer(input: CreatePlayerInput): Promise<MatchmakerResult<Player>> {
       try {
         const result = await executor.execute<Record<string, unknown>>(
-          `INSERT INTO matchmaker.players (id, org_id, name, position, rating, attributes, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $7)
+          `INSERT INTO matchmaker.players (id, org_id, name, position, rating, attributes, email, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $8)
            ON CONFLICT (id) DO NOTHING
            RETURNING *`,
           [
@@ -118,6 +119,7 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
             input.position,
             input.rating,
             JSON.stringify(input.attributes),
+            input.email,
             input.createdAt.toISOString(),
           ],
         );
@@ -156,7 +158,7 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
       try {
         const result = await executor.execute<Record<string, unknown>>(
           `UPDATE matchmaker.players
-           SET name = $3, position = $4, rating = $5, attributes = $6::jsonb, updated_at = $7
+           SET name = $3, position = $4, rating = $5, attributes = $6::jsonb, email = $8, updated_at = $7
            WHERE org_id = $1 AND id = $2 AND status = 'active'
            RETURNING *`,
           [
@@ -167,6 +169,7 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
             input.rating,
             JSON.stringify(input.attributes),
             input.updatedAt.toISOString(),
+            input.email,
           ],
         );
         if (result.rowCount === 0) {

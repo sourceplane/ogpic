@@ -10,6 +10,17 @@ import {
 export const ATTRIBUTE_MIN = 1;
 export const ATTRIBUTE_MAX = 99;
 
+/** Starting value for every attribute of a newly-added player (OVR 60). */
+export const DEFAULT_ATTRIBUTE_VALUE = 60;
+
+/** The default (middle-of-the-road) attribute set for a position — the
+ *  "default strength score" a manager can later adjust or let voting shift. */
+export function defaultAttributes(position: PlayerPosition): Record<string, number> {
+  const attrs: Record<string, number> = {};
+  for (const key of expectedKeysForPosition(position)) attrs[key] = DEFAULT_ATTRIBUTE_VALUE;
+  return attrs;
+}
+
 export function isPlayerPosition(value: unknown): value is PlayerPosition {
   return typeof value === "string" && (PLAYER_POSITIONS as readonly string[]).includes(value);
 }
