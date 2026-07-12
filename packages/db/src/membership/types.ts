@@ -28,8 +28,43 @@ export interface Organization {
    * Resolve with `effectiveBillingOrgId`.
    */
   parentOrgId: string | null;
+  /** Shareable, rotatable code that lets a signed-in user request to join.
+   *  Optional so the many existing Organization fixtures/literals need no edit. */
+  joinCode?: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export type JoinRequestStatus = "pending" | "approved" | "declined";
+
+export interface JoinRequest {
+  id: string;
+  orgId: string;
+  subjectId: string;
+  subjectType: string;
+  status: JoinRequestStatus;
+  requestedRole: string;
+  createdAt: Date;
+  decidedAt: Date | null;
+  decidedBy: string | null;
+}
+
+export interface CreateJoinRequestInput {
+  id: string;
+  orgId: Uuid;
+  subjectId: string;
+  subjectType: string;
+  requestedRole: string;
+  createdAt: Date;
+}
+
+export interface ApproveJoinRequestInput {
+  orgId: Uuid;
+  requestId: string;
+  memberId: string;
+  roleAssignmentId: string;
+  decidedBy: string;
+  decidedAt: Date;
 }
 
 export interface OrganizationMember {
@@ -145,6 +180,14 @@ export interface MembershipRepository {
   createOrganization(input: CreateOrganizationInput): Promise<MembershipResult<Organization>>;
   getOrganizationById(id: string): Promise<MembershipResult<Organization>>;
   getOrganizationBySlug(slugLower: string): Promise<MembershipResult<Organization>>;
+  getOrganizationByJoinCode(joinCode: string): Promise<MembershipResult<Organization>>;
+  setOrganizationJoinCode(orgId: Uuid, joinCode: string, updatedAt: Date): Promise<MembershipResult<Organization>>;
+  createJoinRequest(input: CreateJoinRequestInput): Promise<MembershipResult<JoinRequest>>;
+  listJoinRequests(orgId: Uuid): Promise<MembershipResult<JoinRequest[]>>;
+  approveJoinRequest(
+    input: ApproveJoinRequestInput,
+  ): Promise<MembershipResult<{ request: JoinRequest; member: OrganizationMember; roleAssignment: RoleAssignment }>>;
+  declineJoinRequest(orgId: Uuid, requestId: string, decidedBy: string, decidedAt: Date): Promise<MembershipResult<JoinRequest>>;
   /** Child orgs whose billing parent is `parentOrgId` (MO3), oldest first. */
   listChildOrganizations(parentOrgId: string): Promise<MembershipResult<Organization[]>>;
   /** Set an org's lifecycle status (e.g. freeze a child to 'suspended', MO3). */

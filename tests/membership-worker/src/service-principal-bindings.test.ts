@@ -1,3 +1,4 @@
+import { joinRepoStubs } from "./helpers/join-repo-stubs.js";
 import {
   handleCreateServicePrincipalBinding,
   handleListServicePrincipalBindings,
@@ -44,6 +45,7 @@ function createFakeRepo(opts: {
 } = {}): MembershipRepository {
   const roleAssignments = opts.roleAssignments ?? [];
   return {
+    ...joinRepoStubs,
     async listRoleAssignments() {
       return { ok: true as const, value: roleAssignments };
     },

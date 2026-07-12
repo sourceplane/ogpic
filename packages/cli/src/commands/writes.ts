@@ -282,3 +282,51 @@ export async function webhookCreateCommand(ctx: CommandContext): Promise<Command
   }
   return { exitCode: 0 };
 }
+
+// ---------------------------------------------------------------------------
+// Join by code / request-to-join
+// ---------------------------------------------------------------------------
+
+export async function joinCommand(ctx: CommandContext): Promise<CommandResult> {
+  const code = ctx.args[0];
+  if (code === undefined || code.length === 0) {
+    throw new UsageError("usage: ogpic join <code>");
+  }
+  const sdk = await ctx.sdk();
+  const result = await sdk.memberships.join({ code });
+  emitRecord(
+    ctx,
+    { request: result.request.id, status: result.request.status, team: result.orgName, slug: result.orgSlug },
+    result,
+    `Requested to join ${result.orgName}`,
+  );
+  return { exitCode: 0 };
+}
+
+export async function joinCodeRotateCommand(ctx: CommandContext): Promise<CommandResult> {
+  const orgId = await resolveOrgId(ctx, true);
+  const sdk = await ctx.sdk();
+  const result = await sdk.memberships.rotateJoinCode(orgId);
+  emitRecord(ctx, { code: result.code }, result, `Join code rotated for ${orgId}`);
+  return { exitCode: 0 };
+}
+
+export async function joinRequestApproveCommand(ctx: CommandContext): Promise<CommandResult> {
+  const reqId = ctx.args[0];
+  if (reqId === undefined) throw new UsageError("usage: ogpic org join-approve <requestId> [--org=ORG_ID]");
+  const orgId = await resolveOrgId(ctx, true);
+  const sdk = await ctx.sdk();
+  const result = await sdk.memberships.approveJoinRequest(orgId, reqId);
+  emitRecord(ctx, { request: result.request.id, status: result.request.status }, result, `Join request approved`);
+  return { exitCode: 0 };
+}
+
+export async function joinRequestDeclineCommand(ctx: CommandContext): Promise<CommandResult> {
+  const reqId = ctx.args[0];
+  if (reqId === undefined) throw new UsageError("usage: ogpic org join-decline <requestId> [--org=ORG_ID]");
+  const orgId = await resolveOrgId(ctx, true);
+  const sdk = await ctx.sdk();
+  const result = await sdk.memberships.declineJoinRequest(orgId, reqId);
+  emitRecord(ctx, { request: result.request.id, status: result.request.status }, result, `Join request declined`);
+  return { exitCode: 0 };
+}

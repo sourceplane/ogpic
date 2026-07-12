@@ -5,8 +5,16 @@
  * scoring / community remain local state until their backend slices land.
  */
 import type { PublicAvailability, PublicMatch, PublicPlayer } from "@saas/contracts/matchmaker";
+import type { PublicJoinRequest } from "@saas/sdk";
 import type { Availability, Player, Position, TeamMeta } from "./logic";
-import type { LiveMatchRow, RondoSeed } from "./use-rondo";
+import type { LiveJoinRequest, LiveMatchRow, RondoSeed } from "./use-rondo";
+
+/** Pending join requests → member-list rows (subject id is all we have as a label). */
+export function joinRequestRows(requests: PublicJoinRequest[]): LiveJoinRequest[] {
+  return requests
+    .filter((r) => r.status === "pending")
+    .map((r) => ({ id: r.id, name: `Player ${r.subjectId.replace(/^usr_/, "").slice(0, 6)}`, via: "REQUEST · JOIN CODE" }));
+}
 
 const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
@@ -61,6 +69,8 @@ export function buildLiveSeed(args: {
   isManager: boolean;
   availability?: Record<string, Availability>;
   matches?: LiveMatchRow[];
+  joinCode?: string;
+  joinRequests?: LiveJoinRequest[];
   live?: RondoSeed["live"];
 }): RondoSeed {
   const team: TeamMeta = {
@@ -82,6 +92,8 @@ export function buildLiveSeed(args: {
     startScreen: "squad",
     ...(args.availability ? { availability: args.availability } : {}),
     ...(args.matches ? { matches: args.matches } : {}),
+    ...(args.joinCode ? { joinCode: args.joinCode } : {}),
+    ...(args.joinRequests ? { joinRequests: args.joinRequests } : {}),
     ...(args.live ? { live: args.live } : {}),
   };
 }

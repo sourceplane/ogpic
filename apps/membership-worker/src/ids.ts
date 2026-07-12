@@ -62,3 +62,22 @@ export async function generateInvitationToken(): Promise<{ raw: string; hash: st
   const hash = await hashToken(raw);
   return { raw, hash };
 }
+
+// Join code: 6 chars from an unambiguous alphabet (no 0/O/1/I/L) for a
+// human-shareable squad code.
+const JOIN_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+export function generateJoinCode(): string {
+  const buf = new Uint8Array(6);
+  crypto.getRandomValues(buf);
+  let code = "";
+  for (let i = 0; i < 6; i++) code += JOIN_CODE_ALPHABET[buf[i]! % JOIN_CODE_ALPHABET.length];
+  return code;
+}
+
+export function joinRequestPublicId(uuid: string): string {
+  return `jrq_${uuidToHex(uuid)}`;
+}
+export function parseJoinRequestPublicId(publicId: string): string | null {
+  if (!publicId.startsWith("jrq_")) return null;
+  return hexToUuid(publicId.slice(4));
+}

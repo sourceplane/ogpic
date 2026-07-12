@@ -9,6 +9,13 @@ import { handleRemoveMember } from "./handlers/remove-member.js";
 import { handleCreateInvitation } from "./handlers/create-invitation.js";
 import { handleListInvitations } from "./handlers/list-invitations.js";
 import { handleRevokeInvitation } from "./handlers/revoke-invitation.js";
+import {
+  handleGetJoinCode,
+  handleRotateJoinCode,
+  handleSubmitJoinRequest,
+  handleListJoinRequests,
+  handleDecideJoinRequest,
+} from "./handlers/join.js";
 import { handleAcceptInvitation } from "./handlers/accept-invitation.js";
 import { handleAuthorizationContext } from "./handlers/authorization-context.js";
 import { handleSyncAccountChildren } from "./handlers/sync-account-children.js";
@@ -43,6 +50,11 @@ const ORG_MEMBER_ID_RE = /^\/v1\/organizations\/([^/]+)\/members\/([^/]+)$/;
 const ORG_INVITATIONS_ACCEPT_RE = /^\/v1\/organizations\/([^/]+)\/invitations\/accept$/;
 const ORG_INVITATIONS_RE = /^\/v1\/organizations\/([^/]+)\/invitations$/;
 const ORG_INVITATION_ID_RE = /^\/v1\/organizations\/([^/]+)\/invitations\/([^/]+)$/;
+const JOIN_RE = /^\/v1\/join$/;
+const ORG_JOIN_CODE_RE = /^\/v1\/organizations\/([^/]+)\/join-code$/;
+const ORG_JOIN_CODE_ROTATE_RE = /^\/v1\/organizations\/([^/]+)\/join-code\/rotate$/;
+const ORG_JOIN_REQUESTS_RE = /^\/v1\/organizations\/([^/]+)\/join-requests$/;
+const ORG_JOIN_REQUEST_DECIDE_RE = /^\/v1\/organizations\/([^/]+)\/join-requests\/([^/]+)\/(approve|decline)$/;
 const SP_BINDINGS_PATH = "/v1/internal/membership/service-principal-bindings";
 const SP_BINDING_ID_RE = /^\/v1\/internal\/membership\/service-principal-bindings\/([^/]+)$/;
 
@@ -202,6 +214,50 @@ export async function route(request: Request, env: Env): Promise<Response> {
         return handleGetOrganization(env, requestId, actor, orgMatch[1]!);
       }
       return methodNotAllowed(requestId);
+    }
+
+    // ── Join by code (cross-org; authenticated non-member) ──
+    if (JOIN_RE.test(url.pathname)) {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleSubmitJoinRequest(request, env, requestId, actor);
+    }
+
+    // ── Join code: rotate (fixed segment; must precede join-code) ──
+    const joinCodeRotateMatch = url.pathname.match(ORG_JOIN_CODE_ROTATE_RE);
+    if (joinCodeRotateMatch) {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleRotateJoinCode(env, requestId, actor, joinCodeRotateMatch[1]!);
+    }
+
+    // ── Join code: read ──
+    const joinCodeMatch = url.pathname.match(ORG_JOIN_CODE_RE);
+    if (joinCodeMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleGetJoinCode(env, requestId, actor, joinCodeMatch[1]!);
+    }
+
+    // ── Join requests: decide (fixed segments; must precede collection) ──
+    const joinDecideMatch = url.pathname.match(ORG_JOIN_REQUEST_DECIDE_RE);
+    if (joinDecideMatch) {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleDecideJoinRequest(env, requestId, actor, joinDecideMatch[1]!, joinDecideMatch[2]!, joinDecideMatch[3] === "approve");
+    }
+
+    // ── Join requests: list ──
+    const joinRequestsMatch = url.pathname.match(ORG_JOIN_REQUESTS_RE);
+    if (joinRequestsMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleListJoinRequests(env, requestId, actor, joinRequestsMatch[1]!);
     }
 
     return notFound(requestId, url.pathname);

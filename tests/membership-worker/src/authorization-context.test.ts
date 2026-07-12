@@ -1,3 +1,4 @@
+import { joinRepoStubs } from "./helpers/join-repo-stubs.js";
 import { handleAuthorizationContext } from "@membership-worker/handlers/authorization-context";
 import { mapRoleAssignmentsToFacts } from "@membership-worker/membership-facts";
 import type { MembershipRepository, RoleAssignment } from "@saas/db/membership";
@@ -13,6 +14,7 @@ function createFakeEnv(overrides: Partial<Env> = {}): Env {
 
 function createFakeRepo(roleAssignments: RoleAssignment[] = []): MembershipRepository {
   return {
+    ...joinRepoStubs,
     async listRoleAssignments() {
       return { ok: true, value: roleAssignments };
     },

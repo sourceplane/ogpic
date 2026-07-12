@@ -17,6 +17,10 @@ import {
 } from "./commands/index.js";
 import {
   orgInviteCommand,
+  joinCommand,
+  joinCodeRotateCommand,
+  joinRequestApproveCommand,
+  joinRequestDeclineCommand,
   projectCreateCommand,
   envCreateCommand,
   apiKeyCreateCommand,
@@ -184,6 +188,10 @@ function buildRouter(opts: RunOptions): Router {
   r.register(["org", "use"], "Set the active organization", orgUseCommand);
   r.register(["org", "members"], "List members of the active organization", orgMembersCommand);
   r.register(["org", "invite"], "Invite a member to an organization", orgInviteCommand);
+  r.register(["join"], "Request to join a squad by its code", joinCommand);
+  r.register(["org", "join-code", "rotate"], "Rotate the squad join code", joinCodeRotateCommand);
+  r.register(["org", "join-approve"], "Approve a pending join request", joinRequestApproveCommand);
+  r.register(["org", "join-decline"], "Decline a pending join request", joinRequestDeclineCommand);
   // Projects
   r.register(["project", "list"], "List projects in the active organization", projectListCommand);
   r.register(["project", "create"], "Create a project in the active organization", projectCreateCommand);

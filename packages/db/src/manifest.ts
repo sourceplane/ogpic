@@ -210,5 +210,14 @@ export const manifest: MigrationManifest = {
       description:
         "Team captain designation on the roster (is_captain, at most one per org via a partial unique index), owned by the matchmaker worker",
     },
+    {
+      id: "230_membership_join_requests",
+      context: "membership",
+      path: "230_membership_join_requests/up.sql",
+      checksum:
+        "c92bd383b1fda028c200c1dd33b0da7b232487ca6f9a04e95487d9902c95fcb8",
+      description:
+        "Join-by-code / request-to-join: a shareable rotatable join_code on organizations plus a join_requests table (pending/approved/declined) for manager approval, owned by the membership context",
+    },
   ],
 };
