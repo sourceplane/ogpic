@@ -362,6 +362,11 @@ export type {
   CastVotesRequest,
   CastVotesResponse,
   GetVotesResponse,
+  RatingRoundStatus,
+  PublicRatingRound,
+  GetRatingRoundResponse,
+  OpenRatingRoundRequest,
+  RatingRoundResponse,
 } from "@saas/contracts/matchmaker";
 export {
   PLAYER_POSITIONS,

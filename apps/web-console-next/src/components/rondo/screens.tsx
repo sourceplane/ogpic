@@ -363,16 +363,24 @@ export function VoteScreen({ vm }: { vm: RondoVM }) {
       <div style={{ marginTop: 18, background: "#111316", border: "1px solid rgba(255,255,255,.08)", borderRadius: 16, padding: 15 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#56C98D", boxShadow: "0 0 8px #56C98D" }} />
-            <Mono style={{ fontSize: 11, color: "#C9CBCE", letterSpacing: ".5px" }}>VOTING OPEN</Mono>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: vm.votingOpen ? "#56C98D" : "#63666C", boxShadow: vm.votingOpen ? "0 0 8px #56C98D" : "none" }} />
+            <Mono style={{ fontSize: 11, color: "#C9CBCE", letterSpacing: ".5px" }}>{vm.votingOpen ? "VOTING OPEN" : "VOTING CLOSED"}</Mono>
           </div>
-          <Mono style={{ fontSize: 11, color: "#E0C074" }}>CLOSES 2d 04h</Mono>
+          {vm.canManageRound && (
+            vm.votingOpen ? (
+              <button onClick={() => vm.closeRound()} className="rondo-mono" style={{ fontSize: 11, background: "#1C1F23", border: "1px solid rgba(255,255,255,.1)", color: "#FF9385", borderRadius: 9, padding: "6px 12px", cursor: "pointer", fontWeight: 800 }}>Close window</button>
+            ) : (
+              <button onClick={() => { const reset = typeof window !== "undefined" && window.confirm("Open a voting round?\n\nOK = reset everyone to an equal baseline first (recommended for a fresh round).\nCancel = keep current scores."); vm.openRound(reset); }} className="rondo-mono" style={{ fontSize: 11, background: ACCENT, border: "none", color: "#07130D", borderRadius: 9, padding: "6px 12px", cursor: "pointer", fontWeight: 800 }}>Open window</button>
+            )
+          )}
         </div>
         <div style={{ marginTop: 12, height: 6, borderRadius: 3, background: "#22262b", overflow: "hidden" }}>
-          <div style={{ height: "100%", borderRadius: 3, background: ACCENT, width: `${Math.round((vm.ratedCount / vm.totalRatable) * 100)}%` }} />
+          <div style={{ height: "100%", borderRadius: 3, background: ACCENT, width: `${Math.round((vm.ratedCount / Math.max(1, vm.totalRatable)) * 100)}%` }} />
         </div>
         <div style={{ marginTop: 8, fontSize: 12, color: "#8A8D93" }}>
-          You&apos;ve rated <span style={{ color: "#F4F3F0", fontWeight: 700 }}>{vm.ratedCount}</span> of {vm.totalRatable} teammates
+          {vm.votingOpen
+            ? <>You&apos;ve rated <span style={{ color: "#F4F3F0", fontWeight: 700 }}>{vm.ratedCount}</span> of {vm.totalRatable} teammates</>
+            : "The manager opens a voting round; everyone starts equal and votes settle each player's score."}
         </div>
       </div>
 
@@ -388,15 +396,16 @@ export function VoteScreen({ vm }: { vm: RondoVM }) {
               </div>
               <button
                 onClick={() => vm.setVoteTarget(p.id)}
+                disabled={!vm.votingOpen}
                 style={{
                   padding: "8px 15px",
                   borderRadius: 11,
                   border: `1px solid ${voted ? "rgba(86,201,141,.3)" : "transparent"}`,
-                  background: voted ? "rgba(86,201,141,.12)" : ACCENT,
-                  color: voted ? "#56C98D" : "#07130D",
+                  background: !vm.votingOpen ? "#1C1F23" : voted ? "rgba(86,201,141,.12)" : ACCENT,
+                  color: !vm.votingOpen ? "#63666C" : voted ? "#56C98D" : "#07130D",
                   fontSize: 12,
                   fontWeight: 800,
-                  cursor: "pointer",
+                  cursor: vm.votingOpen ? "pointer" : "default",
                   whiteSpace: "nowrap",
                 }}
               >

@@ -180,6 +180,18 @@ export interface CastVotesInput {
   now: Date;
 }
 
+export type RatingRoundStatus = "open" | "closed";
+
+/** A manager-gated voting window. At most one is open per org at a time. */
+export interface RatingRound {
+  id: string;
+  orgId: string;
+  status: RatingRoundStatus;
+  openedBy: string;
+  openedAt: Date;
+  closedAt: Date | null;
+}
+
 export interface MatchmakerRepository {
   createPlayer(input: CreatePlayerInput): Promise<MatchmakerResult<Player>>;
   getPlayerById(orgId: Uuid, playerId: Uuid): Promise<MatchmakerResult<Player>>;
@@ -219,4 +231,13 @@ export interface MatchmakerRepository {
   getPlayerVoteStats(orgId: Uuid, playerId: Uuid): Promise<MatchmakerResult<PlayerVoteStats>>;
   /** Aggregate community sentiment for every voted player in the org. */
   listPlayerVoteStats(orgId: Uuid): Promise<MatchmakerResult<PlayerVoteStats[]>>;
+
+  /** The org's currently-open rating round, or null when voting is closed. */
+  getOpenRatingRound(orgId: Uuid): Promise<MatchmakerResult<RatingRound | null>>;
+  /** Open a rating round (conflict if one is already open). */
+  openRatingRound(id: string, orgId: Uuid, openedBy: string, now: Date): Promise<MatchmakerResult<RatingRound>>;
+  /** Close the org's open rating round (not_found when none is open). */
+  closeRatingRound(orgId: Uuid, now: Date): Promise<MatchmakerResult<RatingRound>>;
+  /** Reset every active player to an equal baseline OVR and clear all votes. */
+  resetScoresToBaseline(orgId: Uuid, baseline: number, now: Date): Promise<MatchmakerResult<void>>;
 }

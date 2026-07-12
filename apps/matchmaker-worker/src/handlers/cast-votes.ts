@@ -79,6 +79,14 @@ export async function handleCastVotes(
   const executor = deps?.repo ? null : createSqlExecutor(env.PLATFORM_DB!);
   try {
     const repo = deps?.repo ?? createMatchmakerRepository(executor!);
+
+    // Voting is only allowed while the manager has a rating round open.
+    const round = await repo.getOpenRatingRound(orgId);
+    if (!round.ok) return errorResponse("internal_error", "Service unavailable", 503, requestId);
+    if (round.value === null) {
+      return errorResponse("precondition_failed", "Voting is closed — no rating round is open", 409, requestId);
+    }
+
     const existing = await repo.getPlayerById(orgId, playerId);
     if (!existing.ok) {
       return errorResponse("not_found", "Not found", 404, requestId);
