@@ -53,6 +53,8 @@ export interface RondoLive {
   castVotes?: (playerId: string, votes: Record<string, number>) => void;
   /** Add a player to the roster with a default strength + optional email. */
   addPlayer?: (input: { name: string; position: string; email?: string | null }) => void;
+  /** Leave the current squad (self-removal); the host redirects afterwards. */
+  leaveTeam?: () => void;
 }
 
 export interface LiveJoinRequest {
@@ -320,6 +322,10 @@ export function useRondo(seed: RondoSeed = {}) {
     addPlayer: (input: { name: string; position: string; email?: string | null }) => {
       seed.live?.addPlayer?.(input);
     },
+    leaveTeam: () => {
+      seed.live?.leaveTeam?.();
+    },
+    canLeave: !!seed.live?.leaveTeam,
     approveJoin: (id: string) => {
       setInvitesResolved((r) => ({ ...r, [id]: "accepted" }));
       seed.live?.approveJoin?.(id);

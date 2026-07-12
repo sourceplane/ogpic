@@ -6,6 +6,7 @@ import { handleGetOrganization } from "./handlers/get-organization.js";
 import { handleListMembers } from "./handlers/list-members.js";
 import { handleUpdateMemberRole } from "./handlers/update-member-role.js";
 import { handleRemoveMember } from "./handlers/remove-member.js";
+import { handleLeaveOrganization } from "./handlers/leave.js";
 import { handleCreateInvitation } from "./handlers/create-invitation.js";
 import { handleListInvitations } from "./handlers/list-invitations.js";
 import { handleRevokeInvitation } from "./handlers/revoke-invitation.js";
@@ -51,6 +52,7 @@ const ORG_INVITATIONS_ACCEPT_RE = /^\/v1\/organizations\/([^/]+)\/invitations\/a
 const ORG_INVITATIONS_RE = /^\/v1\/organizations\/([^/]+)\/invitations$/;
 const ORG_INVITATION_ID_RE = /^\/v1\/organizations\/([^/]+)\/invitations\/([^/]+)$/;
 const JOIN_RE = /^\/v1\/join$/;
+const ORG_LEAVE_RE = /^\/v1\/organizations\/([^/]+)\/leave$/;
 const ORG_JOIN_CODE_RE = /^\/v1\/organizations\/([^/]+)\/join-code$/;
 const ORG_JOIN_CODE_ROTATE_RE = /^\/v1\/organizations\/([^/]+)\/join-code\/rotate$/;
 const ORG_JOIN_REQUESTS_RE = /^\/v1\/organizations\/([^/]+)\/join-requests$/;
@@ -222,6 +224,15 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       return handleSubmitJoinRequest(request, env, requestId, actor);
+    }
+
+    // ── Leave organization (self-service; any member) ──
+    const leaveMatch = url.pathname.match(ORG_LEAVE_RE);
+    if (leaveMatch) {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleLeaveOrganization(env, requestId, actor, leaveMatch[1]!);
     }
 
     // ── Join code: rotate (fixed segment; must precede join-code) ──

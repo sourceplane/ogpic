@@ -6,6 +6,7 @@ import type {
   ListInvitationsResponse,
   ListMembersResponse,
   RemoveMemberResponse,
+  LeaveOrganizationResponse,
   RevokeInvitationResponse,
   UpdateMemberRoleRequest,
   UpdateMemberRoleResponse,
@@ -72,6 +73,14 @@ export class MembershipsClient {
         method: "DELETE",
         path: `/v1/organizations/${encodeURIComponent(orgId)}/members/${encodeURIComponent(memberId)}`,
       },
+      opts,
+    );
+  }
+
+  /** POST /v1/organizations/:orgId/leave — the caller leaves the org (self-removal). */
+  leave(orgId: string, opts: RequestOptions = {}): Promise<LeaveOrganizationResponse> {
+    return this.transport.request<LeaveOrganizationResponse>(
+      { method: "POST", path: `/v1/organizations/${encodeURIComponent(orgId)}/leave` },
       opts,
     );
   }
