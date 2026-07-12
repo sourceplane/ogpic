@@ -264,5 +264,14 @@ export const manifest: MigrationManifest = {
       description:
         "Google Maps location (venue_maps_url) on the practice-match venue, owned by the matchmaker worker",
     },
+    {
+      id: "300_matchmaker_player_phone",
+      context: "matchmaker",
+      path: "300_matchmaker_player_phone/up.sql",
+      checksum:
+        "940d9f1eb7674ed4a7adf7d81b6287379566a3167d326d6d666226a276c7016e",
+      description:
+        "Optional phone number on roster players for WhatsApp match notifications, owned by the matchmaker worker",
+    },
   ],
 };

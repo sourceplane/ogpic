@@ -23,6 +23,7 @@ export function toPublicPlayer(player: Player, votes?: VoteAggregate | null): Pu
     voteCount,
     attributes: player.attributes,
     email: player.email,
+    phone: player.phone,
     status: player.status,
     isCaptain: player.isCaptain,
     createdAt: player.createdAt.toISOString(),

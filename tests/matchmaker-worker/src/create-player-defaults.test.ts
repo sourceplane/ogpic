@@ -31,6 +31,13 @@ describe("validatePlayerBody — default strength + email", () => {
     expect(r.valid).toBe(false);
   });
 
+  it("accepts a phone number and rejects a malformed one", () => {
+    const ok = validatePlayerBody({ name: "Sam", position: "FWD", phone: "+44 7700 900123" });
+    expect(ok.valid).toBe(true);
+    if (ok.valid) expect(ok.value.phone).toBe("+44 7700 900123");
+    expect(validatePlayerBody({ name: "Sam", position: "FWD", phone: "abc" }).valid).toBe(false);
+  });
+
   it("still honours an explicit attribute set", () => {
     const r = validatePlayerBody({
       name: "Star",

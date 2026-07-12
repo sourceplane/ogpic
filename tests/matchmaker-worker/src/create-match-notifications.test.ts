@@ -15,6 +15,7 @@ function player(id: string, email: string | null): Player {
     rating: 60,
     attributes: { PAC: 60, SHO: 60, PAS: 60, DRI: 60, DEF: 60, PHY: 60 },
     email,
+    phone: null,
     status: "active",
     isCaptain: false,
     createdAt: new Date(),

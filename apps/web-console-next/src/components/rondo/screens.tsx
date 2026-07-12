@@ -779,12 +779,14 @@ export function MembersScreen({ vm }: { vm: RondoVM }) {
   const [addName, setAddName] = React.useState("");
   const [addPos, setAddPos] = React.useState<(typeof ADD_POSITIONS)[number]>("MID");
   const [addEmail, setAddEmail] = React.useState("");
+  const [addPhone, setAddPhone] = React.useState("");
   const canAdd = addName.trim().length > 0;
   const submitAdd = () => {
     if (!canAdd) return;
-    vm.addPlayer({ name: addName.trim(), position: addPos, email: addEmail.trim() || null });
+    vm.addPlayer({ name: addName.trim(), position: addPos, email: addEmail.trim() || null, phone: addPhone.trim() || null });
     setAddName("");
     setAddEmail("");
+    setAddPhone("");
     setAddPos("MID");
   };
   const rosterMembers = vm.players
@@ -861,6 +863,16 @@ export function MembersScreen({ vm }: { vm: RondoVM }) {
                 onKeyDown={(e) => e.key === "Enter" && submitAdd()}
                 placeholder="Email for RSVP (optional)"
                 type="email"
+                style={{ flex: 1, height: 44, borderRadius: 12, background: "#0C110E", border: "1px solid rgba(255,255,255,.08)", color: "#F4F3F0", padding: "0 13px", fontSize: 12.5, outline: "none" }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: 9, marginTop: 9 }}>
+              <input
+                value={addPhone}
+                onChange={(e) => setAddPhone(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && submitAdd()}
+                placeholder="Phone for WhatsApp (optional)"
+                type="tel"
                 style={{ flex: 1, height: 44, borderRadius: 12, background: "#0C110E", border: "1px solid rgba(255,255,255,.08)", color: "#F4F3F0", padding: "0 13px", fontSize: 12.5, outline: "none" }}
               />
               <button onClick={submitAdd} disabled={!canAdd} style={{ padding: "0 18px", borderRadius: 12, background: canAdd ? "#56C98D" : "#141619", border: canAdd ? "none" : "1px solid rgba(255,255,255,.12)", color: canAdd ? "#07130D" : "#63666C", fontSize: 12.5, fontWeight: 800, cursor: canAdd ? "pointer" : "default" }}>Add</button>
