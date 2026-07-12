@@ -8,6 +8,7 @@ export type {
   MatchStatus,
   MatchTeamPlayer,
   MatchTeamSnapshot,
+  MatchVenue,
   CreatePlayerInput,
   UpdatePlayerInput,
   CreateMatchInput,

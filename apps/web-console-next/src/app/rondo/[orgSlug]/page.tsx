@@ -106,6 +106,23 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: qk.roster(orgId) }),
         );
       },
+      schedule: async ({ scheduledAt, venue }) => {
+        // Auto-balance the available squad into two sides, then persist the
+        // fixture with the chosen venue. Voting-blended ratings drive the draft.
+        const draftRes = await wrap(() => client.draft.run(orgId, { teamCount: 2 }));
+        if (!draftRes.ok || draftRes.data.teams.length < 2) return false;
+        const [a, b] = draftRes.data.teams;
+        const res = await wrap(() =>
+          client.fixtures.schedule(orgId, {
+            scheduledAt,
+            teamA: { name: a!.name, players: a!.players },
+            teamB: { name: b!.name, players: b!.players },
+            venue,
+          }),
+        );
+        if (res.ok) await qc.invalidateQueries({ queryKey: qk.fixtures(orgId) });
+        return res.ok;
+      },
     };
   }, [orgId, client, qc]);
 

@@ -68,6 +68,13 @@ export interface MatchTeamSnapshot {
   squadRating: number;
 }
 
+/** Where a practice match is played. `booked` marks a secured pitch. */
+export interface MatchVenue {
+  name: string | null;
+  address: string | null;
+  booked: boolean;
+}
+
 export interface Match {
   id: string;
   orgId: string;
@@ -80,6 +87,7 @@ export interface Match {
   ratingB: number;
   scoreA: number | null;
   scoreB: number | null;
+  venue: MatchVenue;
   shareToken: string;
   createdAt: Date;
   updatedAt: Date;
@@ -94,6 +102,7 @@ export interface CreateMatchInput {
   teamB: MatchTeamSnapshot;
   ratingA: number;
   ratingB: number;
+  venue: MatchVenue;
   shareToken: string;
   createdAt: Date;
 }
@@ -103,6 +112,8 @@ export interface UpdateMatchInput {
   status: MatchStatus | null;
   scoreA: number | null;
   scoreB: number | null;
+  /** When present, replaces the whole venue; null leaves it unchanged. */
+  venue: MatchVenue | null;
   updatedAt: Date;
 }
 

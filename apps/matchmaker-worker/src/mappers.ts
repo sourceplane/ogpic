@@ -43,6 +43,7 @@ export function toPublicMatch(match: Match): PublicMatch {
     ratingB: Number(match.ratingB),
     scoreA: match.scoreA,
     scoreB: match.scoreB,
+    venue: match.venue,
     shareToken: match.shareToken,
     createdAt: match.createdAt.toISOString(),
     updatedAt: match.updatedAt.toISOString(),

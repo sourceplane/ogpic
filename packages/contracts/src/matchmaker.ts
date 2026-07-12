@@ -192,6 +192,13 @@ export interface MatchTeam {
   squadRating: number;
 }
 
+/** Where a practice match is played; `booked` marks a secured pitch. */
+export interface MatchVenue {
+  name: string | null;
+  address: string | null;
+  booked: boolean;
+}
+
 export interface PublicMatch {
   id: string;
   orgId: string;
@@ -204,9 +211,17 @@ export interface PublicMatch {
   ratingB: number;
   scoreA: number | null;
   scoreB: number | null;
+  venue: MatchVenue;
   shareToken: string;
   createdAt: string;
   updatedAt: string;
+}
+
+/** A venue supplied when scheduling or updating a fixture. All fields optional. */
+export interface MatchVenueInput {
+  name?: string | null;
+  address?: string | null;
+  booked?: boolean;
 }
 
 /** Schedule a fixture from a chosen draft. Exactly two teams are persisted. */
@@ -215,18 +230,20 @@ export interface CreateMatchRequest {
   format?: string;
   teamA: { name: string; players: DraftedPlayer[] };
   teamB: { name: string; players: DraftedPlayer[] };
+  venue?: MatchVenueInput;
 }
 
 export interface CreateMatchResponse {
   match: PublicMatch;
 }
 
-/** Reschedule, record a result, or change status. All fields optional. */
+/** Reschedule, record a result, change status, or set the venue. All optional. */
 export interface UpdateMatchRequest {
   scheduledAt?: string;
   status?: MatchStatus;
   scoreA?: number;
   scoreB?: number;
+  venue?: MatchVenueInput;
 }
 
 export interface UpdateMatchResponse {

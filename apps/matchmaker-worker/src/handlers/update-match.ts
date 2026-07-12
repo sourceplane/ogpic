@@ -7,6 +7,8 @@ import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { requireOrgAction } from "../authz.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { toPublicMatch } from "../mappers.js";
+import { parseVenueInput } from "./venue.js";
+import type { MatchVenue } from "@saas/db/matchmaker";
 
 const MATCH_STATUSES: MatchStatus[] = ["scheduled", "played", "cancelled"];
 
@@ -15,6 +17,7 @@ interface ParsedMatchUpdate {
   status: MatchStatus | null;
   scoreA: number | null;
   scoreB: number | null;
+  venue: MatchVenue | null;
   hasAny: boolean;
 }
 
@@ -53,14 +56,19 @@ function parseUpdate(
   };
   const scoreA = parseScore("scoreA");
   const scoreB = parseScore("scoreB");
+  const venue = parseVenueInput(req.venue, fields);
 
   if (Object.keys(fields).length > 0) {
     return { valid: false, fields };
   }
 
   const hasAny =
-    scheduledAt !== null || status !== null || req.scoreA !== undefined || req.scoreB !== undefined;
-  return { valid: true, value: { scheduledAt, status, scoreA, scoreB, hasAny } };
+    scheduledAt !== null ||
+    status !== null ||
+    req.scoreA !== undefined ||
+    req.scoreB !== undefined ||
+    venue !== null;
+  return { valid: true, value: { scheduledAt, status, scoreA, scoreB, venue, hasAny } };
 }
 
 export interface HandleUpdateMatchDeps {
@@ -106,6 +114,7 @@ export async function handleUpdateMatch(
       status: parsed.value.status,
       scoreA: parsed.value.scoreA,
       scoreB: parsed.value.scoreB,
+      venue: parsed.value.venue,
       updatedAt: new Date(),
     });
     if (!result.ok) {
