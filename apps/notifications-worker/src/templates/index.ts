@@ -169,10 +169,49 @@ const renderInvitationAccepted: TemplateRenderer = (data, opts) => {
   return { subject, html, text };
 };
 
+const renderMatchAvailabilityRequest: TemplateRenderer = (data, opts) => {
+  const squad = str(data, "orgName");
+  const kickoff = formatTimestamp(str(data, "scheduledAt"));
+  const venue = str(data, "venue");
+  const brand = opts.brandName ?? "";
+  const subject = squad
+    ? `Are you available? ${squad} has a match`
+    : "Are you available for the next match?";
+
+  const whenLine = kickoff ? `Kick-off: ${kickoff}.` : "";
+  const whereLine = venue ? `Venue: ${venue}.` : "";
+  const leadLine = squad
+    ? `${squad} has scheduled a practice match. Let your squad know if you can make it.`
+    : "A practice match has been scheduled. Let your squad know if you can make it.";
+
+  const text = [
+    leadLine,
+    whenLine,
+    whereLine,
+    "Sign in to set your availability (in / maybe / out) for this match.",
+  ]
+    .filter((line) => line.length > 0)
+    .join("\n\n");
+
+  const html = htmlShell(
+    "Are you available?",
+    [
+      `<p style="margin:0 0 16px;font-size:14px;">${escapeHtml(leadLine)}</p>`,
+      whenLine ? `<p style="margin:0 0 6px;font-size:13px;color:#6b6b80;">${escapeHtml(whenLine)}</p>` : "",
+      whereLine ? `<p style="margin:0 0 16px;font-size:13px;color:#6b6b80;">${escapeHtml(whereLine)}</p>` : "",
+      '<p style="margin:0;font-size:14px;">Sign in to set your availability (in / maybe / out) for this match.</p>',
+    ].join(""),
+    escapeHtml(brand ? `Sent by ${brand}` : "This is an automated email."),
+  );
+
+  return { subject, html, text };
+};
+
 const TEMPLATES: Record<string, TemplateRenderer> = {
   "auth.magic_link": renderMagicLink,
   "invitation.created": renderInvitationCreated,
   "invitation.accepted": renderInvitationAccepted,
+  "match.availability_request": renderMatchAvailabilityRequest,
 };
 
 /**

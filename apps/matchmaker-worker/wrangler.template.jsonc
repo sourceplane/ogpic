@@ -36,6 +36,10 @@
         {
           "binding": "POLICY_WORKER",
           "service": "ogpic-policy-worker-stage"
+        },
+        {
+          "binding": "NOTIFICATIONS_WORKER",
+          "service": "ogpic-notifications-worker-stage"
         }
       ]
     },
@@ -58,6 +62,10 @@
         {
           "binding": "POLICY_WORKER",
           "service": "ogpic-policy-worker-prod"
+        },
+        {
+          "binding": "NOTIFICATIONS_WORKER",
+          "service": "ogpic-notifications-worker-prod"
         }
       ]
     }
