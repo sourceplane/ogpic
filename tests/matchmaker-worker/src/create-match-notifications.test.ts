@@ -6,7 +6,7 @@ import type { EnqueueNotificationRequest } from "@saas/contracts/notifications";
 const ORG = asUuid("00000000-0000-0000-0000-0000000000aa");
 const ACTOR = { subjectId: "usr_1", subjectType: "user" };
 
-function player(id: string, email: string | null): Player {
+function player(id: string, email: string | null, phone: string | null = null): Player {
   return {
     id,
     orgId: ORG,
@@ -15,7 +15,7 @@ function player(id: string, email: string | null): Player {
     rating: 60,
     attributes: { PAC: 60, SHO: 60, PAS: 60, DRI: 60, DEF: 60, PHY: 60 },
     email,
-    phone: null,
+    phone,
     status: "active",
     isCaptain: false,
     createdAt: new Date(),
@@ -101,6 +101,34 @@ describe("handleCreateMatch — availability-request emails", () => {
     expect(calls.map((c) => c.recipient.address).sort()).toEqual(["a@example.com", "b@example.com"]);
     expect(calls[0]!.templateData?.venue).toBe("Riverside Astro");
     // Idempotency is per (match, player) → the two keys differ.
+    expect(new Set(calls.map((c) => c.idempotencyKey)).size).toBe(2);
+  });
+
+  it("also sends a WhatsApp request to players with a phone", async () => {
+    const roster: Player[] = [player("11111111-1111-1111-1111-111111111111", "a@example.com", "+441234567890")];
+    const calls: EnqueueNotificationRequest[] = [];
+    const enqueueNotification = async (_e: unknown, _c: unknown, request: EnqueueNotificationRequest) => {
+      calls.push(request);
+      return { ok: true as const, notificationId: "ntf_x" };
+    };
+    const repoWithPhone = {
+      async createMatch() {
+        return { ok: true, value: match() };
+      },
+      async listActivePlayers() {
+        return { ok: true, value: roster };
+      },
+    } as unknown as MatchmakerRepository;
+    const res = await handleCreateMatch(req(), envAllowing() as never, "req_wa", ACTOR, ORG, {
+      repo: repoWithPhone,
+      enqueueNotification: enqueueNotification as never,
+    });
+    expect(res.status).toBe(201);
+    const channels = calls.map((c) => c.recipient.channel).sort();
+    expect(channels).toEqual(["email", "whatsapp"]);
+    const wa = calls.find((c) => c.recipient.channel === "whatsapp")!;
+    expect(wa.recipient.address).toBe("+441234567890");
+    // per-(match,player,channel) idempotency → email and whatsapp keys differ
     expect(new Set(calls.map((c) => c.idempotencyKey)).size).toBe(2);
   });
 

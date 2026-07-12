@@ -207,7 +207,8 @@ describe("resolveProvider cloudflare-email wiring", () => {
       EMAIL_FROM_ADDRESS: "no-reply@mail.example.com",
       EMAIL_FROM_NAME: "Acme",
     };
-    expect(resolveProvider(env).name).toBe("cloudflare-email");
+    // The email channel of the dispatcher resolves to cloudflare-email.
+    expect(resolveProvider(env).name).toContain("email=cloudflare-email");
   });
 
   test("falls back to local-debug when the EMAIL binding is missing", () => {
@@ -216,7 +217,7 @@ describe("resolveProvider cloudflare-email wiring", () => {
       NOTIFICATIONS_PROVIDER: "cloudflare-email",
       EMAIL_FROM_ADDRESS: "no-reply@mail.example.com",
     };
-    expect(resolveProvider(env).name).toBe("local-debug");
+    expect(resolveProvider(env).name).toContain("email=local-debug");
   });
 
   test("falls back to local-debug when EMAIL_FROM_ADDRESS is missing", () => {
@@ -225,6 +226,6 @@ describe("resolveProvider cloudflare-email wiring", () => {
       NOTIFICATIONS_PROVIDER: "cloudflare-email",
       EMAIL: createFakeSender(),
     };
-    expect(resolveProvider(env).name).toBe("local-debug");
+    expect(resolveProvider(env).name).toContain("email=local-debug");
   });
 });

@@ -25,10 +25,12 @@
 /**
  * Notification channels that may carry a transactional notification.
  *
- * V1 ships with email only; the type is widened here so future channels
- * (sms, push, in-app) can be added without breaking the contract.
+ * `whatsapp` delivers via the credential-gated WhatsApp provider; when its
+ * credentials are unconfigured the worker degrades to the local-debug adapter,
+ * so the channel is always deployable. Further channels (sms, push, in-app)
+ * can be added without breaking the contract.
  */
-export type NotificationChannel = "email";
+export type NotificationChannel = "email" | "whatsapp";
 
 /**
  * High-level routing category. Used for preferences and audit categorisation.

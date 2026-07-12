@@ -130,40 +130,40 @@ export async function handleCreateMatch(
     }
 
     const match = result.value;
-    // Best-effort, post-commit: ask every player with a contact email to set
-    // their availability for this match. Never blocks or fails the 201 — the
-    // client swallows all errors, an absent binding is a no-op, and the enqueue
-    // is skipped entirely under DEBUG_DELIVERY to avoid duplicate local rows.
-    // Idempotency is per (match, player) so a retried create collapses cleanly.
+    // Best-effort, post-commit: ask every reachable player to set their
+    // availability — over email and/or WhatsApp, whichever contacts they have.
+    // Never blocks or fails the 201 (the client swallows errors, an absent
+    // binding is a no-op), is skipped under DEBUG_DELIVERY, and is per
+    // (match, player, channel) idempotent so a retried create collapses cleanly.
     if (env.DEBUG_DELIVERY !== "true") {
       const enqueueFn = deps?.enqueueNotification ?? enqueueNotification;
       const roster = await repo.listActivePlayers(orgId);
       if (roster.ok) {
         const publicMatchId = matchPublicId(match.id);
+        const ctx = {
+          internalActor: "matchmaker-worker",
+          actorSubjectType: actor.subjectType,
+          actorSubjectId: actor.subjectId,
+          requestId,
+        };
+        const templateData = {
+          scheduledAt: match.scheduledAt.toISOString(),
+          venue: match.venue.name ?? "",
+          matchId: publicMatchId,
+        };
+        const send = (channel: "email" | "whatsapp", address: string, playerId: string) =>
+          enqueueFn(env, ctx, {
+            orgId,
+            category: "product",
+            templateKey: "match.availability_request",
+            templateData,
+            recipient: { channel, address },
+            idempotencyKey: buildIdempotencyKey("match.availability_request", publicMatchId, channel, playerId),
+            correlationId: requestId,
+          });
         for (const player of roster.value) {
-          if (!player.email) continue;
-          await enqueueFn(
-            env,
-            {
-              internalActor: "matchmaker-worker",
-              actorSubjectType: actor.subjectType,
-              actorSubjectId: actor.subjectId,
-              requestId,
-            },
-            {
-              orgId,
-              category: "product",
-              templateKey: "match.availability_request",
-              templateData: {
-                scheduledAt: match.scheduledAt.toISOString(),
-                venue: match.venue.name ?? "",
-                matchId: publicMatchId,
-              },
-              recipient: { channel: "email", address: player.email },
-              idempotencyKey: buildIdempotencyKey("match.availability_request", publicMatchId, player.id),
-              correlationId: requestId,
-            },
-          );
+          if (player.email) await send("email", player.email, player.id);
+          if (player.phone) await send("whatsapp", player.phone, player.id);
         }
       }
     }
