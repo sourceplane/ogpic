@@ -908,6 +908,21 @@ export function MembersScreen({ vm }: { vm: RondoVM }) {
           </div>
         ))}
       </div>
+
+      {vm.canLeave && (
+        <>
+          <Mono style={{ fontSize: 11, color: "#63666C", letterSpacing: "1px", margin: "26px 2px 11px", display: "block" }}>DANGER ZONE</Mono>
+          <button
+            onClick={() => {
+              if (typeof window !== "undefined" && !window.confirm("Leave this squad? You'll lose access until you rejoin.")) return;
+              vm.leaveTeam();
+            }}
+            style={{ width: "100%", height: 48, borderRadius: 13, background: "rgba(255,122,107,.08)", border: "1px solid rgba(255,122,107,.3)", color: "#FF9385", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}
+          >
+            Leave squad
+          </button>
+        </>
+      )}
     </div>
   );
 }

@@ -156,6 +156,7 @@ export type {
   UpdateMemberRoleRequest,
   UpdateMemberRoleResponse,
   RemoveMemberResponse,
+  LeaveOrganizationResponse,
   AcceptInvitationRequest,
   AcceptInvitationResponse,
   JoinRequestStatus,

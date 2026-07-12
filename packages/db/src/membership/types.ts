@@ -199,6 +199,8 @@ export interface MembershipRepository {
 
   createMember(input: CreateOrganizationMemberInput): Promise<MembershipResult<OrganizationMember>>;
   getMemberById(orgId: Uuid, memberId: string): Promise<MembershipResult<OrganizationMember>>;
+  /** Resolve a member by their auth subject id (used by self-service leave). */
+  getMemberBySubjectId(orgId: Uuid, subjectId: string): Promise<MembershipResult<OrganizationMember>>;
   listMembers(orgId: Uuid): Promise<MembershipResult<OrganizationMember[]>>;
   listMembersPaged(orgId: Uuid, params: PageQueryParams): Promise<MembershipResult<PagedResult<OrganizationMember>>>;
   removeMember(orgId: Uuid, memberId: string, updatedAt: Date): Promise<MembershipResult<OrganizationMember>>;

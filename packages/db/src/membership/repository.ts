@@ -459,6 +459,25 @@ export function createMembershipRepository(executor: SqlExecutor): MembershipRep
       }
     },
 
+    async getMemberBySubjectId(orgId: string, subjectId: string): Promise<MembershipResult<OrganizationMember>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM membership.organization_members WHERE org_id = $1 AND subject_id = $2`,
+          [orgId, subjectId],
+        );
+        if (result.rowCount === 0) {
+          return { ok: false, error: { kind: "not_found" } };
+        }
+        const member = mapMember(result.rows[0]!);
+        if (member.status === "removed") {
+          return { ok: false, error: { kind: "removed" } };
+        }
+        return { ok: true, value: member };
+      } catch (err) {
+        return safeError("Failed to get member", err);
+      }
+    },
+
     async listMembers(orgId: string): Promise<MembershipResult<OrganizationMember[]>> {
       try {
         const result = await executor.execute<Record<string, unknown>>(

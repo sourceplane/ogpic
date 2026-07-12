@@ -14,7 +14,11 @@ export const joinRepoStubs: Pick<
   | "listJoinRequests"
   | "approveJoinRequest"
   | "declineJoinRequest"
+  | "getMemberBySubjectId"
 > = {
+  async getMemberBySubjectId() {
+    return { ok: false, error: { kind: "not_found" } };
+  },
   async getOrganizationByJoinCode() {
     return { ok: false, error: { kind: "not_found" } };
   },

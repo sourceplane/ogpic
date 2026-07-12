@@ -8,7 +8,7 @@
 "use client";
 
 import * as React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import "../../../styles/rondo.css";
 import { RondoApp } from "@/components/rondo/rondo-app";
 import { buildLiveSeed, availabilityMap, matchRows, joinRequestRows } from "@/components/rondo/live";
@@ -22,6 +22,7 @@ import { wrap } from "@/lib/api";
 
 export default function ConnectedRondoPage() {
   const params = useParams<{ orgSlug: string }>();
+  const router = useRouter();
   const slug = params?.orgSlug ?? "";
   const ready = useRequireAuth();
   const { client } = useSession();
@@ -116,6 +117,13 @@ export default function ConnectedRondoPage() {
           }),
         ).then(() => qc.invalidateQueries({ queryKey: qk.roster(orgId) }));
       },
+      leaveTeam: () => {
+        void wrap(() => client.memberships.leave(orgId)).then((r) => {
+          if (!r.ok) return;
+          void qc.invalidateQueries({ queryKey: qk.orgs() });
+          router.replace("/rondo");
+        });
+      },
       schedule: async ({ scheduledAt, venue }) => {
         // Auto-balance the available squad into two sides, then persist the
         // fixture with the chosen venue. Voting-blended ratings drive the draft.
@@ -134,7 +142,7 @@ export default function ConnectedRondoPage() {
         return res.ok;
       },
     };
-  }, [orgId, client, qc]);
+  }, [orgId, client, qc, router]);
 
   const loading =
     !ready ||

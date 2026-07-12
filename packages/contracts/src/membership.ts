@@ -95,6 +95,11 @@ export interface RemoveMemberResponse {
   member: PublicMember;
 }
 
+/** Response for the caller leaving an organization (self-removal). */
+export interface LeaveOrganizationResponse {
+  member: PublicMember;
+}
+
 export interface AcceptInvitationRequest {
   token: string;
 }
