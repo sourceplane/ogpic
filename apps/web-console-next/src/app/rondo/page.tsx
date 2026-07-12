@@ -9,6 +9,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import "../../styles/rondo.css";
+import "../../styles/rondo-kit.css";
 import { RondoLogin } from "@/components/rondo/rondo-login";
 import { useSession } from "@/lib/session";
 import { useApiQuery, qk } from "@/lib/query";
@@ -31,7 +32,7 @@ export default function RondoEntryPage() {
   React.useEffect(() => {
     if (!token || !orgs.data) return;
     if (orgs.data.length === 0) {
-      router.replace("/rondo/new");
+      router.replace("/rondo/start");
     } else {
       router.replace(`/rondo/${orgs.data[0]!.slug}`);
     }
@@ -44,9 +45,9 @@ export default function RondoEntryPage() {
 
 function RondoBoot({ label = "" }: { label?: string }) {
   return (
-    <div className="rondo-root" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "var(--r-bg)" }}>
-      <div style={{ width: 56, height: 56, borderRadius: 17, background: "linear-gradient(150deg,#1E2228,#101215)", border: "1px solid rgba(86,201,141,.35)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 900, color: "#F4F3F0" }}>R</div>
-      {label && <div className="rondo-mono" style={{ fontSize: 12, color: "#8A8D93", letterSpacing: ".5px" }}>{label}</div>}
+    <div className="rk" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "#F2F4F1" }}>
+      <div style={{ width: 56, height: 56, borderRadius: 17, background: "#101511", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 700, color: "#F2F4F1" }}>R</div>
+      {label && <div style={{ fontFamily: "var(--font-jbmono), ui-monospace, monospace", fontSize: 12, color: "rgba(16,21,17,.5)", letterSpacing: ".5px" }}>{label}</div>}
     </div>
   );
 }
