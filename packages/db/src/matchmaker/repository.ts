@@ -76,6 +76,7 @@ function mapMatch(row: Record<string, unknown>): Match {
       name: (row.venue_name as string | null) ?? null,
       address: (row.venue_address as string | null) ?? null,
       booked: row.venue_booked === true,
+      mapsUrl: (row.venue_maps_url as string | null) ?? null,
     },
     shareToken: row.share_token as string,
     createdAt: new Date(row.created_at as string),
@@ -308,8 +309,8 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
       try {
         const result = await executor.execute<Record<string, unknown>>(
           `INSERT INTO matchmaker.matches
-             (id, org_id, scheduled_at, format, team_a, team_b, rating_a, rating_b, venue_name, venue_address, venue_booked, share_token, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8, $9, $10, $11, $12, $13, $13)
+             (id, org_id, scheduled_at, format, team_a, team_b, rating_a, rating_b, venue_name, venue_address, venue_booked, venue_maps_url, share_token, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8, $9, $10, $11, $12, $13, $14, $14)
            ON CONFLICT (id) DO NOTHING
            RETURNING *`,
           [
@@ -324,6 +325,7 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
             input.venue.name,
             input.venue.address,
             input.venue.booked,
+            input.venue.mapsUrl,
             input.shareToken,
             input.createdAt.toISOString(),
           ],
@@ -373,6 +375,11 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
                venue_name = CASE WHEN $8 THEN $9 ELSE venue_name END,
                venue_address = CASE WHEN $8 THEN $10 ELSE venue_address END,
                venue_booked = CASE WHEN $8 THEN $11 ELSE venue_booked END,
+               venue_maps_url = CASE WHEN $8 THEN $12 ELSE venue_maps_url END,
+               team_a = CASE WHEN $13 THEN $14::jsonb ELSE team_a END,
+               team_b = CASE WHEN $13 THEN $15::jsonb ELSE team_b END,
+               rating_a = CASE WHEN $13 THEN $16 ELSE rating_a END,
+               rating_b = CASE WHEN $13 THEN $17 ELSE rating_b END,
                updated_at = $7
            WHERE org_id = $1 AND id = $2
            RETURNING *`,
@@ -388,6 +395,12 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
             input.venue?.name ?? null,
             input.venue?.address ?? null,
             input.venue?.booked ?? false,
+            input.venue?.mapsUrl ?? null,
+            input.teamA !== null && input.teamB !== null,
+            input.teamA ? JSON.stringify(input.teamA) : null,
+            input.teamB ? JSON.stringify(input.teamB) : null,
+            input.teamA?.squadRating ?? 0,
+            input.teamB?.squadRating ?? 0,
           ],
         );
         if (result.rowCount === 0) {

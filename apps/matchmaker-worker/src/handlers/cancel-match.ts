@@ -38,6 +38,8 @@ export async function handleCancelMatch(
       scoreA: null,
       scoreB: null,
       venue: null,
+      teamA: null,
+      teamB: null,
       updatedAt: new Date(),
     });
     if (!result.ok) {

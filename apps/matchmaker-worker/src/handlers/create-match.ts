@@ -15,7 +15,7 @@ import { enqueueNotification, buildIdempotencyKey } from "@saas/notifications-cl
 const FORMAT_MAX = 20;
 const NAME_MAX = 60;
 
-function validateTeam(raw: unknown, label: string, fields: Record<string, string[]>): MatchTeamSnapshot | null {
+export function validateTeam(raw: unknown, label: string, fields: Record<string, string[]>): MatchTeamSnapshot | null {
   if (!raw || typeof raw !== "object") {
     fields[label] = ["Must be an object with a name and players"];
     return null;

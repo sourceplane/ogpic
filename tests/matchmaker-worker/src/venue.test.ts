@@ -14,16 +14,18 @@ describe("parseVenueInput", () => {
       name: "Riverside Astro",
       address: null,
       booked: false,
+      mapsUrl: null,
     });
     expect(fields).toEqual({});
   });
 
-  it("carries address and the booked flag", () => {
+  it("carries address, the booked flag, and a maps location", () => {
     const fields: Record<string, string[]> = {};
-    expect(parseVenueInput({ name: "The Cage", address: "5-a-side", booked: true }, fields)).toEqual({
+    expect(parseVenueInput({ name: "The Cage", address: "5-a-side", booked: true, mapsUrl: "https://maps.google.com/?q=x" }, fields)).toEqual({
       name: "The Cage",
       address: "5-a-side",
       booked: true,
+      mapsUrl: "https://maps.google.com/?q=x",
     });
   });
 

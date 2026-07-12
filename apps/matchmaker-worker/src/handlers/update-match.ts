@@ -8,7 +8,8 @@ import { requireOrgAction } from "../authz.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { toPublicMatch } from "../mappers.js";
 import { parseVenueInput } from "./venue.js";
-import type { MatchVenue } from "@saas/db/matchmaker";
+import { validateTeam } from "./create-match.js";
+import type { MatchVenue, MatchTeamSnapshot } from "@saas/db/matchmaker";
 
 const MATCH_STATUSES: MatchStatus[] = ["scheduled", "played", "cancelled"];
 
@@ -18,6 +19,8 @@ interface ParsedMatchUpdate {
   scoreA: number | null;
   scoreB: number | null;
   venue: MatchVenue | null;
+  teamA: MatchTeamSnapshot | null;
+  teamB: MatchTeamSnapshot | null;
   hasAny: boolean;
 }
 
@@ -58,6 +61,18 @@ function parseUpdate(
   const scoreB = parseScore("scoreB");
   const venue = parseVenueInput(req.venue, fields);
 
+  // Line-up edit: teamA and teamB must be supplied together.
+  let teamA: MatchTeamSnapshot | null = null;
+  let teamB: MatchTeamSnapshot | null = null;
+  const hasTeamA = req.teamA !== undefined && req.teamA !== null;
+  const hasTeamB = req.teamB !== undefined && req.teamB !== null;
+  if (hasTeamA !== hasTeamB) {
+    fields.teams = ["teamA and teamB must be provided together"];
+  } else if (hasTeamA && hasTeamB) {
+    teamA = validateTeam(req.teamA, "teamA", fields);
+    teamB = validateTeam(req.teamB, "teamB", fields);
+  }
+
   if (Object.keys(fields).length > 0) {
     return { valid: false, fields };
   }
@@ -67,8 +82,9 @@ function parseUpdate(
     status !== null ||
     req.scoreA !== undefined ||
     req.scoreB !== undefined ||
-    venue !== null;
-  return { valid: true, value: { scheduledAt, status, scoreA, scoreB, venue, hasAny } };
+    venue !== null ||
+    (teamA !== null && teamB !== null);
+  return { valid: true, value: { scheduledAt, status, scoreA, scoreB, venue, teamA, teamB, hasAny } };
 }
 
 export interface HandleUpdateMatchDeps {
@@ -115,6 +131,8 @@ export async function handleUpdateMatch(
       scoreA: parsed.value.scoreA,
       scoreB: parsed.value.scoreB,
       venue: parsed.value.venue,
+      teamA: parsed.value.teamA,
+      teamB: parsed.value.teamB,
       updatedAt: new Date(),
     });
     if (!result.ok) {

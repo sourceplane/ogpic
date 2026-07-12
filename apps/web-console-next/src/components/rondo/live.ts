@@ -43,7 +43,7 @@ export function matchRows(matches: PublicMatch[]): LiveMatchRow[] {
           : "#C9CBCE"
       : "#8A8D93";
     const score = played ? `${m.scoreA} – ${m.scoreB}` : m.status === "cancelled" ? "CXL" : "—";
-    return { id: m.id, dateLabel: formatDate(m.scheduledAt), score, color, venue: m.venue?.name ?? null };
+    return { id: m.id, dateLabel: formatDate(m.scheduledAt), score, color, venue: m.venue?.name ?? null, mapsUrl: m.venue?.mapsUrl ?? null };
   });
 }
 
