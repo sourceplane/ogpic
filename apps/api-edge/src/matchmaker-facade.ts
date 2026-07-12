@@ -4,7 +4,7 @@ import { replayOrExecute } from "./idempotency.js";
 import { resolveActor } from "./resolve-actor.js";
 import { createTimings } from "@saas/contracts/timing";
 
-const ORG_PLAYERS_RE = /^\/v1\/organizations\/[^/]+\/players(?:\/[^/]+(?:\/captain)?)?$/;
+const ORG_PLAYERS_RE = /^\/v1\/organizations\/[^/]+\/players(?:\/[^/]+(?:\/captain|\/votes)?)?$/;
 const ORG_ROSTER_SUMMARY_RE = /^\/v1\/organizations\/[^/]+\/roster\/summary$/;
 const ORG_DRAFT_RE = /^\/v1\/organizations\/[^/]+\/draft$/;
 const ORG_MATCHES_RE = /^\/v1\/organizations\/[^/]+\/matches(?:\/[^/]+(?:\/share)?)?$/;

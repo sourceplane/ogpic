@@ -30,6 +30,9 @@ function repoWith(players: Player[]): MatchmakerRepository {
     async listActivePlayersByIds(_org: Uuid, ids: Uuid[]) {
       return { ok: true, value: players.filter((p) => ids.includes(p.id as Uuid)) };
     },
+    async listPlayerVoteStats() {
+      return { ok: true, value: [] };
+    },
   } as unknown as MatchmakerRepository;
 }
 

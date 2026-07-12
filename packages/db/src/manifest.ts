@@ -219,5 +219,14 @@ export const manifest: MigrationManifest = {
       description:
         "Join-by-code / request-to-join: a shareable rotatable join_code on organizations plus a join_requests table (pending/approved/declined) for manager approval, owned by the membership context",
     },
+    {
+      id: "240_matchmaker_player_votes",
+      context: "matchmaker",
+      path: "240_matchmaker_player_votes/up.sql",
+      checksum:
+        "53dd63f46bb1288a0dbb075fca596a9faa88b899de434f6c45e24927e58f6a86",
+      description:
+        "Community skill voting on the roster (player_votes, 1-5 stars per member per skill) that blends into a player's published overall rating, owned by the matchmaker worker",
+    },
   ],
 };

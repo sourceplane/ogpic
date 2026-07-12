@@ -54,7 +54,13 @@ export async function handleListPlayers(
     if (!result.ok) {
       return errorResponse("internal_error", "Service unavailable", 503, requestId);
     }
-    const players = result.value.items.map(toPublicPlayer);
+    // Blend community votes into each player's published OVR. A failed stats
+    // read degrades gracefully to baseline ratings rather than failing the list.
+    const statsResult = await repo.listPlayerVoteStats(orgId);
+    const statsByPlayer = new Map(
+      statsResult.ok ? statsResult.value.map((s) => [s.playerId, s]) : [],
+    );
+    const players = result.value.items.map((p) => toPublicPlayer(p, statsByPlayer.get(p.id) ?? null));
     const nextCursor = result.value.nextCursor
       ? encodeCursor(result.value.nextCursor.createdAt, result.value.nextCursor.id)
       : null;

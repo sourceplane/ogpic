@@ -101,6 +101,11 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: ["join-requests", orgId] }),
         );
       },
+      castVotes: (playerId: string, votes: Record<string, number>) => {
+        void wrap(() => client.roster.castVotes(orgId, playerId, { votes })).then(() =>
+          qc.invalidateQueries({ queryKey: qk.roster(orgId) }),
+        );
+      },
     };
   }, [orgId, client, qc]);
 

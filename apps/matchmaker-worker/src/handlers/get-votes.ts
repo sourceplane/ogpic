@@ -6,19 +6,19 @@ import { createMatchmakerRepository } from "@saas/db/matchmaker";
 import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { requireOrgAction } from "../authz.js";
 import { successResponse, errorResponse } from "../http.js";
-import { toPublicPlayer } from "../mappers.js";
 
-export interface HandleGetPlayerDeps {
+export interface HandleGetVotesDeps {
   repo?: MatchmakerRepository;
 }
 
-export async function handleGetPlayer(
+/** GET /v1/organizations/:orgId/players/:playerId/votes — caller's votes + stats. */
+export async function handleGetVotes(
   env: Env,
   requestId: string,
   actor: ActorContext,
   orgId: Uuid,
   playerId: Uuid,
-  deps?: HandleGetPlayerDeps,
+  deps?: HandleGetVotesDeps,
 ): Promise<Response> {
   if (!env.PLATFORM_DB && !deps?.repo) {
     return errorResponse("internal_error", "Service unavailable", 503, requestId);
@@ -30,13 +30,23 @@ export async function handleGetPlayer(
   const executor = deps?.repo ? null : createSqlExecutor(env.PLATFORM_DB!);
   try {
     const repo = deps?.repo ?? createMatchmakerRepository(executor!);
-    const result = await repo.getPlayerById(orgId, playerId);
-    if (!result.ok) {
+    const existing = await repo.getPlayerById(orgId, playerId);
+    if (!existing.ok) {
       return errorResponse("not_found", "Not found", 404, requestId);
     }
+
+    const myVotesResult = await repo.getVoterVotes(orgId, playerId, actor.subjectId);
+    const myVotes: Record<string, number> = {};
+    if (myVotesResult.ok) {
+      for (const v of myVotesResult.value) myVotes[v.skill] = v.stars;
+    }
+
     const statsResult = await repo.getPlayerVoteStats(orgId, playerId);
-    const stats = statsResult.ok ? statsResult.value : null;
-    return successResponse({ player: toPublicPlayer(result.value, stats) }, requestId);
+    const stats = statsResult.ok
+      ? { voterCount: statsResult.value.voterCount, avgStars: statsResult.value.avgStars }
+      : { voterCount: 0, avgStars: 0 };
+
+    return successResponse({ myVotes, stats }, requestId);
   } catch {
     return errorResponse("internal_error", "Service unavailable", 503, requestId);
   } finally {

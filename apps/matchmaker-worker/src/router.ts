@@ -17,6 +17,8 @@ import { handleShareMatch } from "./handlers/share-match.js";
 import { handleListAvailability } from "./handlers/list-availability.js";
 import { handleSetAvailability } from "./handlers/set-availability.js";
 import { handleSetCaptain } from "./handlers/set-captain.js";
+import { handleCastVotes } from "./handlers/cast-votes.js";
+import { handleGetVotes } from "./handlers/get-votes.js";
 import { errorResponse, notFound, methodNotAllowed } from "./http.js";
 import { generateRequestId, parseOrgPublicId, parsePlayerPublicId, parseMatchPublicId } from "./ids.js";
 
@@ -43,6 +45,7 @@ function resolveActor(request: Request): ActorContext | null {
 const ORG_PLAYERS_RE = /^\/v1\/organizations\/([^/]+)\/players$/;
 const ORG_PLAYER_SUGGEST_RE = /^\/v1\/organizations\/([^/]+)\/players\/suggest-position$/;
 const ORG_PLAYER_CAPTAIN_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)\/captain$/;
+const ORG_PLAYER_VOTES_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)\/votes$/;
 const ORG_PLAYER_ID_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)$/;
 const ORG_ROSTER_SUMMARY_RE = /^\/v1\/organizations\/([^/]+)\/roster\/summary$/;
 const ORG_DRAFT_RE = /^\/v1\/organizations\/([^/]+)\/draft$/;
@@ -86,6 +89,19 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return unauthenticated(requestId);
       return handleSetCaptain(env, requestId, actor, orgUuid, playerUuid);
+    }
+
+    // ── Roster: votes (fixed segment; must precede /players/:id) ──
+    const votesMatch = url.pathname.match(ORG_PLAYER_VOTES_RE);
+    if (votesMatch) {
+      const orgUuid = parseOrgPublicId(votesMatch[1]!);
+      const playerUuid = parsePlayerPublicId(votesMatch[2]!);
+      if (!orgUuid || !playerUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      if (request.method === "GET") return handleGetVotes(env, requestId, actor, orgUuid, playerUuid);
+      if (request.method === "POST") return handleCastVotes(request, env, requestId, actor, orgUuid, playerUuid);
+      return methodNotAllowed(requestId);
     }
 
     // ── Roster: collection ──
