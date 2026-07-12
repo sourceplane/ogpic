@@ -1,14 +1,14 @@
 /*
- * /rondo/demo — the token-free interactive Rondo preview. Runs the full product
- * loop on the seed roster so the experience is demoable and pixel-verifiable
- * without an API session. The real, authenticated app lives at /rondo → /rondo/:orgSlug.
+ * /rondo/demo — the token-free interactive Rondo preview, now running the
+ * Pitchside v2 app (UI revamp). Shows the manager and player surfaces on the
+ * seed roster so the whole loop is demoable without an API session. The real,
+ * authenticated app lives at /rondo → /rondo/:orgSlug.
  */
 "use client";
 
-import * as React from "react";
-import "../../../styles/rondo.css";
-import { RondoApp } from "@/components/rondo/rondo-app";
+import "../../../styles/rondo-kit.css";
+import { PitchsideDemo } from "@/components/rondo/pitchside-demo";
 
 export default function RondoDemoPage() {
-  return <RondoApp />;
+  return <PitchsideDemo />;
 }
