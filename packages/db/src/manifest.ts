@@ -255,5 +255,14 @@ export const manifest: MigrationManifest = {
       description:
         "Manager-gated rating rounds (voting windows; at most one open per org) that gate peer voting on the roster, owned by the matchmaker worker",
     },
+    {
+      id: "290_matchmaker_venue_maps",
+      context: "matchmaker",
+      path: "290_matchmaker_venue_maps/up.sql",
+      checksum:
+        "9788c11d34f0e5069d794d1a0519fcde9c7cc4684f9e11b58cda600d93c85ae1",
+      description:
+        "Google Maps location (venue_maps_url) on the practice-match venue, owned by the matchmaker worker",
+    },
   ],
 };

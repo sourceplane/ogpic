@@ -36,7 +36,7 @@ function match(): Match {
     ratingB: 60,
     scoreA: null,
     scoreB: null,
-    venue: { name: "Riverside Astro", address: null, booked: false },
+    venue: { name: "Riverside Astro", address: null, booked: false, mapsUrl: null },
     shareToken: "tok",
     createdAt: new Date(),
     updatedAt: new Date(),

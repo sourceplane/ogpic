@@ -77,6 +77,8 @@ export interface MatchVenue {
   name: string | null;
   address: string | null;
   booked: boolean;
+  /** Google Maps location (URL or "lat,lng") players can tap to navigate. */
+  mapsUrl: string | null;
 }
 
 export interface Match {
@@ -118,6 +120,9 @@ export interface UpdateMatchInput {
   scoreB: number | null;
   /** When present, replaces the whole venue; null leaves it unchanged. */
   venue: MatchVenue | null;
+  /** When present, replaces both line-ups (edit a scheduled fixture's teams). */
+  teamA: MatchTeamSnapshot | null;
+  teamB: MatchTeamSnapshot | null;
   updatedAt: Date;
 }
 

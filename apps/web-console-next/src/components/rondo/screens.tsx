@@ -666,6 +666,7 @@ const DEMO_RESULTS: LiveMatchRow[] = [
 
 export function FixturesScreen({ vm }: { vm: RondoVM }) {
   const [scheduling, setScheduling] = React.useState(false);
+  const [mapsUrl, setMapsUrl] = React.useState("");
   const results = vm.liveMatches ?? DEMO_RESULTS;
   return (
     <div style={{ minHeight: "100%", padding: "60px 20px 96px" }} className={RISE}>
@@ -706,6 +707,15 @@ export function FixturesScreen({ vm }: { vm: RondoVM }) {
             );
           })}
         </div>
+
+        <Mono style={{ fontSize: 11, color: "#63666C", letterSpacing: "1px", margin: "18px 0 9px", display: "block" }}>GOOGLE MAPS LOCATION (OPTIONAL)</Mono>
+        <input
+          value={mapsUrl}
+          onChange={(e) => setMapsUrl(e.target.value)}
+          placeholder="Paste a Google Maps link…"
+          style={{ width: "100%", height: 44, borderRadius: 12, background: "#0F1114", border: "1px solid rgba(255,255,255,.09)", color: "#F4F3F0", padding: "0 13px", fontSize: 12.5, outline: "none" }}
+        />
+
         <button
           disabled={scheduling}
           onClick={async () => {
@@ -715,10 +725,10 @@ export function FixturesScreen({ vm }: { vm: RondoVM }) {
               const tf = TURFS.find((t) => t.id === vm.turf);
               const ok = await vm.onSchedule({
                 scheduledAt: at,
-                venue: { name: tf ? tf.name : null, address: tf ? tf.fmt : null, booked: false },
+                venue: { name: tf ? tf.name : null, address: tf ? tf.fmt : null, booked: false, mapsUrl: mapsUrl.trim() || null },
               });
               setScheduling(false);
-              if (ok) vm.go("play");
+              if (ok) { setMapsUrl(""); vm.go("play"); }
             } else {
               vm.go("play");
             }
@@ -741,7 +751,12 @@ export function FixturesScreen({ vm }: { vm: RondoVM }) {
               <Mono style={{ fontSize: 10, color: "#8A8D93", width: 52 }}>{r.dateLabel}</Mono>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "#F4F3F0" }}>Home <span style={{ color: "#8A8D93" }}>vs</span> Away</div>
-                {r.venue && <Mono style={{ fontSize: 9.5, color: "#8A8D93", marginTop: 2, display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.venue}</Mono>}
+                {r.venue && (
+                  <Mono style={{ fontSize: 9.5, color: "#8A8D93", marginTop: 2, display: "flex", gap: 6, alignItems: "center" }}>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.venue}</span>
+                    {r.mapsUrl && <a href={r.mapsUrl} target="_blank" rel="noreferrer" style={{ color: "#56C98D", flex: "none" }}>Map ↗</a>}
+                  </Mono>
+                )}
               </div>
               <div style={{ fontSize: 15, fontWeight: 900, color: r.color }}>{r.score}</div>
             </div>

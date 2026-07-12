@@ -229,6 +229,8 @@ export interface MatchVenue {
   name: string | null;
   address: string | null;
   booked: boolean;
+  /** Google Maps location (URL or "lat,lng") players can tap to navigate. */
+  mapsUrl: string | null;
 }
 
 export interface PublicMatch {
@@ -254,6 +256,7 @@ export interface MatchVenueInput {
   name?: string | null;
   address?: string | null;
   booked?: boolean;
+  mapsUrl?: string | null;
 }
 
 /** Schedule a fixture from a chosen draft. Exactly two teams are persisted. */
@@ -269,13 +272,16 @@ export interface CreateMatchResponse {
   match: PublicMatch;
 }
 
-/** Reschedule, record a result, change status, or set the venue. All optional. */
+/** Reschedule, record a result, change status, set the venue, or edit the
+ *  line-ups. All optional; teamA and teamB must be supplied together. */
 export interface UpdateMatchRequest {
   scheduledAt?: string;
   status?: MatchStatus;
   scoreA?: number;
   scoreB?: number;
   venue?: MatchVenueInput;
+  teamA?: { name: string; players: DraftedPlayer[] };
+  teamB?: { name: string; players: DraftedPlayer[] };
 }
 
 export interface UpdateMatchResponse {
