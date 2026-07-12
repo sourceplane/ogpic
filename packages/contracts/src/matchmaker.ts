@@ -37,8 +37,15 @@ export interface PublicPlayer {
   orgId: string;
   name: string;
   position: PlayerPosition;
-  /** Computed overall rating (1–99); always server-derived from attributes. */
+  /**
+   * Published overall rating (1–99): the manager baseline blended with
+   * community votes. Equals `baseRating` when there are no votes.
+   */
   rating: number;
+  /** The manager-authored baseline OVR (server-derived from attributes). */
+  baseRating: number;
+  /** Number of distinct members who have voted on this player. */
+  voteCount: number;
   attributes: PlayerAttributes;
   status: PlayerStatus;
   /** True for the team captain (at most one active captain per org). */
@@ -86,6 +93,36 @@ export interface ListPlayersResponse {
 
 export interface ArchivePlayerResponse {
   player: PublicPlayer;
+}
+
+// ── Community voting (skill stars → dynamic OVR) ─────────────────
+
+/** A voter's per-skill star ratings, keyed by attribute key (e.g. PAC → 4). */
+export type PlayerVoteMap = Record<string, number>;
+
+/** Aggregate community sentiment surfaced to clients. */
+export interface PlayerVoteStats {
+  voterCount: number;
+  /** Mean of every stored star (0 when there are no votes). */
+  avgStars: number;
+}
+
+export interface CastVotesRequest {
+  /** Skill → stars (1-5). Keys must match the player's position attributes. */
+  votes: PlayerVoteMap;
+}
+
+export interface CastVotesResponse {
+  player: PublicPlayer;
+  /** The caller's own votes after the write. */
+  myVotes: PlayerVoteMap;
+  stats: PlayerVoteStats;
+}
+
+export interface GetVotesResponse {
+  /** The caller's own votes (empty when they have not voted). */
+  myVotes: PlayerVoteMap;
+  stats: PlayerVoteStats;
 }
 
 /** Squad-depth analytics for the roster (mirrors the HTML's depth chips). */

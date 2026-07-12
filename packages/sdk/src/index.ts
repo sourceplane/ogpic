@@ -354,6 +354,11 @@ export type {
   SetAvailabilityRequest,
   SetAvailabilityResponse,
   SetCaptainResponse,
+  PlayerVoteMap,
+  PlayerVoteStats,
+  CastVotesRequest,
+  CastVotesResponse,
+  GetVotesResponse,
 } from "@saas/contracts/matchmaker";
 export {
   PLAYER_POSITIONS,

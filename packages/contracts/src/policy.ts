@@ -122,6 +122,7 @@ export const ORGANIZATION_ACTIONS = [
   "project.webhook.write",
   "organization.roster.read",
   "organization.roster.write",
+  "organization.player.vote",
   "organization.draft.run",
   "organization.fixture.read",
   "organization.fixture.write",

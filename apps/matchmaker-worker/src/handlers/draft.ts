@@ -8,7 +8,7 @@ import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { requireOrgAction } from "../authz.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { playerPublicId, parsePlayerPublicId } from "../ids.js";
-import { draftBalancedTeams, MIN_TEAMS, MAX_TEAMS, type BalanceablePlayer } from "../engine/index.js";
+import { draftBalancedTeams, effectiveRating, MIN_TEAMS, MAX_TEAMS, type BalanceablePlayer } from "../engine/index.js";
 
 interface ParsedDraft {
   playerUuids: Uuid[] | null;
@@ -117,12 +117,21 @@ export async function handleDraft(
       );
     }
 
-    const balanceable: BalanceablePlayer[] = players.map((p) => ({
-      id: p.id,
-      name: p.name,
-      position: p.position,
-      rating: p.rating,
-    }));
+    // Balance on the published rating (baseline blended with community votes),
+    // so voting genuinely shifts how teams are drawn. Stats failure → baseline.
+    const statsResult = await repo.listPlayerVoteStats(orgId);
+    const statsByPlayer = new Map(
+      statsResult.ok ? statsResult.value.map((s) => [s.playerId, s]) : [],
+    );
+    const balanceable: BalanceablePlayer[] = players.map((p) => {
+      const s = statsByPlayer.get(p.id);
+      return {
+        id: p.id,
+        name: p.name,
+        position: p.position,
+        rating: effectiveRating(p.rating, s?.voterCount ?? 0, s?.avgStars ?? 0),
+      };
+    });
 
     const result = draftBalancedTeams(balanceable, parsed.value.teamCount, parsed.value.teamNames);
     const teams: DraftedTeam[] = result.teams.map((team) => ({

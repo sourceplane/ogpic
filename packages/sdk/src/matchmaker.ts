@@ -24,6 +24,9 @@ import type {
   ListAvailabilityResponse,
   SetAvailabilityRequest,
   SetAvailabilityResponse,
+  CastVotesRequest,
+  CastVotesResponse,
+  GetVotesResponse,
 } from "@saas/contracts/matchmaker";
 
 import type { Transport, RequestOptions } from "./transport.js";
@@ -111,6 +114,27 @@ export class RosterClient {
   setCaptain(orgId: string, playerId: string, opts: RequestOptions = {}): Promise<SetCaptainResponse> {
     return this.transport.request<SetCaptainResponse>(
       { method: "PUT", path: `${orgBase(orgId)}/players/${encodeURIComponent(playerId)}/captain` },
+      opts,
+    );
+  }
+
+  /** GET /v1/organizations/:orgId/players/:playerId/votes — caller's votes + community stats */
+  getVotes(orgId: string, playerId: string, opts: RequestOptions = {}): Promise<GetVotesResponse> {
+    return this.transport.request<GetVotesResponse>(
+      { method: "GET", path: `${orgBase(orgId)}/players/${encodeURIComponent(playerId)}/votes` },
+      opts,
+    );
+  }
+
+  /** POST /v1/organizations/:orgId/players/:playerId/votes — rate a teammate's skills */
+  castVotes(
+    orgId: string,
+    playerId: string,
+    body: CastVotesRequest,
+    opts: RequestOptions = {},
+  ): Promise<CastVotesResponse> {
+    return this.transport.request<CastVotesResponse>(
+      { method: "POST", path: `${orgBase(orgId)}/players/${encodeURIComponent(playerId)}/votes`, body },
       opts,
     );
   }

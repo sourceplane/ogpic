@@ -45,6 +45,8 @@ export interface RondoLive {
   releasePlayer?: (playerId: string) => void;
   approveJoin?: (requestId: string) => void;
   declineJoin?: (requestId: string) => void;
+  /** Persist the caller's per-skill star votes (1-5) for a player. */
+  castVotes?: (playerId: string, votes: Record<string, number>) => void;
 }
 
 export interface LiveJoinRequest {
@@ -188,7 +190,18 @@ export function useRondo(seed: RondoSeed = {}) {
     setPlayers((ps) => ps.map((p) => (p.id === voteTarget ? { ...p, myStars: { ...p.myStars, [skill]: val } } : p)));
 
   const submitVote = () => {
-    if (voteTarget) setRated((r) => Array.from(new Set([...r, voteTarget])));
+    if (voteTarget) {
+      // Persist only the skills the voter actually rated (integer stars 1-5).
+      const target = players.find((p) => p.id === voteTarget);
+      const votes: Record<string, number> = {};
+      if (target) {
+        for (const [skill, val] of Object.entries(target.myStars)) {
+          if (typeof val === "number" && val >= 1 && val <= 5) votes[skill] = Math.round(val);
+        }
+      }
+      if (Object.keys(votes).length > 0) seed.live?.castVotes?.(voteTarget, votes);
+      setRated((r) => Array.from(new Set([...r, voteTarget])));
+    }
     setVoteTarget(null);
   };
 

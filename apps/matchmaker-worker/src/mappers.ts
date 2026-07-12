@@ -1,14 +1,26 @@
 import type { PublicAvailability, PublicMatch, PublicPlayer } from "@saas/contracts/matchmaker";
 import type { Availability, Match, Player } from "@saas/db/matchmaker";
 import { matchPublicId, orgPublicId, playerPublicId } from "./ids.js";
+import { effectiveRating } from "./engine/index.js";
 
-export function toPublicPlayer(player: Player): PublicPlayer {
+/** Community vote aggregate for a player; absent/zero → baseline only. */
+export interface VoteAggregate {
+  voterCount: number;
+  avgStars: number;
+}
+
+export function toPublicPlayer(player: Player, votes?: VoteAggregate | null): PublicPlayer {
+  const baseRating = player.rating;
+  const voteCount = votes?.voterCount ?? 0;
+  const rating = effectiveRating(baseRating, voteCount, votes?.avgStars ?? 0);
   return {
     id: playerPublicId(player.id),
     orgId: orgPublicId(player.orgId),
     name: player.name,
     position: player.position,
-    rating: player.rating,
+    rating,
+    baseRating,
+    voteCount,
     attributes: player.attributes,
     status: player.status,
     isCaptain: player.isCaptain,

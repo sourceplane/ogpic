@@ -345,3 +345,28 @@ export async function playerCaptainCommand(ctx: CommandContext): Promise<Command
   emit(ctx, { id: result.player.id, name: result.player.name, captain: "true" }, result, "Captain set");
   return { exitCode: 0 };
 }
+
+export async function playerVoteCommand(ctx: CommandContext): Promise<CommandResult> {
+  const orgId = await resolveOrgId(ctx, false);
+  const playerId = flagString(ctx, "player");
+  if (!playerId) throw new UsageError("--player <playerId> is required");
+  // Either --votes='{"PAC":4,...}' or a single --skill/--stars pair.
+  let votes = parseJsonFlag<Record<string, number>>(ctx, "votes");
+  if (votes === undefined) {
+    const skill = flagString(ctx, "skill");
+    const starsRaw = flagString(ctx, "stars");
+    if (!skill || !starsRaw) {
+      throw new UsageError("provide --votes <json> or both --skill <key> and --stars <1-5>");
+    }
+    votes = { [skill]: Number(starsRaw) };
+  }
+  const sdk = await ctx.sdk();
+  const result = await sdk.roster.castVotes(orgId, playerId, { votes });
+  emit(
+    ctx,
+    { id: result.player.id, rating: String(result.player.rating), baseRating: String(result.player.baseRating), voteCount: String(result.player.voteCount) },
+    result,
+    "Vote recorded",
+  );
+  return { exitCode: 0 };
+}

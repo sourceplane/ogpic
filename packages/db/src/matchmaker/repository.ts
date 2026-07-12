@@ -17,6 +17,8 @@ import type {
   PageQueryParams,
   Player,
   PlayerPosition,
+  PlayerVote,
+  PlayerVoteStats,
   PositionCount,
   UpdateMatchInput,
   UpdatePlayerInput,
@@ -458,6 +460,86 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
         return { ok: true, value: mapPlayer(set.rows[0]!) };
       } catch {
         return safeError("Failed to set captain");
+      }
+    },
+
+    async castPlayerVotes(input): Promise<MatchmakerResult<void>> {
+      if (input.votes.length === 0) return { ok: true, value: undefined };
+      try {
+        const iso = input.now.toISOString();
+        const values: unknown[] = [input.orgId, input.playerId, input.voterId, iso];
+        const tuples = input.votes.map((v) => {
+          const skillIdx = values.push(v.skill);
+          const starsIdx = values.push(v.stars);
+          return `($1, $2, $3, $${skillIdx}, $${starsIdx}, $4, $4)`;
+        });
+        await executor.execute(
+          `INSERT INTO matchmaker.player_votes (org_id, player_id, voter_id, skill, stars, created_at, updated_at)
+           VALUES ${tuples.join(", ")}
+           ON CONFLICT (org_id, player_id, voter_id, skill)
+           DO UPDATE SET stars = EXCLUDED.stars, updated_at = EXCLUDED.updated_at`,
+          values,
+        );
+        return { ok: true, value: undefined };
+      } catch {
+        return safeError("Failed to cast votes");
+      }
+    },
+
+    async getVoterVotes(orgId, playerId, voterId): Promise<MatchmakerResult<PlayerVote[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT skill, stars FROM matchmaker.player_votes
+           WHERE org_id = $1 AND player_id = $2 AND voter_id = $3`,
+          [orgId, playerId, voterId],
+        );
+        return {
+          ok: true,
+          value: result.rows.map((r) => ({ skill: r.skill as string, stars: Number(r.stars) })),
+        };
+      } catch {
+        return safeError("Failed to get voter votes");
+      }
+    },
+
+    async getPlayerVoteStats(orgId, playerId): Promise<MatchmakerResult<PlayerVoteStats>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT COUNT(DISTINCT voter_id) AS voter_count, COALESCE(AVG(stars), 0) AS avg_stars
+           FROM matchmaker.player_votes WHERE org_id = $1 AND player_id = $2`,
+          [orgId, playerId],
+        );
+        const row = result.rows[0];
+        return {
+          ok: true,
+          value: {
+            playerId,
+            voterCount: row ? Number(row.voter_count) : 0,
+            avgStars: row ? Number(row.avg_stars) : 0,
+          },
+        };
+      } catch {
+        return safeError("Failed to get player vote stats");
+      }
+    },
+
+    async listPlayerVoteStats(orgId): Promise<MatchmakerResult<PlayerVoteStats[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT player_id, COUNT(DISTINCT voter_id) AS voter_count, AVG(stars) AS avg_stars
+           FROM matchmaker.player_votes WHERE org_id = $1 GROUP BY player_id`,
+          [orgId],
+        );
+        return {
+          ok: true,
+          value: result.rows.map((r) => ({
+            playerId: r.player_id as string,
+            voterCount: Number(r.voter_count),
+            avgStars: Number(r.avg_stars),
+          })),
+        };
+      } catch {
+        return safeError("Failed to list player vote stats");
       }
     },
   };

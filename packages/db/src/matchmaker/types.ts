@@ -143,6 +143,28 @@ export interface PositionCount {
   averageRating: number;
 }
 
+/** A single member's star rating (1-5) of a player on one named skill. */
+export interface PlayerVote {
+  skill: string;
+  stars: number;
+}
+
+/** Aggregate community sentiment for a player: distinct voters + mean stars. */
+export interface PlayerVoteStats {
+  playerId: string;
+  voterCount: number;
+  /** Mean of every stored star row for the player (0 when there are no votes). */
+  avgStars: number;
+}
+
+export interface CastVotesInput {
+  orgId: Uuid;
+  playerId: Uuid;
+  voterId: string;
+  votes: PlayerVote[];
+  now: Date;
+}
+
 export interface MatchmakerRepository {
   createPlayer(input: CreatePlayerInput): Promise<MatchmakerResult<Player>>;
   getPlayerById(orgId: Uuid, playerId: Uuid): Promise<MatchmakerResult<Player>>;
@@ -173,4 +195,13 @@ export interface MatchmakerRepository {
     state: AvailabilityState,
     now: Date,
   ): Promise<MatchmakerResult<Availability>>;
+
+  /** Upsert a member's per-skill star votes for a player (re-voting replaces). */
+  castPlayerVotes(input: CastVotesInput): Promise<MatchmakerResult<void>>;
+  /** The calling member's own current votes for a player (to prefill the sheet). */
+  getVoterVotes(orgId: Uuid, playerId: Uuid, voterId: string): Promise<MatchmakerResult<PlayerVote[]>>;
+  /** Aggregate community sentiment for a single player. */
+  getPlayerVoteStats(orgId: Uuid, playerId: Uuid): Promise<MatchmakerResult<PlayerVoteStats>>;
+  /** Aggregate community sentiment for every voted player in the org. */
+  listPlayerVoteStats(orgId: Uuid): Promise<MatchmakerResult<PlayerVoteStats[]>>;
 }
