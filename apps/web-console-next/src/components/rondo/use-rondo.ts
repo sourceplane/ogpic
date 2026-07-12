@@ -43,6 +43,14 @@ export interface RondoLive {
   schedule?: (payload: { scheduledAt: string; turf: string }) => Promise<boolean>;
   setCaptain?: (playerId: string) => void;
   releasePlayer?: (playerId: string) => void;
+  approveJoin?: (requestId: string) => void;
+  declineJoin?: (requestId: string) => void;
+}
+
+export interface LiveJoinRequest {
+  id: string;
+  name: string;
+  via: string;
 }
 
 export interface RondoSeed {
@@ -54,6 +62,8 @@ export interface RondoSeed {
   startScreen?: Screen;
   availability?: Record<string, Availability>;
   matches?: LiveMatchRow[];
+  joinCode?: string;
+  joinRequests?: LiveJoinRequest[];
   live?: RondoLive;
 }
 
@@ -286,6 +296,16 @@ export function useRondo(seed: RondoSeed = {}) {
     captain: enriched.find((p) => p.isCaptain) ?? null,
     makeCaptain,
     releasePlayer,
+    joinCode: seed.joinCode ?? null,
+    joinRequests: seed.joinRequests ?? null,
+    approveJoin: (id: string) => {
+      setInvitesResolved((r) => ({ ...r, [id]: "accepted" }));
+      seed.live?.approveJoin?.(id);
+    },
+    declineJoin: (id: string) => {
+      setInvitesResolved((r) => ({ ...r, [id]: "declined" }));
+      seed.live?.declineJoin?.(id);
+    },
     // actions
     go,
     setScreen,

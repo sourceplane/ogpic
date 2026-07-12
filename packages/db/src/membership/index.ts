@@ -1,5 +1,9 @@
 export type {
   Organization,
+  JoinRequest,
+  JoinRequestStatus,
+  CreateJoinRequestInput,
+  ApproveJoinRequestInput,
   OrganizationMember,
   OrganizationInvitation,
   RoleAssignment,

@@ -108,3 +108,38 @@ export interface AcceptInvitationResponse {
     status: string;
   };
 }
+
+// ── Join by code / request-to-join ──────────────────────────────
+// A signed-in user submits a squad's join code → a pending join request the
+// manager (owner/admin) approves (creating a viewer membership) or declines.
+
+export type JoinRequestStatus = "pending" | "approved" | "declined";
+
+export interface PublicJoinRequest {
+  id: string;
+  subjectId: string;
+  status: JoinRequestStatus;
+  requestedRole: string;
+  createdAt: string;
+  decidedAt: string | null;
+}
+
+/** POST /v1/join — a signed-in user requests to join by code. */
+export interface JoinByCodeRequest {
+  code: string;
+}
+export interface JoinByCodeResponse {
+  request: PublicJoinRequest;
+  orgName: string;
+  orgSlug: string;
+}
+
+export interface JoinCodeResponse {
+  code: string;
+}
+export interface ListJoinRequestsResponse {
+  joinRequests: PublicJoinRequest[];
+}
+export interface DecideJoinRequestResponse {
+  request: PublicJoinRequest;
+}

@@ -127,6 +127,11 @@ export const ORGANIZATION_ACTIONS = [
   "organization.fixture.write",
   "organization.availability.read",
   "organization.availability.set",
+  "organization.join_code.read",
+  "organization.join_code.rotate",
+  "organization.join_request.list",
+  "organization.join_request.approve",
+  "organization.join_request.decline",
 ] as const;
 
 export type OrganizationAction = (typeof ORGANIZATION_ACTIONS)[number];

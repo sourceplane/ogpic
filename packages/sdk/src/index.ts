@@ -158,6 +158,13 @@ export type {
   RemoveMemberResponse,
   AcceptInvitationRequest,
   AcceptInvitationResponse,
+  JoinRequestStatus,
+  PublicJoinRequest,
+  JoinByCodeRequest,
+  JoinByCodeResponse,
+  JoinCodeResponse,
+  ListJoinRequestsResponse,
+  DecideJoinRequestResponse,
 } from "@saas/contracts/membership";
 
 export { ORGANIZATION_ROLES } from "@saas/contracts/membership";

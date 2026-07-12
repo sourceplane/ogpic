@@ -760,7 +760,10 @@ export function MembersScreen({ vm }: { vm: RondoVM }) {
     { id: "mgr", name: "Manager", initials: "MG", role: "Manager", roleColor: "#E0C074", pos: "MGR", posColor: "#E0C074", isCaptain: false, manager: true },
     ...rosterMembers,
   ];
-  const pendingCount = PENDING.filter((iv) => !vm.invitesResolved[iv.id]).length;
+  const pendingSource = vm.joinRequests
+    ? vm.joinRequests.map((jr) => ({ id: jr.id, name: jr.name, initials: (jr.name.trim()[0] ?? "?").toUpperCase(), via: jr.via }))
+    : PENDING;
+  const pendingCount = pendingSource.filter((iv) => !vm.invitesResolved[iv.id]).length;
 
   return (
     <div style={{ minHeight: "100%", padding: "60px 20px 40px" }} className={RISE}>
@@ -781,9 +784,9 @@ export function MembersScreen({ vm }: { vm: RondoVM }) {
             <div style={{ display: "flex", gap: 9 }}>
               <div style={{ flex: 1, background: "#0C110E", border: "1px dashed rgba(86,201,141,.35)", borderRadius: 12, padding: "11px 13px" }}>
                 <Mono style={{ fontSize: 9, color: "#8A9B92", letterSpacing: ".5px", display: "block" }}>INVITE CODE</Mono>
-                <div style={{ fontSize: 18, fontWeight: 900, color: "#56C98D", letterSpacing: "1px", marginTop: 2 }}>RON-4F2</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: "#56C98D", letterSpacing: "1px", marginTop: 2 }}>{vm.joinCode ?? "RON-4F2"}</div>
               </div>
-              <button style={{ width: 52, borderRadius: 12, background: "#56C98D", border: "none", color: "#07130D", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} aria-label="Copy code">
+              <button onClick={() => { if (vm.joinCode && typeof navigator !== "undefined" && navigator.clipboard) void navigator.clipboard.writeText(vm.joinCode); }} style={{ width: 52, borderRadius: 12, background: "#56C98D", border: "none", color: "#07130D", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} aria-label="Copy code">
                 <Copy size={18} strokeWidth={2} />
               </button>
             </div>
@@ -801,7 +804,7 @@ export function MembersScreen({ vm }: { vm: RondoVM }) {
             <>
               <Mono style={{ fontSize: 11, color: "#63666C", letterSpacing: "1px", margin: "22px 2px 11px", display: "block" }}>PENDING REQUESTS · {pendingCount}</Mono>
               <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-                {PENDING.map((iv) => {
+                {pendingSource.map((iv) => {
                   const st = vm.invitesResolved[iv.id];
                   return (
                     <div key={iv.id} style={{ display: "flex", alignItems: "center", gap: 11, padding: "11px 13px", borderRadius: 14, background: "#111316", border: "1px solid rgba(255,255,255,.07)" }}>
@@ -814,8 +817,8 @@ export function MembersScreen({ vm }: { vm: RondoVM }) {
                         <span style={{ fontSize: 12, fontWeight: 800, color: st === "accepted" ? "#56C98D" : "#8A8D93" }}>{st === "accepted" ? "Added" : "Declined"}</span>
                       ) : (
                         <div style={{ display: "flex", gap: 7 }}>
-                          <button onClick={() => vm.setInvitesResolved((r) => ({ ...r, [iv.id]: "declined" }))} style={{ width: 34, height: 34, borderRadius: 10, background: "#1C1F23", border: "1px solid rgba(255,255,255,.08)", color: "#FF7A6B", cursor: "pointer", fontSize: 15 }}>✕</button>
-                          <button onClick={() => vm.setInvitesResolved((r) => ({ ...r, [iv.id]: "accepted" }))} style={{ width: 34, height: 34, borderRadius: 10, background: "#56C98D", border: "none", color: "#07130D", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <button onClick={() => vm.declineJoin(iv.id)} style={{ width: 34, height: 34, borderRadius: 10, background: "#1C1F23", border: "1px solid rgba(255,255,255,.08)", color: "#FF7A6B", cursor: "pointer", fontSize: 15 }}>✕</button>
+                          <button onClick={() => vm.approveJoin(iv.id)} style={{ width: 34, height: 34, borderRadius: 10, background: "#56C98D", border: "none", color: "#07130D", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                             <Check size={16} strokeWidth={3} />
                           </button>
                         </div>

@@ -75,6 +75,7 @@ export default function RondoNewTeamPage() {
             <button onClick={create} disabled={busy || !name.trim()} style={{ width: "100%", height: 56, border: "none", borderRadius: 16, background: ACCENT, color: "#07130D", fontSize: 15, fontWeight: 800, letterSpacing: "-.2px", cursor: busy ? "default" : "pointer", opacity: busy || !name.trim() ? 0.6 : 1 }}>
               {busy ? "Creating…" : "Create team"}
             </button>
+            <button onClick={() => router.replace("/rondo/join")} className="rondo-mono" style={{ marginTop: 12, background: "none", border: "none", color: "#8A8D93", fontSize: 12, cursor: "pointer", padding: 8 }}>Have an invite code? Join a squad →</button>
           </div>
         </div>
       </div>

@@ -9,6 +9,11 @@ import type {
   RevokeInvitationResponse,
   UpdateMemberRoleRequest,
   UpdateMemberRoleResponse,
+  JoinByCodeRequest,
+  JoinByCodeResponse,
+  JoinCodeResponse,
+  ListJoinRequestsResponse,
+  DecideJoinRequestResponse,
 } from "@saas/contracts/membership";
 
 import type { RequestOptions, Transport } from "./transport.js";
@@ -140,6 +145,55 @@ export class MembershipsClient {
         path: `/v1/organizations/${encodeURIComponent(orgId)}/invitations/accept`,
         body,
       },
+      opts,
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Join by code / request-to-join
+  // -------------------------------------------------------------------------
+
+  /** POST /v1/join — request to join a squad by its code (signed-in, cross-org). */
+  join(body: JoinByCodeRequest, opts: RequestOptions = {}): Promise<JoinByCodeResponse> {
+    return this.transport.request<JoinByCodeResponse>({ method: "POST", path: `/v1/join`, body }, opts);
+  }
+
+  /** GET /v1/organizations/:orgId/join-code — read the squad's join code (manager). */
+  getJoinCode(orgId: string, opts: RequestOptions = {}): Promise<JoinCodeResponse> {
+    return this.transport.request<JoinCodeResponse>(
+      { method: "GET", path: `/v1/organizations/${encodeURIComponent(orgId)}/join-code` },
+      opts,
+    );
+  }
+
+  /** POST /v1/organizations/:orgId/join-code/rotate — mint a new code (manager). */
+  rotateJoinCode(orgId: string, opts: RequestOptions = {}): Promise<JoinCodeResponse> {
+    return this.transport.request<JoinCodeResponse>(
+      { method: "POST", path: `/v1/organizations/${encodeURIComponent(orgId)}/join-code/rotate` },
+      opts,
+    );
+  }
+
+  /** GET /v1/organizations/:orgId/join-requests — pending requests (manager). */
+  listJoinRequests(orgId: string, opts: RequestOptions = {}): Promise<ListJoinRequestsResponse> {
+    return this.transport.request<ListJoinRequestsResponse>(
+      { method: "GET", path: `/v1/organizations/${encodeURIComponent(orgId)}/join-requests` },
+      opts,
+    );
+  }
+
+  /** POST /v1/organizations/:orgId/join-requests/:id/approve (manager). */
+  approveJoinRequest(orgId: string, requestId: string, opts: RequestOptions = {}): Promise<DecideJoinRequestResponse> {
+    return this.transport.request<DecideJoinRequestResponse>(
+      { method: "POST", path: `/v1/organizations/${encodeURIComponent(orgId)}/join-requests/${encodeURIComponent(requestId)}/approve` },
+      opts,
+    );
+  }
+
+  /** POST /v1/organizations/:orgId/join-requests/:id/decline (manager). */
+  declineJoinRequest(orgId: string, requestId: string, opts: RequestOptions = {}): Promise<DecideJoinRequestResponse> {
+    return this.transport.request<DecideJoinRequestResponse>(
+      { method: "POST", path: `/v1/organizations/${encodeURIComponent(orgId)}/join-requests/${encodeURIComponent(requestId)}/decline` },
       opts,
     );
   }

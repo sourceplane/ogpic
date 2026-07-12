@@ -1,3 +1,4 @@
+import { joinRepoStubs } from "./helpers/join-repo-stubs.js";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -105,6 +106,7 @@ function createFakeRepository(): MembershipRepository & { _orgs: Map<string, Org
   const _roles = new Map<string, RoleAssignment[]>();
 
   const repo: MembershipRepository & { _orgs: typeof _orgs; _roles: typeof _roles } = {
+    ...joinRepoStubs,
     _orgs,
     _roles,
 

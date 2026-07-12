@@ -11,7 +11,7 @@ import * as React from "react";
 import { useParams } from "next/navigation";
 import "../../../styles/rondo.css";
 import { RondoApp } from "@/components/rondo/rondo-app";
-import { buildLiveSeed, availabilityMap, matchRows } from "@/components/rondo/live";
+import { buildLiveSeed, availabilityMap, matchRows, joinRequestRows } from "@/components/rondo/live";
 import type { RondoLive } from "@/components/rondo/use-rondo";
 import type { Availability } from "@/components/rondo/logic";
 import { useRequireAuth } from "@/lib/use-async";
@@ -50,6 +50,17 @@ export default function ConnectedRondoPage() {
     () => wrap(async () => (await client.fixtures.list(orgId!)).matches),
     { enabled: !!orgId },
   );
+  // Manager-only surfaces — viewers get 404, so failures stay silent (no gate).
+  const joinCode = useApiQuery(
+    orgId ? ["join-code", orgId] : ["join-code", "pending"],
+    () => wrap(async () => (await client.memberships.getJoinCode(orgId!)).code),
+    { enabled: !!orgId },
+  );
+  const joinReqs = useApiQuery(
+    orgId ? ["join-requests", orgId] : ["join-requests", "pending"],
+    () => wrap(async () => (await client.memberships.listJoinRequests(orgId!)).joinRequests),
+    { enabled: !!orgId },
+  );
 
   // Live backend handlers — memoised so RondoApp's hook keeps a stable reference.
   const live = React.useMemo<RondoLive>(() => {
@@ -79,6 +90,17 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: qk.roster(orgId) }),
         );
       },
+      approveJoin: (requestId: string) => {
+        void wrap(() => client.memberships.approveJoinRequest(orgId, requestId)).then(() => {
+          void qc.invalidateQueries({ queryKey: ["join-requests", orgId] });
+          void qc.invalidateQueries({ queryKey: qk.roster(orgId) });
+        });
+      },
+      declineJoin: (requestId: string) => {
+        void wrap(() => client.memberships.declineJoinRequest(orgId, requestId)).then(() =>
+          qc.invalidateQueries({ queryKey: ["join-requests", orgId] }),
+        );
+      },
     };
   }, [orgId, client, qc]);
 
@@ -96,6 +118,8 @@ export default function ConnectedRondoPage() {
     isManager: true, // refined when the RBAC role is surfaced on membership (RX7)
     availability: availabilityMap(availability.data ?? []),
     matches: matchRows(fixtures.data ?? []),
+    ...(joinCode.data ? { joinCode: joinCode.data } : {}),
+    joinRequests: joinRequestRows(joinReqs.data ?? []),
     live,
   });
 

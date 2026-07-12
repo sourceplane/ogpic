@@ -1,8 +1,11 @@
 import type { SqlExecutor } from "../hyperdrive/executor.js";
 import type {
   AcceptInvitationInput,
+  ApproveJoinRequestInput,
   BootstrapOrganizationInput,
   CreateInvitationInput,
+  CreateJoinRequestInput,
+  JoinRequest,
   CreateOrganizationInput,
   CreateOrganizationMemberInput,
   CreateRoleAssignmentInput,
@@ -25,8 +28,23 @@ function mapOrganization(row: Record<string, unknown>): Organization {
     slugLower: row.slug_lower as string,
     status: row.status as string,
     parentOrgId: (row.parent_org_id as string | null) ?? null,
+    joinCode: (row.join_code as string | null) ?? null,
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
+  };
+}
+
+function mapJoinRequest(row: Record<string, unknown>): JoinRequest {
+  return {
+    id: row.id as string,
+    orgId: row.org_id as string,
+    subjectId: row.subject_id as string,
+    subjectType: row.subject_type as string,
+    status: row.status as JoinRequest["status"],
+    requestedRole: row.requested_role as string,
+    createdAt: new Date(row.created_at as string),
+    decidedAt: row.decided_at ? new Date(row.decided_at as string) : null,
+    decidedBy: (row.decided_by as string | null) ?? null,
   };
 }
 
@@ -152,6 +170,119 @@ export function createMembershipRepository(executor: SqlExecutor): MembershipRep
         return { ok: true, value: mapOrganization(result.rows[0]!) };
       } catch (err) {
         return safeError("Failed to get organization by slug", err);
+      }
+    },
+
+    async getOrganizationByJoinCode(joinCode: string): Promise<MembershipResult<Organization>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM membership.organizations WHERE join_code = $1`,
+          [joinCode],
+        );
+        if (result.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
+        return { ok: true, value: mapOrganization(result.rows[0]!) };
+      } catch (err) {
+        return safeError("Failed to get organization by join code", err);
+      }
+    },
+
+    async setOrganizationJoinCode(orgId, joinCode, updatedAt): Promise<MembershipResult<Organization>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `UPDATE membership.organizations SET join_code = $2, updated_at = $3 WHERE id = $1 RETURNING *`,
+          [orgId, joinCode, updatedAt.toISOString()],
+        );
+        if (result.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
+        return { ok: true, value: mapOrganization(result.rows[0]!) };
+      } catch (err) {
+        if (isUniqueViolation(err)) return { ok: false, error: { kind: "conflict", entity: "join_code" } };
+        return safeError("Failed to set join code", err);
+      }
+    },
+
+    async createJoinRequest(input: CreateJoinRequestInput): Promise<MembershipResult<JoinRequest>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `INSERT INTO membership.join_requests (id, org_id, subject_id, subject_type, requested_role, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+          [input.id, input.orgId, input.subjectId, input.subjectType, input.requestedRole, input.createdAt.toISOString()],
+        );
+        return { ok: true, value: mapJoinRequest(result.rows[0]!) };
+      } catch (err) {
+        if (isUniqueViolation(err)) return { ok: false, error: { kind: "conflict", entity: "join_request" } };
+        return safeError("Failed to create join request", err);
+      }
+    },
+
+    async listJoinRequests(orgId): Promise<MembershipResult<JoinRequest[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM membership.join_requests WHERE org_id = $1 ORDER BY created_at DESC, id DESC`,
+          [orgId],
+        );
+        return { ok: true, value: result.rows.map(mapJoinRequest) };
+      } catch (err) {
+        return safeError("Failed to list join requests", err);
+      }
+    },
+
+    async approveJoinRequest(input: ApproveJoinRequestInput) {
+      try {
+        const check = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM membership.join_requests WHERE id = $1 AND org_id = $2`,
+          [input.requestId, input.orgId],
+        );
+        if (check.rowCount === 0) return { ok: false, error: { kind: "not_found" as const } };
+        if (mapJoinRequest(check.rows[0]!).status !== "pending") return { ok: false, error: { kind: "not_found" as const } };
+
+        const result = await executor.execute<Record<string, unknown>>(
+          `WITH approved AS (
+             UPDATE membership.join_requests
+             SET status = 'approved', decided_at = $3, decided_by = $4
+             WHERE id = $1 AND org_id = $2 AND status = 'pending'
+             RETURNING *
+           ),
+           new_member AS (
+             INSERT INTO membership.organization_members (id, org_id, subject_id, subject_type, created_at, updated_at)
+             SELECT $5, org_id, subject_id, subject_type, $3, $3 FROM approved
+             RETURNING *
+           ),
+           new_role AS (
+             INSERT INTO membership.role_assignments (id, org_id, subject_id, subject_type, role, scope_kind, scope_ref, created_at)
+             SELECT $6, org_id, subject_id, subject_type, requested_role, 'organization', NULL, $3 FROM approved
+             RETURNING *
+           )
+           SELECT row_to_json(a.*) as request, row_to_json(m.*) as member, row_to_json(r.*) as role_assignment
+           FROM approved a CROSS JOIN new_member m CROSS JOIN new_role r`,
+          [input.requestId, input.orgId, input.decidedAt.toISOString(), input.decidedBy, input.memberId, input.roleAssignmentId],
+        );
+        if (result.rowCount === 0) return { ok: false, error: { kind: "not_found" as const } };
+        const row = result.rows[0]!;
+        return {
+          ok: true as const,
+          value: {
+            request: mapJoinRequest(parseJsonColumn(row.request)),
+            member: mapMember(parseJsonColumn(row.member)),
+            roleAssignment: mapRoleAssignment(parseJsonColumn(row.role_assignment)),
+          },
+        };
+      } catch (err) {
+        if (isUniqueViolation(err)) return { ok: false, error: { kind: "conflict" as const, entity: "organization_member" } };
+        return safeError("Failed to approve join request", err);
+      }
+    },
+
+    async declineJoinRequest(orgId, requestId, decidedBy, decidedAt): Promise<MembershipResult<JoinRequest>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `UPDATE membership.join_requests SET status = 'declined', decided_at = $3, decided_by = $4
+           WHERE id = $1 AND org_id = $2 AND status = 'pending' RETURNING *`,
+          [requestId, orgId, decidedAt.toISOString(), decidedBy],
+        );
+        if (result.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
+        return { ok: true, value: mapJoinRequest(result.rows[0]!) };
+      } catch (err) {
+        return safeError("Failed to decline join request", err);
       }
     },
 
