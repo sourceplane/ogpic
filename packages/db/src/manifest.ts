@@ -273,5 +273,14 @@ export const manifest: MigrationManifest = {
       description:
         "Optional phone number on roster players for WhatsApp match notifications, owned by the matchmaker worker",
     },
+    {
+      id: "310_notifications_whatsapp_channel",
+      context: "notifications",
+      path: "310_notifications_whatsapp_channel/up.sql",
+      checksum:
+        "b6c9e02eb32b23faf0593cc425abe122d02536c3800f711bed827785a3765341",
+      description:
+        "Widen the notification channel CHECK constraints to allow 'whatsapp' alongside 'email', owned by the notifications context",
+    },
   ],
 };

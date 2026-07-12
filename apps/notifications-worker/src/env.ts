@@ -13,4 +13,10 @@ export interface Env {
   EMAIL_FROM_ADDRESS?: string;
   /** Optional sender display name / brand for the cloudflare-email provider. */
   EMAIL_FROM_NAME?: string;
+  /** WhatsApp HTTP API endpoint (credential-gated whatsapp provider). */
+  WHATSAPP_API_URL?: string;
+  /** Bearer token for the WhatsApp HTTP API. */
+  WHATSAPP_API_TOKEN?: string;
+  /** Optional WhatsApp sender / phone-number id. */
+  WHATSAPP_FROM?: string;
 }
