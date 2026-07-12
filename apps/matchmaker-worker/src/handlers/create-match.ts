@@ -7,9 +7,10 @@ import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { requireOrgAction } from "../authz.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { toPublicMatch } from "../mappers.js";
-import { generateShareToken } from "../ids.js";
+import { generateShareToken, matchPublicId } from "../ids.js";
 import { isPlayerPosition } from "../engine/index.js";
 import { parseVenueInput, EMPTY_VENUE } from "./venue.js";
+import { enqueueNotification, buildIdempotencyKey } from "@saas/notifications-client";
 
 const FORMAT_MAX = 20;
 const NAME_MAX = 60;
@@ -55,6 +56,8 @@ function validateTeam(raw: unknown, label: string, fields: Record<string, string
 
 export interface HandleCreateMatchDeps {
   repo?: MatchmakerRepository;
+  /** Injectable enqueue for tests; defaults to the real notifications client. */
+  enqueueNotification?: typeof enqueueNotification;
 }
 
 export async function handleCreateMatch(
@@ -125,7 +128,47 @@ export async function handleCreateMatch(
     if (!result.ok) {
       return errorResponse("internal_error", "Service unavailable", 503, requestId);
     }
-    return successResponse({ match: toPublicMatch(result.value) }, requestId, 201);
+
+    const match = result.value;
+    // Best-effort, post-commit: ask every player with a contact email to set
+    // their availability for this match. Never blocks or fails the 201 — the
+    // client swallows all errors, an absent binding is a no-op, and the enqueue
+    // is skipped entirely under DEBUG_DELIVERY to avoid duplicate local rows.
+    // Idempotency is per (match, player) so a retried create collapses cleanly.
+    if (env.DEBUG_DELIVERY !== "true") {
+      const enqueueFn = deps?.enqueueNotification ?? enqueueNotification;
+      const roster = await repo.listActivePlayers(orgId);
+      if (roster.ok) {
+        const publicMatchId = matchPublicId(match.id);
+        for (const player of roster.value) {
+          if (!player.email) continue;
+          await enqueueFn(
+            env,
+            {
+              internalActor: "matchmaker-worker",
+              actorSubjectType: actor.subjectType,
+              actorSubjectId: actor.subjectId,
+              requestId,
+            },
+            {
+              orgId,
+              category: "product",
+              templateKey: "match.availability_request",
+              templateData: {
+                scheduledAt: match.scheduledAt.toISOString(),
+                venue: match.venue.name ?? "",
+                matchId: publicMatchId,
+              },
+              recipient: { channel: "email", address: player.email },
+              idempotencyKey: buildIdempotencyKey("match.availability_request", publicMatchId, player.id),
+              correlationId: requestId,
+            },
+          );
+        }
+      }
+    }
+
+    return successResponse({ match: toPublicMatch(match) }, requestId, 201);
   } catch {
     return errorResponse("internal_error", "Service unavailable", 503, requestId);
   } finally {
