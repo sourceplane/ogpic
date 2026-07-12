@@ -16,6 +16,7 @@ function player(isCaptain: boolean): Player {
     attributes: {},
     status: "active",
     isCaptain,
+    email: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     archivedAt: null,

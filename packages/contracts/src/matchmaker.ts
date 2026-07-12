@@ -47,6 +47,8 @@ export interface PublicPlayer {
   /** Number of distinct members who have voted on this player. */
   voteCount: number;
   attributes: PlayerAttributes;
+  /** Optional contact email for match RSVPs. */
+  email: string | null;
   status: PlayerStatus;
   /** True for the team captain (at most one active captain per org). */
   isCaptain: boolean;
@@ -65,7 +67,10 @@ export interface SetCaptainResponse {
 export interface CreatePlayerRequest {
   name: string;
   position: PlayerPosition;
-  attributes: PlayerAttributes;
+  /** Omit to seed a default strength (OVR 60) the manager can adjust later. */
+  attributes?: PlayerAttributes;
+  /** Optional contact email for match RSVPs. */
+  email?: string | null;
 }
 
 export interface CreatePlayerResponse {
@@ -77,6 +82,8 @@ export interface UpdatePlayerRequest {
   name?: string;
   position?: PlayerPosition;
   attributes?: PlayerAttributes;
+  /** Set a contact email, or "" / null to clear it. */
+  email?: string | null;
 }
 
 export interface UpdatePlayerResponse {
