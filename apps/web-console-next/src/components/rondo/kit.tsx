@@ -457,16 +457,16 @@ export function PlayerToken({
   style,
 }: {
   initials: string;
-  name?: string;
-  team?: TokenTeam;
-  captain?: boolean;
-  dimmed?: boolean;
-  size?: number;
-  filled?: boolean; // solid fill (draft tokens) vs white with coloured border
-  left?: string | number;
-  top?: string | number;
-  ring?: boolean; // selected halo
-  style?: React.CSSProperties;
+  name?: string | undefined;
+  team?: TokenTeam | undefined;
+  captain?: boolean | undefined;
+  dimmed?: boolean | undefined;
+  size?: number | undefined;
+  filled?: boolean | undefined; // solid fill (draft tokens) vs white with coloured border
+  left?: string | number | undefined;
+  top?: string | number | undefined;
+  ring?: boolean | undefined; // selected halo
+  style?: React.CSSProperties | undefined;
 }) {
   const borderColor =
     team === "away" ? C.rust : team === "gold" ? C.gold : team === "muted" ? "#B6BDB4" : C.green;
@@ -635,7 +635,9 @@ type IconName =
   | "copy"
   | "check"
   | "refresh"
-  | "send";
+  | "send"
+  | "trash"
+  | "x";
 
 export function Icon({ name, size = 20, color = "currentColor", stroke = 2 }: { name: IconName; size?: number; color?: string; stroke?: number }) {
   const p: Record<IconName, React.ReactNode> = {
@@ -695,6 +697,8 @@ export function Icon({ name, size = 20, color = "currentColor", stroke = 2 }: { 
       </>
     ),
     send: <path d="M3 11l19-9-9 19-2-8-8-2z" />,
+    trash: <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6" />,
+    x: <path d="M18 6L6 18M6 6l12 12" />,
   };
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
