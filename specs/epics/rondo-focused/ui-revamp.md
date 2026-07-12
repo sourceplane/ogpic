@@ -46,3 +46,24 @@ matrix) and is squash-merged. The epic is done when a manager can create a
 squad, schedule a Maps-pinned match with auto-balanced editable sides, and a
 player can join by code, mark availability, and rate teammates — every screen
 pixel-matching the canvas, with the legacy dark UI removed.
+
+## Progress (as-built)
+
+- **Phases 1–4 merged** (#59 #60 #61 #62): the design-system foundation, and all
+  **12 canvas screens** — onboarding (login · start · create · join · invite),
+  the manager app (home · schedule · draft · manage squad) and the player app
+  (home · rate · games) — each verified pixel-faithful with Playwright.
+- **Phase 5 (this PR):** the token-free **demo** (`/rondo/demo`) now runs the
+  Pitchside v2 app (manager/player toggle) instead of the legacy dark shell, so
+  the new UI is the experience a signed-out visitor sees. Shared via
+  `PitchsideDemo`; `/rondo/preview` aliases it.
+
+### Remaining (Phase 6 — final)
+
+Wire the new manager/player apps to **live** data on the authenticated
+`/rondo/:orgSlug` route (roster → pitch, fixtures → games, votes → rate,
+availability, join code/requests → squad) with real **role gating**
+(owner → manager, member → player); then delete the legacy dark UI
+(`rondo-app`, `screens`, `ui`, `logic`, `use-rondo`, `live`, `player-card`,
+`rondo.css`) and the Archivo font, and run the end-to-end pass. Kept separate so
+the authenticated app is never half-migrated.
