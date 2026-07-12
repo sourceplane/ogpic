@@ -9,6 +9,7 @@ import { successResponse, errorResponse, validationError } from "../http.js";
 import { toPublicMatch } from "../mappers.js";
 import { generateShareToken } from "../ids.js";
 import { isPlayerPosition } from "../engine/index.js";
+import { parseVenueInput, EMPTY_VENUE } from "./venue.js";
 
 const FORMAT_MAX = 20;
 const NAME_MAX = 60;
@@ -96,6 +97,7 @@ export async function handleCreateMatch(
 
   const teamA = validateTeam(req.teamA, "teamA", fields);
   const teamB = validateTeam(req.teamB, "teamB", fields);
+  const venue = parseVenueInput(req.venue, fields) ?? EMPTY_VENUE;
 
   if (Object.keys(fields).length > 0 || !scheduledAt || !teamA || !teamB) {
     return validationError(requestId, fields);
@@ -116,6 +118,7 @@ export async function handleCreateMatch(
       teamB,
       ratingA: teamA.squadRating,
       ratingB: teamB.squadRating,
+      venue,
       shareToken: generateShareToken(),
       createdAt: new Date(),
     });

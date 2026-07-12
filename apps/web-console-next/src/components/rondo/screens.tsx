@@ -22,7 +22,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import type { RondoVM } from "./use-rondo";
+import type { RondoVM, LiveMatchRow } from "./use-rondo";
 import { AVAIL_META } from "./logic";
 import { Avatar, IconChip, Mono } from "./ui";
 import { PlayerCard } from "./player-card";
@@ -650,9 +650,9 @@ const TURFS = [
   { id: "dome", name: "Central Sports Dome", fmt: "11-a-side · Grass", dist: "3.1 mi", price: "£90/hr" },
 ];
 
-const DEMO_RESULTS = [
-  { id: "d1", dateLabel: "05 JUL", score: "4 – 3", color: "#56C98D" },
-  { id: "d2", dateLabel: "28 JUN", score: "2 – 2", color: "#C9CBCE" },
+const DEMO_RESULTS: LiveMatchRow[] = [
+  { id: "d1", dateLabel: "05 JUL", score: "4 – 3", color: "#56C98D", venue: "Riverside Astro" },
+  { id: "d2", dateLabel: "28 JUN", score: "2 – 2", color: "#C9CBCE", venue: "The Cage" },
 ];
 
 export function FixturesScreen({ vm }: { vm: RondoVM }) {
@@ -703,7 +703,11 @@ export function FixturesScreen({ vm }: { vm: RondoVM }) {
             if (vm.onSchedule) {
               setScheduling(true);
               const at = new Date(Date.now() + 3 * 86400000).toISOString();
-              const ok = await vm.onSchedule({ scheduledAt: at, turf: vm.turf });
+              const tf = TURFS.find((t) => t.id === vm.turf);
+              const ok = await vm.onSchedule({
+                scheduledAt: at,
+                venue: { name: tf ? tf.name : null, address: tf ? tf.fmt : null, booked: false },
+              });
               setScheduling(false);
               if (ok) vm.go("play");
             } else {
@@ -726,7 +730,10 @@ export function FixturesScreen({ vm }: { vm: RondoVM }) {
           {results.map((r) => (
             <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: 13, borderRadius: 15, background: "#111316", border: "1px solid rgba(255,255,255,.07)" }}>
               <Mono style={{ fontSize: 10, color: "#8A8D93", width: 52 }}>{r.dateLabel}</Mono>
-              <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: "#F4F3F0" }}>Home <span style={{ color: "#8A8D93" }}>vs</span> Away</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#F4F3F0" }}>Home <span style={{ color: "#8A8D93" }}>vs</span> Away</div>
+                {r.venue && <Mono style={{ fontSize: 9.5, color: "#8A8D93", marginTop: 2, display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.venue}</Mono>}
+              </div>
               <div style={{ fontSize: 15, fontWeight: 900, color: r.color }}>{r.score}</div>
             </div>
           ))}

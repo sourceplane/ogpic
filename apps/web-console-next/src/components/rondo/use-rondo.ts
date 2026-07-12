@@ -33,6 +33,7 @@ export interface LiveMatchRow {
   dateLabel: string;
   score: string;
   color: string;
+  venue?: string | null;
 }
 
 /** Live backend handlers. When present, actions hit the real API; otherwise the
@@ -40,7 +41,10 @@ export interface LiveMatchRow {
 export interface RondoLive {
   setAvailability?: (playerId: string, state: Availability) => void;
   draft?: (playerIds: string[], teamSize: number) => Promise<{ homeIds: string[]; awayIds: string[] } | null>;
-  schedule?: (payload: { scheduledAt: string; turf: string }) => Promise<boolean>;
+  schedule?: (payload: {
+    scheduledAt: string;
+    venue: { name: string | null; address: string | null; booked: boolean };
+  }) => Promise<boolean>;
   setCaptain?: (playerId: string) => void;
   releasePlayer?: (playerId: string) => void;
   approveJoin?: (requestId: string) => void;

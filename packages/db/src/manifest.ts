@@ -228,5 +228,14 @@ export const manifest: MigrationManifest = {
       description:
         "Community skill voting on the roster (player_votes, 1-5 stars per member per skill) that blends into a player's published overall rating, owned by the matchmaker worker",
     },
+    {
+      id: "250_matchmaker_match_venue",
+      context: "matchmaker",
+      path: "250_matchmaker_match_venue/up.sql",
+      checksum:
+        "5fb827c313766f5e918d4bf7af46bc1221b76c4ab800276165f388f79a760463",
+      description:
+        "Practice-match venue on fixtures (venue_name, venue_address, venue_booked) so a manager can record or secure a pitch, owned by the matchmaker worker",
+    },
   ],
 };

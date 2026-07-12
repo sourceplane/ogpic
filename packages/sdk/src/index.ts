@@ -339,6 +339,8 @@ export type {
   DraftResponse,
   MatchStatus,
   MatchTeam,
+  MatchVenue,
+  MatchVenueInput,
   PublicMatch,
   CreateMatchRequest,
   CreateMatchResponse,

@@ -37,6 +37,7 @@ export async function handleCancelMatch(
       status: "cancelled",
       scoreA: null,
       scoreB: null,
+      venue: null,
       updatedAt: new Date(),
     });
     if (!result.ok) {
