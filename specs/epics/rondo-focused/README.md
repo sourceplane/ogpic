@@ -103,3 +103,37 @@ squash‑merged. The epic is done when a new user can: sign up → create or joi
 team → see stats → (manager) open a voting round and everyone rates → schedule
 a match with auto‑balanced editable teams → and every selected player is
 notified over WhatsApp + email + in‑app — with **no** out‑of‑scope UI visible.
+
+## Progress / as-built
+
+All six increments merged (each behind the full platform bar — unit tests,
+typecheck, lint, worker dry-runs, `next build`, CI green):
+
+| # | Increment | PR |
+|---|-----------|----|
+| 1 | Rondo is the default app; generic console retired from the UI; nav trimmed to **Squad / Rate / Play / Fixtures** | #50 |
+| 2 | **Leave a squad** (self-service, last-owner-guarded); player stats confirmed on the Squad screen | #51 |
+| 3 | **Rating rounds** — manager-gated voting window, equal-baseline reset, votes auto-adjust the published score, voting locked when closed | #52 |
+| 4 | **Scheduling v2** — Google Maps venue + editable line-ups after scheduling (auto-balance already ships via the draft engine) | #53 |
+| 5a | **Player phone numbers** (WhatsApp contact) | #54 |
+| 5b | **Credential-gated WhatsApp channel** — availability requests fan out over WhatsApp + email; the channel-dispatching provider degrades to local-debug when unconfigured | #55 |
+
+Verified end-to-end with a Playwright walkthrough of the demo loop (desktop +
+mobile): root opens into Rondo, the nav shows only Squad / Rate / Play /
+Fixtures (no Feed/community), the Squad screen renders the FUT cards + "Create
+practice match", and the Rate screen shows the live "VOTING OPEN" round — zero
+console errors.
+
+### Deferred (noted in the increment PRs; the core loop works without them)
+
+- Physically deleting the dormant generic-console route tree (`app/(app)/**`)
+  and flattening the `/rondo/*` URL prefix to `/*` (increment 1 retired them
+  functionally via redirects).
+- Manager-selected availability **recipients** (default all) and the two-step
+  "complete the schedule" flow (the availability-request send already fans out
+  to every reachable player).
+- Pre-match **cron reminders** and a dedicated post-schedule line-up editor UI
+  (the `update-match` backend already supports editing scheduled line-ups).
+- The **live WhatsApp API send** is credential-gated and unverifiable in
+  CI/sandbox; the adapter, dispatch, gating, and degradation are covered by
+  tests.
