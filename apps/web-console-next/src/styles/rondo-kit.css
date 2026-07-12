@@ -1,0 +1,179 @@
+/*
+ * Rondo "Pitchside" v2 design system (rondo-kit) — the light, ink-on-paper
+ * football UI. Every token, type ramp and shell rule is scoped under `.rk` so it
+ * never collides with the legacy dark `.rondo-root` screens during the phased
+ * migration (see specs/epics/rondo-focused/ui-revamp.md). Values are lifted
+ * verbatim from the approved design canvas (Rondo_v2 — section 2, "Pitchside").
+ *
+ * Fonts are self-hosted via next/font in app/rondo/layout.tsx and exposed as
+ * --font-grotesk / --font-jbmono.
+ */
+
+.rk {
+  /* ── surfaces ─────────────────────────────────────────────── */
+  --rk-bg: #efede8; /* page behind the app */
+  --rk-surface: #f2f4f1; /* the screen itself */
+  --rk-card: #ffffff;
+  --rk-pitch: #e4ebe3; /* pitch / map muted green */
+  --rk-pitch-2: #e9ece7;
+  --rk-panel: #edf1ed; /* grouped section background */
+  --rk-avatar: #e4ebe3;
+  --rk-avatar-2: #dde3dc;
+  --rk-seg-empty: #eaeee9; /* unfilled rating segment */
+
+  /* ── ink ──────────────────────────────────────────────────── */
+  --rk-ink: #101511; /* near-black text + dark buttons */
+  --rk-ink-rgb: 16, 21, 17; /* for rgba() opacity ramps */
+  --rk-on-dark: #f2f4f1; /* text on ink / green / rust */
+
+  /* ── accents ──────────────────────────────────────────────── */
+  --rk-green: #17694a; /* primary brand · HOME side · CTAs */
+  --rk-green-rgb: 23, 105, 74;
+  --rk-gold: #c9a24b; /* manager accent */
+  --rk-gold-ink: #8a6d2c; /* gold text on soft-gold chip */
+  --rk-rust: #b0512f; /* AWAY side · destructive · badges */
+  --rk-rust-rgb: 176, 81, 47;
+
+  /* ── lines ────────────────────────────────────────────────── */
+  --rk-line: rgba(16, 21, 17, 0.12);
+  --rk-line-soft: rgba(16, 21, 17, 0.1);
+  --rk-line-strong: rgba(16, 21, 17, 0.14);
+
+  /* ── radii ────────────────────────────────────────────────── */
+  --rk-r-frame: 28px;
+  --rk-r-card: 20px;
+  --rk-r-btn: 16px;
+  --rk-r-field: 16px;
+  --rk-r-pill: 20px;
+
+  /* ── shadows ──────────────────────────────────────────────── */
+  --rk-shadow-frame: 0 12px 40px -18px rgba(16, 21, 17, 0.3);
+  --rk-shadow-nav: 0 8px 24px -12px rgba(16, 21, 17, 0.25);
+  --rk-shadow-fab: 0 10px 24px -8px rgba(23, 105, 74, 0.6);
+
+  font-family: var(--font-grotesk), system-ui, -apple-system, sans-serif;
+  color: var(--rk-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* mono micro-type: uppercase JetBrains labels, codes, meta */
+.rk-mono {
+  font-family: var(--font-jbmono), ui-monospace, monospace;
+}
+
+/* ── the phone shell ──────────────────────────────────────────
+ * Mobile (<640px): the app is full-bleed — the screen IS the viewport, and the
+ * device draws its own status bar (we reserve the top safe area, no fake clock).
+ * Desktop (≥640px): the app is centered in a 390px "phone" with the design's
+ * rounded frame + shadow, so the mockup reads pixel-for-pixel on the web too.
+ */
+.rk-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--rk-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.rk-frame {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  background: var(--rk-surface);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+/* content scrolls inside the frame; hide the scrollbar for app feel */
+.rk-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.rk-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+@media (min-width: 640px) {
+  .rk-shell {
+    justify-content: center;
+    padding: 24px 0;
+  }
+  .rk-frame {
+    flex: none;
+    width: 390px;
+    height: 844px;
+    max-height: calc(100dvh - 48px);
+    margin: 0 auto;
+    border-radius: var(--rk-r-frame);
+    border: 1px solid var(--rk-line);
+    box-shadow: var(--rk-shadow-frame);
+  }
+}
+
+/* ── motion (reduced-motion aware) ────────────────────────────── */
+@keyframes rk-rise {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes rk-pop {
+  from {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.rk-anim-rise {
+  animation: rk-rise 0.4s ease both;
+}
+.rk-anim-pop {
+  animation: rk-pop 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rk-anim-rise,
+  .rk-anim-pop {
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ── interactive affordances ──────────────────────────────────── */
+.rk-press {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.12s ease,
+    filter 0.12s ease,
+    background 0.12s ease;
+  user-select: none;
+}
+.rk-press:active {
+  transform: scale(0.97);
+}
+.rk-press:focus-visible {
+  outline: 2px solid var(--rk-green);
+  outline-offset: 2px;
+}
+
+/* the kit gallery lays screens out in a responsive wall */
+.rk-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  padding: 28px;
+  background: var(--rk-panel);
+  min-height: 100dvh;
+  align-items: flex-start;
+}

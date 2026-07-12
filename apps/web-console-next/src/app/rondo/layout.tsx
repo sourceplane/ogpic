@@ -1,10 +1,21 @@
 /*
- * Rondo route layout (server component). Self-hosts Archivo + JetBrains Mono via
- * next/font at build time so the display type is pixel-correct without a runtime
- * external fetch (CSP-safe, unlike an @import). Exposes them as CSS variables the
- * scoped rondo.css consumes.
+ * Rondo route layout (server component). Self-hosts the display type via
+ * next/font at build time so it is pixel-correct without a runtime external
+ * fetch (CSP-safe, unlike an @import). Exposes each family as a CSS variable the
+ * scoped stylesheets consume.
+ *
+ * The "Pitchside" v2 design system (rondo-kit.css) is built on Space Grotesk +
+ * JetBrains Mono. Archivo is retained only while the legacy dark screens are
+ * migrated screen-by-screen; it is removed once the revamp lands (Phase 5).
  */
-import { Archivo, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Archivo, JetBrains_Mono } from "next/font/google";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-grotesk",
+  display: "swap",
+});
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -15,11 +26,15 @@ const archivo = Archivo({
 
 const jbMono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-jbmono",
   display: "swap",
 });
 
 export default function RondoLayout({ children }: { children: React.ReactNode }) {
-  return <div className={`${archivo.variable} ${jbMono.variable}`}>{children}</div>;
+  return (
+    <div className={`${spaceGrotesk.variable} ${archivo.variable} ${jbMono.variable}`}>
+      {children}
+    </div>
+  );
 }
