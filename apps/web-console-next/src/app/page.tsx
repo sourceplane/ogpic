@@ -2,21 +2,16 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { readStoredToken } from "@/lib/session";
-import { readLastOrgSlug, defaultOrgDestination } from "@/lib/last-org";
 
 /**
- * App entry. Sends the operator to their last-used org (if remembered) so
- * returning visits land in a working org scope; otherwise to /onboarding, which
- * forwards to an existing org or creates the first one — or to /login when
- * there's no session. localStorage is client-only, so this resolves on the
- * client and replaces history (no extra entry).
+ * App entry. Rondo is the product: everyone lands in the Rondo experience,
+ * which resolves the caller's squad (or the Rondo-branded sign-in when signed
+ * out). The generic console surface is retired (see next.config redirects).
  */
 export default function HomePage() {
   const router = useRouter();
   React.useEffect(() => {
-    const dest = readStoredToken() ? defaultOrgDestination(readLastOrgSlug()) : "/login";
-    router.replace(dest);
+    router.replace("/rondo");
   }, [router]);
 
   return (

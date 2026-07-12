@@ -7,12 +7,11 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, Compass, Globe, Shield, Star } from "lucide-react";
+import { CalendarDays, Compass, Shield, Star } from "lucide-react";
 import { useRondo, type RondoSeed } from "./use-rondo";
 import type { Screen } from "./logic";
 import { Avatar, BottomSheet, Mono } from "./ui";
 import {
-  CommunityScreen,
   FixturesScreen,
   JoinScreen,
   LoginScreen,
@@ -25,17 +24,18 @@ import {
 
 type IconType = React.ComponentType<{ size?: number; strokeWidth?: number; color?: string }>;
 
+// Focused nav (rondo-focused epic): Squad · Rate · Play · Fixtures. Feed /
+// community and other out-of-scope surfaces are retired from the UI.
 const NAV: { key: Screen; label: string; Icon: IconType }[] = [
   { key: "squad", label: "SQUAD", Icon: Shield },
-  { key: "vote", label: "VOTE", Icon: Star },
+  { key: "vote", label: "RATE", Icon: Star },
   { key: "play", label: "PLAY", Icon: Compass },
-  { key: "community", label: "FEED", Icon: Globe },
   { key: "fixtures", label: "FIXTURES", Icon: CalendarDays },
 ];
 
 export function RondoApp({ seed }: { seed?: RondoSeed }) {
   const vm = useRondo(seed);
-  const showNav = ["squad", "vote", "play", "match", "fixtures", "community"].includes(vm.screen);
+  const showNav = ["squad", "vote", "play", "match", "fixtures"].includes(vm.screen);
 
   const active = (k: Screen) => (k === "play" ? vm.screen === "play" || vm.screen === "match" : vm.screen === k);
   const navColor = (k: Screen) => (active(k) ? "#F4F3F0" : "#5A5D63");
@@ -55,7 +55,6 @@ export function RondoApp({ seed }: { seed?: RondoSeed }) {
             {vm.screen === "match" && <MatchScreen vm={vm} />}
             {vm.screen === "fixtures" && <FixturesScreen vm={vm} />}
             {vm.screen === "members" && <MembersScreen vm={vm} />}
-            {vm.screen === "community" && <CommunityScreen vm={vm} />}
           </div>
         </div>
 
