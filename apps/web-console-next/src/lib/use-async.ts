@@ -65,7 +65,8 @@ export function useRequireAuth(): boolean {
     setReady(true);
     if (typeof window === "undefined") return;
     if (!token && !readStoredToken()) {
-      window.location.href = "/login";
+      // Rondo-first: unauthenticated deep links land on the Rondo sign-in.
+      window.location.href = "/rondo";
     }
   }, [token]);
   return ready && !!token;

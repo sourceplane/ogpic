@@ -43,6 +43,18 @@ const nextConfig = {
     // See specs/profiles/solo-m0.md.
     NEXT_PUBLIC_SOLO_MODE: process.env.NEXT_PUBLIC_SOLO_MODE ?? "true",
   },
+  // Rondo-first: the generic multi-tenant console surface is retired. Any stray
+  // link or bookmark into it lands back in the Rondo experience. (The Rondo
+  // routes themselves — /rondo/** — are untouched.)
+  async redirects() {
+    return [
+      { source: "/orgs", destination: "/rondo", permanent: false },
+      { source: "/orgs/:path*", destination: "/rondo", permanent: false },
+      { source: "/account", destination: "/rondo", permanent: false },
+      { source: "/account/:path*", destination: "/rondo", permanent: false },
+      { source: "/onboarding", destination: "/rondo", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;
