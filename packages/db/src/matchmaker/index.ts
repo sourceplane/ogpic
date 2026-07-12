@@ -17,6 +17,8 @@ export type {
   PlayerVote,
   PlayerVoteStats,
   CastVotesInput,
+  RatingRound,
+  RatingRoundStatus,
   MatchmakerRepository,
   MatchmakerResult,
   MatchmakerRepositoryError,

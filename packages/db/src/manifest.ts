@@ -246,5 +246,14 @@ export const manifest: MigrationManifest = {
       description:
         "Optional contact email on roster players (groundwork for match availability-request emails), owned by the matchmaker worker",
     },
+    {
+      id: "280_matchmaker_rating_rounds",
+      context: "matchmaker",
+      path: "280_matchmaker_rating_rounds/up.sql",
+      checksum:
+        "e6212824366a83c1bbc0252706246c0b5a0d85743dba2ab44520ddd0c973ba35",
+      description:
+        "Manager-gated rating rounds (voting windows; at most one open per org) that gate peer voting on the roster, owned by the matchmaker worker",
+    },
   ],
 };

@@ -6,6 +6,7 @@ import { createTimings } from "@saas/contracts/timing";
 
 const ORG_PLAYERS_RE = /^\/v1\/organizations\/[^/]+\/players(?:\/[^/]+(?:\/captain|\/votes)?)?$/;
 const ORG_ROSTER_SUMMARY_RE = /^\/v1\/organizations\/[^/]+\/roster\/summary$/;
+const ORG_RATING_ROUND_RE = /^\/v1\/organizations\/[^/]+\/rating-round(?:\/(?:open|close))?$/;
 const ORG_DRAFT_RE = /^\/v1\/organizations\/[^/]+\/draft$/;
 const ORG_MATCHES_RE = /^\/v1\/organizations\/[^/]+\/matches(?:\/[^/]+(?:\/share)?)?$/;
 const ORG_AVAILABILITY_RE = /^\/v1\/organizations\/[^/]+\/availability(?:\/[^/]+)?$/;
@@ -21,6 +22,7 @@ export function isMatchmakerRoute(pathname: string): boolean {
   return (
     ORG_PLAYERS_RE.test(pathname) ||
     ORG_ROSTER_SUMMARY_RE.test(pathname) ||
+    ORG_RATING_ROUND_RE.test(pathname) ||
     ORG_DRAFT_RE.test(pathname) ||
     ORG_MATCHES_RE.test(pathname) ||
     ORG_AVAILABILITY_RE.test(pathname)

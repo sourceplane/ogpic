@@ -20,6 +20,8 @@ import type {
   PlayerVote,
   PlayerVoteStats,
   PositionCount,
+  RatingRound,
+  RatingRoundStatus,
   UpdateMatchInput,
   UpdatePlayerInput,
 } from "./types.js";
@@ -83,6 +85,17 @@ function mapMatch(row: Record<string, unknown>): Match {
 
 function safeError(message: string): MatchmakerResult<never> {
   return { ok: false, error: { kind: "internal", message } };
+}
+
+function mapRatingRound(row: Record<string, unknown>): RatingRound {
+  return {
+    id: row.id as string,
+    orgId: row.org_id as string,
+    status: row.status as RatingRoundStatus,
+    openedBy: row.opened_by as string,
+    openedAt: new Date(row.opened_at as string),
+    closedAt: row.closed_at ? new Date(row.closed_at as string) : null,
+  };
 }
 
 function mapAvailability(row: Record<string, unknown>): Availability {
@@ -558,6 +571,63 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
         };
       } catch {
         return safeError("Failed to list player vote stats");
+      }
+    },
+
+    async getOpenRatingRound(orgId): Promise<MatchmakerResult<RatingRound | null>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.rating_rounds WHERE org_id = $1 AND status = 'open' LIMIT 1`,
+          [orgId],
+        );
+        return { ok: true, value: result.rowCount === 0 ? null : mapRatingRound(result.rows[0]!) };
+      } catch {
+        return safeError("Failed to get open rating round");
+      }
+    },
+
+    async openRatingRound(id, orgId, openedBy, now): Promise<MatchmakerResult<RatingRound>> {
+      try {
+        const iso = now.toISOString();
+        const result = await executor.execute<Record<string, unknown>>(
+          `INSERT INTO matchmaker.rating_rounds (id, org_id, status, opened_by, opened_at)
+           VALUES ($1, $2, 'open', $3, $4)
+           RETURNING *`,
+          [id, orgId, openedBy, iso],
+        );
+        return { ok: true, value: mapRatingRound(result.rows[0]!) };
+      } catch (err: unknown) {
+        if (isUniqueViolation(err)) return { ok: false, error: { kind: "conflict", entity: "rating_round" } };
+        return safeError("Failed to open rating round");
+      }
+    },
+
+    async closeRatingRound(orgId, now): Promise<MatchmakerResult<RatingRound>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `UPDATE matchmaker.rating_rounds SET status = 'closed', closed_at = $2
+           WHERE org_id = $1 AND status = 'open'
+           RETURNING *`,
+          [orgId, now.toISOString()],
+        );
+        if (result.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
+        return { ok: true, value: mapRatingRound(result.rows[0]!) };
+      } catch {
+        return safeError("Failed to close rating round");
+      }
+    },
+
+    async resetScoresToBaseline(orgId, baseline, now): Promise<MatchmakerResult<void>> {
+      try {
+        const iso = now.toISOString();
+        await executor.execute(`DELETE FROM matchmaker.player_votes WHERE org_id = $1`, [orgId]);
+        await executor.execute(
+          `UPDATE matchmaker.players SET rating = $2, updated_at = $3 WHERE org_id = $1 AND status = 'active'`,
+          [orgId, baseline, iso],
+        );
+        return { ok: true, value: undefined };
+      } catch {
+        return safeError("Failed to reset scores to baseline");
       }
     },
   };

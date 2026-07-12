@@ -27,12 +27,22 @@ function player(): Player {
 interface RepoOpts {
   found?: boolean;
   cast?: PlayerVote[];
+  roundOpen?: boolean;
 }
 
 function repo(opts: RepoOpts = {}): MatchmakerRepository {
   const found = opts.found ?? true;
+  const roundOpen = opts.roundOpen ?? true;
   let stored: PlayerVote[] = opts.cast ?? [];
   return {
+    async getOpenRatingRound() {
+      return {
+        ok: true,
+        value: roundOpen
+          ? { id: "r1", orgId: ORG, status: "open" as const, openedBy: "usr_m", openedAt: new Date(), closedAt: null }
+          : null,
+      };
+    },
     async getPlayerById() {
       return found ? { ok: true, value: player() } : { ok: false, error: { kind: "not_found" } };
     },
@@ -117,6 +127,11 @@ describe("handleCastVotes", () => {
   it("denies with 404 when policy rejects", async () => {
     const res = await handleCastVotes(req({ votes: { PAC: 3 } }), envDenying() as never, "req_4", ACTOR, ORG, PLAYER, { repo: repo() });
     expect(res.status).toBe(404);
+  });
+
+  it("blocks voting with 409 when no rating round is open", async () => {
+    const res = await handleCastVotes(req({ votes: { PAC: 3 } }), envAllowing() as never, "req_5", ACTOR, ORG, PLAYER, { repo: repo({ roundOpen: false }) });
+    expect(res.status).toBe(409);
   });
 });
 

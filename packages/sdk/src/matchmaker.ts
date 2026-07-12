@@ -27,6 +27,9 @@ import type {
   CastVotesRequest,
   CastVotesResponse,
   GetVotesResponse,
+  GetRatingRoundResponse,
+  OpenRatingRoundRequest,
+  RatingRoundResponse,
 } from "@saas/contracts/matchmaker";
 
 import type { Transport, RequestOptions } from "./transport.js";
@@ -135,6 +138,30 @@ export class RosterClient {
   ): Promise<CastVotesResponse> {
     return this.transport.request<CastVotesResponse>(
       { method: "POST", path: `${orgBase(orgId)}/players/${encodeURIComponent(playerId)}/votes`, body },
+      opts,
+    );
+  }
+
+  /** GET /v1/organizations/:orgId/rating-round — the open voting window (or null). */
+  getRatingRound(orgId: string, opts: RequestOptions = {}): Promise<GetRatingRoundResponse> {
+    return this.transport.request<GetRatingRoundResponse>(
+      { method: "GET", path: `${orgBase(orgId)}/rating-round` },
+      opts,
+    );
+  }
+
+  /** POST /v1/organizations/:orgId/rating-round/open — open a voting window (manager). */
+  openRatingRound(orgId: string, body: OpenRatingRoundRequest = {}, opts: RequestOptions = {}): Promise<RatingRoundResponse> {
+    return this.transport.request<RatingRoundResponse>(
+      { method: "POST", path: `${orgBase(orgId)}/rating-round/open`, body },
+      opts,
+    );
+  }
+
+  /** POST /v1/organizations/:orgId/rating-round/close — close the voting window (manager). */
+  closeRatingRound(orgId: string, opts: RequestOptions = {}): Promise<RatingRoundResponse> {
+    return this.transport.request<RatingRoundResponse>(
+      { method: "POST", path: `${orgBase(orgId)}/rating-round/close` },
       opts,
     );
   }

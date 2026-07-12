@@ -132,6 +132,31 @@ export interface GetVotesResponse {
   stats: PlayerVoteStats;
 }
 
+// ── Rating rounds (manager-gated voting window) ─────────────────
+
+export type RatingRoundStatus = "open" | "closed";
+
+export interface PublicRatingRound {
+  id: string;
+  status: RatingRoundStatus;
+  openedAt: string;
+  closedAt: string | null;
+}
+
+/** GET /rating-round → the open round, or null when voting is closed. */
+export interface GetRatingRoundResponse {
+  round: PublicRatingRound | null;
+}
+
+export interface OpenRatingRoundRequest {
+  /** When true, reset every player to an equal baseline OVR and clear votes. */
+  resetScores?: boolean;
+}
+
+export interface RatingRoundResponse {
+  round: PublicRatingRound;
+}
+
 /** Squad-depth analytics for the roster (mirrors the HTML's depth chips). */
 export interface RosterSummaryEntry {
   position: PlayerPosition;

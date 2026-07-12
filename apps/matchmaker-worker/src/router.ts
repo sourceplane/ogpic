@@ -19,6 +19,7 @@ import { handleSetAvailability } from "./handlers/set-availability.js";
 import { handleSetCaptain } from "./handlers/set-captain.js";
 import { handleCastVotes } from "./handlers/cast-votes.js";
 import { handleGetVotes } from "./handlers/get-votes.js";
+import { handleGetRatingRound, handleOpenRatingRound, handleCloseRatingRound } from "./handlers/rating-round.js";
 import { errorResponse, notFound, methodNotAllowed } from "./http.js";
 import { generateRequestId, parseOrgPublicId, parsePlayerPublicId, parseMatchPublicId } from "./ids.js";
 
@@ -48,6 +49,8 @@ const ORG_PLAYER_CAPTAIN_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)\/
 const ORG_PLAYER_VOTES_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)\/votes$/;
 const ORG_PLAYER_ID_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)$/;
 const ORG_ROSTER_SUMMARY_RE = /^\/v1\/organizations\/([^/]+)\/roster\/summary$/;
+const ORG_RATING_ROUND_RE = /^\/v1\/organizations\/([^/]+)\/rating-round$/;
+const ORG_RATING_ROUND_ACTION_RE = /^\/v1\/organizations\/([^/]+)\/rating-round\/(open|close)$/;
 const ORG_DRAFT_RE = /^\/v1\/organizations\/([^/]+)\/draft$/;
 const ORG_MATCHES_RE = /^\/v1\/organizations\/([^/]+)\/matches$/;
 const ORG_MATCH_SHARE_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/share$/;
@@ -89,6 +92,28 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return unauthenticated(requestId);
       return handleSetCaptain(env, requestId, actor, orgUuid, playerUuid);
+    }
+
+    // ── Rating rounds (voting window: open/close by manager) ──
+    const roundActionMatch = url.pathname.match(ORG_RATING_ROUND_ACTION_RE);
+    if (roundActionMatch) {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(roundActionMatch[1]!);
+      if (!orgUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return roundActionMatch[2] === "open"
+        ? handleOpenRatingRound(request, env, requestId, actor, orgUuid)
+        : handleCloseRatingRound(env, requestId, actor, orgUuid);
+    }
+    const roundMatch = url.pathname.match(ORG_RATING_ROUND_RE);
+    if (roundMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(roundMatch[1]!);
+      if (!orgUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleGetRatingRound(env, requestId, actor, orgUuid);
     }
 
     // ── Roster: votes (fixed segment; must precede /players/:id) ──

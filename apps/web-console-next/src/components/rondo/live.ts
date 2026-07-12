@@ -71,6 +71,7 @@ export function buildLiveSeed(args: {
   matches?: LiveMatchRow[];
   joinCode?: string;
   joinRequests?: LiveJoinRequest[];
+  votingOpen?: boolean;
   live?: RondoSeed["live"];
 }): RondoSeed {
   const team: TeamMeta = {
@@ -94,6 +95,7 @@ export function buildLiveSeed(args: {
     ...(args.matches ? { matches: args.matches } : {}),
     ...(args.joinCode ? { joinCode: args.joinCode } : {}),
     ...(args.joinRequests ? { joinRequests: args.joinRequests } : {}),
+    ...(args.votingOpen !== undefined ? { votingOpen: args.votingOpen } : {}),
     ...(args.live ? { live: args.live } : {}),
   };
 }

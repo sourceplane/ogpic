@@ -62,6 +62,11 @@ export default function ConnectedRondoPage() {
     () => wrap(async () => (await client.memberships.listJoinRequests(orgId!)).joinRequests),
     { enabled: !!orgId },
   );
+  const ratingRound = useApiQuery(
+    orgId ? ["rating-round", orgId] : ["rating-round", "pending"],
+    () => wrap(async () => (await client.roster.getRatingRound(orgId!)).round),
+    { enabled: !!orgId },
+  );
 
   // Live backend handlers — memoised so RondoApp's hook keeps a stable reference.
   const live = React.useMemo<RondoLive>(() => {
@@ -124,6 +129,17 @@ export default function ConnectedRondoPage() {
           router.replace("/rondo");
         });
       },
+      openRound: (resetScores: boolean) => {
+        void wrap(() => client.roster.openRatingRound(orgId, { resetScores })).then(() => {
+          void qc.invalidateQueries({ queryKey: ["rating-round", orgId] });
+          if (resetScores) void qc.invalidateQueries({ queryKey: qk.roster(orgId) });
+        });
+      },
+      closeRound: () => {
+        void wrap(() => client.roster.closeRatingRound(orgId)).then(() =>
+          qc.invalidateQueries({ queryKey: ["rating-round", orgId] }),
+        );
+      },
       schedule: async ({ scheduledAt, venue }) => {
         // Auto-balance the available squad into two sides, then persist the
         // fixture with the chosen venue. Voting-blended ratings drive the draft.
@@ -160,6 +176,7 @@ export default function ConnectedRondoPage() {
     matches: matchRows(fixtures.data ?? []),
     ...(joinCode.data ? { joinCode: joinCode.data } : {}),
     joinRequests: joinRequestRows(joinReqs.data ?? []),
+    votingOpen: (ratingRound.data ?? null) != null,
     live,
   });
 

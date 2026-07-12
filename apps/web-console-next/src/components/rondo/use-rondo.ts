@@ -55,6 +55,10 @@ export interface RondoLive {
   addPlayer?: (input: { name: string; position: string; email?: string | null }) => void;
   /** Leave the current squad (self-removal); the host redirects afterwards. */
   leaveTeam?: () => void;
+  /** Open the manager-gated voting window (optionally resetting scores). */
+  openRound?: (resetScores: boolean) => void;
+  /** Close the voting window. */
+  closeRound?: () => void;
 }
 
 export interface LiveJoinRequest {
@@ -74,6 +78,7 @@ export interface RondoSeed {
   matches?: LiveMatchRow[];
   joinCode?: string;
   joinRequests?: LiveJoinRequest[];
+  votingOpen?: boolean;
   live?: RondoLive;
 }
 
@@ -326,6 +331,12 @@ export function useRondo(seed: RondoSeed = {}) {
       seed.live?.leaveTeam?.();
     },
     canLeave: !!seed.live?.leaveTeam,
+    // Rating window: demo mode has no round gating (always open); live mode
+    // reflects the org's real round and exposes manager open/close controls.
+    votingOpen: seed.votingOpen ?? !seed.live,
+    canManageRound: isManager && !!seed.live?.openRound,
+    openRound: (resetScores: boolean) => seed.live?.openRound?.(resetScores),
+    closeRound: () => seed.live?.closeRound?.(),
     approveJoin: (id: string) => {
       setInvitesResolved((r) => ({ ...r, [id]: "accepted" }));
       seed.live?.approveJoin?.(id);
