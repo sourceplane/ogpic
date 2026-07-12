@@ -1,19 +1,21 @@
 /*
- * /rondo/join — request to join a squad by its code (Feature 4). A signed-in
- * user enters the code their captain shared → client.memberships.join creates a
- * pending join request the manager approves. Rondo-branded.
+ * /rondo/join — request to join a squad by its code (canvas 2a "JOIN WITH
+ * CODE"), rebuilt on the Pitchside v2 kit. A signed-in user types the code their
+ * captain shared → client.memberships.join creates a pending request the manager
+ * approves. The 6 boxes are a presentation over one real input.
  */
 "use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import "../../../styles/rondo.css";
+import "../../../styles/rondo-kit.css";
 import { useSession } from "@/lib/session";
 import { wrap } from "@/lib/api";
 import { useRequireAuth } from "@/lib/use-async";
-import { Mono, IconChip } from "@/components/rondo/ui";
+import { C, ink, green, PhoneShell, StatusBar, ScreenHeader, Button, Icon } from "@/components/rondo/kit";
 
-const ACCENT = "#56C98D";
+const MONO = "var(--font-jbmono), ui-monospace, monospace";
+const LEN = 6;
 
 export default function RondoJoinPage() {
   const router = useRouter();
@@ -23,6 +25,7 @@ export default function RondoJoinPage() {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [sent, setSent] = React.useState<{ orgName: string } | null>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   async function submit() {
     const c = code.trim().toUpperCase();
@@ -32,7 +35,13 @@ export default function RondoJoinPage() {
     const r = await wrap(() => client.memberships.join({ code: c }));
     setBusy(false);
     if (!r.ok) {
-      setError(r.status === 404 ? "No squad found for that code." : r.status === 409 ? "You've already requested to join this squad." : r.error.message || "Could not send the request.");
+      setError(
+        r.status === 404
+          ? "No squad found for that code."
+          : r.status === 409
+            ? "You've already requested to join this squad."
+            : r.error.message || "Could not send the request.",
+      );
       return;
     }
     setSent({ orgName: r.data.orgName });
@@ -40,53 +49,105 @@ export default function RondoJoinPage() {
 
   if (!ready) return null;
 
-  return (
-    <div className="rondo-root rondo-shell no-nav">
-      <div className="rondo-main">
-        <div className="rondo-page">
-          <div style={{ minHeight: "100dvh", padding: "64px 24px 40px", display: "flex", flexDirection: "column" }}>
-            <IconChip onClick={() => router.replace("/rondo")} ariaLabel="Back">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden><path d="M15 18l-6-6 6-6" /></svg>
-            </IconChip>
-
-            {sent ? (
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 16, textAlign: "center" }}>
-                <div style={{ width: 60, height: 60, borderRadius: 18, background: "rgba(86,201,141,.14)", border: "1px solid rgba(86,201,141,.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#56C98D" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
-                </div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: "#F4F3F0", letterSpacing: "-.6px" }}>Request sent</div>
-                <div style={{ fontSize: 14, color: "#8A8D93", maxWidth: 300, lineHeight: 1.45 }}>
-                  You&apos;ve asked to join <span style={{ color: "#F4F3F0", fontWeight: 700 }}>{sent.orgName}</span>. A manager will approve you — you&apos;ll see the squad once they do.
-                </div>
-                <button onClick={() => router.replace("/rondo")} style={{ height: 50, padding: "0 24px", marginTop: 8, borderRadius: 14, background: ACCENT, border: "none", color: "#07130D", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Done</button>
-              </div>
-            ) : (
-              <>
-                <div style={{ marginTop: 26, fontSize: 30, fontWeight: 900, letterSpacing: "-1.4px", color: "#F4F3F0" }}>Join a squad</div>
-                <div style={{ marginTop: 8, fontSize: 14, color: "#8A8D93", lineHeight: 1.45, maxWidth: 320 }}>Enter the invite code your captain shared. The manager approves your request.</div>
-
-                <Mono style={{ marginTop: 28, fontSize: 11, color: "#63666C", letterSpacing: "1px", marginBottom: 10, display: "block" }}>INVITE CODE</Mono>
-                <input
-                  placeholder="ABC234"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  onKeyDown={(e) => e.key === "Enter" && submit()}
-                  autoFocus
-                  maxLength={12}
-                  style={{ width: "100%", height: 60, borderRadius: 15, background: "#141619", border: "1px solid rgba(255,255,255,.11)", color: "#56C98D", fontSize: 26, fontWeight: 800, letterSpacing: "6px", textAlign: "center", padding: "0 18px", outline: "none", fontFamily: "var(--font-jbmono), monospace" }}
-                />
-                {error && <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 12, background: "rgba(255,122,107,.12)", border: "1px solid rgba(255,122,107,.3)", color: "#FFA99E", fontSize: 12.5 }}>{error}</div>}
-
-                <div style={{ flex: 1 }} />
-                <button onClick={submit} disabled={busy || !code.trim()} style={{ width: "100%", height: 56, border: "none", borderRadius: 16, background: ACCENT, color: "#07130D", fontSize: 15, fontWeight: 800, cursor: busy ? "default" : "pointer", opacity: busy || !code.trim() ? 0.6 : 1 }}>
-                  {busy ? "Sending…" : "Request to join"}
-                </button>
-                <button onClick={() => router.replace("/rondo/new")} className="rondo-mono" style={{ marginTop: 12, background: "none", border: "none", color: "#8A8D93", fontSize: 12, cursor: "pointer", padding: 8 }}>Or create your own team →</button>
-              </>
-            )}
+  if (sent) {
+    return (
+      <PhoneShell>
+        <StatusBar />
+        <ScreenHeader title="Join a squad" onBack={() => router.replace("/rondo")} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 16, textAlign: "center", padding: "0 32px" }}>
+          <div style={{ width: 60, height: 60, borderRadius: 18, background: green(0.12), border: `1px solid ${green(0.4)}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.green }}>
+            <Icon name="check" size={28} stroke={2.6} />
           </div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: C.ink, letterSpacing: -0.6 }}>Request sent</div>
+          <div style={{ fontSize: 14, color: ink(0.55), maxWidth: 300, lineHeight: 1.45 }}>
+            You&rsquo;ve asked to join <span style={{ color: C.ink, fontWeight: 700 }}>{sent.orgName}</span>. A manager will approve you — you&rsquo;ll see the squad once they do.
+          </div>
+          <Button variant="green" onClick={() => router.replace("/rondo")} height={50} radius={14} style={{ width: "auto", padding: "0 24px", marginTop: 8 }}>
+            Done
+          </Button>
+        </div>
+      </PhoneShell>
+    );
+  }
+
+  const chars = Array.from({ length: LEN }, (_, i) => code[i] ?? "");
+  const activeIdx = Math.min(code.length, LEN - 1);
+
+  return (
+    <PhoneShell>
+      <StatusBar />
+      <ScreenHeader title="Join a squad" onBack={() => router.replace("/rondo/start")} />
+      <div style={{ padding: "8px 24px 0", fontSize: 13, color: ink(0.55) }}>Enter the invite code your captain shared.</div>
+
+      {/* six boxes over a single hidden input */}
+      <div style={{ position: "relative", padding: "24px 24px 0" }}>
+        <input
+          ref={inputRef}
+          value={code}
+          autoFocus
+          inputMode="text"
+          maxLength={LEN}
+          aria-label="Invite code"
+          onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+          onKeyDown={(e) => e.key === "Enter" && submit()}
+          style={{ position: "absolute", inset: "24px 24px 0", width: "calc(100% - 48px)", height: 58, opacity: 0, zIndex: 2, cursor: "pointer" }}
+        />
+        <div style={{ display: "flex", gap: 8 }}>
+          {chars.map((ch, i) => {
+            const active = i === activeIdx && code.length < LEN;
+            const filled = ch !== "";
+            return (
+              <div
+                key={i}
+                style={{
+                  flex: 1,
+                  height: 58,
+                  borderRadius: 14,
+                  background: C.card,
+                  border: active ? `2px solid ${C.green}` : `1px solid ${ink(0.14)}`,
+                  boxShadow: active ? `0 0 0 4px ${green(0.12)}` : undefined,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 24,
+                  fontWeight: 700,
+                  color: filled ? C.ink : ink(0.25),
+                }}
+              >
+                {ch || "·"}
+              </div>
+            );
+          })}
         </div>
       </div>
-    </div>
+
+      <div style={{ padding: "22px 24px 0", display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ flex: 1, height: 1, background: ink(0.12) }} />
+        <span style={{ fontFamily: MONO, fontSize: 10, color: ink(0.4) }}>OR</span>
+        <div style={{ flex: 1, height: 1, background: ink(0.12) }} />
+      </div>
+      <div style={{ margin: "14px 24px 0", height: 50, borderRadius: 16, background: C.card, border: `1px solid ${ink(0.12)}`, display: "flex", alignItems: "center", padding: "0 16px", gap: 10, color: ink(0.45) }}>
+        <Icon name="share" size={15} color={ink(0.45)} />
+        <span style={{ fontSize: 13 }}>Paste a squad link…</span>
+      </div>
+
+      {error && (
+        <div style={{ margin: "16px 24px 0", padding: "10px 14px", borderRadius: 12, background: "rgba(176,81,47,.12)", border: "1px solid rgba(176,81,47,.3)", color: C.rust, fontSize: 12.5 }}>{error}</div>
+      )}
+
+      <div style={{ flex: 1 }} />
+      <div style={{ padding: "0 24px 26px" }}>
+        <Button variant="ink" onClick={submit} disabled={busy || !code.trim()}>
+          {busy ? "Sending…" : "Join squad"}
+        </Button>
+        <div
+          onClick={() => router.replace("/rondo/new")}
+          className="rk-press"
+          style={{ marginTop: 12, textAlign: "center", fontFamily: MONO, fontSize: 11, color: ink(0.5) }}
+        >
+          Or create your own team →
+        </div>
+      </div>
+    </PhoneShell>
   );
 }
