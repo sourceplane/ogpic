@@ -83,7 +83,7 @@ export function LoginScreen({ vm }: { vm: RondoVM }) {
       </div>
       <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 11 }}>
         <button
-          onClick={() => vm.go("join")}
+          onClick={() => { if (typeof window !== "undefined") window.location.href = "/rondo"; }}
           style={{
             width: "100%",
             height: 54,
@@ -103,7 +103,7 @@ export function LoginScreen({ vm }: { vm: RondoVM }) {
           {["Apple", "Google"].map((b) => (
             <button
               key={b}
-              onClick={() => vm.go("join")}
+              onClick={() => { if (typeof window !== "undefined") window.location.href = "/rondo"; }}
               style={{
                 flex: 1,
                 height: 52,
@@ -243,63 +243,18 @@ export function SquadScreen({ vm }: { vm: RondoVM }) {
         </IconChip>
       </div>
 
-      {/* record */}
-      <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
-        {[
-          { v: 14, l: "PLAYED", c: "#F4F3F0" },
-          { v: 9, l: "WON", c: "#56C98D" },
-          { v: 2, l: "DRAWN", c: "#C9CBCE" },
-          { v: 3, l: "LOST", c: "#FF7A6B" },
-        ].map((s) => (
-          <div key={s.l} style={{ flex: 1, background: "#111316", border: "1px solid rgba(255,255,255,.07)", borderRadius: 14, padding: "12px 8px", textAlign: "center" }}>
-            <div style={{ fontSize: 22, fontWeight: 900, color: s.c }}>{s.v}</div>
-            <Mono style={{ fontSize: 10, color: "#8A8D93", marginTop: 1, display: "block" }}>{s.l}</Mono>
-          </div>
-        ))}
-      </div>
+      {vm.captain && (
+        <Mono style={{ marginTop: 12, fontSize: 11, color: "#8A8D93", letterSpacing: ".4px", display: "block" }}>
+          CAPTAIN · <span style={{ color: "#56C98D" }}>{vm.captain.shortName}</span>
+        </Mono>
+      )}
 
-      {/* ranking / streak */}
-      <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-        <div style={{ flex: 1.5, background: "linear-gradient(150deg,#15211b,#0e1512)", border: "1px solid rgba(86,201,141,.22)", borderRadius: 16, padding: "13px 15px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div>
-            <Mono style={{ fontSize: 9, color: "#8A9B92", letterSpacing: ".5px", display: "block" }}>RONDO POINTS</Mono>
-            <div style={{ fontSize: 24, fontWeight: 900, color: "#F4F3F0", letterSpacing: "-.5px", marginTop: 2 }}>{t.pts}</div>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <Mono style={{ fontSize: 9, color: "#8A9B92", letterSpacing: ".5px", display: "block" }}>LOCAL RANK</Mono>
-            <div style={{ fontSize: 20, fontWeight: 900, color: "#56C98D", marginTop: 3 }}>#{t.rank}</div>
-          </div>
-        </div>
-        <div style={{ flex: 1, background: "#111316", border: "1px solid rgba(255,255,255,.07)", borderRadius: 16, padding: "13px 12px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "#E0C074", letterSpacing: "-.5px" }}>W{t.streak}</div>
-          <Mono style={{ fontSize: 9, color: "#8A8D93", marginTop: 4, letterSpacing: ".5px", display: "block" }}>WIN STREAK</Mono>
-        </div>
-      </div>
-
-      {/* manager + captain */}
-      <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-        {[
-          { i: "MG", l: "MANAGER", lc: "#E0C074", n: vm.isManager ? "You" : "Manager" },
-          vm.captain
-            ? { i: vm.captain.initials, l: "CAPTAIN", lc: "#56C98D", n: vm.captain.shortName }
-            : { i: "—", l: "CAPTAIN", lc: "#56C98D", n: "Not set" },
-        ].map((m) => (
-          <div key={m.l} style={{ flex: 1, background: "#111316", border: "1px solid rgba(255,255,255,.07)", borderRadius: 16, padding: 13, display: "flex", alignItems: "center", gap: 11 }}>
-            <Avatar initials={m.i} size={42} fontSize={13} color="#8A8D93" />
-            <div>
-              <Mono style={{ fontSize: 9.5, color: m.lc, letterSpacing: ".8px", display: "block" }}>{m.l}</Mono>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: "#F4F3F0", marginTop: 2 }}>{m.n}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* CTA */}
+      {/* CTA — the one thing this screen is for */}
       {vm.isManager ? (
         <>
           <button
             onClick={() => vm.go("play")}
-            style={{ width: "100%", marginTop: 16, borderRadius: 18, background: "linear-gradient(140deg,#1a2b22,#0f1613)", border: "1px solid rgba(86,201,141,.3)", padding: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", textAlign: "left" }}
+            style={{ width: "100%", marginTop: 22, borderRadius: 18, background: "linear-gradient(140deg,#1a2b22,#0f1613)", border: "1px solid rgba(86,201,141,.3)", padding: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", textAlign: "left" }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
               <div style={{ width: 44, height: 44, borderRadius: 13, background: ACCENT, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -653,82 +608,60 @@ export function MatchScreen({ vm }: { vm: RondoVM }) {
 }
 
 /* --------------------------------------------------------------- Fixtures */
-const TURFS = [
-  { id: "cage", name: "The Cage", fmt: "5-a-side · Indoor", dist: "0.8 mi", price: "£48/hr" },
-  { id: "astro", name: "Riverside Astro", fmt: "7-a-side · 3G", dist: "1.4 mi", price: "£65/hr" },
-  { id: "dome", name: "Central Sports Dome", fmt: "11-a-side · Grass", dist: "3.1 mi", price: "£90/hr" },
-];
-
 const DEMO_RESULTS: LiveMatchRow[] = [
   { id: "d1", dateLabel: "05 JUL", score: "4 – 3", color: "#56C98D", venue: "Riverside Astro" },
   { id: "d2", dateLabel: "28 JUN", score: "2 – 2", color: "#C9CBCE", venue: "The Cage" },
 ];
 
+function defaultDate(): string {
+  const d = new Date(Date.now() + 3 * 86400000);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export function FixturesScreen({ vm }: { vm: RondoVM }) {
   const [scheduling, setScheduling] = React.useState(false);
+  const [turfName, setTurfName] = React.useState("");
   const [mapsUrl, setMapsUrl] = React.useState("");
+  const [date, setDate] = React.useState(defaultDate);
+  const [time, setTime] = React.useState("18:30");
   const results = vm.liveMatches ?? DEMO_RESULTS;
+  const fieldStyle = { width: "100%", height: 46, borderRadius: 12, background: "#0F1114", border: "1px solid rgba(255,255,255,.1)", color: "#F4F3F0", padding: "0 13px", fontSize: 13.5, outline: "none" } as const;
+  const labelStyle = { fontSize: 10.5, color: "#8A8D93", letterSpacing: ".8px", margin: "14px 0 7px", display: "block" } as const;
   return (
     <div style={{ minHeight: "100%", padding: "60px 20px 96px" }} className={RISE}>
       <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-1.2px", color: "#F4F3F0" }}>Fixtures</div>
 
       <div style={{ marginTop: 18, borderRadius: 20, background: "linear-gradient(160deg,#15181c,#0d0f12)", border: "1px solid rgba(255,255,255,.08)", padding: 18 }}>
-        <Mono style={{ fontSize: 11, color: "#63666C", letterSpacing: "1px", marginBottom: 12, display: "block" }}>SCHEDULE A MATCH</Mono>
+        <Mono style={{ fontSize: 11, color: "#63666C", letterSpacing: "1px", marginBottom: 6, display: "block" }}>SCHEDULE A MATCH</Mono>
         <div style={{ display: "flex", gap: 10 }}>
-          {[
-            { l: "DATE", v: "Sat 12 Jul" },
-            { l: "KICK-OFF", v: "18:30" },
-          ].map((f) => (
-            <div key={f.l} style={{ flex: 1, background: "#0F1114", border: "1px solid rgba(255,255,255,.09)", borderRadius: 13, padding: "12px 14px" }}>
-              <Mono style={{ fontSize: 9.5, color: "#8A8D93", letterSpacing: ".5px", display: "block" }}>{f.l}</Mono>
-              <div style={{ fontSize: 14, fontWeight: 800, color: "#F4F3F0", marginTop: 3 }}>{f.v}</div>
-            </div>
-          ))}
+          <div style={{ flex: 1 }}>
+            <Mono style={labelStyle}>DATE</Mono>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={fieldStyle} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <Mono style={labelStyle}>KICK-OFF</Mono>
+            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} style={fieldStyle} />
+          </div>
         </div>
 
-        <Mono style={{ fontSize: 11, color: "#63666C", letterSpacing: "1px", margin: "18px 0 11px", display: "block" }}>SELECT TURF</Mono>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {TURFS.map((tf) => {
-            const on = vm.turf === tf.id;
-            return (
-              <button key={tf.id} onClick={() => vm.setTurf(tf.id)} style={{ width: "100%", textAlign: "left", display: "flex", gap: 12, padding: 10, borderRadius: 15, background: "#0F1114", border: `1.5px solid ${on ? "#56C98D" : "rgba(255,255,255,.08)"}`, cursor: "pointer", alignItems: "center" }}>
-                <div style={{ width: 64, height: 54, borderRadius: 11, background: "repeating-linear-gradient(45deg,#182a20,#182a20 6px,#14231b 6px,#14231b 12px)", border: "1px solid rgba(255,255,255,.08)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
-                  <Mono style={{ fontSize: 8, color: "#5f8a72", letterSpacing: ".5px" }}>TURF</Mono>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14.5, fontWeight: 800, color: "#F4F3F0" }}>{tf.name}</div>
-                  <Mono style={{ fontSize: 10.5, color: "#8A8D93", marginTop: 3, display: "block" }}>{tf.fmt} · {tf.dist}</Mono>
-                </div>
-                <div style={{ textAlign: "right", flex: "none" }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "#E0C074" }}>{tf.price}</div>
-                  <div style={{ fontSize: 16, marginTop: 2, color: on ? "#56C98D" : "transparent" }}>✓</div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        <Mono style={labelStyle}>TURF NAME</Mono>
+        <input value={turfName} onChange={(e) => setTurfName(e.target.value)} placeholder="e.g. Riverside Astro" style={fieldStyle} />
 
-        <Mono style={{ fontSize: 11, color: "#63666C", letterSpacing: "1px", margin: "18px 0 9px", display: "block" }}>GOOGLE MAPS LOCATION (OPTIONAL)</Mono>
-        <input
-          value={mapsUrl}
-          onChange={(e) => setMapsUrl(e.target.value)}
-          placeholder="Paste a Google Maps link…"
-          style={{ width: "100%", height: 44, borderRadius: 12, background: "#0F1114", border: "1px solid rgba(255,255,255,.09)", color: "#F4F3F0", padding: "0 13px", fontSize: 12.5, outline: "none" }}
-        />
+        <Mono style={labelStyle}>GOOGLE MAPS LOCATION (OPTIONAL)</Mono>
+        <input value={mapsUrl} onChange={(e) => setMapsUrl(e.target.value)} placeholder="Paste a Google Maps link…" style={fieldStyle} />
 
         <button
           disabled={scheduling}
           onClick={async () => {
             if (vm.onSchedule) {
               setScheduling(true);
-              const at = new Date(Date.now() + 3 * 86400000).toISOString();
-              const tf = TURFS.find((t) => t.id === vm.turf);
+              const at = new Date(`${date}T${time || "18:30"}:00`).toISOString();
               const ok = await vm.onSchedule({
                 scheduledAt: at,
-                venue: { name: tf ? tf.name : null, address: tf ? tf.fmt : null, booked: false, mapsUrl: mapsUrl.trim() || null },
+                venue: { name: turfName.trim() || null, address: null, booked: false, mapsUrl: mapsUrl.trim() || null },
               });
               setScheduling(false);
-              if (ok) { setMapsUrl(""); vm.go("play"); }
+              if (ok) { setTurfName(""); setMapsUrl(""); vm.go("play"); }
             } else {
               vm.go("play");
             }

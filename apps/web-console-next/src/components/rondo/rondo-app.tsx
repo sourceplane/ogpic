@@ -98,8 +98,8 @@ export function RondoApp({ seed }: { seed?: RondoSeed }) {
             })}
           </div>
           <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-            <button onClick={() => { vm.setShowTeams(false); vm.go("join"); }} style={{ flex: 1, height: 50, borderRadius: 14, background: "#141619", border: "1px solid rgba(255,255,255,.12)", color: "#F4F3F0", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>Join a squad</button>
-            <button onClick={() => vm.setShowTeams(false)} style={{ flex: 1, height: 50, borderRadius: 14, background: "#56C98D", border: "none", color: "#07130D", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>Create team</button>
+            <button onClick={() => { if (typeof window !== "undefined") window.location.href = "/rondo/join"; }} style={{ flex: 1, height: 50, borderRadius: 14, background: "#141619", border: "1px solid rgba(255,255,255,.12)", color: "#F4F3F0", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>Join a squad</button>
+            <button onClick={() => { if (typeof window !== "undefined") window.location.href = "/rondo/new"; }} style={{ flex: 1, height: 50, borderRadius: 14, background: "#56C98D", border: "none", color: "#07130D", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>Create team</button>
           </div>
         </BottomSheet>
       )}
