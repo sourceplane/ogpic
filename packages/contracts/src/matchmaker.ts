@@ -49,6 +49,8 @@ export interface PublicPlayer {
   attributes: PlayerAttributes;
   /** Optional contact email for match RSVPs. */
   email: string | null;
+  /** Optional phone number for WhatsApp match notifications. */
+  phone: string | null;
   status: PlayerStatus;
   /** True for the team captain (at most one active captain per org). */
   isCaptain: boolean;
@@ -71,6 +73,8 @@ export interface CreatePlayerRequest {
   attributes?: PlayerAttributes;
   /** Optional contact email for match RSVPs. */
   email?: string | null;
+  /** Optional phone number for WhatsApp match notifications. */
+  phone?: string | null;
 }
 
 export interface CreatePlayerResponse {
@@ -84,6 +88,8 @@ export interface UpdatePlayerRequest {
   attributes?: PlayerAttributes;
   /** Set a contact email, or "" / null to clear it. */
   email?: string | null;
+  /** Set a phone number, or "" / null to clear it. */
+  phone?: string | null;
 }
 
 export interface UpdatePlayerResponse {

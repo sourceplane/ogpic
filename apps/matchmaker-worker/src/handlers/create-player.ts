@@ -8,7 +8,7 @@ import { requireOrgAction } from "../authz.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { toPublicPlayer } from "../mappers.js";
 import { computeOvr, defaultAttributes, isPlayerPosition, validateAttributes } from "../engine/index.js";
-import { validateEmail } from "./player-email.js";
+import { validateEmail, validatePhone } from "./player-email.js";
 
 const NAME_MIN = 1;
 const NAME_MAX = 80;
@@ -19,6 +19,7 @@ export interface ValidatedPlayer {
   attributes: Record<string, number>;
   rating: number;
   email: string | null;
+  phone: string | null;
 }
 
 export function validatePlayerBody(
@@ -56,6 +57,7 @@ export function validatePlayerBody(
   }
 
   const email = validateEmail(req.email, fields);
+  const phone = validatePhone(req.phone, fields);
 
   if (Object.keys(fields).length > 0) {
     return { valid: false, fields };
@@ -64,7 +66,7 @@ export function validatePlayerBody(
   const position = req.position as PlayerPosition;
   return {
     valid: true,
-    value: { name: (req.name as string).trim(), position, attributes, rating: computeOvr(attributes), email },
+    value: { name: (req.name as string).trim(), position, attributes, rating: computeOvr(attributes), email, phone },
   };
 }
 
@@ -110,6 +112,7 @@ export async function handleCreatePlayer(
       rating: validation.value.rating,
       attributes: validation.value.attributes,
       email: validation.value.email,
+      phone: validation.value.phone,
       createdAt: new Date(),
     });
     if (!result.ok) {

@@ -18,6 +18,7 @@ function player(): Player {
     status: "active",
     isCaptain: false,
     email: null,
+    phone: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     archivedAt: null,

@@ -8,7 +8,7 @@ import { requireOrgAction } from "../authz.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { toPublicPlayer } from "../mappers.js";
 import { computeOvr, isPlayerPosition, validateAttributes } from "../engine/index.js";
-import { validateEmail } from "./player-email.js";
+import { validateEmail, validatePhone } from "./player-email.js";
 
 const NAME_MIN = 1;
 const NAME_MAX = 80;
@@ -19,6 +19,7 @@ export interface ResolvedUpdate {
   attributes: Record<string, number>;
   rating: number;
   email: string | null;
+  phone: string | null;
 }
 
 /**
@@ -27,7 +28,7 @@ export interface ResolvedUpdate {
  * no longer fit the new position class), otherwise the request is a 422.
  */
 export function resolvePlayerUpdate(
-  existing: Pick<Player, "name" | "position" | "attributes" | "email">,
+  existing: Pick<Player, "name" | "position" | "attributes" | "email" | "phone">,
   body: unknown,
 ): { valid: true; value: ResolvedUpdate } | { valid: false; fields: Record<string, string[]> } {
   if (!body || typeof body !== "object") {
@@ -74,11 +75,16 @@ export function resolvePlayerUpdate(
     email = validateEmail(req.email, fields);
   }
 
+  let phone = existing.phone;
+  if (req.phone !== undefined) {
+    phone = validatePhone(req.phone, fields);
+  }
+
   if (Object.keys(fields).length > 0) {
     return { valid: false, fields };
   }
 
-  return { valid: true, value: { name, position, attributes, rating: computeOvr(attributes), email } };
+  return { valid: true, value: { name, position, attributes, rating: computeOvr(attributes), email, phone } };
 }
 
 export interface HandleUpdatePlayerDeps {
@@ -127,6 +133,7 @@ export async function handleUpdatePlayer(
       rating: resolved.value.rating,
       attributes: resolved.value.attributes,
       email: resolved.value.email,
+      phone: resolved.value.phone,
       updatedAt: new Date(),
     });
     if (!result.ok) {

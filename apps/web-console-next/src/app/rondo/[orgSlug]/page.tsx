@@ -112,13 +112,14 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: qk.roster(orgId) }),
         );
       },
-      addPlayer: (input: { name: string; position: string; email?: string | null }) => {
+      addPlayer: (input: { name: string; position: string; email?: string | null; phone?: string | null }) => {
         // Attributes omitted → the server seeds a default OVR-60 strength.
         void wrap(() =>
           client.roster.scout(orgId, {
             name: input.name,
             position: input.position as "GK" | "DEF" | "MID" | "FWD" | "ALL",
             ...(input.email ? { email: input.email } : {}),
+            ...(input.phone ? { phone: input.phone } : {}),
           }),
         ).then(() => qc.invalidateQueries({ queryKey: qk.roster(orgId) }));
       },

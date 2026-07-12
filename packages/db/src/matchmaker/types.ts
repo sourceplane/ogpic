@@ -30,6 +30,7 @@ export interface Player {
   rating: number;
   attributes: Record<string, number>;
   email: string | null;
+  phone: string | null;
   status: PlayerStatus;
   isCaptain: boolean;
   createdAt: Date;
@@ -45,6 +46,7 @@ export interface CreatePlayerInput {
   rating: number;
   attributes: Record<string, number>;
   email: string | null;
+  phone: string | null;
   createdAt: Date;
 }
 
@@ -55,6 +57,8 @@ export interface UpdatePlayerInput {
   attributes: Record<string, number>;
   /** The resolved contact email (merged with the existing value), always written. */
   email: string | null;
+  /** The resolved contact phone (merged with the existing value), always written. */
+  phone: string | null;
   updatedAt: Date;
 }
 
