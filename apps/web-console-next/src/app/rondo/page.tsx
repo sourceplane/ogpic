@@ -10,6 +10,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import "../../styles/rondo-kit.css";
 import { RondoLogin } from "@/components/rondo/rondo-login";
+import { TeamSelectScreen } from "@/components/rondo/team-select";
 import { useSession } from "@/lib/session";
 import { useApiQuery, qk } from "@/lib/query";
 import { wrap } from "@/lib/api";
@@ -28,18 +29,30 @@ export default function RondoEntryPage() {
     { enabled: !!token },
   );
 
+  const teams = orgs.data ?? [];
+
   React.useEffect(() => {
     if (!token || !orgs.data) return;
-    if (orgs.data.length === 0) {
-      router.replace("/rondo/start");
-    } else {
-      router.replace(`/rondo/${orgs.data[0]!.slug}`);
-    }
+    // No squads → onboarding. Exactly one → open it. Two or more → let the
+    // member pick (the team-selection screen renders below).
+    if (orgs.data.length === 0) router.replace("/rondo/start");
+    else if (orgs.data.length === 1) router.replace(`/rondo/${orgs.data[0]!.slug}`);
   }, [token, orgs.data, router]);
 
   if (!ready) return <RondoBoot />;
-  if (token) return <RondoBoot label="Finding your squad…" />;
-  return <RondoLogin />;
+  if (!token) return <RondoLogin />;
+  // Signed in with several squads: the initial team selection (design 2a).
+  if (orgs.data && teams.length > 1) {
+    return (
+      <TeamSelectScreen
+        teams={teams.map((o) => ({ slug: o.slug, name: o.name }))}
+        onOpen={(slug) => router.replace(`/rondo/${slug}`)}
+        onCreate={() => router.push("/rondo/new")}
+        onJoin={() => router.push("/rondo/join")}
+      />
+    );
+  }
+  return <RondoBoot label="Finding your squad…" />;
 }
 
 function RondoBoot({ label = "" }: { label?: string }) {
