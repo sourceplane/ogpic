@@ -9,6 +9,7 @@
 
 import * as React from "react";
 import type { RondoVM } from "./use-rondo";
+import { TeamSwitcher, type TeamNav } from "./team-switcher";
 import { placeRoster, placeDraft } from "./formation";
 import {
   C,
@@ -41,8 +42,9 @@ function initialsOf(name: string) {
   return ((p[0]?.[0] ?? "") + (p[1]?.[0] ?? "")).toUpperCase() || "R";
 }
 
-export function ManagerApp({ vm }: { vm: RondoVM }) {
+export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | undefined }) {
   const [view, setView] = React.useState<View>("pitch");
+  const [switcher, setSwitcher] = React.useState(false);
   const [day, setDay] = React.useState(0);
   const [time, setTime] = React.useState(1);
   const [turf, setTurf] = React.useState("Riverside Astro");
@@ -243,8 +245,9 @@ export function ManagerApp({ vm }: { vm: RondoVM }) {
   return (
     <PhoneShell>
       <StatusBar />
+      {teamNav && <TeamSwitcher open={switcher} onClose={() => setSwitcher(false)} nav={teamNav} />}
       <div style={{ padding: "12px 24px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div onClick={teamNav ? () => setSwitcher(true) : undefined} className={teamNav ? "rk-press" : undefined} style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.6 }}>{team}</span>
           <Icon name="chevronDown" size={14} color={ink(0.5)} stroke={2.4} />
         </div>

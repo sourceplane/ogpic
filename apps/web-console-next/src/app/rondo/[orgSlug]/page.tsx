@@ -185,7 +185,15 @@ export default function ConnectedRondoPage() {
     live,
   });
 
-  return <PitchsideApp seed={seed} role={isManager ? "manager" : "player"} />;
+  const teamNav = {
+    teams: (orgs.data ?? []).map((o) => ({ slug: o.slug, name: o.name, crest: (o.name.trim()[0] ?? "R").toUpperCase() })),
+    currentSlug: slug,
+    onSelect: (s: string) => router.push(`/rondo/${s}`),
+    onCreate: () => router.push("/rondo/new"),
+    onJoin: () => router.push("/rondo/join"),
+  };
+
+  return <PitchsideApp seed={seed} role={isManager ? "manager" : "player"} teamNav={teamNav} />;
 }
 
 function RondoBoot({ label }: { label: string }) {
