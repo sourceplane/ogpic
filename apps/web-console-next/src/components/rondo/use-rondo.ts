@@ -43,7 +43,9 @@ export interface NextMatch {
   id: string;
   status: string;
   dateLabel: string;
+  scheduledAt?: string;
   venue?: string | null;
+  mapsUrl?: string | null;
 }
 
 /** A team line-up payload for persisting a draft onto a fixture. */

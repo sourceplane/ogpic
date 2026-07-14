@@ -56,7 +56,14 @@ export function nextActionableMatch(matches: PublicMatch[]): NextMatch | null {
     .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
   const m = live ?? scheduled;
   if (!m) return null;
-  return { id: m.id, status: m.status, dateLabel: formatDate(m.scheduledAt), venue: m.venue?.name ?? null };
+  return {
+    id: m.id,
+    status: m.status,
+    dateLabel: formatDate(m.scheduledAt),
+    scheduledAt: m.scheduledAt,
+    venue: m.venue?.name ?? null,
+    mapsUrl: m.venue?.mapsUrl ?? null,
+  };
 }
 
 export function mapPlayer(p: PublicPlayer): Player {
