@@ -170,6 +170,11 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: qk.fixtures(orgId) }),
         );
       },
+      recordResult: (matchId: string, scoreA: number, scoreB: number) => {
+        void wrap(() => client.fixtures.update(orgId, matchId, { scoreA, scoreB, status: "played" })).then(() =>
+          qc.invalidateQueries({ queryKey: qk.fixtures(orgId) }),
+        );
+      },
       schedule: async ({ scheduledAt, venue }) => {
         // Auto-balance the available squad into two sides, then persist the
         // fixture with the chosen venue. Voting-blended ratings drive the draft.

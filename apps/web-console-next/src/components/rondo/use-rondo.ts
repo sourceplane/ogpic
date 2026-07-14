@@ -83,6 +83,8 @@ export interface RondoLive {
   startMatch?: (matchId: string) => void;
   /** Persist the drafted line-ups onto a scheduled fixture. */
   saveTeams?: (matchId: string, teamA: TeamPayload, teamB: TeamPayload) => void;
+  /** Record the final score → status 'played'. */
+  recordResult?: (matchId: string, scoreA: number, scoreB: number) => void;
 }
 
 export interface LiveJoinRequest {
@@ -371,6 +373,11 @@ export function useRondo(seed: RondoSeed = {}) {
       if (home.length && away.length) seed.live.saveTeams(id, toPayload("Home", home), toPayload("Away", away));
     },
     canSaveTeams: !!seed.live?.saveTeams && !!seed.nextMatch,
+    recordResult: (scoreA: number, scoreB: number) => {
+      const id = seed.nextMatch?.id;
+      if (id) seed.live?.recordResult?.(id, Math.max(0, Math.round(scoreA)), Math.max(0, Math.round(scoreB)));
+    },
+    canRecordResult: !!seed.live?.recordResult && !!seed.nextMatch,
     onSchedule: seed.live?.schedule ?? null,
     captain: enriched.find((p) => p.isCaptain) ?? null,
     makeCaptain,
