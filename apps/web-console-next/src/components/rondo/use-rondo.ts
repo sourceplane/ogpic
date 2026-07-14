@@ -33,8 +33,23 @@ export interface LiveMatchRow {
   dateLabel: string;
   score: string;
   color: string;
+  status?: string;
   venue?: string | null;
   mapsUrl?: string | null;
+}
+
+/** The next actionable fixture (scheduled or live) — manager start/save target. */
+export interface NextMatch {
+  id: string;
+  status: string;
+  dateLabel: string;
+  venue?: string | null;
+}
+
+/** A team line-up payload for persisting a draft onto a fixture. */
+export interface TeamPayload {
+  name: string;
+  players: { id: string; name: string; position: string; rating: number }[];
 }
 
 /** Live backend handlers. When present, actions hit the real API; otherwise the
@@ -64,6 +79,10 @@ export interface RondoLive {
   rotateCode?: () => void;
   /** Persist a player's per-skill attributes (the OVR is the server-side mean). */
   setPlayerScore?: (playerId: string, attributes: Record<string, number>) => void;
+  /** Kick a scheduled match off now (manager) → status 'live'. */
+  startMatch?: (matchId: string) => void;
+  /** Persist the drafted line-ups onto a scheduled fixture. */
+  saveTeams?: (matchId: string, teamA: TeamPayload, teamB: TeamPayload) => void;
 }
 
 export interface LiveJoinRequest {
@@ -81,6 +100,7 @@ export interface RondoSeed {
   startScreen?: Screen;
   availability?: Record<string, Availability>;
   matches?: LiveMatchRow[];
+  nextMatch?: NextMatch | null;
   joinCode?: string;
   joinRequests?: LiveJoinRequest[];
   votingOpen?: boolean;
@@ -335,6 +355,22 @@ export function useRondo(seed: RondoSeed = {}) {
     drafting,
     isLive: !!seed.live,
     liveMatches: seed.matches ?? null,
+    nextMatch: seed.nextMatch ?? null,
+    startMatch: () => {
+      const id = seed.nextMatch?.id;
+      if (id) seed.live?.startMatch?.(id);
+    },
+    canStartMatch: !!seed.live?.startMatch && (seed.nextMatch?.status === "scheduled"),
+    saveTeams: () => {
+      const id = seed.nextMatch?.id;
+      if (!id || !seed.live?.saveTeams) return;
+      const toPayload = (name: string, list: typeof home): TeamPayload => ({
+        name,
+        players: list.map((p) => ({ id: p.id, name: p.name, position: p.pos, rating: p.ovr })),
+      });
+      if (home.length && away.length) seed.live.saveTeams(id, toPayload("Home", home), toPayload("Away", away));
+    },
+    canSaveTeams: !!seed.live?.saveTeams && !!seed.nextMatch,
     onSchedule: seed.live?.schedule ?? null,
     captain: enriched.find((p) => p.isCaptain) ?? null,
     makeCaptain,

@@ -11,7 +11,7 @@ import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import "../../../styles/rondo-kit.css";
 import { PitchsideApp } from "@/components/rondo/pitchside-app";
-import { buildLiveSeed, availabilityMap, matchRows, joinRequestRows } from "@/components/rondo/live";
+import { buildLiveSeed, availabilityMap, matchRows, joinRequestRows, nextActionableMatch } from "@/components/rondo/live";
 import type { RondoLive } from "@/components/rondo/use-rondo";
 import type { Availability } from "@/components/rondo/logic";
 import { useRequireAuth } from "@/lib/use-async";
@@ -151,6 +151,25 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: qk.roster(orgId) }),
         );
       },
+      startMatch: (matchId: string) => {
+        void wrap(() => client.fixtures.update(orgId, matchId, { status: "live" })).then(() =>
+          qc.invalidateQueries({ queryKey: qk.fixtures(orgId) }),
+        );
+      },
+      saveTeams: (matchId, teamA, teamB) => {
+        const toTeam = (t: { name: string; players: { id: string; name: string; position: string; rating: number }[] }) => ({
+          name: t.name,
+          players: t.players.map((p) => ({
+            id: p.id,
+            name: p.name,
+            position: p.position as "GK" | "DEF" | "MID" | "FWD" | "ALL",
+            rating: p.rating,
+          })),
+        });
+        void wrap(() => client.fixtures.update(orgId, matchId, { teamA: toTeam(teamA), teamB: toTeam(teamB) })).then(() =>
+          qc.invalidateQueries({ queryKey: qk.fixtures(orgId) }),
+        );
+      },
       schedule: async ({ scheduledAt, venue }) => {
         // Auto-balance the available squad into two sides, then persist the
         // fixture with the chosen venue. Voting-blended ratings drive the draft.
@@ -193,6 +212,7 @@ export default function ConnectedRondoPage() {
     isManager,
     availability: availabilityMap(availability.data ?? []),
     matches: matchRows(fixtures.data ?? []),
+    nextMatch: nextActionableMatch(fixtures.data ?? []),
     ...(joinCode.data ? { joinCode: joinCode.data } : {}),
     joinRequests: joinRequestRows(joinReqs.data ?? []),
     votingOpen: (ratingRound.data ?? null) != null,

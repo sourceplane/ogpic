@@ -59,6 +59,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
   const [time, setTime] = React.useState(1);
   const [turf, setTurf] = React.useState("Riverside Astro");
   const [copied, setCopied] = React.useState(false);
+  const [teamsSaved, setTeamsSaved] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
@@ -186,8 +187,16 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
         <div style={{ textAlign: "center", marginTop: 10, fontFamily: MONO, fontSize: 9.5, color: ink(0.45) }}>{vm.drafting ? "BALANCING…" : "AUTO-BALANCED BY RATING"}</div>
         <div style={{ display: "flex", gap: 10, padding: "12px 24px 0" }}>
           <div onClick={() => vm.doBalance()} className="rk-press" style={{ width: 52, height: 52, borderRadius: 16, background: C.card, border: `1px solid ${ink(0.14)}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.ink, flex: "none" }} aria-label="Regenerate"><Icon name="refresh" size={18} /></div>
-          <Button variant="ink" height={52} radius={16} onClick={() => setView("pitch")}>Start match</Button>
+          {vm.canSaveTeams && (
+            <Button variant="outline" height={52} radius={16} onClick={() => { vm.saveTeams(); setTeamsSaved(true); setTimeout(() => setTeamsSaved(false), 1500); }}>{teamsSaved ? "Saved ✓" : "Save teams"}</Button>
+          )}
+          <Button variant="ink" height={52} radius={16} onClick={() => { if (vm.canStartMatch) vm.startMatch(); setView("pitch"); }}>{vm.canStartMatch ? "Start match" : "Done"}</Button>
         </div>
+        {vm.nextMatch && (
+          <div style={{ textAlign: "center", marginTop: 8, fontFamily: MONO, fontSize: 9, color: ink(0.45) }}>
+            {vm.nextMatch.status === "live" ? "MATCH IS LIVE" : vm.canSaveTeams ? "SAVE TEAMS ONTO THE SCHEDULED MATCH · KICK OFF WHEN READY" : "NO SCHEDULED MATCH — SCHEDULE ONE TO SAVE & START"}
+          </div>
+        )}
         {nav}
       </PhoneShell>
     );
@@ -380,6 +389,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
         <Chip variant="gold">MANAGER</Chip>
         <Chip>{vm.players.length} PLAYERS</Chip>
         <Chip variant="green">{vm.availableCount} IN</Chip>
+        {vm.nextMatch?.status === "live" && <Chip variant="rustSoft">● LIVE</Chip>}
       </div>
       <PitchCanvas style={{ flex: 1, margin: "14px 20px 0", minHeight: 0 }}>
         {slots.map((p) => (
