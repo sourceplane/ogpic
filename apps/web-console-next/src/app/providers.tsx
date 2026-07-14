@@ -4,9 +4,6 @@ import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SessionProvider, useSession } from "@/lib/session";
-import { ToastProvider } from "@/components/ui/toast";
-import { CommandPaletteProvider } from "@/components/shell/command-palette";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 function makeQueryClient(): QueryClient {
   return new QueryClient({
@@ -48,16 +45,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = React.useState(makeQueryClient);
 
   return (
-    <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <NextThemesProvider attribute="class" defaultTheme="light" enableSystem={false}>
       <QueryClientProvider client={queryClient}>
         <QueryClientCtx.Provider value={queryClient}>
           <SessionProvider>
             <CacheResetOnAuthChange />
-            <ToastProvider>
-              <TooltipProvider delayDuration={200}>
-                <CommandPaletteProvider>{children}</CommandPaletteProvider>
-              </TooltipProvider>
-            </ToastProvider>
+            {children}
           </SessionProvider>
         </QueryClientCtx.Provider>
       </QueryClientProvider>

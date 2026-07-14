@@ -51,3 +51,25 @@ of the deleted modules; typecheck · lint · `next build` · CI green.
 - [ ] OK to delete `/rondo/preview` and `/rondo/kit` now?
 - [ ] Delete the legacy dark UI as part of Epic B's completion — yes?
 - [ ] Keep or drop the superseded `rondo-experience` epic docs?
+
+## Done (as-built)
+
+The product is now **Rondo-only**. Removed in one pass (verified by typecheck ·
+lint · full `next build` · runtime smoke):
+
+- **Generic console** — the entire `app/(app)/**` tree (orgs, projects,
+  environments, billing, integrations, webhooks, settings, account) and the
+  generic top-level routes `auth` · `login` · `onboarding` · `demo`.
+- **Generic component libraries** — `components/{account,audit,billing,config,
+  integrations,matchmaker,notifications,orgs,precondition,security,settings,
+  shell,ui,usage,webhooks}` and the orphaned `lib/{last-org,cn,slug,solo-mode,
+  use-org,use-unsaved-guard}`.
+- **Last old Rondo files** — `components/rondo/ui.tsx`, `player-card.tsx`,
+  `styles/rondo.css`, and the **Archivo** font.
+- **Dev harnesses** — `/rondo/kit`, `/rondo/preview`.
+- Slimmed `app/providers.tsx` to the Rondo essentials (theme · query · session);
+  default theme is now light.
+
+Remaining routes: `/` (→ /rondo), `/rondo`, `/rondo/{[orgSlug],callback,demo,
+join,new,start}`. The data layer the app relies on (`use-rondo` · `live` ·
+`logic` · `lib/{api,query,session,use-async,query-keys,app-config}`) is retained.
