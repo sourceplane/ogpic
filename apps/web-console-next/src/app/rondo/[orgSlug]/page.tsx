@@ -11,7 +11,7 @@ import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import "../../../styles/rondo-kit.css";
 import { PitchsideApp } from "@/components/rondo/pitchside-app";
-import { buildLiveSeed, availabilityMap, matchRows, joinRequestRows, nextActionableMatch, computePlayerStats } from "@/components/rondo/live";
+import { buildLiveSeed, availabilityMap, availabilityAtMap, matchRows, joinRequestRows, nextActionableMatch, computePlayerStats } from "@/components/rondo/live";
 import type { RondoLive } from "@/components/rondo/use-rondo";
 import type { Availability } from "@/components/rondo/logic";
 import { useRequireAuth } from "@/lib/use-async";
@@ -237,6 +237,7 @@ export default function ConnectedRondoPage() {
     players: roster.data ?? [],
     isManager,
     availability: availabilityMap(availability.data ?? []),
+    availabilityAt: availabilityAtMap(availability.data ?? []),
     matches: matchRows(fixtures.data ?? []),
     nextMatch: nextActionableMatch(fixtures.data ?? []),
     playerStats: computePlayerStats(fixtures.data ?? []),
