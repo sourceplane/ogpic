@@ -9,8 +9,8 @@
 
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
-import "../../../styles/rondo.css";
-import { RondoApp } from "@/components/rondo/rondo-app";
+import "../../../styles/rondo-kit.css";
+import { PitchsideApp } from "@/components/rondo/pitchside-app";
 import { buildLiveSeed, availabilityMap, matchRows, joinRequestRows } from "@/components/rondo/live";
 import type { RondoLive } from "@/components/rondo/use-rondo";
 import type { Availability } from "@/components/rondo/logic";
@@ -169,10 +169,14 @@ export default function ConnectedRondoPage() {
   if (loading) return <RondoBoot label="Loading your squad…" />;
   if (!org || !orgId) return <RondoBoot label={`No squad found for “${slug}”.`} />;
 
+  // Role signal: the join-code / join-request surfaces are manager-only (viewers
+  // get 404), so a resolved join code means the caller manages this squad.
+  const isManager = joinCode.data != null;
+
   const seed = buildLiveSeed({
     orgName: org.name,
     players: roster.data ?? [],
-    isManager: true, // refined when the RBAC role is surfaced on membership (RX7)
+    isManager,
     availability: availabilityMap(availability.data ?? []),
     matches: matchRows(fixtures.data ?? []),
     ...(joinCode.data ? { joinCode: joinCode.data } : {}),
@@ -181,14 +185,14 @@ export default function ConnectedRondoPage() {
     live,
   });
 
-  return <RondoApp seed={seed} />;
+  return <PitchsideApp seed={seed} role={isManager ? "manager" : "player"} />;
 }
 
 function RondoBoot({ label }: { label: string }) {
   return (
-    <div className="rondo-root" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "var(--r-bg)" }}>
-      <div style={{ width: 56, height: 56, borderRadius: 17, background: "linear-gradient(150deg,#1E2228,#101215)", border: "1px solid rgba(86,201,141,.35)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 900, color: "#F4F3F0" }}>R</div>
-      <div className="rondo-mono" style={{ fontSize: 12, color: "#8A8D93", letterSpacing: ".5px" }}>{label}</div>
+    <div className="rk" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 24, textAlign: "center", background: "#F2F4F1" }}>
+      <div style={{ width: 56, height: 56, borderRadius: 17, background: "#101511", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 700, color: "#F2F4F1" }}>R</div>
+      <div style={{ fontFamily: "var(--font-jbmono), ui-monospace, monospace", fontSize: 12, color: "rgba(16,21,17,.5)", letterSpacing: ".5px" }}>{label}</div>
     </div>
   );
 }

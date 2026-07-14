@@ -8,7 +8,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import "../../../styles/rondo.css";
+import "../../../styles/rondo-kit.css";
 import { useSession } from "@/lib/session";
 
 const ERROR_COPY: Record<string, string> = {
@@ -43,16 +43,16 @@ export default function RondoCallbackPage() {
   }, [router, setToken]);
 
   return (
-    <div className="rondo-root" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 24, textAlign: "center", background: "var(--r-bg)" }}>
-      <div style={{ width: 56, height: 56, borderRadius: 17, background: "linear-gradient(150deg,#1E2228,#101215)", border: "1px solid rgba(86,201,141,.35)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 900, color: "#F4F3F0" }}>R</div>
+    <div className="rk" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 24, textAlign: "center", background: "#F2F4F1" }}>
+      <div style={{ width: 56, height: 56, borderRadius: 17, background: "#101511", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 700, color: "#F2F4F1" }}>R</div>
       {error ? (
         <>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#F4F3F0" }}>Sign-in failed</div>
-          <div style={{ fontSize: 13, color: "#8A8D93", maxWidth: 300 }}>{ERROR_COPY[error] ?? ERROR_COPY.oauth_failed}</div>
-          <button onClick={() => router.replace("/rondo")} style={{ height: 46, padding: "0 20px", borderRadius: 14, background: "#56C98D", border: "none", color: "#07130D", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Back to sign in</button>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "#101511" }}>Sign-in failed</div>
+          <div style={{ fontSize: 13, color: "rgba(16,21,17,.55)", maxWidth: 300 }}>{ERROR_COPY[error] ?? ERROR_COPY.oauth_failed}</div>
+          <button onClick={() => router.replace("/rondo")} style={{ height: 46, padding: "0 20px", borderRadius: 14, background: "#17694A", border: "none", color: "#F2F4F1", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Back to sign in</button>
         </>
       ) : (
-        <div className="rondo-mono" style={{ fontSize: 12, color: "#8A8D93", letterSpacing: ".5px" }}>Completing sign-in…</div>
+        <div style={{ fontFamily: "var(--font-jbmono), ui-monospace, monospace", fontSize: 12, color: "rgba(16,21,17,.5)", letterSpacing: ".5px" }}>Completing sign-in…</div>
       )}
     </div>
   );

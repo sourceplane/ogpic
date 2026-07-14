@@ -1,12 +1,10 @@
 /*
- * /rondo/preview — developer alias for the Pitchside v2 demo. Renders the same
- * seed-driven manager/player surfaces as /rondo/demo (via PitchsideDemo). Kept
- * as a stable review URL for the UI revamp.
+ * /rondo/preview — developer alias of /rondo/demo (same PitchsideDemo).
  */
 "use client";
 
 import "../../../styles/rondo-kit.css";
-import { PitchsideDemo } from "@/components/rondo/pitchside-demo";
+import { PitchsideDemo } from "@/components/rondo/pitchside-app";
 
 export default function RondoPreviewPage() {
   return <PitchsideDemo />;
