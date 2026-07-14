@@ -7,7 +7,7 @@
 import type { PublicAvailability, PublicMatch, PublicPlayer } from "@saas/contracts/matchmaker";
 import type { PublicJoinRequest } from "@saas/sdk";
 import type { Availability, Player, Position, TeamMeta } from "./logic";
-import type { LiveJoinRequest, LiveMatchRow, RondoSeed } from "./use-rondo";
+import type { LiveJoinRequest, LiveMatchRow, NextMatch, RondoSeed } from "./use-rondo";
 
 /** Pending join requests → member-list rows (subject id is all we have as a label). */
 export function joinRequestRows(requests: PublicJoinRequest[]): LiveJoinRequest[] {
@@ -42,9 +42,21 @@ export function matchRows(matches: PublicMatch[]): LiveMatchRow[] {
           ? "#FF7A6B"
           : "#C9CBCE"
       : "#8A8D93";
-    const score = played ? `${m.scoreA} – ${m.scoreB}` : m.status === "cancelled" ? "CXL" : "—";
-    return { id: m.id, dateLabel: formatDate(m.scheduledAt), score, color, venue: m.venue?.name ?? null, mapsUrl: m.venue?.mapsUrl ?? null };
+    const score = played ? `${m.scoreA} – ${m.scoreB}` : m.status === "live" ? "LIVE" : m.status === "cancelled" ? "CXL" : "—";
+    return { id: m.id, dateLabel: formatDate(m.scheduledAt), score, color, status: m.status, venue: m.venue?.name ?? null, mapsUrl: m.venue?.mapsUrl ?? null };
   });
+}
+
+/** The next actionable fixture: a live match if any, else the soonest scheduled
+ *  one. Drives the manager's start / save-teams affordances. */
+export function nextActionableMatch(matches: PublicMatch[]): NextMatch | null {
+  const live = matches.find((m) => m.status === "live");
+  const scheduled = matches
+    .filter((m) => m.status === "scheduled")
+    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
+  const m = live ?? scheduled;
+  if (!m) return null;
+  return { id: m.id, status: m.status, dateLabel: formatDate(m.scheduledAt), venue: m.venue?.name ?? null };
 }
 
 export function mapPlayer(p: PublicPlayer): Player {
@@ -70,6 +82,7 @@ export function buildLiveSeed(args: {
   isManager: boolean;
   availability?: Record<string, Availability>;
   matches?: LiveMatchRow[];
+  nextMatch?: NextMatch | null;
   joinCode?: string;
   joinRequests?: LiveJoinRequest[];
   votingOpen?: boolean;
@@ -94,6 +107,7 @@ export function buildLiveSeed(args: {
     startScreen: "squad",
     ...(args.availability ? { availability: args.availability } : {}),
     ...(args.matches ? { matches: args.matches } : {}),
+    ...(args.nextMatch ? { nextMatch: args.nextMatch } : {}),
     ...(args.joinCode ? { joinCode: args.joinCode } : {}),
     ...(args.joinRequests ? { joinRequests: args.joinRequests } : {}),
     ...(args.votingOpen !== undefined ? { votingOpen: args.votingOpen } : {}),
