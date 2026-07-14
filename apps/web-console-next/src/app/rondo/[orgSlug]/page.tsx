@@ -146,6 +146,11 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: ["join-code", orgId] }),
         );
       },
+      setPlayerScore: (playerId: string, attributes: Record<string, number>) => {
+        void wrap(() => client.roster.update(orgId, playerId, { attributes })).then(() =>
+          qc.invalidateQueries({ queryKey: qk.roster(orgId) }),
+        );
+      },
       schedule: async ({ scheduledAt, venue }) => {
         // Auto-balance the available squad into two sides, then persist the
         // fixture with the chosen venue. Voting-blended ratings drive the draft.
