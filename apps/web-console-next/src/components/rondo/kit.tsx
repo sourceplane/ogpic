@@ -55,38 +55,15 @@ export function PhoneShell({
   );
 }
 
-/* ── iOS-style status bar ─────────────────────────────────────
- * Presentational chrome matching the canvas. The `time` defaults to the design's
- * 9:41; a screen may feed the live device clock. On a real installed app the OS
- * draws this — we reserve the same 44px so layouts stay pixel-accurate.
+/* ── top inset ────────────────────────────────────────────────
+ * The design canvas draws a phone status bar (9:41 + signal/battery) purely as
+ * illustration — the actual product UI is the content. So this renders no fake
+ * chrome: just a safe-area spacer that keeps content clear of the *real* device
+ * status bar (notch) on mobile, and a small gap on desktop. Kept exported as
+ * `StatusBar` so every screen's top slot stays a single call.
  */
-export function StatusBar({ time = "9:41" }: { time?: string }) {
-  return (
-    <div
-      style={{
-        height: 44,
-        flex: "none",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "10px 28px 0",
-      }}
-    >
-      <span style={{ fontSize: 13, fontWeight: 600, color: C.ink }}>{time}</span>
-      <div style={{ display: "flex", gap: 5, alignItems: "center", color: ink(0.7) }}>
-        <svg width="15" height="10" viewBox="0 0 17 11" fill="currentColor" aria-hidden>
-          <rect x="0" y="7" width="3" height="4" rx="1" />
-          <rect x="4.5" y="5" width="3" height="6" rx="1" />
-          <rect x="9" y="2.5" width="3" height="8.5" rx="1" />
-          <rect x="13.5" y="0" width="3" height="11" rx="1" />
-        </svg>
-        <svg width="22" height="10" viewBox="0 0 24 11" fill="none" aria-hidden>
-          <rect x="1" y="1" width="19" height="9" rx="2.5" stroke="currentColor" strokeOpacity=".45" />
-          <rect x="2.5" y="2.5" width="14" height="6" rx="1.2" fill="currentColor" />
-        </svg>
-      </div>
-    </div>
-  );
+export function StatusBar() {
+  return <div aria-hidden style={{ height: "max(env(safe-area-inset-top), 12px)", flex: "none" }} />;
 }
 
 /* scrollable body region inside the frame */

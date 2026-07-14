@@ -98,20 +98,19 @@
   height: 0;
 }
 
+/* Desktop: the UI is the content, not a phone illustration. Centre a single
+ * app-width column on the plain surface — no device bezel, no fake status bar. */
 @media (min-width: 640px) {
   .rk-shell {
-    justify-content: center;
-    padding: 24px 0;
+    justify-content: flex-start;
+    align-items: center;
   }
   .rk-frame {
     flex: none;
-    width: 390px;
-    height: 844px;
-    max-height: calc(100dvh - 48px);
+    width: 430px;
+    max-width: 100%;
+    height: 100dvh;
     margin: 0 auto;
-    border-radius: var(--rk-r-frame);
-    border: 1px solid var(--rk-line);
-    box-shadow: var(--rk-shadow-frame);
   }
 }
 
