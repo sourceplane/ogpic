@@ -12,6 +12,7 @@ import type { RondoVM } from "./use-rondo";
 import { TeamSwitcher, type TeamNav } from "./team-switcher";
 import { AddPlayerSheet } from "./add-player";
 import { PlayerScoreSheet, type EditablePlayer } from "./player-edit";
+import { MatchResultSheet } from "./match-result";
 import { ProfileSheet } from "./profile-menu";
 import { RateView, GamesView } from "./views";
 import { placeRoster, placeDraft } from "./formation";
@@ -60,6 +61,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
   const [turf, setTurf] = React.useState("Riverside Astro");
   const [copied, setCopied] = React.useState(false);
   const [teamsSaved, setTeamsSaved] = React.useState(false);
+  const [resultOpen, setResultOpen] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
@@ -408,7 +410,13 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
             <Icon name="pitch" size={15} color={C.onDark} /> Draft teams
           </div>
         </div>
+        {vm.canRecordResult && vm.nextMatch && (
+          <div onClick={() => setResultOpen(true)} className="rk-press" style={{ marginTop: 10, height: 46, borderRadius: 14, background: vm.nextMatch.status === "live" ? C.green : C.card, border: vm.nextMatch.status === "live" ? "none" : `1px solid ${ink(0.14)}`, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12.5, fontWeight: 700, color: vm.nextMatch.status === "live" ? C.onDark : C.ink }}>
+            <Icon name="rate" size={15} color={vm.nextMatch.status === "live" ? C.onDark : C.green} /> Record result
+          </div>
+        )}
       </div>
+      <MatchResultSheet open={resultOpen} onClose={() => setResultOpen(false)} onSave={(a, b) => vm.recordResult(a, b)} />
       {nav}
     </PhoneShell>
   );
