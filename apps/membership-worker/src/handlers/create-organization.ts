@@ -6,7 +6,7 @@ import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { createMembershipRepository, effectiveBillingOrgId } from "@saas/db/membership";
 import { createEventsRepository } from "@saas/db/events";
 import { successResponse, errorResponse, validationError } from "../http.js";
-import { orgPublicId, memberPublicId } from "../ids.js";
+import { orgPublicId, memberPublicId, generateJoinCode } from "../ids.js";
 import { asUuid } from "@saas/db/ids";
 import {
   assignPlan,
@@ -332,7 +332,21 @@ export async function handleCreateOrganization(
           throw new Error("event_append_failed");
         }
 
-        return { bootstrapResult };
+        // Mint the shareable join code at bootstrap so the creator/manager can
+        // share it immediately — no dependency on a later lazy-mint-on-read.
+        // Best-effort: a failure here leaves join_code NULL and the manager
+        // getJoinCode path mints it lazily on first read.
+        let joinCode: string | null = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const set = await txRepo.setOrganizationJoinCode(orgId, generateJoinCode(), now);
+          if (set.ok) {
+            joinCode = set.value.joinCode ?? null;
+            break;
+          }
+          if (set.error.kind !== "conflict") break;
+        }
+
+        return { bootstrapResult, joinCode };
       });
 
       if (!result.bootstrapResult.ok) {
@@ -343,6 +357,7 @@ export async function handleCreateOrganization(
       }
 
       const { org, roleAssignment } = result.bootstrapResult.value;
+      const joinCode = result.joinCode;
       // A child inherits the parent's plan (fan-out); a standalone org gets free.
       if (parentOrgIdHex) {
         await tryFanOut(env, parentOrgIdHex, org.id, actor, requestId);
@@ -351,7 +366,13 @@ export async function handleCreateOrganization(
       }
       return successResponse(
         {
-          organization: { id: orgPublicId(org.id), name: org.name, slug: org.slug, createdAt: org.createdAt.toISOString() },
+          organization: {
+            id: orgPublicId(org.id),
+            name: org.name,
+            slug: org.slug,
+            ...(joinCode ? { joinCode } : {}),
+            createdAt: org.createdAt.toISOString(),
+          },
           membership: { role: roleAssignment.role, joinedAt: result.bootstrapResult.value.member.createdAt.toISOString() },
         },
         requestId,
