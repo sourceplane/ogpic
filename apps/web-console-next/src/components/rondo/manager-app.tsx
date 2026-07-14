@@ -10,6 +10,7 @@
 import * as React from "react";
 import type { RondoVM } from "./use-rondo";
 import { TeamSwitcher, type TeamNav } from "./team-switcher";
+import { AddPlayerSheet } from "./add-player";
 import { RateView, GamesView } from "./views";
 import { placeRoster, placeDraft } from "./formation";
 import {
@@ -48,6 +49,7 @@ function initialsOf(name: string) {
 export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | undefined }) {
   const [view, setView] = React.useState<View>("pitch");
   const [switcher, setSwitcher] = React.useState(false);
+  const [addOpen, setAddOpen] = React.useState(false);
   const [day, setDay] = React.useState(0);
   const [time, setTime] = React.useState(1);
   const [turf, setTurf] = React.useState("Riverside Astro");
@@ -191,6 +193,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
     return (
       <PhoneShell>
         <StatusBar />
+        <AddPlayerSheet open={addOpen} onClose={() => setAddOpen(false)} onAdd={vm.addPlayer} />
         <div style={{ padding: "12px 24px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.6, color: C.ink }}>Squad</span>
           <span style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 600, color: ink(0.5) }}>{vm.players.length} MEMBERS</span>
@@ -235,7 +238,12 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
           )}
 
           <div style={{ marginTop: 20 }}>
-            <MonoLabel>MEMBERS &amp; ROLES</MonoLabel>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <MonoLabel>MEMBERS &amp; ROLES</MonoLabel>
+              <div onClick={() => setAddOpen(true)} className="rk-press" style={{ display: "flex", alignItems: "center", gap: 6, height: 30, padding: "0 12px", borderRadius: 12, background: C.green, color: C.onDark, fontSize: 11.5, fontWeight: 700 }}>
+                <span style={{ fontSize: 16, lineHeight: 1, marginTop: -1 }}>+</span> Add player
+              </div>
+            </div>
             <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 7 }}>
               {vm.players.map((m) => (
                 <div key={m.id} style={{ borderRadius: 14, background: C.card, border: `1px solid ${ink(0.1)}`, padding: "10px 14px", display: "flex", alignItems: "center", gap: 12 }}>
