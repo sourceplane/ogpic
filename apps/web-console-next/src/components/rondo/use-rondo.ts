@@ -115,6 +115,7 @@ export interface RondoSeed {
   showCardStats?: boolean;
   startScreen?: Screen;
   availability?: Record<string, Availability>;
+  availabilityAt?: Record<string, string>;
   matches?: LiveMatchRow[];
   nextMatch?: NextMatch | null;
   playerStats?: Record<string, PlayerStats>;
@@ -310,6 +311,19 @@ export function useRondo(seed: RondoSeed = {}) {
   const maybeCount = players.filter((p) => availOf(p.id) === "maybe").length;
   const outCount = players.filter((p) => availOf(p.id) === "out").length;
 
+  // Waitlist: the first `capacity` (= two sides) "in" players are confirmed in
+  // RSVP order (earliest first); the rest wait. As anyone drops out the split
+  // recomputes, so a freed spot auto-promotes the next waitlisted player.
+  const capacity = teamSize * 2;
+  const availAt = seed.availabilityAt ?? {};
+  const inOrdered = enriched
+    .filter((p) => availOf(p.id) === "in")
+    .map((p, i) => ({ p, i, t: availAt[p.id] ? Date.parse(availAt[p.id]!) : Number.MAX_SAFE_INTEGER }))
+    .sort((a, b) => (a.t !== b.t ? a.t - b.t : a.i - b.i))
+    .map((x) => x.p);
+  const confirmedPlayers = inOrdered.slice(0, capacity);
+  const waitlistPlayers = inOrdered.slice(capacity);
+
   const balanced = !!homeIds && !!awayIds;
   const home: EP[] = balanced ? (homeIds as string[]).map(byId).filter(Boolean) as EP[] : [];
   const away: EP[] = balanced ? (awayIds as string[]).map(byId).filter(Boolean) as EP[] : [];
@@ -358,6 +372,9 @@ export function useRondo(seed: RondoSeed = {}) {
     availableCount,
     maybeCount,
     outCount,
+    capacity,
+    confirmedPlayers,
+    waitlistPlayers,
     balanced,
     home,
     away,

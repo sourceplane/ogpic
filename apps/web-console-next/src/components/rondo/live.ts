@@ -31,6 +31,13 @@ export function availabilityMap(rows: PublicAvailability[]): Record<string, Avai
   return m;
 }
 
+/** playerId → when they last set availability (ISO), for waitlist ordering. */
+export function availabilityAtMap(rows: PublicAvailability[]): Record<string, string> {
+  const m: Record<string, string> = {};
+  for (const r of rows) m[r.playerId] = r.updatedAt;
+  return m;
+}
+
 /** API matches → recent-results rows (most recent first), win/draw/loss coloured. */
 export function matchRows(matches: PublicMatch[]): LiveMatchRow[] {
   return matches.slice(0, 8).map((m) => {
@@ -123,6 +130,7 @@ export function buildLiveSeed(args: {
   players: PublicPlayer[];
   isManager: boolean;
   availability?: Record<string, Availability>;
+  availabilityAt?: Record<string, string>;
   matches?: LiveMatchRow[];
   nextMatch?: NextMatch | null;
   playerStats?: Record<string, RawPlayerStats>;
@@ -150,6 +158,7 @@ export function buildLiveSeed(args: {
     teamName: args.orgName,
     startScreen: "squad",
     ...(args.availability ? { availability: args.availability } : {}),
+    ...(args.availabilityAt ? { availabilityAt: args.availabilityAt } : {}),
     ...(args.matches ? { matches: args.matches } : {}),
     ...(args.nextMatch ? { nextMatch: args.nextMatch } : {}),
     ...(args.playerStats ? { playerStats: args.playerStats } : {}),

@@ -410,6 +410,25 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
             <Icon name="pitch" size={15} color={C.onDark} /> Draft teams
           </div>
         </div>
+        {vm.waitlistPlayers.length > 0 && (
+          <div style={{ marginTop: 10, borderRadius: 14, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "12px 14px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 600, letterSpacing: 1.5, color: ink(0.5) }}>WAITLIST · {vm.waitlistPlayers.length}</span>
+              <span style={{ fontFamily: MONO, fontSize: 9, color: C.green }}>{vm.confirmedPlayers.length}/{vm.capacity} CONFIRMED</span>
+            </div>
+            <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+              {vm.waitlistPlayers.map((p, i) => (
+                <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontFamily: MONO, fontSize: 10, color: ink(0.4), width: 16 }}>{i + 1}</span>
+                  <Avatar initials={p.initials} size={26} />
+                  <span style={{ flex: 1, fontSize: 12.5, fontWeight: 600, color: C.ink }}>{p.name}</span>
+                  <span style={{ fontFamily: MONO, fontSize: 8.5, color: p.posColor }}>{p.pos}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 8, fontFamily: MONO, fontSize: 8, color: ink(0.4) }}>NEXT UP AUTO-PROMOTES WHEN A SPOT FREES</div>
+          </div>
+        )}
         {vm.canRecordResult && vm.nextMatch && (
           <div onClick={() => setResultOpen(true)} className="rk-press" style={{ marginTop: 10, height: 46, borderRadius: 14, background: vm.nextMatch.status === "live" ? C.green : C.card, border: vm.nextMatch.status === "live" ? "none" : `1px solid ${ink(0.14)}`, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12.5, fontWeight: 700, color: vm.nextMatch.status === "live" ? C.onDark : C.ink }}>
             <Icon name="rate" size={15} color={vm.nextMatch.status === "live" ? C.onDark : C.green} /> Record result
