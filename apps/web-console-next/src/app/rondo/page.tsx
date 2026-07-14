@@ -8,7 +8,6 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import "../../styles/rondo.css";
 import "../../styles/rondo-kit.css";
 import { RondoLogin } from "@/components/rondo/rondo-login";
 import { useSession } from "@/lib/session";

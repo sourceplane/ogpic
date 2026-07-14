@@ -1,15 +1,22 @@
 /*
- * PitchsideDemo — the token-free interactive preview of the Pitchside v2 app
- * (UI revamp). Renders the seed-driven manager and player surfaces with a role
- * toggle so the whole product loop is demoable without an API session. Used by
- * both /rondo/demo (the public preview) and /rondo/preview (the dev harness).
+ * PitchsideApp — the Rondo app shell. Builds the useRondo view-model from a seed
+ * and renders the manager or player surface by role. Used by the authenticated
+ * route (live seed + real role) and the token-free demo (canned seed + toggle).
  */
 "use client";
 
 import * as React from "react";
+import { useRondo, type RondoSeed } from "./use-rondo";
 import { ManagerApp } from "./manager-app";
 import { PlayerApp } from "./player-app";
+import { DEMO_SEED } from "./demo-seed";
 
+export function PitchsideApp({ seed, role }: { seed: RondoSeed; role: "manager" | "player" }) {
+  const vm = useRondo(seed);
+  return role === "manager" ? <ManagerApp vm={vm} /> : <PlayerApp vm={vm} />;
+}
+
+/** Token-free demo: the same app on a canned seed, with a manager/player toggle. */
 export function PitchsideDemo() {
   const [role, setRole] = React.useState<"manager" | "player">("manager");
   return (
@@ -50,7 +57,7 @@ export function PitchsideDemo() {
           </button>
         ))}
       </div>
-      {role === "manager" ? <ManagerApp /> : <PlayerApp />}
+      <PitchsideApp seed={DEMO_SEED} role={role} />
     </div>
   );
 }
