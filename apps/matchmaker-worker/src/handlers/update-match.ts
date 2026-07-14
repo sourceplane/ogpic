@@ -11,7 +11,7 @@ import { parseVenueInput } from "./venue.js";
 import { validateTeam } from "./create-match.js";
 import type { MatchVenue, MatchTeamSnapshot } from "@saas/db/matchmaker";
 
-const MATCH_STATUSES: MatchStatus[] = ["scheduled", "played", "cancelled"];
+const MATCH_STATUSES: MatchStatus[] = ["scheduled", "live", "played", "cancelled"];
 
 interface ParsedMatchUpdate {
   scheduledAt: Date | null;
@@ -42,7 +42,7 @@ function parseUpdate(
   let status: MatchStatus | null = null;
   if (req.status !== undefined) {
     if (typeof req.status !== "string" || !MATCH_STATUSES.includes(req.status as MatchStatus)) {
-      fields.status = ["Must be one of scheduled, played, cancelled"];
+      fields.status = ["Must be one of scheduled, live, played, cancelled"];
     } else {
       status = req.status as MatchStatus;
     }

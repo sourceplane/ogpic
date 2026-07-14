@@ -12,7 +12,7 @@ export type MatchmakerResult<T> =
 
 export type PlayerPosition = "GK" | "DEF" | "MID" | "FWD" | "ALL";
 export type PlayerStatus = "active" | "archived";
-export type MatchStatus = "scheduled" | "played" | "cancelled";
+export type MatchStatus = "scheduled" | "live" | "played" | "cancelled";
 export type AvailabilityState = "in" | "maybe" | "out";
 
 export interface Availability {
@@ -222,6 +222,9 @@ export interface MatchmakerRepository {
   createMatch(input: CreateMatchInput): Promise<MatchmakerResult<Match>>;
   getMatchById(orgId: Uuid, matchId: Uuid): Promise<MatchmakerResult<Match>>;
   updateMatch(orgId: Uuid, matchId: Uuid, input: UpdateMatchInput): Promise<MatchmakerResult<Match>>;
+  /** System cron: flip every scheduled fixture whose kickoff time has passed to
+   *  'live' (all orgs). Returns the number transitioned. */
+  startDueMatches(now: Date): Promise<MatchmakerResult<number>>;
   listMatchesPaged(orgId: Uuid, params: MatchPageQueryParams): Promise<MatchmakerResult<MatchPagedResult<Match>>>;
 
   listAvailability(orgId: Uuid): Promise<MatchmakerResult<Availability[]>>;

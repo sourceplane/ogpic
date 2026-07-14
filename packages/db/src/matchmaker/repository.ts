@@ -415,6 +415,22 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
       }
     },
 
+    async startDueMatches(now: Date): Promise<MatchmakerResult<number>> {
+      // System cron (all orgs): flip every scheduled fixture whose kickoff has
+      // arrived to 'live'. Idempotent — already-live/played rows are untouched.
+      try {
+        const result = await executor.execute(
+          `UPDATE matchmaker.matches
+             SET status = 'live', updated_at = $1
+           WHERE status = 'scheduled' AND scheduled_at <= $1`,
+          [now.toISOString()],
+        );
+        return { ok: true, value: result.rowCount ?? 0 };
+      } catch {
+        return safeError("Failed to auto-start due matches");
+      }
+    },
+
     async listMatchesPaged(
       orgId: string,
       params: MatchPageQueryParams,

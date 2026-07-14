@@ -221,7 +221,7 @@ export interface DraftResponse {
 
 // ── Fixtures (matches) ──────────────────────────────────────────
 
-export type MatchStatus = "scheduled" | "played" | "cancelled";
+export type MatchStatus = "scheduled" | "live" | "played" | "cancelled";
 
 /** A team as persisted on a fixture (immutable lineup snapshot). */
 export interface MatchTeam {
