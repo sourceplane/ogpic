@@ -25,7 +25,7 @@ export function PlayerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | un
   const [view, setView] = React.useState<View>("pitch");
   const [switcher, setSwitcher] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
-  const profilePlayers = vm.players.map((p) => ({ name: p.name, email: p.email ?? null, ovr: p.ovr }));
+  const profilePlayers = vm.players.map((p) => ({ name: p.name, email: p.email ?? null, ovr: p.ovr, pos: p.pos, skills: p.skills, stats: vm.playerStats[p.id] }));
 
   const unrated = vm.players.filter((p) => !vm.rated.includes(p.id)).length;
   const nav = <BottomNavPlayer active={view as PlayerTab} rateBadge={unrated} onSelect={(t) => setView(t)} />;

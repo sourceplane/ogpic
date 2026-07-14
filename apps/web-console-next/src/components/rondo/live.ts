@@ -66,6 +66,41 @@ export function nextActionableMatch(matches: PublicMatch[]): NextMatch | null {
   };
 }
 
+/** Per-player record derived from played fixtures' lineup snapshots. */
+export interface RawPlayerStats {
+  apps: number;
+  wins: number;
+  draws: number;
+  losses: number;
+}
+
+/**
+ * Appearances + W/D/L per player, from the immutable team snapshots on played
+ * matches. A player "appears" if their id is in either lineup; the result comes
+ * from comparing their side's score. Goals/MOTM aren't tracked server-side, so
+ * they're intentionally omitted rather than fabricated.
+ */
+export function computePlayerStats(matches: PublicMatch[]): Record<string, RawPlayerStats> {
+  const out: Record<string, RawPlayerStats> = {};
+  const bump = (id: string, k: keyof RawPlayerStats) => {
+    (out[id] ??= { apps: 0, wins: 0, draws: 0, losses: 0 })[k]++;
+  };
+  for (const m of matches) {
+    if (m.status !== "played" || m.scoreA == null || m.scoreB == null) continue;
+    const aWon = m.scoreA > m.scoreB;
+    const draw = m.scoreA === m.scoreB;
+    for (const p of m.teamA.players) {
+      bump(p.id, "apps");
+      bump(p.id, draw ? "draws" : aWon ? "wins" : "losses");
+    }
+    for (const p of m.teamB.players) {
+      bump(p.id, "apps");
+      bump(p.id, draw ? "draws" : aWon ? "losses" : "wins");
+    }
+  }
+  return out;
+}
+
 export function mapPlayer(p: PublicPlayer): Player {
   return {
     id: p.id,
@@ -90,6 +125,7 @@ export function buildLiveSeed(args: {
   availability?: Record<string, Availability>;
   matches?: LiveMatchRow[];
   nextMatch?: NextMatch | null;
+  playerStats?: Record<string, RawPlayerStats>;
   joinCode?: string;
   joinRequests?: LiveJoinRequest[];
   votingOpen?: boolean;
@@ -115,6 +151,7 @@ export function buildLiveSeed(args: {
     ...(args.availability ? { availability: args.availability } : {}),
     ...(args.matches ? { matches: args.matches } : {}),
     ...(args.nextMatch ? { nextMatch: args.nextMatch } : {}),
+    ...(args.playerStats ? { playerStats: args.playerStats } : {}),
     ...(args.joinCode ? { joinCode: args.joinCode } : {}),
     ...(args.joinRequests ? { joinRequests: args.joinRequests } : {}),
     ...(args.votingOpen !== undefined ? { votingOpen: args.votingOpen } : {}),
