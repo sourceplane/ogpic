@@ -11,6 +11,7 @@ import * as React from "react";
 import type { RondoVM } from "./use-rondo";
 import { TeamSwitcher, type TeamNav } from "./team-switcher";
 import { AddPlayerSheet } from "./add-player";
+import { ProfileSheet } from "./profile-menu";
 import { RateView, GamesView } from "./views";
 import { placeRoster, placeDraft } from "./formation";
 import {
@@ -50,6 +51,8 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
   const [view, setView] = React.useState<View>("pitch");
   const [switcher, setSwitcher] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
+  const [profileOpen, setProfileOpen] = React.useState(false);
+  const profilePlayers = vm.players.map((p) => ({ name: p.name, email: p.email ?? null, ovr: p.ovr }));
   const [day, setDay] = React.useState(0);
   const [time, setTime] = React.useState(1);
   const [turf, setTurf] = React.useState("Riverside Astro");
@@ -352,13 +355,16 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
           <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.6 }}>{team}</span>
           <Icon name="chevronDown" size={14} color={ink(0.5)} stroke={2.4} />
         </div>
-        <div onClick={() => setView("settings")} className="rk-press" aria-label="Team settings" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 12, background: C.card, border: `1px solid ${ink(0.12)}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div onClick={() => setView("settings")} className="rk-press" aria-label="Team settings" style={{ width: 36, height: 36, borderRadius: 12, background: C.card, border: `1px solid ${ink(0.12)}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}>
             <Icon name="settings" size={17} />
           </div>
-          <Avatar initials={initialsOf(team)} size={36} ring={C.gold} bg={C.card} />
+          <div onClick={() => setProfileOpen(true)} className="rk-press" aria-label="Your profile">
+            <Avatar initials={initialsOf(team)} size={36} ring={C.gold} bg={C.card} />
+          </div>
         </div>
       </div>
+      <ProfileSheet open={profileOpen} onClose={() => setProfileOpen(false)} players={profilePlayers} />
       <div style={{ padding: "10px 24px 0", display: "flex", gap: 7, flexWrap: "wrap" }}>
         <Chip variant="gold">MANAGER</Chip>
         <Chip>{vm.players.length} PLAYERS</Chip>

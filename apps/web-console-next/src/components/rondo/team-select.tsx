@@ -8,7 +8,8 @@
 "use client";
 
 import * as React from "react";
-import { C, ink, green, PhoneShell, StatusBar, ScreenBody, Icon } from "./kit";
+import { C, ink, green, PhoneShell, StatusBar, ScreenBody, Avatar, Icon } from "./kit";
+import { ProfileSheet } from "./profile-menu";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 
@@ -29,12 +30,19 @@ export function TeamSelectScreen({
   onCreate: () => void;
   onJoin: () => void;
 }) {
+  const [profileOpen, setProfileOpen] = React.useState(false);
   return (
     <PhoneShell>
       <StatusBar />
-      <div style={{ padding: "22px 26px 0" }}>
-        <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.8, color: C.ink, lineHeight: 1.15 }}>Your squads</div>
-        <div style={{ marginTop: 8, fontSize: 13.5, color: ink(0.55) }}>Pick a squad to open, or start / join another.</div>
+      <ProfileSheet open={profileOpen} onClose={() => setProfileOpen(false)} />
+      <div style={{ padding: "22px 26px 0", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.8, color: C.ink, lineHeight: 1.15 }}>Your squads</div>
+          <div style={{ marginTop: 8, fontSize: 13.5, color: ink(0.55) }}>Pick a squad to open, or start / join another.</div>
+        </div>
+        <div onClick={() => setProfileOpen(true)} className="rk-press" aria-label="Your profile" style={{ flex: "none" }}>
+          <Avatar initials="ME" size={40} bg={C.card} ring={ink(0.14)} />
+        </div>
       </div>
 
       <ScreenBody style={{ padding: "18px 24px 26px" }}>

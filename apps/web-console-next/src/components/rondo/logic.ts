@@ -19,6 +19,9 @@ export interface Player {
   skills: Skills;
   myStars: Skills;
   isCaptain?: boolean;
+  /** Contact email (live roster only); lets the profile menu match the viewer
+   *  to their own player row for "my score". Absent on the demo seed. */
+  email?: string | null;
 }
 
 export interface Tier {
