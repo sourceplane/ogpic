@@ -10,6 +10,7 @@
 import * as React from "react";
 import type { RondoVM } from "./use-rondo";
 import { TeamSwitcher, type TeamNav } from "./team-switcher";
+import { RateView, GamesView } from "./views";
 import { placeRoster, placeDraft } from "./formation";
 import {
   C,
@@ -35,7 +36,7 @@ const MONO = "var(--font-jbmono), ui-monospace, monospace";
 const TIMES = ["17:00", "18:30", "20:00"];
 const WD = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-type View = "pitch" | "squad" | "schedule" | "draft";
+type View = "pitch" | "squad" | "schedule" | "draft" | "rate" | "games";
 
 function initialsOf(name: string) {
   const p = name.trim().split(/\s+/);
@@ -89,13 +90,14 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
     Promise.resolve(ok).finally(() => setView("draft"));
   }
 
+  const navActive: ManagerTab =
+    view === "rate" ? "rate" : view === "games" ? "games" : view === "squad" ? "squad" : "pitch";
   const nav = (
-    <BottomNavManager
-      active={(view === "squad" ? "squad" : "pitch") as ManagerTab}
-      onKickoff={() => setView("schedule")}
-      onSelect={(t) => setView(t === "squad" ? "squad" : "pitch")}
-    />
+    <BottomNavManager active={navActive} onKickoff={() => setView("schedule")} onSelect={(t) => setView(t)} />
   );
+
+  if (view === "rate") return <RateView vm={vm} nav={nav} />;
+  if (view === "games") return <GamesView vm={vm} nav={nav} managerNote={false} />;
 
   /* ── SCHEDULE ── */
   if (view === "schedule") {
