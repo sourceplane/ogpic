@@ -8,7 +8,8 @@
 
 import * as React from "react";
 import type { RondoVM } from "./use-rondo";
-import { C, ink, green, rust, PhoneShell, StatusBar, ScreenBody, MonoLabel, Avatar, RatingSegments, MapCard } from "./kit";
+import { C, ink, green, rust, PhoneShell, StatusBar, ScreenBody, MonoLabel, Avatar, Icon, RatingSegments, MapCard } from "./kit";
+import { whatsappHref, downloadIcs, type ShareMatch } from "./match-share";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 
@@ -86,6 +87,27 @@ export function GamesView({ vm, nav, managerNote = true }: { vm: RondoVM; nav: R
                 {next.mapsUrl && <div style={{ marginTop: 6, fontSize: 11, fontWeight: 700, color: C.green }}>Directions ↗</div>}
               </div>
               <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700, padding: "6px 10px", borderRadius: 12, background: green(0.12), color: C.green, flex: "none" }}>{vm.availableCount} IN</span>
+            </div>
+            <div style={{ display: "flex", gap: 8, padding: "0 16px 16px" }}>
+              {(() => {
+                const sm: ShareMatch = {
+                  team: vm.activeTeamName,
+                  dateLabel: next.dateLabel,
+                  scheduledAt: vm.nextMatch?.scheduledAt,
+                  venue: next.venue,
+                  mapsUrl: next.mapsUrl,
+                };
+                return (
+                  <>
+                    <a href={whatsappHref(sm)} target="_blank" rel="noopener noreferrer" className="rk-press" style={{ flex: 1, height: 42, borderRadius: 13, background: C.green, color: C.onDark, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, fontSize: 12.5, fontWeight: 700, textDecoration: "none" }}>
+                      <Icon name="share" size={14} color={C.onDark} /> Share
+                    </a>
+                    <div onClick={() => downloadIcs(sm, next.id)} className="rk-press" style={{ flex: 1, height: 42, borderRadius: 13, background: C.card, border: `1px solid ${ink(0.14)}`, color: C.ink, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, fontSize: 12.5, fontWeight: 700 }}>
+                      <Icon name="games" size={14} color={C.green} /> Add to calendar
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         ) : (
