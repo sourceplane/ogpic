@@ -23,5 +23,14 @@ run time by the orun runner. This suite proves the consume contract — includin
 that each environment resolves its own distinct value — against the
 local-fallback path the runner uses when no backend is reachable.
 
+- `tools/inspect.mjs` — a **live** orun-cloud inspector (`pnpm --filter
+  ./tests/orun-secrets inspect`, needs `ORUN_TOKEN` + `ORUN_WORKSPACE`
+  [+ `ORUN_PROJECT`]). It displays every secret across the workspace, project,
+  and environments (names + metadata only, never values), and for `brokered`
+  secrets follows the integration connection to report connection health and
+  the external account — i.e. it tests the connection and pulls the account id
+  via the orun API, without ever touching a raw provider token. It is a no-op
+  in cloud-free lanes (no token), so it never breaks CI verify.
+
 Failing or flaky? Follow the shared
 [test triage runbook](../../docs/testing/triage-runbook.md).
