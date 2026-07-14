@@ -13,9 +13,12 @@ import * as React from "react";
 import type { RondoVM } from "./use-rondo";
 import { TeamSwitcher, type TeamNav } from "./team-switcher";
 import { ProfileSheet } from "./profile-menu";
+import { ClaimSheet } from "./claim-sheet";
 import { RateView, GamesView } from "./views";
+import { AVAIL_META } from "./use-rondo";
 import { placeRoster } from "./formation";
-import { C, ink, PhoneShell, StatusBar, Avatar, Icon, PitchCanvas, PlayerToken, BottomNavPlayer, type PlayerTab } from "./kit";
+import { C, ink, green, PhoneShell, StatusBar, Avatar, Icon, PitchCanvas, PlayerToken, BottomNavPlayer, type PlayerTab } from "./kit";
+import type { Availability } from "./logic";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 
@@ -25,7 +28,10 @@ export function PlayerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | un
   const [view, setView] = React.useState<View>("pitch");
   const [switcher, setSwitcher] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
+  const [claimOpen, setClaimOpen] = React.useState(false);
   const profilePlayers = vm.players.map((p) => ({ name: p.name, email: p.email ?? null, ovr: p.ovr, pos: p.pos, skills: p.skills, stats: vm.playerStats[p.id] }));
+  const claimCandidates = vm.players.map((p) => ({ id: p.id, name: p.name, initials: p.initials, pos: p.pos, claimed: false }));
+  const AVAIL: Availability[] = ["in", "maybe", "out"];
 
   const unrated = vm.players.filter((p) => !vm.rated.includes(p.id)).length;
   const nav = <BottomNavPlayer active={view as PlayerTab} rateBadge={unrated} onSelect={(t) => setView(t)} />;
@@ -58,13 +64,40 @@ export function PlayerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | un
           <PlayerToken key={p.id} initials={p.initials} name={p.label} team={p.team} dimmed={p.dimmed} captain={p.captain} size={p.size} left={p.left} top={p.top} />
         ))}
       </PitchCanvas>
-      <div style={{ margin: "12px 24px 0", borderRadius: 16, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: 1, color: ink(0.45) }}>NEXT MATCH</div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, marginTop: 3 }}>{vm.availableCount} in · {vm.maybeCount} maybe</div>
+      {vm.canSelfRSVP ? (
+        <div style={{ margin: "12px 24px 0", borderRadius: 16, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "12px 14px" }}>
+          <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: 1, color: ink(0.45) }}>YOUR AVAILABILITY</div>
+          <div style={{ display: "flex", gap: 8, marginTop: 9 }}>
+            {AVAIL.map((s) => {
+              const on = vm.myAvailability === s;
+              const meta = AVAIL_META[s];
+              return (
+                <div key={s} onClick={() => vm.setMyAvailability(s)} className="rk-press" style={{ flex: 1, height: 42, borderRadius: 13, background: on ? meta.color : C.surface, border: on ? "none" : `1px solid ${ink(0.12)}`, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 700, color: on ? "#fff" : ink(0.6) }}>
+                  {meta.label}
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div onClick={() => setView("games")} className="rk-press" style={{ height: 38, padding: "0 16px", borderRadius: 19, background: C.green, color: C.onDark, fontSize: 12.5, fontWeight: 700, display: "flex", alignItems: "center" }}>View games</div>
-      </div>
+      ) : vm.canClaim ? (
+        <div onClick={() => setClaimOpen(true)} className="rk-press" style={{ margin: "12px 24px 0", borderRadius: 16, background: C.card, border: `1px dashed ${green(0.4)}`, padding: "13px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: green(0.12), display: "flex", alignItems: "center", justifyContent: "center", color: C.green, flex: "none" }}><Icon name="check" size={18} stroke={3} /></div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700 }}>Claim your spot</div>
+            <div style={{ fontFamily: MONO, fontSize: 9, color: ink(0.45), marginTop: 2 }}>SET YOUR OWN AVAILABILITY</div>
+          </div>
+          <Icon name="chevronRight" size={16} color={ink(0.35)} />
+        </div>
+      ) : (
+        <div style={{ margin: "12px 24px 0", borderRadius: 16, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: 1, color: ink(0.45) }}>NEXT MATCH</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, marginTop: 3 }}>{vm.availableCount} in · {vm.maybeCount} maybe</div>
+          </div>
+          <div onClick={() => setView("games")} className="rk-press" style={{ height: 38, padding: "0 16px", borderRadius: 19, background: C.green, color: C.onDark, fontSize: 12.5, fontWeight: 700, display: "flex", alignItems: "center" }}>View games</div>
+        </div>
+      )}
+      <ClaimSheet open={claimOpen} onClose={() => setClaimOpen(false)} players={claimCandidates} onClaim={vm.claimPlayer} />
       {nav}
     </PhoneShell>
   );
