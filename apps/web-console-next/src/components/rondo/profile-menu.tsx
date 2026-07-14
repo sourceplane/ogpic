@@ -14,11 +14,20 @@ import { useSession } from "@/lib/session";
 import { useApiQuery } from "@/lib/query";
 import { wrap } from "@/lib/api";
 import { C, ink, green, gold, Avatar, Icon } from "./kit";
+import { PlayerStatsSheet } from "./player-stats";
+import type { PlayerStats } from "./use-rondo";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 
 /** A roster player the viewer might be, used to surface "my score" by email. */
-export type ProfilePlayer = { name: string; email?: string | null; ovr: number };
+export type ProfilePlayer = {
+  name: string;
+  email?: string | null;
+  ovr: number;
+  pos?: string;
+  skills?: Record<string, number>;
+  stats?: PlayerStats | undefined;
+};
 
 function initialsOf(name: string) {
   const p = name.trim().split(/\s+/);
@@ -38,6 +47,7 @@ export function ProfileSheet({
   const { client, setToken } = useSession();
   const qc = useQueryClient();
   const [busy, setBusy] = React.useState(false);
+  const [statsOpen, setStatsOpen] = React.useState(false);
 
   const profile = useApiQuery(
     ["auth-profile"],
@@ -85,24 +95,42 @@ export function ProfileSheet({
         </div>
 
         {/* my score */}
-        <div style={{ marginTop: 18, borderRadius: 18, background: C.card, border: `1px solid ${ink(0.1)}`, padding: "16px", display: "flex", alignItems: "center", gap: 14 }}>
+        <div
+          onClick={me && me.skills ? () => setStatsOpen(true) : undefined}
+          className={me && me.skills ? "rk-press" : undefined}
+          style={{ marginTop: 18, borderRadius: 18, background: C.card, border: `1px solid ${ink(0.1)}`, padding: "16px", display: "flex", alignItems: "center", gap: 14 }}
+        >
           <div style={{ width: 48, height: 48, borderRadius: 14, background: green(0.12), display: "flex", alignItems: "center", justifyContent: "center", color: C.green, flex: "none" }}>
             <Icon name="rate" size={22} />
           </div>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: 1.5, color: ink(0.45) }}>MY SCORE</div>
             {me ? (
-              <div style={{ fontSize: 15, fontWeight: 700, color: C.ink, marginTop: 2 }}>{me.name}</div>
+              <>
+                <div style={{ fontSize: 15, fontWeight: 700, color: C.ink, marginTop: 2 }}>{me.name}</div>
+                {me.stats && (
+                  <div style={{ fontFamily: MONO, fontSize: 9.5, color: ink(0.5), marginTop: 2 }}>
+                    {me.stats.apps} PLAYED · {me.stats.wins}W {me.stats.draws}D {me.stats.losses}L
+                  </div>
+                )}
+              </>
             ) : (
               <div style={{ fontSize: 12.5, color: ink(0.5), marginTop: 3, lineHeight: 1.35 }}>
                 {players ? "Not linked to a player in this squad yet." : "Open a squad to see your rating."}
               </div>
             )}
           </div>
-          {me && (
-            <div style={{ fontFamily: MONO, fontSize: 32, fontWeight: 700, color: C.green, letterSpacing: -1 }}>{me.ovr}</div>
-          )}
+          {me && <div style={{ fontFamily: MONO, fontSize: 32, fontWeight: 700, color: C.green, letterSpacing: -1 }}>{me.ovr}</div>}
+          {me && me.skills && <Icon name="chevronRight" size={16} color={ink(0.3)} />}
         </div>
+
+        {me && me.skills && (
+          <PlayerStatsSheet
+            player={statsOpen ? { name: me.name, pos: me.pos ?? "", ovr: me.ovr, skills: me.skills } : null}
+            stats={me.stats}
+            onClose={() => setStatsOpen(false)}
+          />
+        )}
 
         {/* sign out */}
         <div

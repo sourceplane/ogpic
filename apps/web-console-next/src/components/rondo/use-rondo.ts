@@ -54,6 +54,14 @@ export interface TeamPayload {
   players: { id: string; name: string; position: string; rating: number }[];
 }
 
+/** Per-player record (appearances + results) shown on the stats view. */
+export interface PlayerStats {
+  apps: number;
+  wins: number;
+  draws: number;
+  losses: number;
+}
+
 /** Live backend handlers. When present, actions hit the real API; otherwise the
  *  hook runs fully on local state (demo mode). */
 export interface RondoLive {
@@ -105,6 +113,7 @@ export interface RondoSeed {
   availability?: Record<string, Availability>;
   matches?: LiveMatchRow[];
   nextMatch?: NextMatch | null;
+  playerStats?: Record<string, PlayerStats>;
   joinCode?: string;
   joinRequests?: LiveJoinRequest[];
   votingOpen?: boolean;
@@ -360,6 +369,7 @@ export function useRondo(seed: RondoSeed = {}) {
     isLive: !!seed.live,
     liveMatches: seed.matches ?? null,
     nextMatch: seed.nextMatch ?? null,
+    playerStats: seed.playerStats ?? {},
     startMatch: () => {
       const id = seed.nextMatch?.id;
       if (id) seed.live?.startMatch?.(id);

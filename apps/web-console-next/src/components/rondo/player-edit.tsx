@@ -8,6 +8,7 @@
 
 import * as React from "react";
 import { C, ink, Icon } from "./kit";
+import type { PlayerStats } from "./use-rondo";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 
@@ -16,6 +17,7 @@ export type EditablePlayer = {
   name: string;
   pos: string;
   skills: Record<string, number>;
+  stats?: PlayerStats | undefined;
 };
 
 function clamp(v: number) {
@@ -69,6 +71,11 @@ export function PlayerScoreSheet({
             <div style={{ fontFamily: MONO, fontSize: 34, fontWeight: 700, color: C.green, letterSpacing: -1, lineHeight: 1 }}>{ovr}</div>
           </div>
         </div>
+        {player.stats && player.stats.apps > 0 && (
+          <div style={{ marginTop: 12, fontFamily: MONO, fontSize: 9.5, color: ink(0.5) }}>
+            {player.stats.apps} PLAYED · {player.stats.wins}W {player.stats.draws}D {player.stats.losses}L
+          </div>
+        )}
 
         {/* skill sliders */}
         <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 14 }}>

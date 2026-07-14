@@ -55,7 +55,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
   const [addOpen, setAddOpen] = React.useState(false);
   const [scoreTarget, setScoreTarget] = React.useState<EditablePlayer | null>(null);
   const [profileOpen, setProfileOpen] = React.useState(false);
-  const profilePlayers = vm.players.map((p) => ({ name: p.name, email: p.email ?? null, ovr: p.ovr }));
+  const profilePlayers = vm.players.map((p) => ({ name: p.name, email: p.email ?? null, ovr: p.ovr, pos: p.pos, skills: p.skills, stats: vm.playerStats[p.id] }));
   const [day, setDay] = React.useState(0);
   const [time, setTime] = React.useState(1);
   const [turf, setTurf] = React.useState("Riverside Astro");
@@ -266,7 +266,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
               {vm.players.map((m) => (
                 <div
                   key={m.id}
-                  onClick={vm.canEditScore ? () => setScoreTarget({ id: m.id, name: m.name, pos: m.pos, skills: m.skills }) : undefined}
+                  onClick={vm.canEditScore ? () => setScoreTarget({ id: m.id, name: m.name, pos: m.pos, skills: m.skills, stats: vm.playerStats[m.id] }) : undefined}
                   className={vm.canEditScore ? "rk-press" : undefined}
                   style={{ borderRadius: 14, background: C.card, border: `1px solid ${ink(0.1)}`, padding: "10px 14px", display: "flex", alignItems: "center", gap: 12 }}
                 >
