@@ -33,6 +33,9 @@ export interface Organization {
   joinCode?: string | null;
   createdAt: Date;
   updatedAt: Date;
+  /** The requesting caller's org-scoped role (owner/admin/member/viewer).
+   *  Populated only by the "orgs I belong to" list; optional elsewhere. */
+  callerRole?: string | null;
 }
 
 export type JoinRequestStatus = "pending" | "approved" | "declined";

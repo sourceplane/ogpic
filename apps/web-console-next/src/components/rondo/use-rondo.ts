@@ -60,6 +60,8 @@ export interface RondoLive {
   openRound?: (resetScores: boolean) => void;
   /** Close the voting window. */
   closeRound?: () => void;
+  /** Mint a fresh shareable join code (also mints the first one if none). */
+  rotateCode?: () => void;
 }
 
 export interface LiveJoinRequest {
@@ -324,6 +326,8 @@ export function useRondo(seed: RondoSeed = {}) {
     makeCaptain,
     releasePlayer,
     joinCode: seed.joinCode ?? null,
+    rotateCode: () => seed.live?.rotateCode?.(),
+    canManageCode: !!seed.live?.rotateCode,
     joinRequests: seed.joinRequests ?? null,
     addPlayer: (input: { name: string; position: string; email?: string | null; phone?: string | null }) => {
       seed.live?.addPlayer?.(input);

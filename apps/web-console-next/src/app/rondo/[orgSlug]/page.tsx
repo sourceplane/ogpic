@@ -141,6 +141,11 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: ["rating-round", orgId] }),
         );
       },
+      rotateCode: () => {
+        void wrap(() => client.memberships.rotateJoinCode(orgId)).then(() =>
+          qc.invalidateQueries({ queryKey: ["join-code", orgId] }),
+        );
+      },
       schedule: async ({ scheduledAt, venue }) => {
         // Auto-balance the available squad into two sides, then persist the
         // fixture with the chosen venue. Voting-blended ratings drive the draft.
@@ -169,9 +174,13 @@ export default function ConnectedRondoPage() {
   if (loading) return <RondoBoot label="Loading your squad…" />;
   if (!org || !orgId) return <RondoBoot label={`No squad found for “${slug}”.`} />;
 
-  // Role signal: the join-code / join-request surfaces are manager-only (viewers
-  // get 404), so a resolved join code means the caller manages this squad.
-  const isManager = joinCode.data != null;
+  // Role comes from the backend: the org list carries the caller's org-scoped
+  // role. owner/admin manage the squad; everyone else is a player. (Falls back
+  // to the manager-only join-code probe if an older API omits the role.)
+  const roleFromList = (org as { role?: string } | undefined)?.role?.toLowerCase();
+  const isManager = roleFromList
+    ? ["owner", "admin", "manager"].includes(roleFromList)
+    : joinCode.data != null;
 
   const seed = buildLiveSeed({
     orgName: org.name,
