@@ -179,10 +179,11 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
           {away.map((p) => <PlayerToken key={p.id} initials={p.initials} name={p.label} filled team="away" size={44} left={p.left} top={p.top} captain={p.captain} />)}
         </PitchCanvas>
         <div style={{ textAlign: "center", marginTop: 10, fontFamily: MONO, fontSize: 9.5, color: ink(0.45) }}>{vm.drafting ? "BALANCING…" : "AUTO-BALANCED BY RATING"}</div>
-        <div style={{ display: "flex", gap: 10, padding: "12px 24px 24px" }}>
+        <div style={{ display: "flex", gap: 10, padding: "12px 24px 0" }}>
           <div onClick={() => vm.doBalance()} className="rk-press" style={{ width: 52, height: 52, borderRadius: 16, background: C.card, border: `1px solid ${ink(0.14)}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.ink, flex: "none" }} aria-label="Regenerate"><Icon name="refresh" size={18} /></div>
           <Button variant="ink" height={52} radius={16} onClick={() => setView("pitch")}>Start match</Button>
         </div>
+        {nav}
       </PhoneShell>
     );
   }
@@ -372,6 +373,14 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
         <FieldRow icon={<Icon name="pin" size={14} color={C.green} />} height={46} style={{ borderRadius: 14 }} right={<span style={{ fontFamily: MONO, fontSize: 9.5, color: C.green, fontWeight: 700 }}>{vm.availableCount} IN · {vm.maybeCount} MAYBE</span>}>
           <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600 }}>{nextMatch ? `${nextMatch.dateLabel} · ${nextMatch.venue ?? "TBC"}` : "NO MATCH SCHEDULED"}</span>
         </FieldRow>
+        <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+          <div onClick={() => setView("schedule")} className="rk-press" style={{ flex: 1, height: 46, borderRadius: 14, background: C.card, border: `1px solid ${ink(0.14)}`, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12.5, fontWeight: 700, color: C.ink }}>
+            <Icon name="kickoff" size={15} color={C.green} /> Schedule
+          </div>
+          <div onClick={() => setView("draft")} className="rk-press" style={{ flex: 1, height: 46, borderRadius: 14, background: C.ink, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12.5, fontWeight: 700, color: C.onDark }}>
+            <Icon name="pitch" size={15} color={C.onDark} /> Draft teams
+          </div>
+        </div>
       </div>
       {nav}
     </PhoneShell>
