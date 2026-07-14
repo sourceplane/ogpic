@@ -8,7 +8,7 @@
 "use client";
 
 import * as React from "react";
-import { C, ink, PhoneShell, StatusBar, ScreenBody, Icon } from "./kit";
+import { C, ink, green, PhoneShell, StatusBar, ScreenBody, Icon } from "./kit";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 
@@ -37,7 +37,32 @@ export function TeamSelectScreen({
         <div style={{ marginTop: 8, fontSize: 13.5, color: ink(0.55) }}>Pick a squad to open, or start / join another.</div>
       </div>
 
-      <ScreenBody style={{ padding: "20px 24px 26px" }}>
+      <ScreenBody style={{ padding: "18px 24px 26px" }}>
+        {/* Primary actions — always at the top for quick access. */}
+        <div style={{ display: "flex", gap: 10 }}>
+          <div onClick={onCreate} className="rk-press" style={{ flex: 1, borderRadius: 18, background: C.green, color: C.onDark, padding: "16px 14px", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", right: -26, top: -26, width: 84, height: 84, border: "2px solid rgba(242,244,241,.16)", borderRadius: "50%" }} />
+            <div style={{ width: 34, height: 34, borderRadius: 11, background: "rgba(242,244,241,.16)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Icon name="squad" size={17} color={C.onDark} />
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -0.3, marginTop: 12 }}>Create team</div>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: "rgba(242,244,241,.7)", marginTop: 3 }}>YOU&rsquo;LL BE MANAGER</div>
+          </div>
+          <div onClick={onJoin} className="rk-press" style={{ flex: 1, borderRadius: 18, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "16px 14px" }}>
+            <div style={{ width: 34, height: 34, borderRadius: 11, background: green(0.12), display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Icon name="share" size={16} color={C.green} />
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -0.3, marginTop: 12, color: C.ink }}>Join team</div>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: ink(0.45), marginTop: 3 }}>WITH A CODE</div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "22px 0 14px" }}>
+          <div style={{ flex: 1, height: 1, background: ink(0.12) }} />
+          <span style={{ fontFamily: MONO, fontSize: 10, color: ink(0.4) }}>YOUR SQUADS · {teams.length}</span>
+          <div style={{ flex: 1, height: 1, background: ink(0.12) }} />
+        </div>
+
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {teams.map((t) => (
             <div
@@ -54,31 +79,6 @@ export function TeamSelectScreen({
               <Icon name="chevronRight" size={16} color={ink(0.35)} stroke={2.2} />
             </div>
           ))}
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "22px 0 4px" }}>
-          <div style={{ flex: 1, height: 1, background: ink(0.12) }} />
-          <span style={{ fontFamily: MONO, fontSize: 10, color: ink(0.4) }}>OR START ANOTHER</span>
-          <div style={{ flex: 1, height: 1, background: ink(0.12) }} />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 16 }}>
-          {/* create — manager */}
-          <div onClick={onCreate} className="rk-press" style={{ borderRadius: 22, background: C.green, padding: "22px 22px", color: C.onDark, position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", right: -40, top: -40, width: 140, height: 140, border: "2px solid rgba(242,244,241,.18)", borderRadius: "50%" }} />
-            <div style={{ position: "absolute", right: 0, top: 0, width: 70, height: 70, border: "2px solid rgba(242,244,241,.14)", borderRadius: "50%" }} />
-            <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: 1.5, padding: "4px 9px", borderRadius: 10, background: "rgba(242,244,241,.16)" }}>YOU&rsquo;LL BE THE MANAGER</span>
-            <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.4, marginTop: 12 }}>Create a team</div>
-            <div style={{ fontSize: 12.5, color: "rgba(242,244,241,.75)", lineHeight: 1.45, marginTop: 6, maxWidth: 250 }}>Name your club, set the format, invite players.</div>
-            <div style={{ marginTop: 14, display: "inline-flex", alignItems: "center", gap: 7, height: 38, padding: "0 16px", borderRadius: 20, background: C.surface, color: C.ink, fontSize: 13, fontWeight: 700 }}>Set up my club →</div>
-          </div>
-          {/* join — player */}
-          <div onClick={onJoin} className="rk-press" style={{ borderRadius: 22, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "22px 22px" }}>
-            <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: 1.5, padding: "4px 9px", borderRadius: 10, background: ink(0.07), color: ink(0.6) }}>YOU&rsquo;LL JOIN AS A PLAYER</span>
-            <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.4, marginTop: 12, color: C.ink }}>Join with a code</div>
-            <div style={{ fontSize: 12.5, color: ink(0.55), lineHeight: 1.45, marginTop: 6, maxWidth: 250 }}>Got an invite from your captain? Enter the code.</div>
-            <div style={{ marginTop: 14, display: "inline-flex", alignItems: "center", gap: 7, height: 38, padding: "0 16px", borderRadius: 20, border: `1.5px solid ${C.ink}`, color: C.ink, fontSize: 13, fontWeight: 700 }}>Enter code →</div>
-          </div>
         </div>
 
         <div style={{ textAlign: "center", padding: "22px 0 0", fontFamily: MONO, fontSize: 9.5, color: ink(0.45) }}>YOU CAN BE IN SEVERAL SQUADS AT ONCE</div>

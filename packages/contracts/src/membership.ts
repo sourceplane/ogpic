@@ -8,6 +8,12 @@ export interface PublicOrganization {
    * other endpoints may omit it.
    */
   status?: string;
+  /**
+   * The requesting caller's org-scoped role (e.g. 'owner', 'admin', 'member',
+   * 'viewer'). Populated by the organization list so the client can gate the UI
+   * (manager vs player) without a manager-only probe; omitted elsewhere.
+   */
+  role?: string;
   createdAt: string;
 }
 

@@ -40,6 +40,7 @@ export async function handleListOrganizations(
       name: org.name,
       slug: org.slug,
       status: org.status,
+      ...(org.callerRole ? { role: org.callerRole } : {}),
       createdAt: org.createdAt.toISOString(),
     }));
 

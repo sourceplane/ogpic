@@ -15,6 +15,8 @@ import { placeRoster, placeDraft } from "./formation";
 import {
   C,
   ink,
+  rust,
+  green,
   PhoneShell,
   StatusBar,
   ScreenBody,
@@ -36,7 +38,7 @@ const MONO = "var(--font-jbmono), ui-monospace, monospace";
 const TIMES = ["17:00", "18:30", "20:00"];
 const WD = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-type View = "pitch" | "squad" | "schedule" | "draft" | "rate" | "games";
+type View = "pitch" | "squad" | "schedule" | "draft" | "rate" | "games" | "settings";
 
 function initialsOf(name: string) {
   const p = name.trim().split(/\s+/);
@@ -194,15 +196,24 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
           <span style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 600, color: ink(0.5) }}>{vm.players.length} MEMBERS</span>
         </div>
         <ScreenBody style={{ padding: "0 24px 20px" }}>
-          {vm.joinCode && (
+          {vm.joinCode ? (
             <div style={{ margin: "16px 0 0", borderRadius: 18, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: ink(0.45) }}>INVITE CODE</div>
                 <div style={{ fontFamily: MONO, fontSize: 20, fontWeight: 700, letterSpacing: 2, color: C.green, marginTop: 3 }}>{vm.joinCode}</div>
               </div>
-              <div onClick={copy} className="rk-press" style={{ height: 40, padding: "0 16px", borderRadius: 12, background: C.green, color: C.onDark, display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 700 }}><Icon name="share" size={13} /> {copied ? "Copied" : "Share"}</div>
+              <div onClick={copy} className="rk-press" style={{ height: 40, padding: "0 16px", borderRadius: 12, background: C.green, color: C.onDark, display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 700 }}><Icon name={copied ? "check" : "share"} size={13} stroke={copied ? 3 : 2} /> {copied ? "Copied" : "Share"}</div>
             </div>
-          )}
+          ) : vm.canManageCode ? (
+            <div onClick={() => vm.rotateCode()} className="rk-press" style={{ margin: "16px 0 0", borderRadius: 18, background: C.card, border: `1px dashed ${green(0.4)}`, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: green(0.12), display: "flex", alignItems: "center", justifyContent: "center", color: C.green, flex: "none" }}><Icon name="share" size={16} /></div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 700 }}>Generate invite code</div>
+                <div style={{ fontFamily: MONO, fontSize: 9, color: ink(0.45), marginTop: 2 }}>SO PLAYERS CAN REQUEST TO JOIN</div>
+              </div>
+              <Icon name="chevronRight" size={16} color={ink(0.35)} />
+            </div>
+          ) : null}
 
           {pending.length > 0 && (
             <div style={{ marginTop: 20 }}>
@@ -243,6 +254,85 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
     );
   }
 
+  /* ── SETTINGS ── */
+  if (view === "settings") {
+    return (
+      <PhoneShell>
+        <StatusBar />
+        <ScreenHeader title="Team settings" onBack={() => setView("pitch")} />
+        <ScreenBody style={{ padding: "18px 24px 28px" }}>
+          {/* Share code */}
+          <MonoLabel>INVITE CODE</MonoLabel>
+          {vm.joinCode ? (
+            <div style={{ marginTop: 10, borderRadius: 18, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: ink(0.45) }}>SHARE TO INVITE PLAYERS</div>
+                  <div style={{ fontFamily: MONO, fontSize: 26, fontWeight: 700, letterSpacing: 3, color: C.green, marginTop: 4 }}>{vm.joinCode}</div>
+                </div>
+                <div onClick={copy} className="rk-press" style={{ height: 42, padding: "0 16px", borderRadius: 13, background: C.green, color: C.onDark, display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 700, flex: "none" }}>
+                  <Icon name={copied ? "check" : "share"} size={13} stroke={copied ? 3 : 2} /> {copied ? "Copied" : "Share"}
+                </div>
+              </div>
+              {vm.canManageCode && (
+                <div onClick={() => vm.rotateCode()} className="rk-press" style={{ marginTop: 12, height: 44, borderRadius: 13, background: C.surface, border: `1px solid ${ink(0.12)}`, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12.5, fontWeight: 700, color: C.ink }}>
+                  <Icon name="refresh" size={14} /> Rotate code
+                </div>
+              )}
+              <div style={{ marginTop: 10, fontSize: 11, color: ink(0.5), lineHeight: 1.4 }}>Anyone with this code can request to join. Rotating it invalidates the old one.</div>
+            </div>
+          ) : vm.canManageCode ? (
+            <div style={{ marginTop: 10 }}>
+              <Button variant="green" onClick={() => vm.rotateCode()}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="share" size={15} color={C.onDark} /> Generate invite code</span>
+              </Button>
+              <div style={{ marginTop: 8, fontSize: 11, color: ink(0.5) }}>Create a shareable code so players can request to join your squad.</div>
+            </div>
+          ) : (
+            <div style={{ marginTop: 10, fontSize: 12, color: ink(0.5) }}>No invite code yet.</div>
+          )}
+
+          {/* Rating window */}
+          {vm.canManageRound && (
+            <div style={{ marginTop: 26 }}>
+              <MonoLabel>PLAYER RATINGS</MonoLabel>
+              <div style={{ marginTop: 10, borderRadius: 18, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                <Icon name="rate" size={20} color={vm.votingOpen ? C.green : ink(0.4)} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700 }}>Rating window</div>
+                  <div style={{ fontFamily: MONO, fontSize: 9.5, color: vm.votingOpen ? C.green : ink(0.45), marginTop: 2 }}>{vm.votingOpen ? "OPEN — PLAYERS CAN VOTE" : "CLOSED"}</div>
+                </div>
+                <div onClick={() => (vm.votingOpen ? vm.closeRound() : vm.openRound(false))} className="rk-press" style={{ height: 38, padding: "0 16px", borderRadius: 12, background: vm.votingOpen ? C.surface : C.green, border: vm.votingOpen ? `1px solid ${ink(0.14)}` : "none", color: vm.votingOpen ? C.ink : C.onDark, display: "flex", alignItems: "center", fontSize: 12, fontWeight: 700, flex: "none" }}>
+                  {vm.votingOpen ? "Close" : "Open"}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Manage squad shortcut */}
+          <div style={{ marginTop: 26 }}>
+            <MonoLabel>TEAM</MonoLabel>
+            <div onClick={() => setView("squad")} className="rk-press" style={{ marginTop: 10, borderRadius: 16, background: C.card, border: `1px solid ${ink(0.1)}`, padding: "13px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+              <Icon name="squad" size={18} color={C.ink} />
+              <span style={{ flex: 1, fontSize: 13.5, fontWeight: 700 }}>Manage squad &amp; roles</span>
+              <span style={{ fontFamily: MONO, fontSize: 10, color: ink(0.45) }}>{vm.players.length}</span>
+              <Icon name="chevronRight" size={15} color={ink(0.35)} />
+            </div>
+          </div>
+
+          {/* Leave squad */}
+          {vm.canLeave && (
+            <div style={{ marginTop: 26 }}>
+              <div onClick={() => vm.leaveTeam()} className="rk-press" style={{ borderRadius: 16, background: rust(0.08), border: `1px solid ${rust(0.22)}`, padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, justifyContent: "center", color: C.rust, fontSize: 13.5, fontWeight: 700 }}>
+                <Icon name="logout" size={16} color={C.rust} /> Leave squad
+              </div>
+            </div>
+          )}
+        </ScreenBody>
+      </PhoneShell>
+    );
+  }
+
   /* ── HOME (pitch) ── */
   return (
     <PhoneShell>
@@ -253,7 +343,12 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
           <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.6 }}>{team}</span>
           <Icon name="chevronDown" size={14} color={ink(0.5)} stroke={2.4} />
         </div>
-        <Avatar initials={initialsOf(team)} size={36} ring={C.gold} bg={C.card} />
+        <div onClick={() => setView("settings")} className="rk-press" aria-label="Team settings" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 12, background: C.card, border: `1px solid ${ink(0.12)}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}>
+            <Icon name="settings" size={17} />
+          </div>
+          <Avatar initials={initialsOf(team)} size={36} ring={C.gold} bg={C.card} />
+        </div>
       </div>
       <div style={{ padding: "10px 24px 0", display: "flex", gap: 7, flexWrap: "wrap" }}>
         <Chip variant="gold">MANAGER</Chip>

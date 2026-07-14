@@ -31,6 +31,8 @@ function mapOrganization(row: Record<string, unknown>): Organization {
     joinCode: (row.join_code as string | null) ?? null,
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
+    // Present only on the "orgs I belong to" list, which joins the caller's role.
+    callerRole: (row.caller_role as string | null) ?? null,
   };
 }
 
@@ -332,17 +334,24 @@ export function createMembershipRepository(executor: SqlExecutor): MembershipRep
         const fetchLimit = params.limit + 1;
         let sql: string;
         let values: unknown[];
+        // The caller's org-scoped role rides along so the client can gate the UI
+        // (manager vs player) without a separate manager-only probe.
+        const roleJoin = `LEFT JOIN membership.role_assignments ra
+             ON ra.org_id = o.id AND ra.subject_id = $1
+            AND ra.scope_kind = 'organization' AND ra.revoked_at IS NULL`;
         if (params.cursor) {
-          sql = `SELECT o.* FROM membership.organizations o
+          sql = `SELECT o.*, ra.role AS caller_role FROM membership.organizations o
            INNER JOIN membership.organization_members m ON m.org_id = o.id
+           ${roleJoin}
            WHERE m.subject_id = $1 AND m.status = 'active'
              AND (o.created_at, o.id) < ($3, $4)
            ORDER BY o.created_at DESC, o.id DESC
            LIMIT $2`;
           values = [subjectId, fetchLimit, params.cursor.createdAt, params.cursor.id];
         } else {
-          sql = `SELECT o.* FROM membership.organizations o
+          sql = `SELECT o.*, ra.role AS caller_role FROM membership.organizations o
            INNER JOIN membership.organization_members m ON m.org_id = o.id
+           ${roleJoin}
            WHERE m.subject_id = $1 AND m.status = 'active'
            ORDER BY o.created_at DESC, o.id DESC
            LIMIT $2`;
