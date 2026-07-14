@@ -26,6 +26,7 @@ export function toPublicPlayer(player: Player, votes?: VoteAggregate | null): Pu
     phone: player.phone,
     status: player.status,
     isCaptain: player.isCaptain,
+    claimed: player.subjectId != null,
     createdAt: player.createdAt.toISOString(),
     updatedAt: player.updatedAt.toISOString(),
     archivedAt: player.archivedAt ? player.archivedAt.toISOString() : null,

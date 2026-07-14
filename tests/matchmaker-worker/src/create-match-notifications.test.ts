@@ -20,6 +20,7 @@ function player(id: string, email: string | null, phone: string | null = null): 
     isCaptain: false,
     createdAt: new Date(),
     updatedAt: new Date(),
+    subjectId: null,
     archivedAt: null,
   };
 }

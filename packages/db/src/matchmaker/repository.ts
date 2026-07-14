@@ -53,6 +53,7 @@ function mapPlayer(row: Record<string, unknown>): Player {
     phone: (row.phone as string | null) ?? null,
     status: row.status as Player["status"],
     isCaptain: row.is_captain === true,
+    subjectId: (row.subject_id as string | null) ?? null,
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
     archivedAt: row.archived_at ? new Date(row.archived_at as string) : null,
@@ -523,6 +524,42 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
         return { ok: true, value: mapPlayer(set.rows[0]!) };
       } catch {
         return safeError("Failed to set captain");
+      }
+    },
+
+    async claimPlayer(orgId: string, playerId: string, subjectId: string, now: Date): Promise<MatchmakerResult<Player>> {
+      try {
+        // Only claim an active, currently-unclaimed player. The partial unique
+        // index (org_id, subject_id) enforces one player per subject; a second
+        // claim surfaces as a Postgres unique violation → conflict.
+        const set = await executor.execute<Record<string, unknown>>(
+          `UPDATE matchmaker.players
+             SET subject_id = $3, updated_at = $4
+           WHERE org_id = $1 AND id = $2 AND status = 'active' AND subject_id IS NULL
+           RETURNING *`,
+          [orgId, playerId, subjectId, now.toISOString()],
+        );
+        if (set.rowCount === 0) {
+          // Either the player doesn't exist / isn't active, or it's already claimed.
+          return { ok: false, error: { kind: "conflict", entity: "player" } };
+        }
+        return { ok: true, value: mapPlayer(set.rows[0]!) };
+      } catch (err) {
+        if (isUniqueViolation(err)) return { ok: false, error: { kind: "conflict", entity: "player" } };
+        return safeError("Failed to claim player");
+      }
+    },
+
+    async getPlayerBySubject(orgId: string, subjectId: string): Promise<MatchmakerResult<Player>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.players WHERE org_id = $1 AND subject_id = $2 AND status = 'active'`,
+          [orgId, subjectId],
+        );
+        if (result.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
+        return { ok: true, value: mapPlayer(result.rows[0]!) };
+      } catch {
+        return safeError("Failed to look up player by subject");
       }
     },
 

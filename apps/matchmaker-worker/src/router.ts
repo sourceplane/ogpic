@@ -17,6 +17,7 @@ import { handleShareMatch } from "./handlers/share-match.js";
 import { handleListAvailability } from "./handlers/list-availability.js";
 import { handleSetAvailability } from "./handlers/set-availability.js";
 import { handleSetCaptain } from "./handlers/set-captain.js";
+import { handleClaimPlayer, handleGetMyPlayer } from "./handlers/claim-player.js";
 import { handleCastVotes } from "./handlers/cast-votes.js";
 import { handleGetVotes } from "./handlers/get-votes.js";
 import { handleGetRatingRound, handleOpenRatingRound, handleCloseRatingRound } from "./handlers/rating-round.js";
@@ -28,6 +29,8 @@ const REQUEST_ID_RE = /^[\w-]{1,128}$/;
 export interface ActorContext {
   subjectId: string;
   subjectType: string;
+  /** Caller's email (forwarded by the edge). Used to verify a self-claim. */
+  email?: string | null;
 }
 
 function resolveRequestId(request: Request): string {
@@ -40,12 +43,14 @@ function resolveActor(request: Request): ActorContext | null {
   const subjectId = request.headers.get("x-actor-subject-id");
   const subjectType = request.headers.get("x-actor-subject-type");
   if (!subjectId || !subjectType) return null;
-  return { subjectId, subjectType };
+  return { subjectId, subjectType, email: request.headers.get("x-actor-email") };
 }
 
 const ORG_PLAYERS_RE = /^\/v1\/organizations\/([^/]+)\/players$/;
 const ORG_PLAYER_SUGGEST_RE = /^\/v1\/organizations\/([^/]+)\/players\/suggest-position$/;
 const ORG_PLAYER_CAPTAIN_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)\/captain$/;
+const ORG_PLAYER_MINE_RE = /^\/v1\/organizations\/([^/]+)\/players\/mine$/;
+const ORG_PLAYER_CLAIM_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)\/claim$/;
 const ORG_PLAYER_VOTES_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)\/votes$/;
 const ORG_PLAYER_ID_RE = /^\/v1\/organizations\/([^/]+)\/players\/([^/]+)$/;
 const ORG_ROSTER_SUMMARY_RE = /^\/v1\/organizations\/([^/]+)\/roster\/summary$/;
@@ -92,6 +97,29 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return unauthenticated(requestId);
       return handleSetCaptain(env, requestId, actor, orgUuid, playerUuid);
+    }
+
+    // ── Roster: self-claim (fixed segment; must precede /players/:id) ──
+    const claimMatch = url.pathname.match(ORG_PLAYER_CLAIM_RE);
+    if (claimMatch) {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(claimMatch[1]!);
+      const playerUuid = parsePlayerPublicId(claimMatch[2]!);
+      if (!orgUuid || !playerUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleClaimPlayer(env, requestId, actor, orgUuid, playerUuid);
+    }
+
+    // ── Roster: the caller's own claimed player (precede /players/:id) ──
+    const mineMatch = url.pathname.match(ORG_PLAYER_MINE_RE);
+    if (mineMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(mineMatch[1]!);
+      if (!orgUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleGetMyPlayer(env, requestId, actor, orgUuid);
     }
 
     // ── Rating rounds (voting window: open/close by manager) ──

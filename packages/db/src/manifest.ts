@@ -291,5 +291,14 @@ export const manifest: MigrationManifest = {
       description:
         "Widen the fixtures status CHECK to allow 'live' (kicked-off matches) alongside scheduled/played/cancelled, owned by the matchmaker context",
     },
+    {
+      id: "330_matchmaker_player_subject",
+      context: "matchmaker",
+      path: "330_matchmaker_player_subject/up.sql",
+      checksum:
+        "d006040503c8e20d3d4f39b715998bf09d2cf648dc0ce7188cd24b9759f1997c",
+      description:
+        "Link a roster player to a signed-in account (nullable subject_id + partial unique index per org) so members manage their own availability, owned by the matchmaker context",
+    },
   ],
 };

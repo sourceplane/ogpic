@@ -4,6 +4,8 @@ import type {
   CreateMatchResponse,
   CreatePlayerRequest,
   CreatePlayerResponse,
+  ClaimPlayerResponse,
+  GetMyPlayerResponse,
   CancelMatchResponse,
   DraftRequest,
   DraftResponse,
@@ -81,6 +83,22 @@ export class RosterClient {
   ): Promise<UpdatePlayerResponse> {
     return this.transport.request<UpdatePlayerResponse>(
       { method: "PATCH", path: `${orgBase(orgId)}/players/${encodeURIComponent(playerId)}`, body },
+      opts,
+    );
+  }
+
+  /** GET /v1/organizations/:orgId/players/mine — the caller's claimed player (or null). */
+  mine(orgId: string, opts: RequestOptions = {}): Promise<GetMyPlayerResponse> {
+    return this.transport.request<GetMyPlayerResponse>(
+      { method: "GET", path: `${orgBase(orgId)}/players/mine` },
+      opts,
+    );
+  }
+
+  /** POST /v1/organizations/:orgId/players/:playerId/claim — claim a player as yourself. */
+  claim(orgId: string, playerId: string, opts: RequestOptions = {}): Promise<ClaimPlayerResponse> {
+    return this.transport.request<ClaimPlayerResponse>(
+      { method: "POST", path: `${orgBase(orgId)}/players/${encodeURIComponent(playerId)}/claim` },
       opts,
     );
   }

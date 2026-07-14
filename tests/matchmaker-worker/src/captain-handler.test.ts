@@ -20,6 +20,7 @@ function player(isCaptain: boolean): Player {
     phone: null,
     createdAt: new Date(),
     updatedAt: new Date(),
+    subjectId: null,
     archivedAt: null,
   };
 }
