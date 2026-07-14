@@ -59,6 +59,8 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
   const [day, setDay] = React.useState(0);
   const [time, setTime] = React.useState(1);
   const [turf, setTurf] = React.useState("Riverside Astro");
+  const [repeat, setRepeat] = React.useState(1);
+  const [scheduling, setScheduling] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const [teamsSaved, setTeamsSaved] = React.useState(false);
   const [resultOpen, setResultOpen] = React.useState(false);
@@ -93,13 +95,22 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
     });
   }
 
-  function doSchedule() {
+  async function doSchedule() {
+    if (scheduling) return;
     const chosen = days[day]?.d ?? new Date();
     const [hh, mm] = (TIMES[time] ?? "18:30").split(":");
-    const dt = new Date(chosen);
-    dt.setHours(Number(hh), Number(mm), 0, 0);
-    const ok = vm.onSchedule?.({ scheduledAt: dt.toISOString(), venue: { name: turf.trim() || "TBC", address: null, booked: false, mapsUrl: null } });
-    Promise.resolve(ok).finally(() => setView("draft"));
+    const base = new Date(chosen);
+    base.setHours(Number(hh), Number(mm), 0, 0);
+    const venue = { name: turf.trim() || "TBC", address: null, booked: false, mapsUrl: null };
+    setScheduling(true);
+    // Weekly recurrence: schedule `repeat` fixtures a week apart. Each is drafted
+    // from the current availability and notifies the squad on creation.
+    for (let i = 0; i < repeat; i++) {
+      const dt = new Date(base.getTime() + i * 7 * 24 * 60 * 60 * 1000);
+      await Promise.resolve(vm.onSchedule?.({ scheduledAt: dt.toISOString(), venue }));
+    }
+    setScheduling(false);
+    setView("draft");
   }
 
   const navActive: ManagerTab =
@@ -155,9 +166,20 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
             </div>
           </div>
 
+          <div style={{ marginTop: 20 }}>
+            <MonoLabel>REPEAT</MonoLabel>
+            <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+              {[{ n: 1, label: "Once" }, { n: 4, label: "Weekly ×4" }, { n: 8, label: "Weekly ×8" }].map((r) => (
+                <span key={r.n} onClick={() => setRepeat(r.n)} className="rk-press">
+                  <Chip variant={repeat === r.n ? "green" : "outline"} style={{ padding: "8px 14px", fontSize: 10.5 }}>{r.label}</Chip>
+                </span>
+              ))}
+            </div>
+          </div>
+
           <div style={{ marginTop: 22 }}>
-            <Button variant="green" onClick={doSchedule}>Schedule &amp; notify squad</Button>
-            <div style={{ textAlign: "center", marginTop: 10, fontFamily: MONO, fontSize: 9, color: ink(0.45) }}>PLAYERS GET THE PIN &amp; SET AVAILABILITY IN ONE TAP</div>
+            <Button variant="green" onClick={doSchedule} disabled={scheduling}>{scheduling ? "Scheduling…" : repeat > 1 ? `Schedule ${repeat} weeks & notify` : "Schedule & notify squad"}</Button>
+            <div style={{ textAlign: "center", marginTop: 10, fontFamily: MONO, fontSize: 9, color: ink(0.45) }}>{repeat > 1 ? `${repeat} WEEKLY FIXTURES · SAME DAY & TIME` : "PLAYERS GET THE PIN & SET AVAILABILITY IN ONE TAP"}</div>
           </div>
         </ScreenBody>
       </PhoneShell>
