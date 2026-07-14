@@ -14,6 +14,12 @@ export interface PublicOrganization {
    * (manager vs player) without a manager-only probe; omitted elsewhere.
    */
   role?: string;
+  /**
+   * The squad's shareable join code. Populated by create-organization (minted at
+   * bootstrap) so the creator/manager can share it immediately without a second
+   * gated read; omitted by other endpoints.
+   */
+  joinCode?: string;
   createdAt: string;
 }
 

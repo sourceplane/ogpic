@@ -66,14 +66,16 @@ export default function RondoNewTeamPage() {
       return;
     }
     await qc.invalidateQueries({ queryKey: qk.orgs() });
-    // Fetch the squad's join code for the invite step (best-effort).
-    const code = await wrap(() => client.memberships.getJoinCode(r.data.organization.id));
+    // The create response now carries the minted join code directly; fall back
+    // to the manager getJoinCode probe only if an older API omits it.
+    const org = r.data.organization as { id: string; slug: string; name: string; joinCode?: string };
+    let code: string | null = org.joinCode ?? null;
+    if (!code) {
+      const res = await wrap(() => client.memberships.getJoinCode(org.id));
+      code = res.ok ? ((res.data as { code?: string }).code ?? null) : null;
+    }
     setBusy(false);
-    setCreated({
-      slug: r.data.organization.slug,
-      name: r.data.organization.name,
-      code: code.ok ? ((code.data as { code?: string }).code ?? null) : null,
-    });
+    setCreated({ slug: org.slug, name: org.name, code });
   }
 
   function copyCode() {
