@@ -11,6 +11,7 @@ import * as React from "react";
 import type { RondoVM } from "./use-rondo";
 import { TeamSwitcher, type TeamNav } from "./team-switcher";
 import { AddPlayerSheet } from "./add-player";
+import { PlayerScoreSheet, type EditablePlayer } from "./player-edit";
 import { ProfileSheet } from "./profile-menu";
 import { RateView, GamesView } from "./views";
 import { placeRoster, placeDraft } from "./formation";
@@ -51,6 +52,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
   const [view, setView] = React.useState<View>("pitch");
   const [switcher, setSwitcher] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
+  const [scoreTarget, setScoreTarget] = React.useState<EditablePlayer | null>(null);
   const [profileOpen, setProfileOpen] = React.useState(false);
   const profilePlayers = vm.players.map((p) => ({ name: p.name, email: p.email ?? null, ovr: p.ovr }));
   const [day, setDay] = React.useState(0);
@@ -198,6 +200,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
       <PhoneShell>
         <StatusBar />
         <AddPlayerSheet open={addOpen} onClose={() => setAddOpen(false)} onAdd={vm.addPlayer} />
+        <PlayerScoreSheet player={scoreTarget} onClose={() => setScoreTarget(null)} onSave={vm.setPlayerScore} />
         <div style={{ padding: "12px 24px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.6, color: C.ink }}>Squad</span>
           <span style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 600, color: ink(0.5) }}>{vm.players.length} MEMBERS</span>
@@ -250,12 +253,20 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
             </div>
             <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 7 }}>
               {vm.players.map((m) => (
-                <div key={m.id} style={{ borderRadius: 14, background: C.card, border: `1px solid ${ink(0.1)}`, padding: "10px 14px", display: "flex", alignItems: "center", gap: 12 }}>
+                <div
+                  key={m.id}
+                  onClick={vm.canEditScore ? () => setScoreTarget({ id: m.id, name: m.name, pos: m.pos, skills: m.skills }) : undefined}
+                  className={vm.canEditScore ? "rk-press" : undefined}
+                  style={{ borderRadius: 14, background: C.card, border: `1px solid ${ink(0.1)}`, padding: "10px 14px", display: "flex", alignItems: "center", gap: 12 }}
+                >
                   <Avatar initials={m.initials} size={34} ring={m.isCaptain ? C.green : undefined} />
-                  <span style={{ flex: 1, fontSize: 13.5, fontWeight: 700 }}>{m.name}</span>
-                  {m.isCaptain && <Chip variant="greenSoft" style={{ fontSize: 8.5, padding: "4px 9px", borderRadius: 10 }}>CAPTAIN</Chip>}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13.5, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.name}</div>
+                    {m.isCaptain && <span style={{ fontFamily: MONO, fontSize: 8, letterSpacing: 1, color: C.green }}>CAPTAIN</span>}
+                  </div>
                   <span style={{ fontFamily: MONO, fontSize: 9.5, color: m.posColor }}>{m.pos}</span>
-                  <div onClick={() => vm.releasePlayer(m.id)} className="rk-press" aria-label="Remove"><Icon name="trash" size={14} color={ink(0.35)} /></div>
+                  <span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: C.ink, minWidth: 22, textAlign: "right" }}>{m.ovr}</span>
+                  <div onClick={(e) => { e.stopPropagation(); vm.releasePlayer(m.id); }} className="rk-press" aria-label="Remove"><Icon name="trash" size={14} color={ink(0.35)} /></div>
                 </div>
               ))}
             </div>

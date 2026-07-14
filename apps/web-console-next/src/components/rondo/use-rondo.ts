@@ -62,6 +62,8 @@ export interface RondoLive {
   closeRound?: () => void;
   /** Mint a fresh shareable join code (also mints the first one if none). */
   rotateCode?: () => void;
+  /** Persist a player's per-skill attributes (the OVR is the server-side mean). */
+  setPlayerScore?: (playerId: string, attributes: Record<string, number>) => void;
 }
 
 export interface LiveJoinRequest {
@@ -138,6 +140,18 @@ export function useRondo(seed: RondoSeed = {}) {
   const releasePlayer = (id: string) => {
     setPlayers((ps) => ps.filter((p) => p.id !== id));
     seed.live?.releasePlayer?.(id);
+  };
+
+  const clampSkill = (v: number) => Math.max(1, Math.min(99, Math.round(v)));
+  const ovrOf = (skills: Record<string, number>) => {
+    const vals = Object.values(skills);
+    return vals.length ? clampSkill(vals.reduce((a, b) => a + b, 0) / vals.length) : 1;
+  };
+  const setPlayerScore = (id: string, skills: Record<string, number>) => {
+    const clamped: Record<string, number> = {};
+    for (const [k, v] of Object.entries(skills)) clamped[k] = clampSkill(v);
+    setPlayers((ps) => ps.map((p) => (p.id === id ? { ...p, skills: clamped, ovr: ovrOf(clamped) } : p)));
+    seed.live?.setPlayerScore?.(id, clamped);
   };
 
   const selectTeam = (id: string) => {
@@ -325,6 +339,8 @@ export function useRondo(seed: RondoSeed = {}) {
     captain: enriched.find((p) => p.isCaptain) ?? null,
     makeCaptain,
     releasePlayer,
+    setPlayerScore,
+    canEditScore: !!seed.live?.setPlayerScore,
     joinCode: seed.joinCode ?? null,
     rotateCode: () => seed.live?.rotateCode?.(),
     canManageCode: !!seed.live?.rotateCode,
