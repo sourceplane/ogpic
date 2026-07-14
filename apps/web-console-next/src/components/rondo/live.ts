@@ -56,6 +56,7 @@ export function mapPlayer(p: PublicPlayer): Player {
     skills: { ...p.attributes },
     myStars: {},
     isCaptain: p.isCaptain,
+    email: p.email ?? null,
   };
 }
 

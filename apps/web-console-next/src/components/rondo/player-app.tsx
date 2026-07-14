@@ -12,6 +12,7 @@
 import * as React from "react";
 import type { RondoVM } from "./use-rondo";
 import { TeamSwitcher, type TeamNav } from "./team-switcher";
+import { ProfileSheet } from "./profile-menu";
 import { RateView, GamesView } from "./views";
 import { placeRoster } from "./formation";
 import { C, ink, PhoneShell, StatusBar, Avatar, Icon, PitchCanvas, PlayerToken, BottomNavPlayer, type PlayerTab } from "./kit";
@@ -23,6 +24,8 @@ type View = "pitch" | "rate" | "games";
 export function PlayerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | undefined }) {
   const [view, setView] = React.useState<View>("pitch");
   const [switcher, setSwitcher] = React.useState(false);
+  const [profileOpen, setProfileOpen] = React.useState(false);
+  const profilePlayers = vm.players.map((p) => ({ name: p.name, email: p.email ?? null, ovr: p.ovr }));
 
   const unrated = vm.players.filter((p) => !vm.rated.includes(p.id)).length;
   const nav = <BottomNavPlayer active={view as PlayerTab} rateBadge={unrated} onSelect={(t) => setView(t)} />;
@@ -41,8 +44,11 @@ export function PlayerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | un
           <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.6 }}>{vm.activeTeamName}</span>
           <Icon name="chevronDown" size={14} color={ink(0.5)} stroke={2.4} />
         </div>
-        <Avatar initials="ME" size={36} bg={C.card} ring={ink(0.14)} />
+        <div onClick={() => setProfileOpen(true)} className="rk-press" aria-label="Your profile">
+          <Avatar initials="ME" size={36} bg={C.card} ring={ink(0.14)} />
+        </div>
       </div>
+      <ProfileSheet open={profileOpen} onClose={() => setProfileOpen(false)} players={profilePlayers} />
       <div style={{ padding: "10px 24px 0", display: "flex", gap: 7 }}>
         <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: "5px 10px", borderRadius: 14, background: C.card, border: `1px solid ${ink(0.12)}`, color: C.ink }}>{vm.players.length} PLAYERS</span>
         <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: "5px 10px", borderRadius: 14, background: C.green, color: C.onDark }}>{vm.availableCount} IN</span>
