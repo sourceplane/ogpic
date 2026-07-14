@@ -48,12 +48,25 @@ export async function handleSetAvailability(
   const validated = validateBody(body);
   if (!validated.valid) return validationError(requestId, validated.fields);
 
-  const denied = await requireOrgAction(env, requestId, actor, orgId, "organization.availability.set");
-  if (denied) return denied;
-
   const executor = deps?.repo ? null : createSqlExecutor(env.PLATFORM_DB!);
   try {
     const repo = deps?.repo ?? createMatchmakerRepository(executor!);
+
+    // Managers/organizers may set anyone's availability. A plain member may set
+    // availability only for the roster player they've claimed (subject match) —
+    // self-service RSVP. Any lookup failure preserves the original denial.
+    const denied = await requireOrgAction(env, requestId, actor, orgId, "organization.availability.set");
+    if (denied) {
+      let isSelf = false;
+      try {
+        const target = await repo.getPlayerById(orgId, playerId);
+        isSelf = target.ok && !!target.value.subjectId && target.value.subjectId === actor.subjectId;
+      } catch {
+        isSelf = false;
+      }
+      if (!isSelf) return denied;
+    }
+
     const result = await repo.setAvailability(orgId, playerId, validated.state, new Date());
     if (!result.ok) {
       return errorResponse("internal_error", "Service unavailable", 503, requestId);

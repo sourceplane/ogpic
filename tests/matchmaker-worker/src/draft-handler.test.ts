@@ -20,6 +20,7 @@ function player(id: string, position: Player["position"], rating: number): Playe
     phone: null,
     createdAt: new Date(),
     updatedAt: new Date(),
+    subjectId: null,
     archivedAt: null,
   };
 }

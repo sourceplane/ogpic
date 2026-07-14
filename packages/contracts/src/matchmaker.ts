@@ -54,6 +54,8 @@ export interface PublicPlayer {
   status: PlayerStatus;
   /** True for the team captain (at most one active captain per org). */
   isCaptain: boolean;
+  /** True when a member has claimed this player (self-service availability). */
+  claimed: boolean;
   createdAt: string;
   updatedAt: string;
   archivedAt: string | null;
@@ -93,6 +95,16 @@ export interface UpdatePlayerRequest {
 }
 
 export interface UpdatePlayerResponse {
+  player: PublicPlayer;
+}
+
+/** The roster player the caller has claimed in this org (self-service), or null. */
+export interface GetMyPlayerResponse {
+  player: PublicPlayer | null;
+}
+
+/** Response for a member claiming a roster player as themselves. */
+export interface ClaimPlayerResponse {
   player: PublicPlayer;
 }
 

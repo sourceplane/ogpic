@@ -33,6 +33,8 @@ export interface Player {
   phone: string | null;
   status: PlayerStatus;
   isCaptain: boolean;
+  /** Auth subject that claimed this player (self-service availability); NULL = unclaimed. */
+  subjectId: string | null;
   createdAt: Date;
   updatedAt: Date;
   archivedAt: Date | null;
@@ -208,6 +210,11 @@ export interface MatchmakerRepository {
   archivePlayer(orgId: Uuid, playerId: Uuid, archivedAt: Date): Promise<MatchmakerResult<Player>>;
   /** Make `playerId` the sole captain of the org (clears any other captain). */
   setCaptain(orgId: Uuid, playerId: Uuid, now: Date): Promise<MatchmakerResult<Player>>;
+  /** Claim an unclaimed player for a subject (self-service). Conflict if the
+   *  player is already claimed or the subject already owns another player. */
+  claimPlayer(orgId: Uuid, playerId: Uuid, subjectId: string, now: Date): Promise<MatchmakerResult<Player>>;
+  /** The player a subject has claimed in this org, or not_found when none. */
+  getPlayerBySubject(orgId: Uuid, subjectId: string): Promise<MatchmakerResult<Player>>;
   listPlayersPaged(
     orgId: Uuid,
     params: PageQueryParams,

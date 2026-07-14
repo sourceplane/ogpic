@@ -21,6 +21,7 @@ function player(): Player {
     phone: null,
     createdAt: new Date(),
     updatedAt: new Date(),
+    subjectId: null,
     archivedAt: null,
   };
 }
