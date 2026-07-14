@@ -282,5 +282,14 @@ export const manifest: MigrationManifest = {
       description:
         "Widen the notification channel CHECK constraints to allow 'whatsapp' alongside 'email', owned by the notifications context",
     },
+    {
+      id: "320_matchmaker_live_status",
+      context: "matchmaker",
+      path: "320_matchmaker_live_status/up.sql",
+      checksum:
+        "6fc1ad0ab658af5232204cd8337b74c9fa8bf6c499b859e7e01dd34aa7e03640",
+      description:
+        "Widen the fixtures status CHECK to allow 'live' (kicked-off matches) alongside scheduled/played/cancelled, owned by the matchmaker context",
+    },
   ],
 };
