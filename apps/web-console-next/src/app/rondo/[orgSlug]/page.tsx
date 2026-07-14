@@ -67,6 +67,13 @@ export default function ConnectedRondoPage() {
     () => wrap(async () => (await client.roster.getRatingRound(orgId!)).round),
     { enabled: !!orgId },
   );
+  // The caller's own claimed player (self-service availability); null when unclaimed.
+  const myPlayer = useApiQuery(
+    orgId ? ["my-player", orgId] : ["my-player", "pending"],
+    () => wrap(async () => (await client.roster.mine(orgId!)).player),
+    { enabled: !!orgId },
+  );
+  const myPlayerId = myPlayer.data?.id ?? null;
 
   // Live backend handlers — memoised so RondoApp's hook keeps a stable reference.
   const live = React.useMemo<RondoLive>(() => {
@@ -175,6 +182,20 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: qk.fixtures(orgId) }),
         );
       },
+      claimPlayer: async (playerId: string) => {
+        const r = await wrap(() => client.roster.claim(orgId, playerId));
+        if (r.ok) {
+          await qc.invalidateQueries({ queryKey: ["my-player", orgId] });
+          await qc.invalidateQueries({ queryKey: qk.roster(orgId) });
+        }
+        return r.ok;
+      },
+      setMyAvailability: (state: Availability) => {
+        if (!myPlayerId) return;
+        void wrap(() => client.availability.set(orgId, myPlayerId, { state })).then(() =>
+          qc.invalidateQueries({ queryKey: ["availability", orgId] }),
+        );
+      },
       schedule: async ({ scheduledAt, venue }) => {
         // Auto-balance the available squad into two sides, then persist the
         // fixture with the chosen venue. Voting-blended ratings drive the draft.
@@ -193,7 +214,7 @@ export default function ConnectedRondoPage() {
         return res.ok;
       },
     };
-  }, [orgId, client, qc, router]);
+  }, [orgId, client, qc, router, myPlayerId]);
 
   const loading =
     !ready ||
@@ -219,6 +240,7 @@ export default function ConnectedRondoPage() {
     matches: matchRows(fixtures.data ?? []),
     nextMatch: nextActionableMatch(fixtures.data ?? []),
     playerStats: computePlayerStats(fixtures.data ?? []),
+    myPlayerId,
     ...(joinCode.data ? { joinCode: joinCode.data } : {}),
     joinRequests: joinRequestRows(joinReqs.data ?? []),
     votingOpen: (ratingRound.data ?? null) != null,

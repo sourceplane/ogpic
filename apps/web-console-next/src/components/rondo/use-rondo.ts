@@ -95,6 +95,10 @@ export interface RondoLive {
   saveTeams?: (matchId: string, teamA: TeamPayload, teamB: TeamPayload) => void;
   /** Record the final score → status 'played'. */
   recordResult?: (matchId: string, scoreA: number, scoreB: number) => void;
+  /** Claim a roster player as yourself (email must match). Resolves true on success. */
+  claimPlayer?: (playerId: string) => Promise<boolean>;
+  /** Set the caller's own availability (for their claimed player). */
+  setMyAvailability?: (state: Availability) => void;
 }
 
 export interface LiveJoinRequest {
@@ -114,6 +118,8 @@ export interface RondoSeed {
   matches?: LiveMatchRow[];
   nextMatch?: NextMatch | null;
   playerStats?: Record<string, PlayerStats>;
+  /** The caller's own claimed player id (self-service availability), or null. */
+  myPlayerId?: string | null;
   joinCode?: string;
   joinRequests?: LiveJoinRequest[];
   votingOpen?: boolean;
@@ -370,6 +376,17 @@ export function useRondo(seed: RondoSeed = {}) {
     liveMatches: seed.matches ?? null,
     nextMatch: seed.nextMatch ?? null,
     playerStats: seed.playerStats ?? {},
+    myPlayerId: seed.myPlayerId ?? null,
+    myAvailability: seed.myPlayerId ? availOf(seed.myPlayerId) : null,
+    canSelfRSVP: !!seed.myPlayerId && !!seed.live?.setMyAvailability,
+    canClaim: !seed.myPlayerId && !!seed.live?.claimPlayer,
+    setMyAvailability: (state: Availability) => {
+      const id = seed.myPlayerId;
+      if (!id) return;
+      setAvailability((a) => ({ ...a, [id]: state }));
+      seed.live?.setMyAvailability?.(state);
+    },
+    claimPlayer: (playerId: string) => seed.live?.claimPlayer?.(playerId) ?? Promise.resolve(false),
     startMatch: () => {
       const id = seed.nextMatch?.id;
       if (id) seed.live?.startMatch?.(id);
