@@ -10,20 +10,23 @@
   "minify": false,
   "vars": {
     "ENVIRONMENT": "local",
-    "DEBUG_DELIVERY": "true"
+    "DEBUG_DELIVERY": "true",
+    "ORG_CREATION_UNRESTRICTED": "true"
   },
   "env": {
     "dev": {
       "vars": {
         "ENVIRONMENT": "dev",
-        "DEBUG_DELIVERY": "true"
+        "DEBUG_DELIVERY": "true",
+        "ORG_CREATION_UNRESTRICTED": "true"
       }
     },
     "stage": {
       "workers_dev": false,
       "vars": {
         "ENVIRONMENT": "stage",
-        "DEBUG_DELIVERY": "true"
+        "DEBUG_DELIVERY": "true",
+        "ORG_CREATION_UNRESTRICTED": "true"
       },
       "hyperdrive": [
         {
@@ -50,7 +53,8 @@
       "workers_dev": false,
       "vars": {
         "ENVIRONMENT": "prod",
-        "DEBUG_DELIVERY": "false"
+        "DEBUG_DELIVERY": "false",
+        "ORG_CREATION_UNRESTRICTED": "true"
       },
       "hyperdrive": [
         {

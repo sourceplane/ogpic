@@ -80,6 +80,11 @@ async function gateAdditionalOrg(
   deps: CreateOrganizationDeps | undefined,
   gateRepo: Pick<MembershipRepository, "listOrganizationsForSubject"> | null,
 ): Promise<GateOutcome> {
+  // Rondo: squads are teams and a user may be in several at once — there is no
+  // per-org paywall. When creation is unrestricted, additional orgs are always
+  // allowed (standalone), skipping the MO2 multi-org billing gate.
+  if (env.ORG_CREATION_UNRESTRICTED === "true") return { kind: "allow" };
+
   // Skip the gate for the legacy deps path that doesn't opt into billing.
   if (deps && !deps.checkEntitlement) return { kind: "allow" };
 
