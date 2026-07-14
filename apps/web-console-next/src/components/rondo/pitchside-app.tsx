@@ -10,10 +10,19 @@ import { useRondo, type RondoSeed } from "./use-rondo";
 import { ManagerApp } from "./manager-app";
 import { PlayerApp } from "./player-app";
 import { DEMO_SEED } from "./demo-seed";
+import type { TeamNav } from "./team-switcher";
 
-export function PitchsideApp({ seed, role }: { seed: RondoSeed; role: "manager" | "player" }) {
+export function PitchsideApp({
+  seed,
+  role,
+  teamNav,
+}: {
+  seed: RondoSeed;
+  role: "manager" | "player";
+  teamNav?: TeamNav;
+}) {
   const vm = useRondo(seed);
-  return role === "manager" ? <ManagerApp vm={vm} /> : <PlayerApp vm={vm} />;
+  return role === "manager" ? <ManagerApp vm={vm} teamNav={teamNav} /> : <PlayerApp vm={vm} teamNav={teamNav} />;
 }
 
 /**
@@ -28,5 +37,15 @@ export function PitchsideDemo() {
     const r = new URLSearchParams(window.location.search).get("role");
     if (r === "player") setRole("player");
   }, []);
-  return <PitchsideApp seed={DEMO_SEED} role={role} />;
+  const go = (path: string) => {
+    if (typeof window !== "undefined") window.location.href = path;
+  };
+  const teamNav: TeamNav = {
+    teams: [{ slug: "demo", name: "Northside FC", crest: "N" }],
+    currentSlug: "demo",
+    onSelect: () => {},
+    onCreate: () => go("/rondo/new"),
+    onJoin: () => go("/rondo/join"),
+  };
+  return <PitchsideApp seed={DEMO_SEED} role={role} teamNav={teamNav} />;
 }
