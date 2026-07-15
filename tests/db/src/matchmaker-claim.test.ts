@@ -80,6 +80,38 @@ describe("matchmaker repository — claimPlayer / getPlayerBySubject", () => {
   });
 });
 
+describe("matchmaker repository — match payments", () => {
+  const MATCH = asUuid("33333333-3333-3333-3333-333333333333");
+  const NOW2 = new Date("2026-07-14T20:00:00.000Z");
+
+  it("upserts a paid flag (insert-or-update)", async () => {
+    const row = { org_id: ORG, match_id: MATCH, player_id: PLAYER, paid: true, updated_at: NOW2.toISOString() };
+    const { executor, queries } = fakeExecutor({ rows: [row], rowCount: 1 });
+    const repo = createMatchmakerRepository(executor);
+    const res = await repo.setMatchPayment(ORG, MATCH, PLAYER, true, NOW2);
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.value.paid).toBe(true);
+    const q = queries[0]!;
+    expect(q.text).toContain("INSERT INTO matchmaker.match_payments");
+    expect(q.text).toContain("ON CONFLICT (org_id, match_id, player_id)");
+    expect(q.params).toEqual([ORG, MATCH, PLAYER, true, NOW2.toISOString()]);
+  });
+
+  it("lists a match's payment rows", async () => {
+    const row = { org_id: ORG, match_id: MATCH, player_id: PLAYER, paid: false, updated_at: NOW2.toISOString() };
+    const { executor, queries } = fakeExecutor({ rows: [row], rowCount: 1 });
+    const repo = createMatchmakerRepository(executor);
+    const res = await repo.listMatchPayments(ORG, MATCH);
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.value).toHaveLength(1);
+      expect(res.value[0]!.paid).toBe(false);
+    }
+    expect(queries[0]!.text).toContain("FROM matchmaker.match_payments");
+    expect(queries[0]!.params).toEqual([ORG, MATCH]);
+  });
+});
+
 describe("matchmaker repository — listScheduledMatchesInWindow (reminder cron)", () => {
   it("queries scheduled fixtures within the [from, to] window", async () => {
     const from = new Date("2026-07-14T20:00:00.000Z");

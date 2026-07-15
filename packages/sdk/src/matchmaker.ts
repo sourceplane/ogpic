@@ -7,6 +7,9 @@ import type {
   ClaimPlayerResponse,
   GetMyPlayerResponse,
   CancelMatchResponse,
+  ListMatchPaymentsResponse,
+  SetMatchPaymentRequest,
+  SetMatchPaymentResponse,
   DraftRequest,
   DraftResponse,
   GetMatchResponse,
@@ -255,6 +258,22 @@ export class FixturesClient {
   share(orgId: string, matchId: string, opts: RequestOptions = {}): Promise<MatchShareResponse> {
     return this.transport.request<MatchShareResponse>(
       { method: "GET", path: `${orgBase(orgId)}/matches/${encodeURIComponent(matchId)}/share` },
+      opts,
+    );
+  }
+
+  /** GET /v1/organizations/:orgId/matches/:matchId/payments — pitch-fee ledger. */
+  listPayments(orgId: string, matchId: string, opts: RequestOptions = {}): Promise<ListMatchPaymentsResponse> {
+    return this.transport.request<ListMatchPaymentsResponse>(
+      { method: "GET", path: `${orgBase(orgId)}/matches/${encodeURIComponent(matchId)}/payments` },
+      opts,
+    );
+  }
+
+  /** PUT /v1/organizations/:orgId/matches/:matchId/payments/:playerId — set paid. */
+  setPayment(orgId: string, matchId: string, playerId: string, body: SetMatchPaymentRequest, opts: RequestOptions = {}): Promise<SetMatchPaymentResponse> {
+    return this.transport.request<SetMatchPaymentResponse>(
+      { method: "PUT", path: `${orgBase(orgId)}/matches/${encodeURIComponent(matchId)}/payments/${encodeURIComponent(playerId)}`, body },
       opts,
     );
   }

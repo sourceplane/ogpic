@@ -9,6 +9,7 @@ import type {
   MatchCursorPosition,
   MatchPagedResult,
   MatchPageQueryParams,
+  MatchPayment,
   MatchStatus,
   MatchmakerRepository,
   MatchmakerResult,
@@ -429,6 +430,54 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
         return { ok: true, value: result.rowCount ?? 0 };
       } catch {
         return safeError("Failed to auto-start due matches");
+      }
+    },
+
+    async listMatchPayments(orgId: string, matchId: string): Promise<MatchmakerResult<MatchPayment[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT org_id, match_id, player_id, paid, updated_at
+           FROM matchmaker.match_payments WHERE org_id = $1 AND match_id = $2`,
+          [orgId, matchId],
+        );
+        return {
+          ok: true,
+          value: result.rows.map((r) => ({
+            orgId: r.org_id as string,
+            matchId: r.match_id as string,
+            playerId: r.player_id as string,
+            paid: r.paid === true,
+            updatedAt: new Date(r.updated_at as string),
+          })),
+        };
+      } catch {
+        return safeError("Failed to list match payments");
+      }
+    },
+
+    async setMatchPayment(orgId: string, matchId: string, playerId: string, paid: boolean, now: Date): Promise<MatchmakerResult<MatchPayment>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `INSERT INTO matchmaker.match_payments (org_id, match_id, player_id, paid, updated_at)
+           VALUES ($1, $2, $3, $4, $5)
+           ON CONFLICT (org_id, match_id, player_id)
+           DO UPDATE SET paid = EXCLUDED.paid, updated_at = EXCLUDED.updated_at
+           RETURNING org_id, match_id, player_id, paid, updated_at`,
+          [orgId, matchId, playerId, paid, now.toISOString()],
+        );
+        const r = result.rows[0]!;
+        return {
+          ok: true,
+          value: {
+            orgId: r.org_id as string,
+            matchId: r.match_id as string,
+            playerId: r.player_id as string,
+            paid: r.paid === true,
+            updatedAt: new Date(r.updated_at as string),
+          },
+        };
+      } catch {
+        return safeError("Failed to set match payment");
       }
     },
 

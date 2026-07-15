@@ -5,6 +5,7 @@ export type {
   Availability,
   AvailabilityState,
   Match,
+  MatchPayment,
   MatchStatus,
   MatchTeamPlayer,
   MatchTeamSnapshot,

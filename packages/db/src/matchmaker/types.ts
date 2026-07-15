@@ -191,6 +191,15 @@ export interface CastVotesInput {
   now: Date;
 }
 
+/** A per-match payment ledger row: has this player paid for the pitch? */
+export interface MatchPayment {
+  orgId: string;
+  matchId: string;
+  playerId: string;
+  paid: boolean;
+  updatedAt: Date;
+}
+
 export type RatingRoundStatus = "open" | "closed";
 
 /** A manager-gated voting window. At most one is open per org at a time. */
@@ -236,6 +245,11 @@ export interface MatchmakerRepository {
    *  used to send availability reminders. */
   listScheduledMatchesInWindow(from: Date, to: Date): Promise<MatchmakerResult<Match[]>>;
   listMatchesPaged(orgId: Uuid, params: MatchPageQueryParams): Promise<MatchmakerResult<MatchPagedResult<Match>>>;
+
+  /** All payment rows for a match (who has paid for the pitch). */
+  listMatchPayments(orgId: Uuid, matchId: Uuid): Promise<MatchmakerResult<MatchPayment[]>>;
+  /** Upsert a player's paid flag for a match. */
+  setMatchPayment(orgId: Uuid, matchId: Uuid, playerId: Uuid, paid: boolean, now: Date): Promise<MatchmakerResult<MatchPayment>>;
 
   listAvailability(orgId: Uuid): Promise<MatchmakerResult<Availability[]>>;
   setAvailability(
