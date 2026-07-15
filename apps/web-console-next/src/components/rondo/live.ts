@@ -135,6 +135,7 @@ export function buildLiveSeed(args: {
   nextMatch?: NextMatch | null;
   playerStats?: Record<string, RawPlayerStats>;
   myPlayerId?: string | null;
+  payments?: Record<string, boolean>;
   joinCode?: string;
   joinRequests?: LiveJoinRequest[];
   votingOpen?: boolean;
@@ -163,6 +164,7 @@ export function buildLiveSeed(args: {
     ...(args.nextMatch ? { nextMatch: args.nextMatch } : {}),
     ...(args.playerStats ? { playerStats: args.playerStats } : {}),
     ...(args.myPlayerId ? { myPlayerId: args.myPlayerId } : {}),
+    ...(args.payments ? { payments: args.payments } : {}),
     ...(args.joinCode ? { joinCode: args.joinCode } : {}),
     ...(args.joinRequests ? { joinRequests: args.joinRequests } : {}),
     ...(args.votingOpen !== undefined ? { votingOpen: args.votingOpen } : {}),

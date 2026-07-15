@@ -99,6 +99,8 @@ export interface RondoLive {
   claimPlayer?: (playerId: string) => Promise<boolean>;
   /** Set the caller's own availability (for their claimed player). */
   setMyAvailability?: (state: Availability) => void;
+  /** Toggle whether a player has paid for the current match's pitch. */
+  setPayment?: (playerId: string, paid: boolean) => void;
 }
 
 export interface LiveJoinRequest {
@@ -121,6 +123,8 @@ export interface RondoSeed {
   playerStats?: Record<string, PlayerStats>;
   /** The caller's own claimed player id (self-service availability), or null. */
   myPlayerId?: string | null;
+  /** playerId → paid, for the current match's pitch-fee ledger. */
+  payments?: Record<string, boolean>;
   joinCode?: string;
   joinRequests?: LiveJoinRequest[];
   votingOpen?: boolean;
@@ -161,6 +165,7 @@ export function useRondo(seed: RondoSeed = {}) {
   const [membersRemoved, setMembersRemoved] = React.useState<string[]>([]);
   const [invitesResolved, setInvitesResolved] = React.useState<Record<string, "accepted" | "declined">>({});
   const [seq, setSeq] = React.useState(0); // deterministic id source (no Date.now in render)
+  const [paymentsLocal, setPaymentsLocal] = React.useState<Record<string, boolean>>({});
 
   const go = React.useCallback((s: Screen) => setScreen(s), []);
   const availOf = React.useCallback((id: string): Availability => availability[id] ?? "in", [availability]);
@@ -404,6 +409,12 @@ export function useRondo(seed: RondoSeed = {}) {
       seed.live?.setMyAvailability?.(state);
     },
     claimPlayer: (playerId: string) => seed.live?.claimPlayer?.(playerId) ?? Promise.resolve(false),
+    payments: { ...(seed.payments ?? {}), ...paymentsLocal },
+    canManagePayments: !!seed.live?.setPayment && !!seed.nextMatch,
+    setPayment: (playerId: string, paid: boolean) => {
+      setPaymentsLocal((m) => ({ ...m, [playerId]: paid }));
+      seed.live?.setPayment?.(playerId, paid);
+    },
     startMatch: () => {
       const id = seed.nextMatch?.id;
       if (id) seed.live?.startMatch?.(id);
