@@ -74,6 +74,15 @@ export default function ConnectedRondoPage() {
     { enabled: !!orgId },
   );
   const myPlayerId = myPlayer.data?.id ?? null;
+  const nextMatchId = nextActionableMatch(fixtures.data ?? [])?.id ?? null;
+  // Pitch-fee ledger for the current match (manager-only; viewers get 404 → empty).
+  const paymentsQuery = useApiQuery(
+    nextMatchId ? ["payments", orgId, nextMatchId] : ["payments", "pending"],
+    () => wrap(async () => (await client.fixtures.listPayments(orgId!, nextMatchId!)).payments),
+    { enabled: !!orgId && !!nextMatchId },
+  );
+  const paymentsMap: Record<string, boolean> = {};
+  for (const p of paymentsQuery.data ?? []) paymentsMap[p.playerId] = p.paid;
 
   // Live backend handlers — memoised so RondoApp's hook keeps a stable reference.
   const live = React.useMemo<RondoLive>(() => {
@@ -196,6 +205,12 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: ["availability", orgId] }),
         );
       },
+      setPayment: (playerId: string, paid: boolean) => {
+        if (!nextMatchId) return;
+        void wrap(() => client.fixtures.setPayment(orgId, nextMatchId, playerId, { paid })).then(() =>
+          qc.invalidateQueries({ queryKey: ["payments", orgId, nextMatchId] }),
+        );
+      },
       schedule: async ({ scheduledAt, venue }) => {
         // Auto-balance the available squad into two sides, then persist the
         // fixture with the chosen venue. Voting-blended ratings drive the draft.
@@ -214,7 +229,7 @@ export default function ConnectedRondoPage() {
         return res.ok;
       },
     };
-  }, [orgId, client, qc, router, myPlayerId]);
+  }, [orgId, client, qc, router, myPlayerId, nextMatchId]);
 
   const loading =
     !ready ||
@@ -242,6 +257,7 @@ export default function ConnectedRondoPage() {
     nextMatch: nextActionableMatch(fixtures.data ?? []),
     playerStats: computePlayerStats(fixtures.data ?? []),
     myPlayerId,
+    payments: paymentsMap,
     ...(joinCode.data ? { joinCode: joinCode.data } : {}),
     joinRequests: joinRequestRows(joinReqs.data ?? []),
     votingOpen: (ratingRound.data ?? null) != null,

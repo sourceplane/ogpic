@@ -13,6 +13,7 @@ import { TeamSwitcher, type TeamNav } from "./team-switcher";
 import { AddPlayerSheet } from "./add-player";
 import { PlayerScoreSheet, type EditablePlayer } from "./player-edit";
 import { MatchResultSheet } from "./match-result";
+import { PaymentsSheet } from "./payments-sheet";
 import { ProfileSheet } from "./profile-menu";
 import { RateView, GamesView } from "./views";
 import { placeRoster, placeDraft } from "./formation";
@@ -64,6 +65,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
   const [copied, setCopied] = React.useState(false);
   const [teamsSaved, setTeamsSaved] = React.useState(false);
   const [resultOpen, setResultOpen] = React.useState(false);
+  const [paymentsOpen, setPaymentsOpen] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
@@ -451,13 +453,23 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
             <div style={{ marginTop: 8, fontFamily: MONO, fontSize: 8, color: ink(0.4) }}>NEXT UP AUTO-PROMOTES WHEN A SPOT FREES</div>
           </div>
         )}
-        {vm.canRecordResult && vm.nextMatch && (
-          <div onClick={() => setResultOpen(true)} className="rk-press" style={{ marginTop: 10, height: 46, borderRadius: 14, background: vm.nextMatch.status === "live" ? C.green : C.card, border: vm.nextMatch.status === "live" ? "none" : `1px solid ${ink(0.14)}`, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12.5, fontWeight: 700, color: vm.nextMatch.status === "live" ? C.onDark : C.ink }}>
-            <Icon name="rate" size={15} color={vm.nextMatch.status === "live" ? C.onDark : C.green} /> Record result
+        {(vm.canRecordResult || vm.canManagePayments) && vm.nextMatch && (
+          <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+            {vm.canRecordResult && (
+              <div onClick={() => setResultOpen(true)} className="rk-press" style={{ flex: 1, height: 46, borderRadius: 14, background: vm.nextMatch.status === "live" ? C.green : C.card, border: vm.nextMatch.status === "live" ? "none" : `1px solid ${ink(0.14)}`, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12.5, fontWeight: 700, color: vm.nextMatch.status === "live" ? C.onDark : C.ink }}>
+                <Icon name="rate" size={15} color={vm.nextMatch.status === "live" ? C.onDark : C.green} /> Result
+              </div>
+            )}
+            {vm.canManagePayments && (
+              <div onClick={() => setPaymentsOpen(true)} className="rk-press" style={{ flex: 1, height: 46, borderRadius: 14, background: C.card, border: `1px solid ${ink(0.14)}`, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12.5, fontWeight: 700, color: C.ink }}>
+                <Icon name="check" size={15} color={C.green} stroke={2.5} /> Payments
+              </div>
+            )}
           </div>
         )}
       </div>
       <MatchResultSheet open={resultOpen} onClose={() => setResultOpen(false)} onSave={(a, b) => vm.recordResult(a, b)} />
+      <PaymentsSheet open={paymentsOpen} onClose={() => setPaymentsOpen(false)} players={vm.players.map((p) => ({ id: p.id, name: p.name, initials: p.initials, pos: p.pos, posColor: p.posColor }))} paid={vm.payments} onToggle={(id, paid) => vm.setPayment(id, paid)} />
       {nav}
     </PhoneShell>
   );
