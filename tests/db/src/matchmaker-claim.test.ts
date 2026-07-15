@@ -79,3 +79,20 @@ describe("matchmaker repository — claimPlayer / getPlayerBySubject", () => {
     expect(res.ok).toBe(false);
   });
 });
+
+describe("matchmaker repository — listScheduledMatchesInWindow (reminder cron)", () => {
+  it("queries scheduled fixtures within the [from, to] window", async () => {
+    const from = new Date("2026-07-14T20:00:00.000Z");
+    const to = new Date("2026-07-15T20:00:00.000Z");
+    const { executor, queries } = fakeExecutor({ rows: [], rowCount: 0 });
+    const repo = createMatchmakerRepository(executor);
+    const res = await repo.listScheduledMatchesInWindow(from, to);
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.value).toEqual([]);
+    const q = queries[0]!;
+    expect(q.text).toContain("status = 'scheduled'");
+    expect(q.text).toContain("scheduled_at >= $1");
+    expect(q.text).toContain("scheduled_at <= $2");
+    expect(q.params).toEqual([from.toISOString(), to.toISOString()]);
+  });
+});

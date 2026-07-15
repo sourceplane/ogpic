@@ -432,6 +432,22 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
       }
     },
 
+    async listScheduledMatchesInWindow(from: Date, to: Date): Promise<MatchmakerResult<Match[]>> {
+      // System cron (all orgs): scheduled fixtures kicking off within [from, to],
+      // used to remind players who haven't confirmed availability.
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.matches
+           WHERE status = 'scheduled' AND scheduled_at >= $1 AND scheduled_at <= $2
+           ORDER BY scheduled_at ASC`,
+          [from.toISOString(), to.toISOString()],
+        );
+        return { ok: true, value: result.rows.map(mapMatch) };
+      } catch {
+        return safeError("Failed to list scheduled matches in window");
+      }
+    },
+
     async listMatchesPaged(
       orgId: string,
       params: MatchPageQueryParams,
