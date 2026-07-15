@@ -16,6 +16,7 @@ import { wrap } from "@/lib/api";
 import { C, ink, green, gold, Avatar, Icon } from "./kit";
 import { PlayerStatsSheet } from "./player-stats";
 import { getStoredTheme, applyTheme, type Theme } from "./theme";
+import { enableNotifications, notifyState, type NotifyState } from "./notifications";
 import type { PlayerStats } from "./use-rondo";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
@@ -50,7 +51,11 @@ export function ProfileSheet({
   const [busy, setBusy] = React.useState(false);
   const [statsOpen, setStatsOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<Theme>("system");
-  React.useEffect(() => setTheme(getStoredTheme()), []);
+  const [notif, setNotif] = React.useState<NotifyState>("default");
+  React.useEffect(() => {
+    setTheme(getStoredTheme());
+    setNotif(notifyState());
+  }, []);
 
   const profile = useApiQuery(
     ["auth-profile"],
@@ -152,6 +157,24 @@ export function ProfileSheet({
             );
           })}
         </div>
+
+        {/* notifications */}
+        {notif !== "unsupported" && (
+          <div style={{ marginTop: 16, borderRadius: 16, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "13px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: green(0.12), display: "flex", alignItems: "center", justifyContent: "center", color: C.green, flex: "none" }}><Icon name="bell" size={18} /></div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13.5, fontWeight: 700 }}>Notifications</div>
+              <div style={{ fontFamily: MONO, fontSize: 9, color: ink(0.45), marginTop: 2 }}>MATCH &amp; AVAILABILITY ALERTS</div>
+            </div>
+            {notif === "granted" ? (
+              <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: C.green }}>ON</span>
+            ) : notif === "denied" ? (
+              <span style={{ fontFamily: MONO, fontSize: 9.5, color: C.rust }}>BLOCKED</span>
+            ) : (
+              <div onClick={() => { void enableNotifications().then(setNotif); }} className="rk-press" style={{ height: 34, padding: "0 14px", borderRadius: 11, background: C.green, color: C.onDark, display: "flex", alignItems: "center", fontSize: 12, fontWeight: 700 }}>Enable</div>
+            )}
+          </div>
+        )}
 
         {/* sign out */}
         <div
