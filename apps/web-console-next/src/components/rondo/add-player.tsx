@@ -20,12 +20,14 @@ export function AddPlayerSheet({
 }: {
   open: boolean;
   onClose: () => void;
-  onAdd: (input: { name: string; position: string; email?: string | null; phone?: string | null }) => void;
+  onAdd: (input: { name: string; position: string; email?: string | null; phone?: string | null }) => Promise<{ ok: boolean; message?: string }>;
 }) {
   const [name, setName] = React.useState("");
   const [pos, setPos] = React.useState<Position>("MID");
   const [email, setEmail] = React.useState("");
   const [phone, setPhone] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   // Reset when the sheet re-opens so a fresh add starts blank.
   React.useEffect(() => {
@@ -34,21 +36,27 @@ export function AddPlayerSheet({
       setPos("MID");
       setEmail("");
       setPhone("");
+      setBusy(false);
+      setError(null);
     }
   }, [open]);
 
   if (!open) return null;
 
-  const canAdd = name.trim().length > 0;
-  function submit() {
-    if (!canAdd) return;
-    onAdd({
+  const canAdd = name.trim().length > 0 && !busy;
+  async function submit() {
+    if (name.trim().length === 0 || busy) return;
+    setBusy(true);
+    setError(null);
+    const res = await onAdd({
       name: name.trim(),
       position: pos,
       email: email.trim() ? email.trim() : null,
       phone: phone.trim() ? phone.trim() : null,
     });
-    onClose();
+    setBusy(false);
+    if (res.ok) onClose();
+    else setError(res.message || "Couldn't add the player. Try again.");
   }
 
   return (
@@ -118,13 +126,17 @@ export function AddPlayerSheet({
           />
         </div>
 
+        {error && (
+          <div style={{ marginTop: 16, padding: "10px 14px", borderRadius: 12, background: "rgba(176,81,47,.12)", border: "1px solid rgba(176,81,47,.3)", color: C.rust, fontSize: 12.5 }}>{error}</div>
+        )}
+
         <button
           onClick={submit}
           disabled={!canAdd}
           className="rk-press"
           style={{ marginTop: 20, width: "100%", height: 54, borderRadius: 16, border: "none", background: canAdd ? C.green : green(0.3), color: C.onDark, fontFamily: "inherit", fontSize: 14.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: canAdd ? "pointer" : "default", opacity: canAdd ? 1 : 0.7 }}
         >
-          <Icon name="check" size={16} color={C.onDark} stroke={3} /> Add to squad
+          <Icon name="check" size={16} color={C.onDark} stroke={3} /> {busy ? "Adding…" : "Add to squad"}
         </button>
       </div>
     </div>
