@@ -14,6 +14,7 @@ import { handleGetMatch } from "./handlers/get-match.js";
 import { handleUpdateMatch } from "./handlers/update-match.js";
 import { handleCancelMatch } from "./handlers/cancel-match.js";
 import { handleShareMatch } from "./handlers/share-match.js";
+import { handleListMatchPayments, handleSetMatchPayment } from "./handlers/match-payments.js";
 import { handleListAvailability } from "./handlers/list-availability.js";
 import { handleSetAvailability } from "./handlers/set-availability.js";
 import { handleSetCaptain } from "./handlers/set-captain.js";
@@ -59,6 +60,8 @@ const ORG_RATING_ROUND_ACTION_RE = /^\/v1\/organizations\/([^/]+)\/rating-round\
 const ORG_DRAFT_RE = /^\/v1\/organizations\/([^/]+)\/draft$/;
 const ORG_MATCHES_RE = /^\/v1\/organizations\/([^/]+)\/matches$/;
 const ORG_MATCH_SHARE_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/share$/;
+const ORG_MATCH_PAYMENTS_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/payments$/;
+const ORG_MATCH_PAYMENT_PLAYER_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/payments\/([^/]+)$/;
 const ORG_MATCH_ID_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)$/;
 const ORG_AVAILABILITY_RE = /^\/v1\/organizations\/([^/]+)\/availability$/;
 const ORG_AVAILABILITY_PLAYER_RE = /^\/v1\/organizations\/([^/]+)\/availability\/([^/]+)$/;
@@ -215,6 +218,29 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return unauthenticated(requestId);
       return handleShareMatch(env, requestId, actor, orgUuid, matchUuid);
+    }
+
+    // ── Fixtures: payments (fixed segment; must precede /matches/:id) ──
+    const paymentPlayerMatch = url.pathname.match(ORG_MATCH_PAYMENT_PLAYER_RE);
+    if (paymentPlayerMatch) {
+      if (request.method !== "PUT") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(paymentPlayerMatch[1]!);
+      const matchUuid = parseMatchPublicId(paymentPlayerMatch[2]!);
+      const playerUuid = parsePlayerPublicId(paymentPlayerMatch[3]!);
+      if (!orgUuid || !matchUuid || !playerUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleSetMatchPayment(request, env, requestId, actor, orgUuid, matchUuid, playerUuid);
+    }
+    const paymentsMatch = url.pathname.match(ORG_MATCH_PAYMENTS_RE);
+    if (paymentsMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(paymentsMatch[1]!);
+      const matchUuid = parseMatchPublicId(paymentsMatch[2]!);
+      if (!orgUuid || !matchUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleListMatchPayments(env, requestId, actor, orgUuid, matchUuid);
     }
 
     // ── Fixtures: collection ──

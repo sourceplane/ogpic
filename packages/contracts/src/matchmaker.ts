@@ -327,6 +327,27 @@ export interface MatchShareResponse {
   mailtoUrl: string;
 }
 
+// ── Match payments (lightweight pitch-fee ledger) ───────────────
+
+/** Whether a player has paid their share for a match's pitch. */
+export interface PublicMatchPayment {
+  playerId: string;
+  paid: boolean;
+  updatedAt: string;
+}
+
+export interface ListMatchPaymentsResponse {
+  payments: PublicMatchPayment[];
+}
+
+export interface SetMatchPaymentRequest {
+  paid: boolean;
+}
+
+export interface SetMatchPaymentResponse {
+  payment: PublicMatchPayment;
+}
+
 // ── Availability ────────────────────────────────────────────────
 // Per-player availability for the community's next practice match. The
 // organizer toggles each player in / maybe / out; the draft picks from `in`.

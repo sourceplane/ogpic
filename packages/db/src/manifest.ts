@@ -300,5 +300,14 @@ export const manifest: MigrationManifest = {
       description:
         "Link a roster player to a signed-in account (nullable subject_id + partial unique index per org) so members manage their own availability, owned by the matchmaker context",
     },
+    {
+      id: "340_matchmaker_match_payments",
+      context: "matchmaker",
+      path: "340_matchmaker_match_payments/up.sql",
+      checksum:
+        "0dda729d948077581fa645deee4bf80dbe2fec00e2b790469500e7a73646321b",
+      description:
+        "Lightweight per-match payment ledger (org_id, match_id, player_id, paid) so a manager can track who has paid for the pitch, owned by the matchmaker context",
+    },
   ],
 };

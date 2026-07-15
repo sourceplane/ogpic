@@ -8,7 +8,7 @@ const ORG_PLAYERS_RE = /^\/v1\/organizations\/[^/]+\/players(?:\/[^/]+(?:\/capta
 const ORG_ROSTER_SUMMARY_RE = /^\/v1\/organizations\/[^/]+\/roster\/summary$/;
 const ORG_RATING_ROUND_RE = /^\/v1\/organizations\/[^/]+\/rating-round(?:\/(?:open|close))?$/;
 const ORG_DRAFT_RE = /^\/v1\/organizations\/[^/]+\/draft$/;
-const ORG_MATCHES_RE = /^\/v1\/organizations\/[^/]+\/matches(?:\/[^/]+(?:\/share)?)?$/;
+const ORG_MATCHES_RE = /^\/v1\/organizations\/[^/]+\/matches(?:\/[^/]+(?:\/share|\/payments(?:\/[^/]+)?)?)?$/;
 const ORG_AVAILABILITY_RE = /^\/v1\/organizations\/[^/]+\/availability(?:\/[^/]+)?$/;
 
 const FORWARDED_HEADERS = [
