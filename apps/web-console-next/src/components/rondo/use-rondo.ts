@@ -27,6 +27,13 @@ import {
   type TeamMeta,
 } from "./logic";
 
+/** A team line-up on a fixture row (name + player names + score). */
+export interface MatchTeamRow {
+  name: string;
+  players: string[];
+  rating: number;
+}
+
 /** A recent-results row for the Fixtures screen, from the live matches API. */
 export interface LiveMatchRow {
   id: string;
@@ -36,6 +43,8 @@ export interface LiveMatchRow {
   status?: string;
   venue?: string | null;
   mapsUrl?: string | null;
+  teamA?: MatchTeamRow;
+  teamB?: MatchTeamRow;
 }
 
 /** The next actionable fixture (scheduled or live) — manager start/save target. */

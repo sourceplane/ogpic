@@ -47,6 +47,16 @@ function spread(n: number): number[] {
  * Place the roster on the pitch. `availOf` dims players who are not "in";
  * `youId` renders one token as the viewer; the captain is flagged.
  */
+const MAX_PER_ROW = 6; // beyond this a position wraps into stacked sub-rows
+
+/** Token size that keeps a row of `widest` tokens from overlapping. */
+function tokenSize(widest: number): number {
+  if (widest <= 5) return 44;
+  if (widest <= 6) return 38;
+  if (widest <= 8) return 32;
+  return 28;
+}
+
 export function placeRoster(
   players: RosterPlayer[],
   opts: { availOf?: (id: string) => string; youId?: string | null } = {},
@@ -58,25 +68,41 @@ export function placeRoster(
     const key = p.pos === "GK" || p.pos === "DEF" || p.pos === "FWD" ? p.pos : "MID";
     buckets[key]!.push(p);
   }
+  // Size tokens off the widest sub-row so nothing overlaps on big squads.
+  const widest = Math.max(1, ...ROWS.map((r) => {
+    const n = buckets[r.pos]!.length;
+    const subRows = Math.max(1, Math.ceil(n / MAX_PER_ROW));
+    return Math.ceil(n / subRows);
+  }));
+  const size = tokenSize(widest);
+
   const slots: PitchSlot[] = [];
   for (const row of ROWS) {
     const list = buckets[row.pos]!;
-    const xs = spread(list.length);
-    list.forEach((p, i) => {
-      const avail = availOf ? availOf(p.id) : "in";
-      const isYou = youId != null && p.id === youId;
-      slots.push({
-        id: p.id,
-        initials: p.initials,
-        label: `${p.shortName ?? p.name.split(" ").pop() ?? p.name} ${p.ovr}`,
-        left: `${xs[i]}%`,
-        top: `${row.top}%`,
-        team: isYou ? "you" : avail === "in" ? "home" : "muted",
-        captain: !!p.isCaptain,
-        dimmed: avail !== "in" && !isYou,
-        ...(isYou ? { size: 52 } : {}),
+    const subRows = Math.max(1, Math.ceil(list.length / MAX_PER_ROW));
+    const perRow = Math.ceil(list.length / subRows);
+    // Spread sub-rows in a ±6% band around the position's baseline top.
+    const band = subRows > 1 ? 12 : 0;
+    for (let sr = 0; sr < subRows; sr++) {
+      const rowItems = list.slice(sr * perRow, (sr + 1) * perRow);
+      const xs = spread(rowItems.length);
+      const top = subRows === 1 ? row.top : row.top - band / 2 + (band / (subRows - 1)) * sr;
+      rowItems.forEach((p, i) => {
+        const avail = availOf ? availOf(p.id) : "in";
+        const isYou = youId != null && p.id === youId;
+        slots.push({
+          id: p.id,
+          initials: p.initials,
+          label: `${p.shortName ?? p.name.split(" ").pop() ?? p.name} ${p.ovr}`,
+          left: `${xs[i]}%`,
+          top: `${Math.round(top)}%`,
+          team: isYou ? "you" : avail === "in" ? "home" : "muted",
+          captain: !!p.isCaptain,
+          dimmed: avail !== "in" && !isYou,
+          size: isYou ? size + 8 : size,
+        });
       });
-    });
+    }
   }
   return slots;
 }

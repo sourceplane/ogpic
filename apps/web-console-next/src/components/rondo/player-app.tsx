@@ -14,10 +14,11 @@ import type { RondoVM } from "./use-rondo";
 import { TeamSwitcher, type TeamNav } from "./team-switcher";
 import { ProfileSheet } from "./profile-menu";
 import { ClaimSheet } from "./claim-sheet";
+import { PlayerStatsSheet } from "./player-stats";
 import { RateView, GamesView } from "./views";
 import { AVAIL_META } from "./use-rondo";
 import { placeRoster } from "./formation";
-import { C, ink, green, PhoneShell, StatusBar, Avatar, Icon, PitchCanvas, PlayerToken, BottomNavPlayer, type PlayerTab } from "./kit";
+import { C, ink, green, PhoneShell, StatusBar, ScreenBody, Avatar, Icon, PitchCanvas, PlayerToken, BottomNavPlayer, type PlayerTab } from "./kit";
 import type { Availability } from "./logic";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
@@ -29,6 +30,8 @@ export function PlayerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | un
   const [switcher, setSwitcher] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
   const [claimOpen, setClaimOpen] = React.useState(false);
+  const [inspect, setInspect] = React.useState<string | null>(null);
+  const inspectPlayer = inspect ? vm.players.find((p) => p.id === inspect) ?? null : null;
   const profilePlayers = vm.players.map((p) => ({ name: p.name, email: p.email ?? null, ovr: p.ovr, pos: p.pos, skills: p.skills, stats: vm.playerStats[p.id] }));
   const claimCandidates = vm.players.map((p) => ({ id: p.id, name: p.name, initials: p.initials, pos: p.pos, claimed: false }));
   const AVAIL: Availability[] = ["in", "maybe", "out"];
@@ -55,13 +58,15 @@ export function PlayerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | un
         </div>
       </div>
       <ProfileSheet open={profileOpen} onClose={() => setProfileOpen(false)} players={profilePlayers} />
+      <PlayerStatsSheet player={inspectPlayer ? { name: inspectPlayer.name, pos: inspectPlayer.pos, ovr: inspectPlayer.ovr, skills: inspectPlayer.skills } : null} stats={inspectPlayer ? vm.playerStats[inspectPlayer.id] : undefined} onClose={() => setInspect(null)} />
+      <ScreenBody style={{ paddingBottom: 8 }}>
       <div style={{ padding: "10px 24px 0", display: "flex", gap: 7 }}>
         <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: "5px 10px", borderRadius: 14, background: C.card, border: `1px solid ${ink(0.12)}`, color: C.ink }}>{vm.players.length} PLAYERS</span>
         <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: "5px 10px", borderRadius: 14, background: C.green, color: C.onDark }}>{vm.availableCount} IN</span>
       </div>
-      <PitchCanvas style={{ flex: 1, margin: "14px 20px 0", minHeight: 0 }}>
+      <PitchCanvas style={{ height: "min(46vh, 360px)", margin: "14px 20px 0" }}>
         {slots.map((p) => (
-          <PlayerToken key={p.id} initials={p.initials} name={p.label} team={p.team} dimmed={p.dimmed} captain={p.captain} size={p.size} left={p.left} top={p.top} />
+          <PlayerToken key={p.id} initials={p.initials} name={p.label} team={p.team} dimmed={p.dimmed} captain={p.captain} size={p.size} left={p.left} top={p.top} onClick={() => setInspect(p.id)} />
         ))}
       </PitchCanvas>
       {vm.canSelfRSVP ? (
@@ -97,6 +102,7 @@ export function PlayerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | un
           <div onClick={() => setView("games")} className="rk-press" style={{ height: 38, padding: "0 16px", borderRadius: 19, background: C.green, color: C.onDark, fontSize: 12.5, fontWeight: 700, display: "flex", alignItems: "center" }}>View games</div>
         </div>
       )}
+      </ScreenBody>
       <ClaimSheet open={claimOpen} onClose={() => setClaimOpen(false)} players={claimCandidates} onClaim={vm.claimPlayer} />
       {nav}
     </PhoneShell>

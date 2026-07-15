@@ -33,6 +33,17 @@ export function RateView({ vm, nav }: { vm: RondoVM; nav: React.ReactNode }) {
         </span>
       </div>
       <div style={{ padding: "6px 24px 0", fontSize: 12, color: ink(0.5) }}>Anonymous · settles when the window closes</div>
+      {vm.canManageRound && (
+        <div style={{ margin: "12px 24px 0", borderRadius: 14, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.ink }}>Rating window</div>
+            <div style={{ fontFamily: MONO, fontSize: 9, color: vm.votingOpen ? C.green : ink(0.45), marginTop: 2 }}>{vm.votingOpen ? "OPEN — PLAYERS CAN VOTE" : "CLOSED"}</div>
+          </div>
+          <div onClick={() => (vm.votingOpen ? vm.closeRound() : vm.openRound(false))} className="rk-press" style={{ height: 36, padding: "0 16px", borderRadius: 12, background: vm.votingOpen ? C.surface : C.green, border: vm.votingOpen ? `1px solid ${ink(0.14)}` : "none", color: vm.votingOpen ? C.ink : C.onDark, display: "flex", alignItems: "center", fontSize: 12, fontWeight: 700 }}>
+            {vm.votingOpen ? "Close" : "Open window"}
+          </div>
+        </div>
+      )}
       {t ? (
         <div style={{ flex: 1, margin: "16px 20px 24px", background: C.card, border: `1px solid ${ink(0.1)}`, borderRadius: 22, padding: "26px 22px", display: "flex", flexDirection: "column", minHeight: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -67,6 +78,7 @@ export function RateView({ vm, nav }: { vm: RondoVM; nav: React.ReactNode }) {
 export function GamesView({ vm, nav, managerNote = true }: { vm: RondoVM; nav: React.ReactNode; managerNote?: boolean }) {
   const matches = vm.liveMatches ?? [];
   const next = matches[0] ?? null;
+  const [openId, setOpenId] = React.useState<string | null>(null);
   return (
     <PhoneShell>
       <StatusBar />
@@ -117,16 +129,41 @@ export function GamesView({ vm, nav, managerNote = true }: { vm: RondoVM; nav: R
         <div style={{ marginTop: 24 }}>
           <MonoLabel>RESULTS</MonoLabel>
           <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
-            {matches.slice(1).map((g) => (
-              <div key={g.id} style={{ borderRadius: 16, background: C.card, border: `1px solid ${ink(0.1)}`, padding: "13px 16px", display: "flex", alignItems: "center", gap: 13 }}>
-                <span style={{ fontFamily: MONO, fontSize: 9.5, color: ink(0.45), width: 46 }}>{g.dateLabel}</span>
-                <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: C.ink }}>{g.venue ?? "Match"}</span>
-                <span style={{ fontSize: 17, fontWeight: 700, color: C.ink }}>{g.score}</span>
-                <span style={{ width: 22, height: 22, borderRadius: 7, background: g.color === "#17694A" ? green(0.14) : g.color === "#B0512F" ? rust(0.14) : ink(0.08), color: g.color, fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {g.color === "#17694A" ? "W" : g.color === "#B0512F" ? "L" : g.score === "—" ? "·" : "D"}
-                </span>
-              </div>
-            ))}
+            {matches.slice(1).map((g) => {
+              const isOpen = openId === g.id;
+              const hasTeams = !!(g.teamA && g.teamB && (g.teamA.players.length || g.teamB.players.length));
+              return (
+                <div key={g.id} style={{ borderRadius: 16, background: C.card, border: `1px solid ${ink(0.1)}`, overflow: "hidden" }}>
+                  <div onClick={hasTeams ? () => setOpenId(isOpen ? null : g.id) : undefined} className={hasTeams ? "rk-press" : undefined} style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 13 }}>
+                    <span style={{ fontFamily: MONO, fontSize: 9.5, color: ink(0.45), width: 46 }}>{g.dateLabel}</span>
+                    <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: C.ink }}>{g.venue ?? "Match"}</span>
+                    <span style={{ fontSize: 17, fontWeight: 700, color: C.ink }}>{g.score}</span>
+                    <span style={{ width: 22, height: 22, borderRadius: 7, background: g.color === "#17694A" ? green(0.14) : g.color === "#B0512F" ? rust(0.14) : ink(0.08), color: g.color, fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {g.color === "#17694A" ? "W" : g.color === "#B0512F" ? "L" : g.score === "—" ? "·" : "D"}
+                    </span>
+                    {hasTeams && <Icon name={isOpen ? "chevronDown" : "chevronRight"} size={14} color={ink(0.35)} />}
+                  </div>
+                  {isOpen && hasTeams && (
+                    <div style={{ borderTop: `1px solid ${ink(0.08)}`, padding: "12px 16px", display: "flex", gap: 12 }}>
+                      {[g.teamA!, g.teamB!].map((t, ti) => (
+                        <div key={ti} style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                            <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700, letterSpacing: 1, color: ti === 0 ? C.green : C.rust }}>{ti === 0 ? "HOME" : "AWAY"}</span>
+                            <span style={{ fontFamily: MONO, fontSize: 9, color: ink(0.4) }}>OVR {t.rating}</span>
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                            {t.players.map((n, i) => (
+                              <span key={i} style={{ fontSize: 11.5, color: ink(0.7), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{n}</span>
+                            ))}
+                            {t.players.length === 0 && <span style={{ fontSize: 11, color: ink(0.4) }}>—</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             {matches.length <= 1 && <div style={{ padding: 8, textAlign: "center", fontFamily: MONO, fontSize: 9.5, color: ink(0.45) }}>NO RESULTS YET</div>}
           </div>
           {managerNote && (
