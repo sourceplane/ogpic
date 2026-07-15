@@ -18,6 +18,12 @@ import { createHash } from "node:crypto";
 const fp = (v) =>
   `len=${v.length} sha256=${createHash("sha256").update(v).digest("hex").slice(0, 16)}`;
 
+// All network calls are hard-bounded so a slow/blocked egress can never hang
+// the CI build step.
+const TIMEOUT_MS = 8000;
+const fetchT = (url, opts = {}) =>
+  fetch(url, { ...opts, signal: AbortSignal.timeout(TIMEOUT_MS) });
+
 // ---- Part A: runtime-injected secrets -------------------------------------
 const injected = [
   ["OGPIC_ORUN_SMOKE", process.env.OGPIC_ORUN_SMOKE],
@@ -37,7 +43,7 @@ const sbToken =
   process.env.SUPABASE_ACCESS_TOKEN || process.env.SUPABASE_ACCESS_TOKEN_PROD;
 if (sbToken) {
   try {
-    const r = await fetch("https://api.supabase.com/v1/organizations", {
+    const r = await fetchT("https://api.supabase.com/v1/organizations", {
       headers: { Authorization: `Bearer ${sbToken}` },
     });
     const orgs = await r.json().catch(() => null);
@@ -68,7 +74,7 @@ if (!token || !ws) {
 }
 
 async function api(path) {
-  const res = await fetch(`${base}${path}`, {
+  const res = await fetchT(`${base}${path}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   const body = await res.json().catch(() => ({}));
