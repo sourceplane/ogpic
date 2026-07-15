@@ -21,6 +21,14 @@ const jbMono = JetBrains_Mono({
   display: "swap",
 });
 
+// Apply the persisted theme before paint so there's no light→dark flash.
+const THEME_BOOT = `try{var t=localStorage.getItem('rk-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}`;
+
 export default function RondoLayout({ children }: { children: React.ReactNode }) {
-  return <div className={`${spaceGrotesk.variable} ${jbMono.variable}`}>{children}</div>;
+  return (
+    <div className={`${spaceGrotesk.variable} ${jbMono.variable}`}>
+      <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      {children}
+    </div>
+  );
 }

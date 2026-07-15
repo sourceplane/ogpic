@@ -15,6 +15,7 @@ import { useApiQuery } from "@/lib/query";
 import { wrap } from "@/lib/api";
 import { C, ink, green, gold, Avatar, Icon } from "./kit";
 import { PlayerStatsSheet } from "./player-stats";
+import { getStoredTheme, applyTheme, type Theme } from "./theme";
 import type { PlayerStats } from "./use-rondo";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
@@ -48,6 +49,8 @@ export function ProfileSheet({
   const qc = useQueryClient();
   const [busy, setBusy] = React.useState(false);
   const [statsOpen, setStatsOpen] = React.useState(false);
+  const [theme, setTheme] = React.useState<Theme>("system");
+  React.useEffect(() => setTheme(getStoredTheme()), []);
 
   const profile = useApiQuery(
     ["auth-profile"],
@@ -131,6 +134,24 @@ export function ProfileSheet({
             onClose={() => setStatsOpen(false)}
           />
         )}
+
+        {/* theme */}
+        <div style={{ marginTop: 18, fontFamily: MONO, fontSize: 9.5, fontWeight: 600, letterSpacing: 1.5, color: ink(0.5) }}>APPEARANCE</div>
+        <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+          {(["system", "light", "dark"] as Theme[]).map((t) => {
+            const on = theme === t;
+            return (
+              <div
+                key={t}
+                onClick={() => { setTheme(t); applyTheme(t); }}
+                className="rk-press"
+                style={{ flex: 1, height: 44, borderRadius: 13, background: on ? C.ink : C.card, border: on ? "none" : `1px solid ${ink(0.12)}`, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 700, color: on ? C.onDark : ink(0.6), textTransform: "capitalize" }}
+              >
+                {t}
+              </div>
+            );
+          })}
+        </div>
 
         {/* sign out */}
         <div

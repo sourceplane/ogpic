@@ -30,6 +30,7 @@
   --rk-green: #17694a; /* primary brand · HOME side · CTAs */
   --rk-green-rgb: 23, 105, 74;
   --rk-gold: #c9a24b; /* manager accent */
+  --rk-gold-rgb: 201, 162, 75;
   --rk-gold-ink: #8a6d2c; /* gold text on soft-gold chip */
   --rk-rust: #b0512f; /* AWAY side · destructive · badges */
   --rk-rust-rgb: 176, 81, 47;
@@ -55,6 +56,61 @@
   color: var(--rk-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── dark theme ────────────────────────────────────────────────
+ * The token overrides that flip the whole kit to dark. Applied when the OS
+ * prefers dark (unless the viewer forced light) or when the viewer forces dark
+ * via the profile menu (data-theme on the document root). `onDark` (text on
+ * brand buttons) intentionally stays light in both themes; the brand green/
+ * gold/rust are nudged brighter so they stay legible on dark surfaces. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .rk {
+    --rk-bg: #0a0d0b;
+    --rk-surface: #10140f;
+    --rk-card: #191e18;
+    --rk-pitch: #16301f;
+    --rk-pitch-2: #193523;
+    --rk-panel: #12160f;
+    --rk-avatar: #262e24;
+    --rk-avatar-2: #2d352a;
+    --rk-seg-empty: #232a22;
+    --rk-ink: #e8ede5;
+    --rk-ink-rgb: 232, 237, 229;
+    --rk-green: #3aa276;
+    --rk-green-rgb: 58, 162, 118;
+    --rk-gold: #d9b463;
+    --rk-gold-rgb: 217, 180, 99;
+    --rk-gold-ink: #d9b463;
+    --rk-rust: #d1663f;
+    --rk-rust-rgb: 209, 102, 63;
+    --rk-line: rgba(232, 237, 229, 0.14);
+    --rk-line-soft: rgba(232, 237, 229, 0.1);
+    --rk-line-strong: rgba(232, 237, 229, 0.18);
+  }
+}
+:root[data-theme="dark"] .rk {
+  --rk-bg: #0a0d0b;
+  --rk-surface: #10140f;
+  --rk-card: #191e18;
+  --rk-pitch: #16301f;
+  --rk-pitch-2: #193523;
+  --rk-panel: #12160f;
+  --rk-avatar: #262e24;
+  --rk-avatar-2: #2d352a;
+  --rk-seg-empty: #232a22;
+  --rk-ink: #e8ede5;
+  --rk-ink-rgb: 232, 237, 229;
+  --rk-green: #3aa276;
+  --rk-green-rgb: 58, 162, 118;
+  --rk-gold: #d9b463;
+  --rk-gold-rgb: 217, 180, 99;
+  --rk-gold-ink: #d9b463;
+  --rk-rust: #d1663f;
+  --rk-rust-rgb: 209, 102, 63;
+  --rk-line: rgba(232, 237, 229, 0.14);
+  --rk-line-soft: rgba(232, 237, 229, 0.1);
+  --rk-line-strong: rgba(232, 237, 229, 0.18);
 }
 
 /* mono micro-type: uppercase JetBrains labels, codes, meta */
