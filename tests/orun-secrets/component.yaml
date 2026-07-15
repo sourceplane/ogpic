@@ -23,12 +23,21 @@ spec:
       icon: github
   subscribe:
     environments:
+      # secretEnv injects the resolved value at runtime (orun run) under the
+      # named env var — references only, never values. The runner redacts the
+      # raw value from logs; the suite prints a non-reversible fingerprint.
       - name: dev
         profile: verify
+        secretEnv:
+          OGPIC_ORUN_SMOKE: secret://sourceplane/ogpic/dev/OGPIC_ORUN_SMOKE
       - name: stage
         profile: verify
+        secretEnv:
+          OGPIC_ORUN_SMOKE: secret://sourceplane/ogpic/stage/OGPIC_ORUN_SMOKE
       - name: prod
         profile: verify
+        secretEnv:
+          OGPIC_ORUN_SMOKE: secret://sourceplane/ogpic/prod/OGPIC_ORUN_SMOKE
   parameters:
     nodeVersion: "20"
     pnpmVersion: "10.12.1"
