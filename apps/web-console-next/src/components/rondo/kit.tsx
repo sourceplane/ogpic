@@ -14,24 +14,28 @@
 import * as React from "react";
 
 /* ── palette helpers ──────────────────────────────────────────── */
+/* Colours resolve through the rondo-kit CSS variables so the whole UI flips
+ * between light and dark (see rondo-kit.css). The rgba helpers ramp opacity off
+ * the matching `*-rgb` token. `onDark` (text on brand buttons) stays light in
+ * both themes; `line` is a fixed white sheen used only on the pitch. */
 export const C = {
-  ink: "#101511",
-  onDark: "#F2F4F1",
-  surface: "#F2F4F1",
-  card: "#FFFFFF",
-  pitch: "#E4EBE3",
-  pitch2: "#E9ECE7",
-  avatar: "#E4EBE3",
-  segEmpty: "#EAEEE9",
-  green: "#17694A",
-  gold: "#C9A24B",
-  goldInk: "#8A6D2C",
-  rust: "#B0512F",
+  ink: "var(--rk-ink)",
+  onDark: "var(--rk-on-dark)",
+  surface: "var(--rk-surface)",
+  card: "var(--rk-card)",
+  pitch: "var(--rk-pitch)",
+  pitch2: "var(--rk-pitch-2)",
+  avatar: "var(--rk-avatar)",
+  segEmpty: "var(--rk-seg-empty)",
+  green: "var(--rk-green)",
+  gold: "var(--rk-gold)",
+  goldInk: "var(--rk-gold-ink)",
+  rust: "var(--rk-rust)",
 } as const;
-export const ink = (a: number) => `rgba(16,21,17,${a})`;
-export const green = (a: number) => `rgba(23,105,74,${a})`;
-export const rust = (a: number) => `rgba(176,81,47,${a})`;
-export const gold = (a: number) => `rgba(201,162,75,${a})`;
+export const ink = (a: number) => `rgba(var(--rk-ink-rgb),${a})`;
+export const green = (a: number) => `rgba(var(--rk-green-rgb),${a})`;
+export const rust = (a: number) => `rgba(var(--rk-rust-rgb),${a})`;
+export const gold = (a: number) => `rgba(var(--rk-gold-rgb),${a})`;
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 
