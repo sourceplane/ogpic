@@ -702,6 +702,7 @@ describe("listEffectivePermissions", () => {
       "organization.config.read",
       "organization.fixture.read",
       "organization.integration.read",
+      "organization.join_code.read",
       "organization.metering.read",
       "organization.player.vote",
       "organization.read",

@@ -435,6 +435,7 @@ export function PlayerToken({
   left,
   top,
   ring,
+  onClick,
   style,
 }: {
   initials: string;
@@ -447,6 +448,7 @@ export function PlayerToken({
   left?: string | number | undefined;
   top?: string | number | undefined;
   ring?: boolean | undefined; // selected halo
+  onClick?: (() => void) | undefined;
   style?: React.CSSProperties | undefined;
 }) {
   const borderColor =
@@ -465,6 +467,8 @@ export function PlayerToken({
       };
   return (
     <div
+      onClick={onClick}
+      className={onClick ? "rk-press" : undefined}
       style={{
         position: left != null ? "absolute" : undefined,
         left,

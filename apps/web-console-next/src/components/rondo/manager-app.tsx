@@ -12,6 +12,7 @@ import type { RondoVM } from "./use-rondo";
 import { TeamSwitcher, type TeamNav } from "./team-switcher";
 import { AddPlayerSheet } from "./add-player";
 import { PlayerScoreSheet, type EditablePlayer } from "./player-edit";
+import { PlayerStatsSheet } from "./player-stats";
 import { MatchResultSheet } from "./match-result";
 import { PaymentsSheet } from "./payments-sheet";
 import { ProfileSheet } from "./profile-menu";
@@ -66,6 +67,8 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
   const [teamsSaved, setTeamsSaved] = React.useState(false);
   const [resultOpen, setResultOpen] = React.useState(false);
   const [paymentsOpen, setPaymentsOpen] = React.useState(false);
+  const [inspect, setInspect] = React.useState<string | null>(null);
+  const inspectPlayer = inspect ? vm.players.find((p) => p.id === inspect) ?? null : null;
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
@@ -411,15 +414,16 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
         </div>
       </div>
       <ProfileSheet open={profileOpen} onClose={() => setProfileOpen(false)} players={profilePlayers} />
+      <ScreenBody style={{ paddingBottom: 8 }}>
       <div style={{ padding: "10px 24px 0", display: "flex", gap: 7, flexWrap: "wrap" }}>
         <Chip variant="gold">MANAGER</Chip>
         <Chip>{vm.players.length} PLAYERS</Chip>
         <Chip variant="green">{vm.availableCount} IN</Chip>
         {vm.nextMatch?.status === "live" && <Chip variant="rustSoft">● LIVE</Chip>}
       </div>
-      <PitchCanvas style={{ flex: 1, margin: "14px 20px 0", minHeight: 0 }}>
+      <PitchCanvas style={{ height: "min(46vh, 360px)", margin: "14px 20px 0" }}>
         {slots.map((p) => (
-          <PlayerToken key={p.id} initials={p.initials} name={p.label} team={p.team} dimmed={p.dimmed} captain={p.captain} size={p.size} left={p.left} top={p.top} />
+          <PlayerToken key={p.id} initials={p.initials} name={p.label} team={p.team} dimmed={p.dimmed} captain={p.captain} size={p.size} left={p.left} top={p.top} onClick={() => setInspect(p.id)} />
         ))}
       </PitchCanvas>
       <div style={{ margin: "12px 24px 0" }}>
@@ -468,8 +472,10 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
           </div>
         )}
       </div>
+      </ScreenBody>
       <MatchResultSheet open={resultOpen} onClose={() => setResultOpen(false)} onSave={(a, b) => vm.recordResult(a, b)} />
       <PaymentsSheet open={paymentsOpen} onClose={() => setPaymentsOpen(false)} players={vm.players.map((p) => ({ id: p.id, name: p.name, initials: p.initials, pos: p.pos, posColor: p.posColor }))} paid={vm.payments} onToggle={(id, paid) => vm.setPayment(id, paid)} />
+      <PlayerStatsSheet player={inspectPlayer ? { name: inspectPlayer.name, pos: inspectPlayer.pos, ovr: inspectPlayer.ovr, skills: inspectPlayer.skills } : null} stats={inspectPlayer ? vm.playerStats[inspectPlayer.id] : undefined} onClose={() => setInspect(null)} />
       {nav}
     </PhoneShell>
   );

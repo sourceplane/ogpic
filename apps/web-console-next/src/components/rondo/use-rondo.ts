@@ -27,6 +27,13 @@ import {
   type TeamMeta,
 } from "./logic";
 
+/** A team line-up on a fixture row (name + player names + score). */
+export interface MatchTeamRow {
+  name: string;
+  players: string[];
+  rating: number;
+}
+
 /** A recent-results row for the Fixtures screen, from the live matches API. */
 export interface LiveMatchRow {
   id: string;
@@ -36,6 +43,8 @@ export interface LiveMatchRow {
   status?: string;
   venue?: string | null;
   mapsUrl?: string | null;
+  teamA?: MatchTeamRow;
+  teamB?: MatchTeamRow;
 }
 
 /** The next actionable fixture (scheduled or live) — manager start/save target. */
@@ -164,6 +173,24 @@ export function useRondo(seed: RondoSeed = {}) {
   );
   const [membersRemoved, setMembersRemoved] = React.useState<string[]>([]);
   const [invitesResolved, setInvitesResolved] = React.useState<Record<string, "accepted" | "declined">>({});
+
+  // Live-data sync. In demo mode the VM owns local state; in live mode the seed
+  // is refetched roster/availability, and the VM must re-adopt it whenever it
+  // changes — otherwise a successful backend write (scout a player, someone
+  // sets availability) never reflects because the VM kept its first snapshot.
+  // Keyed on a content signature so it only fires on real changes (the seed
+  // arrays are new references every render).
+  const isLiveMode = !!seed.live;
+  const rosterSig = isLiveMode
+    ? (seed.players ?? []).map((p) => `${p.id}:${p.ovr}:${p.isCaptain ? 1 : 0}:${JSON.stringify(p.skills)}`).join("|")
+    : "";
+  React.useEffect(() => {
+    if (isLiveMode && seed.players) setPlayers(seed.players);
+  }, [rosterSig]);
+  const availSig = isLiveMode ? JSON.stringify(seed.availability ?? {}) : "";
+  React.useEffect(() => {
+    if (isLiveMode && seed.availability) setAvailability(seed.availability);
+  }, [availSig]);
   const [seq, setSeq] = React.useState(0); // deterministic id source (no Date.now in render)
   const [paymentsLocal, setPaymentsLocal] = React.useState<Record<string, boolean>>({});
 

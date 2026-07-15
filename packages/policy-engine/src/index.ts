@@ -148,6 +148,7 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "organization.fixture.write",
     "organization.availability.read",
     "organization.availability.set",
+    "organization.join_code.read",
   ],
   viewer: [
     "organization.read",
@@ -164,6 +165,7 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "organization.player.vote",
     "organization.fixture.read",
     "organization.availability.read",
+    "organization.join_code.read",
   ],
   billing_admin: [
     "organization.read",
