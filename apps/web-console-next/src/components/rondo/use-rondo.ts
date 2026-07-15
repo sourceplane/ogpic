@@ -86,8 +86,9 @@ export interface RondoLive {
   declineJoin?: (requestId: string) => void;
   /** Persist the caller's per-skill star votes (1-5) for a player. */
   castVotes?: (playerId: string, votes: Record<string, number>) => void;
-  /** Add a player to the roster with a default strength + optional email. */
-  addPlayer?: (input: { name: string; position: string; email?: string | null; phone?: string | null }) => void;
+  /** Add a player to the roster with a default strength + optional email/phone.
+   *  Resolves with the outcome so the UI can surface a failure. */
+  addPlayer?: (input: { name: string; position: string; email?: string | null; phone?: string | null }) => Promise<{ ok: boolean; message?: string }>;
   /** Leave the current squad (self-removal); the host redirects afterwards. */
   leaveTeam?: () => void;
   /** Open the manager-gated voting window (optionally resetting scores). */
@@ -472,9 +473,8 @@ export function useRondo(seed: RondoSeed = {}) {
     rotateCode: () => seed.live?.rotateCode?.(),
     canManageCode: !!seed.live?.rotateCode,
     joinRequests: seed.joinRequests ?? null,
-    addPlayer: (input: { name: string; position: string; email?: string | null; phone?: string | null }) => {
-      seed.live?.addPlayer?.(input);
-    },
+    addPlayer: (input: { name: string; position: string; email?: string | null; phone?: string | null }) =>
+      seed.live?.addPlayer?.(input) ?? Promise.resolve({ ok: true as const }),
     leaveTeam: () => {
       seed.live?.leaveTeam?.();
     },
