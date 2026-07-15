@@ -57,6 +57,27 @@ jobs:
           name: orun-plan
           path: plan.json
 
+  # Brokered-key probe (saas-orun-secrets): reports runtime availability + the
+  # access each brokered key grants, for TEST_CLOUDFLARE_API / TEST_SUPABASE_API.
+  # Uses the same OIDC auth the `plan` job does (orun-action) and reads only
+  # metadata via `orun secrets list --json` — no value is fetched or minted.
+  # Best-effort: the probe exits 0 regardless, so it never gates the PR.
+  secrets-probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: sourceplane/orun-action@v1.2.0
+        with:
+          version: v2.23.0
+      - name: Probe brokered keys (availability + access)
+        env:
+          # Workspace comes from intent.yaml (execution.state.workspace); the
+          # project isn't declared there and CI has no repo-link cache, so name
+          # it here to let the project/env-scoped lists resolve. Workspace-scoped
+          # lists work without it. Auth is the OIDC exchange (id-token: write).
+          ORUN_PROJECT: ogpic
+        run: node tests/orun-secrets/tools/probe-keys.mjs
+
   run:
     needs: plan
     runs-on: ubuntu-latest
