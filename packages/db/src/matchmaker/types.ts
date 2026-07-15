@@ -232,6 +232,9 @@ export interface MatchmakerRepository {
   /** System cron: flip every scheduled fixture whose kickoff time has passed to
    *  'live' (all orgs). Returns the number transitioned. */
   startDueMatches(now: Date): Promise<MatchmakerResult<number>>;
+  /** System cron: scheduled fixtures (all orgs) kicking off within [from, to],
+   *  used to send availability reminders. */
+  listScheduledMatchesInWindow(from: Date, to: Date): Promise<MatchmakerResult<Match[]>>;
   listMatchesPaged(orgId: Uuid, params: MatchPageQueryParams): Promise<MatchmakerResult<MatchPagedResult<Match>>>;
 
   listAvailability(orgId: Uuid): Promise<MatchmakerResult<Availability[]>>;
