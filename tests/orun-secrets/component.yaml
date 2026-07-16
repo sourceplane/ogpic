@@ -22,22 +22,19 @@ spec:
       url: https://github.com/sourceplane/ogpic/tree/main/tests/orun-secrets
       icon: github
   subscribe:
-    # NOTE: orun's run-scoped secret resolve endpoint
-    # (/state/runs/{runId}/secrets/resolve) is not yet deployed on the backend —
-    # declaring component `secretEnv` here makes the run fail closed with
-    # "Route not found". Until that ships, this suite proves the Supabase secret
-    # at runtime using SUPABASE_ACCESS_TOKEN, which the CI `run` job already
-    # carries in its environment (ci.yml, for the Terraform provider). The
-    # inspector fingerprints it and runs a live connection test — never the raw
-    # value. Re-add per-env `secretEnv` once the resolve endpoint is live.
+    # NOTE: the run-scoped resolve route (/state/runs/{runId}/secrets/resolve)
+    # IS deployed and ULID-gated. Runtime secret resolution failed in CI because
+    # the orun runner addressed the run by its raw exec id (github run_id-attempt)
+    # instead of the contract run ULID — the backend rejected the path as
+    # "Route not found". Root-caused and fixed in the CLI (orun#524:
+    # remoteSecretResolver now maps exec id → RunULID, mirroring wireRunID).
+    # Re-add per-env `secretEnv` once a released orun carrying that fix is pinned
+    # in the orun-action version below. Until then this suite proves the Supabase
+    # secret at runtime via the CI-carried SUPABASE_ACCESS_TOKEN (ci.yml, for the
+    # Terraform provider); the inspector fingerprints it — never the raw value.
     environments:
-      # DIAGNOSTIC (dev only): re-enable secretEnv for the known static secret to
-      # capture the EXACT runtime-resolve outcome + requestId now that
-      # config-worker's internal resolve is deployed. stage/prod stay cloud-free.
       - name: dev
         profile: verify
-        secretEnv:
-          OGPIC_ORUN_SMOKE: secret://sourceplane/ogpic/dev/OGPIC_ORUN_SMOKE
       - name: stage
         profile: verify
       - name: prod
