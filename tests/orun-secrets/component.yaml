@@ -31,8 +31,13 @@ spec:
     # inspector fingerprints it and runs a live connection test — never the raw
     # value. Re-add per-env `secretEnv` once the resolve endpoint is live.
     environments:
+      # DIAGNOSTIC (dev only): re-enable secretEnv for the known static secret to
+      # capture the EXACT runtime-resolve outcome + requestId now that
+      # config-worker's internal resolve is deployed. stage/prod stay cloud-free.
       - name: dev
         profile: verify
+        secretEnv:
+          OGPIC_ORUN_SMOKE: secret://sourceplane/ogpic/dev/OGPIC_ORUN_SMOKE
       - name: stage
         profile: verify
       - name: prod
