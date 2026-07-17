@@ -34,15 +34,11 @@ spec:
     # scoped brokered bindings (supabase/management-access and
     # cloudflare/workers-deploy) — the chain walk serves them at every env, and
     # each resolve mints a fresh short-lived provider credential.
-    # DIAGNOSTIC MATRIX (one CI cycle isolates the failing ref segment): the
-    # resolve reached the handler on v2.33.0 but returned 422 validation_failed,
-    # whose only data-dependent source is the ref workspace/project segment
-    # verification. Each env spells the segments differently:
-    #   dev   → ws_ workspace ref + project slug   (tests the org-slug assumption)
-    #   stage → workspace slug + project slug      (the original spelling — baseline)
-    #   prod  → org_/prj_ public ids               (decode-only control; cannot
-    #            fail segment verification — if prod still 422s the cause is elsewhere)
-    # Normalized to one canonical spelling after diagnosis.
+    # Ref spelling: the workspace segment uses the DECLARED workspace ref
+    # (execution.state.workspace: ws_8D3ZJQM2) — immutable and guaranteed to
+    # name the run's own workspace. The diagnostic matrix proved the platform
+    # workspace's SLUG is not "sourceplane" (a slug-spelled ref fails segment
+    # verification with 422), while ws_ + project slug "ogpic" verifies clean.
     environments:
       - name: dev
         profile: verify
@@ -53,15 +49,15 @@ spec:
       - name: stage
         profile: verify
         secretEnv:
-          OGPIC_ORUN_SMOKE: secret://sourceplane/ogpic/stage/OGPIC_ORUN_SMOKE
-          TEST_SUPABASE_API: secret://sourceplane/ogpic/stage/TEST_SUPABASE_API
-          TEST_CLOUDFLARE_API: secret://sourceplane/ogpic/stage/TEST_CLOUDFLARE_API
+          OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/stage/OGPIC_ORUN_SMOKE
+          TEST_SUPABASE_API: secret://ws_8D3ZJQM2/ogpic/stage/TEST_SUPABASE_API
+          TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/stage/TEST_CLOUDFLARE_API
       - name: prod
         profile: verify
         secretEnv:
-          OGPIC_ORUN_SMOKE: secret://org_b281a9a0f43d463e9c83d6b6597ab2d2/prj_856550c7bfb44bd5ab22cd22b1bf325d/prod/OGPIC_ORUN_SMOKE
-          TEST_SUPABASE_API: secret://org_b281a9a0f43d463e9c83d6b6597ab2d2/prj_856550c7bfb44bd5ab22cd22b1bf325d/prod/TEST_SUPABASE_API
-          TEST_CLOUDFLARE_API: secret://org_b281a9a0f43d463e9c83d6b6597ab2d2/prj_856550c7bfb44bd5ab22cd22b1bf325d/prod/TEST_CLOUDFLARE_API
+          OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/prod/OGPIC_ORUN_SMOKE
+          TEST_SUPABASE_API: secret://ws_8D3ZJQM2/ogpic/prod/TEST_SUPABASE_API
+          TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/prod/TEST_CLOUDFLARE_API
   parameters:
     nodeVersion: "20"
     pnpmVersion: "10.12.1"
