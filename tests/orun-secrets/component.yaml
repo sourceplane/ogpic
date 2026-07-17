@@ -34,13 +34,22 @@ spec:
     # scoped brokered bindings (supabase/management-access and
     # cloudflare/workers-deploy) — the chain walk serves them at every env, and
     # each resolve mints a fresh short-lived provider credential.
+    # DIAGNOSTIC MATRIX (one CI cycle isolates the failing ref segment): the
+    # resolve reached the handler on v2.33.0 but returned 422 validation_failed,
+    # whose only data-dependent source is the ref workspace/project segment
+    # verification. Each env spells the segments differently:
+    #   dev   → ws_ workspace ref + project slug   (tests the org-slug assumption)
+    #   stage → workspace slug + project slug      (the original spelling — baseline)
+    #   prod  → org_/prj_ public ids               (decode-only control; cannot
+    #            fail segment verification — if prod still 422s the cause is elsewhere)
+    # Normalized to one canonical spelling after diagnosis.
     environments:
       - name: dev
         profile: verify
         secretEnv:
-          OGPIC_ORUN_SMOKE: secret://sourceplane/ogpic/dev/OGPIC_ORUN_SMOKE
-          TEST_SUPABASE_API: secret://sourceplane/ogpic/dev/TEST_SUPABASE_API
-          TEST_CLOUDFLARE_API: secret://sourceplane/ogpic/dev/TEST_CLOUDFLARE_API
+          OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/dev/OGPIC_ORUN_SMOKE
+          TEST_SUPABASE_API: secret://ws_8D3ZJQM2/ogpic/dev/TEST_SUPABASE_API
+          TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/dev/TEST_CLOUDFLARE_API
       - name: stage
         profile: verify
         secretEnv:
@@ -50,9 +59,9 @@ spec:
       - name: prod
         profile: verify
         secretEnv:
-          OGPIC_ORUN_SMOKE: secret://sourceplane/ogpic/prod/OGPIC_ORUN_SMOKE
-          TEST_SUPABASE_API: secret://sourceplane/ogpic/prod/TEST_SUPABASE_API
-          TEST_CLOUDFLARE_API: secret://sourceplane/ogpic/prod/TEST_CLOUDFLARE_API
+          OGPIC_ORUN_SMOKE: secret://org_b281a9a0f43d463e9c83d6b6597ab2d2/prj_856550c7bfb44bd5ab22cd22b1bf325d/prod/OGPIC_ORUN_SMOKE
+          TEST_SUPABASE_API: secret://org_b281a9a0f43d463e9c83d6b6597ab2d2/prj_856550c7bfb44bd5ab22cd22b1bf325d/prod/TEST_SUPABASE_API
+          TEST_CLOUDFLARE_API: secret://org_b281a9a0f43d463e9c83d6b6597ab2d2/prj_856550c7bfb44bd5ab22cd22b1bf325d/prod/TEST_CLOUDFLARE_API
   parameters:
     nodeVersion: "20"
     pnpmVersion: "10.12.1"
