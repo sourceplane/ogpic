@@ -5,6 +5,9 @@
     "build": {
       "passThroughEnv": [
         "OGPIC_ORUN_SMOKE",
+        "TEST_SUPABASE_API",
+        "TEST_CLOUDFLARE_API",
+        "CLOUDFLARE_ACCOUNT_ID",
         "SUPABASE_ACCESS_TOKEN",
         "SUPABASE_ACCESS_TOKEN_PROD",
         "ORUN_TOKEN",
