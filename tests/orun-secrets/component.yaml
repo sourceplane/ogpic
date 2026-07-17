@@ -45,19 +45,24 @@ spec:
         secretEnv:
           OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/dev/OGPIC_ORUN_SMOKE
           TEST_SUPABASE_API: secret://ws_8D3ZJQM2/ogpic/dev/TEST_SUPABASE_API
-          TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/dev/TEST_CLOUDFLARE_API
+          # TEST_CLOUDFLARE_API is temporarily excluded: its connection
+          # int_a3b02fdf7fe84046bfafee14da466d86 is SUSPENDED (the first real
+          # mint failed at Cloudflare and IH9 flipped the connection), so the
+          # fail-closed resolve would fail the whole job. Re-add after the
+          # connection is reconnected in the console (Integrations → Reconnect).
+          # TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/dev/TEST_CLOUDFLARE_API
       - name: stage
         profile: verify
         secretEnv:
           OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/stage/OGPIC_ORUN_SMOKE
           TEST_SUPABASE_API: secret://ws_8D3ZJQM2/ogpic/stage/TEST_SUPABASE_API
-          TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/stage/TEST_CLOUDFLARE_API
+          # TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/stage/TEST_CLOUDFLARE_API  (see dev note)
       - name: prod
         profile: verify
         secretEnv:
           OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/prod/OGPIC_ORUN_SMOKE
           TEST_SUPABASE_API: secret://ws_8D3ZJQM2/ogpic/prod/TEST_SUPABASE_API
-          TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/prod/TEST_CLOUDFLARE_API
+          # TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/prod/TEST_CLOUDFLARE_API  (see dev note)
   parameters:
     nodeVersion: "20"
     pnpmVersion: "10.12.1"
