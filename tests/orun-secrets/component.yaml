@@ -22,23 +22,37 @@ spec:
       url: https://github.com/sourceplane/ogpic/tree/main/tests/orun-secrets
       icon: github
   subscribe:
-    # NOTE: the run-scoped resolve route (/state/runs/{runId}/secrets/resolve)
-    # IS deployed and ULID-gated. Runtime secret resolution failed in CI because
-    # the orun runner addressed the run by its raw exec id (github run_id-attempt)
-    # instead of the contract run ULID — the backend rejected the path as
-    # "Route not found". Root-caused and fixed in the CLI (orun#524:
-    # remoteSecretResolver now maps exec id → RunULID, mirroring wireRunID).
-    # Re-add per-env `secretEnv` once a released orun carrying that fix is pinned
-    # in the orun-action version below. Until then this suite proves the Supabase
-    # secret at runtime via the CI-carried SUPABASE_ACCESS_TOKEN (ci.yml, for the
-    # Terraform provider); the inspector fingerprints it — never the raw value.
+    # Runtime resolution history: it failed in CI because the runner addressed
+    # the run by its raw exec id instead of the contract run ULID — fixed in
+    # orun#524 (remoteSecretResolver maps exec id → RunULID, mirroring
+    # wireRunID) and released in v2.33.0, which ci.yml now pins.
+    #
+    # secretEnv injects the resolved value at runtime (orun run) under the named
+    # env var — references only, never values; the runner redacts injected
+    # values from all log sinks. OGPIC_ORUN_SMOKE is env-scoped (a distinct
+    # value per env); TEST_SUPABASE_API and TEST_CLOUDFLARE_API are PROJECT-
+    # scoped brokered bindings (supabase/management-access and
+    # cloudflare/workers-deploy) — the chain walk serves them at every env, and
+    # each resolve mints a fresh short-lived provider credential.
     environments:
       - name: dev
         profile: verify
+        secretEnv:
+          OGPIC_ORUN_SMOKE: secret://sourceplane/ogpic/dev/OGPIC_ORUN_SMOKE
+          TEST_SUPABASE_API: secret://sourceplane/ogpic/dev/TEST_SUPABASE_API
+          TEST_CLOUDFLARE_API: secret://sourceplane/ogpic/dev/TEST_CLOUDFLARE_API
       - name: stage
         profile: verify
+        secretEnv:
+          OGPIC_ORUN_SMOKE: secret://sourceplane/ogpic/stage/OGPIC_ORUN_SMOKE
+          TEST_SUPABASE_API: secret://sourceplane/ogpic/stage/TEST_SUPABASE_API
+          TEST_CLOUDFLARE_API: secret://sourceplane/ogpic/stage/TEST_CLOUDFLARE_API
       - name: prod
         profile: verify
+        secretEnv:
+          OGPIC_ORUN_SMOKE: secret://sourceplane/ogpic/prod/OGPIC_ORUN_SMOKE
+          TEST_SUPABASE_API: secret://sourceplane/ogpic/prod/TEST_SUPABASE_API
+          TEST_CLOUDFLARE_API: secret://sourceplane/ogpic/prod/TEST_CLOUDFLARE_API
   parameters:
     nodeVersion: "20"
     pnpmVersion: "10.12.1"

@@ -27,8 +27,9 @@ const fetchT = (url, opts = {}) =>
 // ---- Part A: runtime-injected secrets -------------------------------------
 const injected = [
   ["OGPIC_ORUN_SMOKE", process.env.OGPIC_ORUN_SMOKE],
+  ["TEST_SUPABASE_API", process.env.TEST_SUPABASE_API],
+  ["TEST_CLOUDFLARE_API", process.env.TEST_CLOUDFLARE_API],
   ["SUPABASE_ACCESS_TOKEN", process.env.SUPABASE_ACCESS_TOKEN],
-  ["SUPABASE_ACCESS_TOKEN_PROD", process.env.SUPABASE_ACCESS_TOKEN_PROD],
 ].filter(([, v]) => typeof v === "string" && v.length > 0);
 
 console.log("== runtime-injected secrets (fingerprints — never raw) ==");
@@ -39,22 +40,104 @@ for (const [name, v] of injected) {
   console.log(`  ${name}: injected ${fp(v)}`);
 }
 
-const sbToken =
-  process.env.SUPABASE_ACCESS_TOKEN || process.env.SUPABASE_ACCESS_TOKEN_PROD;
+// ---- Part A2: Supabase — the brokered management-access credential ---------
+// TEST_SUPABASE_API is a BROKERED secret (supabase/management-access): the
+// value here was minted at resolve time from the integration connection. Prove
+// it works end to end by listing the organization(s) and the project(s) it
+// governs, and print the associated DATABASE metadata (host/version/region/
+// status) from the Management API. Metadata only — never the token, never a
+// connection string.
+const sbToken = process.env.TEST_SUPABASE_API || process.env.SUPABASE_ACCESS_TOKEN;
+const sbVia = process.env.TEST_SUPABASE_API ? "TEST_SUPABASE_API (brokered mint)" : "SUPABASE_ACCESS_TOKEN (CI env)";
 if (sbToken) {
-  try {
-    const r = await fetchT("https://api.supabase.com/v1/organizations", {
+  console.log(`\n== Supabase Management API via ${sbVia} ==`);
+  const sb = (path) =>
+    fetchT(`https://api.supabase.com${path}`, {
       headers: { Authorization: `Bearer ${sbToken}` },
     });
-    const orgs = await r.json().catch(() => null);
-    console.log(`  Supabase Management API GET /v1/organizations -> HTTP ${r.status}`);
+  try {
+    const orgRes = await sb("/v1/organizations");
+    const orgs = await orgRes.json().catch(() => null);
+    console.log(`  GET /v1/organizations -> HTTP ${orgRes.status}`);
     if (Array.isArray(orgs)) {
-      console.log(
-        `    account(s): ${JSON.stringify(orgs.map((o) => ({ id: o.id, name: o.name, slug: o.slug })))}`,
-      );
+      for (const o of orgs) {
+        console.log(`    org: id=${o.id} name=${JSON.stringify(o.name)}${o.slug ? ` slug=${o.slug}` : ""}`);
+      }
+    }
+
+    const prjRes = await sb("/v1/projects");
+    const projects = await prjRes.json().catch(() => null);
+    console.log(`  GET /v1/projects -> HTTP ${prjRes.status}`);
+    if (Array.isArray(projects)) {
+      for (const p of projects) {
+        console.log(
+          `    project: ref=${p.id} name=${JSON.stringify(p.name)} org=${p.organization_id} region=${p.region} status=${p.status}`,
+        );
+        if (p.database) {
+          console.log(
+            `      database: host=${p.database.host} version=${p.database.version}` +
+              (p.database.postgres_engine ? ` engine=${p.database.postgres_engine}` : ""),
+          );
+        }
+      }
     }
   } catch (e) {
     console.log(`  Supabase connection test error: ${e.message}`);
+  }
+}
+
+// ---- Part A3: Cloudflare — verify the brokered token + its SCOPE -----------
+// TEST_CLOUDFLARE_API is a BROKERED secret (cloudflare/workers-deploy). Prove
+// (a) the minted token is valid, (b) it CAN act within its template's scope
+// (list Workers scripts), and (c) it CANNOT act outside it (zones read is
+// denied) — the scope boundary, demonstrated positively and negatively.
+const cfToken = process.env.TEST_CLOUDFLARE_API;
+if (cfToken) {
+  console.log("\n== Cloudflare API via TEST_CLOUDFLARE_API (brokered mint, workers-deploy) ==");
+  const cf = (path) =>
+    fetchT(`https://api.cloudflare.com/client/v4${path}`, {
+      headers: { Authorization: `Bearer ${cfToken}` },
+    });
+  try {
+    const vRes = await cf("/user/tokens/verify");
+    const v = await vRes.json().catch(() => null);
+    console.log(`  GET /user/tokens/verify -> HTTP ${vRes.status}`);
+    if (v?.result) console.log(`    token: id=${v.result.id} status=${v.result.status}`);
+
+    // Account id: prefer the token's own view; fall back to the CI-provided id.
+    let accountId = process.env.CLOUDFLARE_ACCOUNT_ID || "";
+    const aRes = await cf("/accounts");
+    const a = await aRes.json().catch(() => null);
+    console.log(`  GET /accounts -> HTTP ${aRes.status}`);
+    if (Array.isArray(a?.result) && a.result.length > 0) {
+      accountId = a.result[0].id;
+      console.log(`    account: id=${accountId} name=${JSON.stringify(a.result[0].name)}`);
+    } else if (accountId) {
+      console.log(`    (accounts list not in scope — using CLOUDFLARE_ACCOUNT_ID from CI env)`);
+    }
+
+    if (accountId) {
+      // POSITIVE scope proof: workers-deploy must be able to see Workers scripts.
+      const wRes = await cf(`/accounts/${accountId}/workers/scripts`);
+      const w = await wRes.json().catch(() => null);
+      const names = Array.isArray(w?.result) ? w.result.map((s) => s.id) : null;
+      console.log(
+        `  GET /accounts/{id}/workers/scripts -> HTTP ${wRes.status} ` +
+          (names ? `(${names.length} script(s)${names.length ? `: ${names.slice(0, 5).join(", ")}${names.length > 5 ? ", …" : ""}` : ""})` : ""),
+      );
+      console.log(`    scope check (positive): workers read ${wRes.status === 200 ? "ALLOWED — in template scope ✓" : "denied — unexpected for workers-deploy"}`);
+    } else {
+      console.log("  (no account id available — skipping the workers-scripts scope proof)");
+    }
+
+    // NEGATIVE scope proof: a workers-deploy token must NOT read DNS zones.
+    const zRes = await cf("/zones");
+    console.log(`  GET /zones -> HTTP ${zRes.status}`);
+    console.log(
+      `    scope check (negative): zones read ${zRes.status === 403 ? "DENIED — token is bounded to its template ✓" : zRes.status === 200 ? "ALLOWED — token is BROADER than workers-deploy ✗" : `HTTP ${zRes.status}`}`,
+    );
+  } catch (e) {
+    console.log(`  Cloudflare scope test error: ${e.message}`);
   }
 }
 
