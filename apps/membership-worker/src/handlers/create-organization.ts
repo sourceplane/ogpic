@@ -7,7 +7,7 @@ import { createMembershipRepository, effectiveBillingOrgId } from "@saas/db/memb
 import { createEventsRepository } from "@saas/db/events";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { orgPublicId, memberPublicId, generateJoinCode } from "../ids.js";
-import { asUuid } from "@saas/db/ids";
+import { asUuid, type Uuid } from "@saas/db/ids";
 import {
   assignPlan,
   checkBillingEntitlement,
@@ -181,6 +181,28 @@ async function tryAssignFreePlan(
   }
 }
 
+/**
+ * Best-effort: mint a shareable join code for a freshly-created org. Fully
+ * isolated (its own try/catch) so it can NEVER fail or roll back team creation;
+ * on any failure the code stays NULL and getJoinCode lazy-mints on first read.
+ */
+async function mintJoinCode(
+  repo: Pick<MembershipRepository, "setOrganizationJoinCode">,
+  orgId: Uuid,
+  now: Date,
+): Promise<string | null> {
+  try {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const set = await repo.setOrganizationJoinCode(orgId, generateJoinCode(), now);
+      if (set.ok) return set.value.joinCode ?? null;
+      if (set.error.kind !== "conflict") return null;
+    }
+  } catch {
+    /* best-effort */
+  }
+  return null;
+}
+
 function generateSlugFromName(name: string): string {
   return name
     .toLowerCase()
@@ -332,21 +354,7 @@ export async function handleCreateOrganization(
           throw new Error("event_append_failed");
         }
 
-        // Mint the shareable join code at bootstrap so the creator/manager can
-        // share it immediately — no dependency on a later lazy-mint-on-read.
-        // Best-effort: a failure here leaves join_code NULL and the manager
-        // getJoinCode path mints it lazily on first read.
-        let joinCode: string | null = null;
-        for (let attempt = 0; attempt < 3; attempt++) {
-          const set = await txRepo.setOrganizationJoinCode(orgId, generateJoinCode(), now);
-          if (set.ok) {
-            joinCode = set.value.joinCode ?? null;
-            break;
-          }
-          if (set.error.kind !== "conflict") break;
-        }
-
-        return { bootstrapResult, joinCode };
+        return { bootstrapResult };
       });
 
       if (!result.bootstrapResult.ok) {
@@ -357,7 +365,10 @@ export async function handleCreateOrganization(
       }
 
       const { org, roleAssignment } = result.bootstrapResult.value;
-      const joinCode = result.joinCode;
+      // Mint the shareable join code AFTER the bootstrap commits — best-effort and
+      // fully isolated, so a join-code failure can never roll back (or fail) the
+      // team creation. If it doesn't land here, getJoinCode lazy-mints on first read.
+      const joinCode = await mintJoinCode(createMembershipRepository(executor), orgId, now);
       // A child inherits the parent's plan (fan-out); a standalone org gets free.
       if (parentOrgIdHex) {
         await tryFanOut(env, parentOrgIdHex, org.id, actor, requestId);
