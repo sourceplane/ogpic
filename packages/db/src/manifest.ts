@@ -309,5 +309,23 @@ export const manifest: MigrationManifest = {
       description:
         "Lightweight per-match payment ledger (org_id, match_id, player_id, paid) so a manager can track who has paid for the pitch, owned by the matchmaker context",
     },
+    {
+      id: "350_matchmaker_match_polls",
+      context: "matchmaker",
+      path: "350_matchmaker_match_polls/up.sql",
+      checksum:
+        "34df180ed23540adaecd674e902100b189a702304c20c3422a658d02b4a27696",
+      description:
+        "v5 match lifecycle: poll/finalizing/draft statuses, match polls with time/turf options and per-player votes, per-match dropouts with reasons, and per-org settings (WhatsApp bridge), owned by the matchmaker context",
+    },
+    {
+      id: "360_matchmaker_chat",
+      context: "matchmaker",
+      path: "360_matchmaker_chat/up.sql",
+      checksum:
+        "9db0defc677f5022cc05301b2cbd9dff617e48c0cb9814c3924a2b37ee90cd94",
+      description:
+        "Team chat stream per org — text messages, system notes, and poll/match-confirmed cards with emoji reactions, owned by the matchmaker context",
+    },
   ],
 };

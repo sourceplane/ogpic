@@ -10,6 +10,10 @@ const ORG_RATING_ROUND_RE = /^\/v1\/organizations\/[^/]+\/rating-round(?:\/(?:op
 const ORG_DRAFT_RE = /^\/v1\/organizations\/[^/]+\/draft$/;
 const ORG_MATCHES_RE = /^\/v1\/organizations\/[^/]+\/matches(?:\/[^/]+(?:\/share|\/payments(?:\/[^/]+)?)?)?$/;
 const ORG_AVAILABILITY_RE = /^\/v1\/organizations\/[^/]+\/availability(?:\/[^/]+)?$/;
+// v5 (docs/design/rondo-v5-spec.md §4): polls, finalize, dropouts, chat, settings.
+const ORG_MATCH_POLL_RE = /^\/v1\/organizations\/[^/]+\/matches\/[^/]+\/(?:poll(?:\/(?:votes|close))?|finalize|dropout|dropouts\/[^/]+\/resolve)$/;
+const ORG_CHAT_RE = /^\/v1\/organizations\/[^/]+\/chat(?:\/[^/]+\/reactions)?$/;
+const ORG_SETTINGS_RE = /^\/v1\/organizations\/[^/]+\/settings$/;
 
 const FORWARDED_HEADERS = [
   "content-type",
@@ -25,7 +29,10 @@ export function isMatchmakerRoute(pathname: string): boolean {
     ORG_RATING_ROUND_RE.test(pathname) ||
     ORG_DRAFT_RE.test(pathname) ||
     ORG_MATCHES_RE.test(pathname) ||
-    ORG_AVAILABILITY_RE.test(pathname)
+    ORG_AVAILABILITY_RE.test(pathname) ||
+    ORG_MATCH_POLL_RE.test(pathname) ||
+    ORG_CHAT_RE.test(pathname) ||
+    ORG_SETTINGS_RE.test(pathname)
   );
 }
 

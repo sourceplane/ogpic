@@ -84,3 +84,6 @@ spec:
 #     and organization.availability.set for self-service. Without this bundle the
 #     deployed engine denies those actions (unknown_action → 404), which surfaced
 #     as "generate invite code / manager features not working". (2026-07-15)
+# ci: redeploy for the Rondo v5 actions — organization.chat.read/post,
+#     poll.vote/manage, dropout.set, settings.read/write, member_role.set
+#     (docs/design/rondo-v5-spec.md §5). Same changed-plan caveat as above. (2026-07-19)
