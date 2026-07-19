@@ -1,29 +1,26 @@
 import type {
   ArchivePlayerResponse,
-  CreateMatchRequest,
-  CreateMatchResponse,
   CreatePlayerRequest,
   CreatePlayerResponse,
   ClaimPlayerResponse,
   GetMyPlayerResponse,
-  CancelMatchResponse,
   ListMatchPaymentsResponse,
   SetMatchPaymentRequest,
   SetMatchPaymentResponse,
+  DraftedPlayer,
   DraftRequest,
   DraftResponse,
-  GetMatchResponse,
   GetPlayerResponse,
-  ListMatchesResponse,
   ListPlayersResponse,
   MatchShareResponse,
+  MatchStatus as ContractsMatchStatus,
+  MatchVenueInput,
   PlayerPosition,
+  PublicMatch as ContractsPublicMatch,
   RosterSummaryResponse,
   SetCaptainResponse,
   SuggestPositionRequest,
   SuggestPositionResponse,
-  UpdateMatchRequest,
-  UpdateMatchResponse,
   UpdatePlayerRequest,
   UpdatePlayerResponse,
   ListAvailabilityResponse,
@@ -41,6 +38,90 @@ import type { Transport, RequestOptions } from "./transport.js";
 
 function orgBase(orgId: string): string {
   return `/v1/organizations/${encodeURIComponent(orgId)}`;
+}
+
+// ── v5: poll → finalizing → draft → scheduled → live → played | cancelled ──
+//
+// `@saas/contracts/matchmaker` predates the v5 night-pitch redesign and only
+// knows the post-schedule statuses. Rather than widen that shared contract
+// (out of scope here — owned by the backend work item), this file layers the
+// wider status/match/create-request shapes locally; existing (non-poll)
+// callers are unaffected since the widened types are structural supersets.
+// See docs/design/rondo-v5-spec.md §3-4.
+
+export type MatchPollDeadlineKind = "24h" | "48h" | "manual";
+
+export interface MatchPollTimeInput {
+  label: string;
+  startsAt?: string;
+}
+
+export interface MatchPollTurfInput {
+  label: string;
+  detail?: string;
+}
+
+/** The `poll` block of an extended create-match request (spec §4). */
+export interface CreateMatchPollInput {
+  times: MatchPollTimeInput[];
+  turfs: MatchPollTurfInput[];
+  deadline: MatchPollDeadlineKind;
+}
+
+/** v5 match lifecycle: adds the pre-schedule poll phases to the contract's
+ *  post-schedule statuses. */
+export type MatchStatus = ContractsMatchStatus | "poll" | "finalizing" | "draft";
+
+/** `PublicMatch` widened to the v5 `status` union. */
+export interface PublicMatch extends Omit<ContractsPublicMatch, "status"> {
+  status: MatchStatus;
+}
+
+/**
+ * Schedule a fixture from a chosen draft, or (v5) start a match poll instead:
+ * with `poll`, `scheduledAt`/`teamA`/`teamB` are optional — the server
+ * requires either `scheduledAt` or a poll time option with `startsAt`, and
+ * teams are drafted after the poll finalizes.
+ */
+export interface CreateMatchRequest {
+  scheduledAt?: string;
+  format?: string;
+  teamA?: { name: string; players: DraftedPlayer[] };
+  teamB?: { name: string; players: DraftedPlayer[] };
+  venue?: MatchVenueInput;
+  poll?: CreateMatchPollInput;
+}
+
+export interface CreateMatchResponse {
+  match: PublicMatch;
+}
+
+/** Reschedule, record a result, change status, set the venue, or edit the
+ *  line-ups. All optional; teamA and teamB must be supplied together. */
+export interface UpdateMatchRequest {
+  scheduledAt?: string;
+  status?: MatchStatus;
+  scoreA?: number;
+  scoreB?: number;
+  venue?: MatchVenueInput;
+  teamA?: { name: string; players: DraftedPlayer[] };
+  teamB?: { name: string; players: DraftedPlayer[] };
+}
+
+export interface UpdateMatchResponse {
+  match: PublicMatch;
+}
+
+export interface GetMatchResponse {
+  match: PublicMatch;
+}
+
+export interface ListMatchesResponse {
+  matches: PublicMatch[];
+}
+
+export interface CancelMatchResponse {
+  match: PublicMatch;
 }
 
 /**

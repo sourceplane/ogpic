@@ -14,13 +14,17 @@ import { ApiKeysClient } from "./apiKeys.js";
 import { AuthClient } from "./auth.js";
 import { IntegrationsClient } from "./integrations.js";
 import { BillingClient } from "./billing.js";
+import { ChatClient } from "./chat.js";
 import { ConfigClient } from "./config.js";
+import { DropoutsClient } from "./dropouts.js";
 import { EnvironmentsClient } from "./environments.js";
 import { EventsClient } from "./events.js";
 import { MembershipsClient } from "./memberships.js";
 import { MeteringClient } from "./metering.js";
 import { NotificationsClient } from "./notifications.js";
 import { OrganizationsClient } from "./organizations.js";
+import { OrgSettingsClient } from "./orgSettings.js";
+import { PollsClient } from "./polls.js";
 import { ProjectsClient } from "./projects.js";
 import { RosterClient, DraftClient, FixturesClient, AvailabilityClient } from "./matchmaker.js";
 import { SecurityEventsClient } from "./securityEvents.js";
@@ -46,6 +50,10 @@ export class Ogpic {
   readonly draft: DraftClient;
   readonly fixtures: FixturesClient;
   readonly availability: AvailabilityClient;
+  readonly polls: PollsClient;
+  readonly dropouts: DropoutsClient;
+  readonly chat: ChatClient;
+  readonly orgSettings: OrgSettingsClient;
   /** Underlying HTTP transport. Exposed for advanced extension. */
   readonly transport: Transport;
 
@@ -69,6 +77,10 @@ export class Ogpic {
     this.draft = new DraftClient(this.transport);
     this.fixtures = new FixturesClient(this.transport);
     this.availability = new AvailabilityClient(this.transport);
+    this.polls = new PollsClient(this.transport);
+    this.dropouts = new DropoutsClient(this.transport);
+    this.chat = new ChatClient(this.transport);
+    this.orgSettings = new OrgSettingsClient(this.transport);
   }
 }
 
@@ -108,6 +120,10 @@ export { NotificationsClient } from "./notifications.js";
 export { AuthClient } from "./auth.js";
 export { IntegrationsClient } from "./integrations.js";
 export { RosterClient, DraftClient, FixturesClient, AvailabilityClient } from "./matchmaker.js";
+export { PollsClient } from "./polls.js";
+export { DropoutsClient } from "./dropouts.js";
+export { ChatClient } from "./chat.js";
+export { OrgSettingsClient } from "./orgSettings.js";
 
 // Transport surface.
 export {
@@ -169,6 +185,14 @@ export type {
 } from "@saas/contracts/membership";
 
 export { ORGANIZATION_ROLES } from "@saas/contracts/membership";
+
+// v5 member-role addition — not yet reflected in `@saas/contracts/membership`.
+export type {
+  MembershipRole,
+  SetMemberRoleRequest,
+  PublicMemberRoleUpdate,
+  SetMemberRoleResponse,
+} from "./memberships.js";
 
 export type {
   PublicProject,
@@ -338,18 +362,9 @@ export type {
   DraftedPlayer,
   DraftedTeam,
   DraftResponse,
-  MatchStatus,
   MatchTeam,
   MatchVenue,
   MatchVenueInput,
-  PublicMatch,
-  CreateMatchRequest,
-  CreateMatchResponse,
-  UpdateMatchRequest,
-  UpdateMatchResponse,
-  GetMatchResponse,
-  ListMatchesResponse,
-  CancelMatchResponse,
   MatchShareResponse,
   AvailabilityState,
   PublicAvailability,
@@ -373,6 +388,62 @@ export {
   OUTFIELD_ATTRIBUTE_KEYS,
   GK_ATTRIBUTE_KEYS,
 } from "@saas/contracts/matchmaker";
+
+// v5 match lifecycle (poll → finalizing → draft → ...) widens these beyond
+// what `@saas/contracts/matchmaker` knows — sourced from `./matchmaker.js`
+// instead. See the note there.
+export type {
+  MatchStatus,
+  PublicMatch,
+  CreateMatchRequest,
+  CreateMatchResponse,
+  UpdateMatchRequest,
+  UpdateMatchResponse,
+  GetMatchResponse,
+  ListMatchesResponse,
+  CancelMatchResponse,
+  MatchPollDeadlineKind,
+  MatchPollTimeInput,
+  MatchPollTurfInput,
+  CreateMatchPollInput,
+} from "./matchmaker.js";
+
+export type {
+  MatchPollOptionKind,
+  PublicMatchPollOption,
+  PublicMatchPoll,
+  MatchPollResponse,
+  SetPollVotesRequest,
+  FinalizeMatchRequest,
+  ClosePollResponse,
+  FinalizeMatchResponse,
+} from "./polls.js";
+
+export type {
+  PublicMatchDropout,
+  SetDropoutRequest,
+  SetDropoutResponse,
+  UndoDropoutResponse,
+  ResolveDropoutRequest,
+  ResolveDropoutResponse,
+} from "./dropouts.js";
+
+export type {
+  ChatMessageKind,
+  PublicChatMessage,
+  ListChatQuery,
+  ListChatResponse,
+  PostChatRequest,
+  PostChatResponse,
+  ReactChatRequest,
+  ReactChatResponse,
+} from "./chat.js";
+
+export type {
+  GetOrgSettingsResponse,
+  SetOrgSettingsRequest,
+  SetOrgSettingsResponse,
+} from "./orgSettings.js";
 
 export { ERROR_CODES, type ErrorCode } from "@saas/contracts/errors";
 

@@ -15,9 +15,13 @@ export const joinRepoStubs: Pick<
   | "approveJoinRequest"
   | "declineJoinRequest"
   | "getMemberBySubjectId"
+  | "setMemberRole"
 > = {
   async getMemberBySubjectId() {
     return { ok: false, error: { kind: "not_found" } };
+  },
+  async setMemberRole() {
+    return { ok: false, error: { kind: "internal", message: "not implemented" } };
   },
   async getOrganizationByJoinCode() {
     return { ok: false, error: { kind: "not_found" } };

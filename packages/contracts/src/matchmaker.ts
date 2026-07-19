@@ -233,7 +233,10 @@ export interface DraftResponse {
 
 // ── Fixtures (matches) ──────────────────────────────────────────
 
-export type MatchStatus = "scheduled" | "live" | "played" | "cancelled";
+// v5 lifecycle (docs/design/rondo-v5-spec.md §3): a poll-born match walks
+// poll → finalizing → draft before reaching the classic scheduled → live →
+// played | cancelled tail.
+export type MatchStatus = "poll" | "finalizing" | "draft" | "scheduled" | "live" | "played" | "cancelled";
 
 /** A team as persisted on a fixture (immutable lineup snapshot). */
 export interface MatchTeam {

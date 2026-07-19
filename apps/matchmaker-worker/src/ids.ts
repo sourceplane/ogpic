@@ -34,6 +34,22 @@ export function parseMatchPublicId(publicId: string): Uuid | null {
   return uuidFromPublicId(publicId, "mtc");
 }
 
+export function chatMessagePublicId(uuid: string): string {
+  return `cht_${uuidToHex(uuid)}`;
+}
+
+export function parseChatMessagePublicId(publicId: string): Uuid | null {
+  return uuidFromPublicId(publicId, "cht");
+}
+
+export function pollOptionPublicId(uuid: string): string {
+  return `opt_${uuidToHex(uuid)}`;
+}
+
+export function parsePollOptionPublicId(publicId: string): Uuid | null {
+  return uuidFromPublicId(publicId, "opt");
+}
+
 /** Opaque share-capability token for a fixture (`sht_<24 hex>`). */
 export function generateShareToken(): string {
   const buf = new Uint8Array(12);

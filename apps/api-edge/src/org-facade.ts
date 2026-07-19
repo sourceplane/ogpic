@@ -22,6 +22,8 @@ const ORG_JOIN_CODE_RE = /^\/v1\/organizations\/[^/]+\/join-code$/;
 const ORG_JOIN_CODE_ROTATE_RE = /^\/v1\/organizations\/[^/]+\/join-code\/rotate$/;
 const ORG_JOIN_REQUESTS_RE = /^\/v1\/organizations\/[^/]+\/join-requests$/;
 const ORG_JOIN_REQUEST_DECIDE_RE = /^\/v1\/organizations\/[^/]+\/join-requests\/[^/]+\/(?:approve|decline)$/;
+// v5 (docs/design/rondo-v5-spec.md §4): promote/demote a member (manager toggle).
+const ORG_MEMBER_ROLE_RE = /^\/v1\/organizations\/[^/]+\/members\/[^/]+\/role$/;
 
 const FORWARDED_HEADERS = [
   "content-type",
@@ -31,7 +33,7 @@ const FORWARDED_HEADERS = [
 ];
 
 export function isOrgRoute(pathname: string): boolean {
-  return pathname in ORG_ROUTES || ORG_ID_RE.test(pathname) || ORG_MEMBERS_RE.test(pathname) || ORG_MEMBER_ID_RE.test(pathname) || ORG_INVITATIONS_ACCEPT_RE.test(pathname) || ORG_INVITATIONS_RE.test(pathname) || ORG_INVITATION_ID_RE.test(pathname) || ORG_API_KEYS_RE.test(pathname) || ORG_API_KEY_ID_RE.test(pathname) || JOIN_RE.test(pathname) || ORG_JOIN_CODE_RE.test(pathname) || ORG_JOIN_CODE_ROTATE_RE.test(pathname) || ORG_JOIN_REQUESTS_RE.test(pathname) || ORG_JOIN_REQUEST_DECIDE_RE.test(pathname) || ORG_LEAVE_RE.test(pathname);
+  return pathname in ORG_ROUTES || ORG_ID_RE.test(pathname) || ORG_MEMBERS_RE.test(pathname) || ORG_MEMBER_ID_RE.test(pathname) || ORG_MEMBER_ROLE_RE.test(pathname) || ORG_INVITATIONS_ACCEPT_RE.test(pathname) || ORG_INVITATIONS_RE.test(pathname) || ORG_INVITATION_ID_RE.test(pathname) || ORG_API_KEYS_RE.test(pathname) || ORG_API_KEY_ID_RE.test(pathname) || JOIN_RE.test(pathname) || ORG_JOIN_CODE_RE.test(pathname) || ORG_JOIN_CODE_ROTATE_RE.test(pathname) || ORG_JOIN_REQUESTS_RE.test(pathname) || ORG_JOIN_REQUEST_DECIDE_RE.test(pathname) || ORG_LEAVE_RE.test(pathname);
 }
 
 export async function handleOrgRoute(
@@ -54,6 +56,10 @@ export async function handleOrgRoute(
   }
 
   if (ORG_MEMBER_ID_RE.test(pathname) && request.method !== "PATCH" && request.method !== "DELETE") {
+    return errorResponse("unsupported", "Method not allowed", 405, requestId);
+  }
+
+  if (ORG_MEMBER_ROLE_RE.test(pathname) && request.method !== "PUT") {
     return errorResponse("unsupported", "Method not allowed", 405, requestId);
   }
 
@@ -144,7 +150,8 @@ export async function handleOrgRoute(
       headers,
     };
 
-    if (request.method === "POST" || request.method === "PATCH") {
+    // PUT carries a JSON body too (member-role) — dropping it would no-op the write.
+    if (request.method === "POST" || request.method === "PUT" || request.method === "PATCH") {
       init.body = request.body;
     }
 

@@ -920,5 +920,41 @@ export function createMembershipRepository(executor: SqlExecutor): MembershipRep
         return safeError("Failed to count billable members", err);
       }
     },
+
+    async setMemberRole(
+      orgId: string,
+      subjectId: string,
+      subjectType: string,
+      role: string,
+      roleAssignmentId: string,
+      now: Date,
+    ): Promise<MembershipResult<RoleAssignment>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `WITH revoked AS (
+             UPDATE membership.role_assignments
+             SET revoked_at = $6
+             WHERE org_id = $1 AND subject_id = $2 AND scope_kind = 'organization' AND revoked_at IS NULL
+             RETURNING id
+           ),
+           inserted AS (
+             INSERT INTO membership.role_assignments (id, org_id, subject_id, subject_type, role, scope_kind, scope_ref, created_at)
+             VALUES ($5, $1, $2, $3, $4, 'organization', NULL, $6)
+             RETURNING *
+           )
+           SELECT * FROM inserted`,
+          [orgId, subjectId, subjectType, role, roleAssignmentId, now.toISOString()],
+        );
+        if (result.rowCount === 0) {
+          return safeError("Failed to set member role: insert did not return a row");
+        }
+        return { ok: true, value: mapRoleAssignment(result.rows[0]!) };
+      } catch (err: unknown) {
+        if (isUniqueViolation(err)) {
+          return { ok: false, error: { kind: "conflict", entity: "role_assignment" } };
+        }
+        return safeError("Failed to set member role", err);
+      }
+    },
   };
 }

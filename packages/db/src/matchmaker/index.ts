@@ -29,6 +29,22 @@ export type {
   MatchPageQueryParams,
   PagedResult,
   MatchPagedResult,
+  PollDeadlineKind,
+  PollOptionKind,
+  MatchPoll,
+  MatchPollOption,
+  MatchPollOptionWithVotes,
+  MatchPollVote,
+  MatchPollDetail,
+  CreateMatchPollOptionInput,
+  CreateMatchPollInput,
+  MatchDropout,
+  OrgSettings,
+  SetOrgSettingsInput,
+  ChatMessageKind,
+  ChatMessage,
+  InsertChatMessageInput,
+  ListChatMessagesParams,
 } from "./types.js";
 
 export { createMatchmakerRepository } from "./repository.js";

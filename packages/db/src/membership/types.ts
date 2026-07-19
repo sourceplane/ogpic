@@ -229,6 +229,22 @@ export interface MembershipRepository {
   revokeRoleAssignment(orgId: Uuid, assignmentId: string, revokedAt: Date): Promise<MembershipResult<RoleAssignment>>;
   revokeAllRoleAssignments(orgId: Uuid, subjectId: string, revokedAt: Date): Promise<MembershipResult<RoleAssignment[]>>;
   countActiveOwners(orgId: Uuid): Promise<MembershipResult<number>>;
+  /**
+   * Flips a member's org-scoped role in one call: revokes their current active
+   * org-scope role assignment(s) and inserts a fresh one with `role`. Used by
+   * the promote/demote-manager endpoint, which has already decided (via
+   * `listRoleAssignments`) that this is a real change — callers pass a
+   * pre-generated `roleAssignmentId` (mirrors `createRoleAssignment`) so the id
+   * source stays with the caller. Every query is scoped by `orgId`.
+   */
+  setMemberRole(
+    orgId: Uuid,
+    subjectId: string,
+    subjectType: string,
+    role: string,
+    roleAssignmentId: string,
+    now: Date,
+  ): Promise<MembershipResult<RoleAssignment>>;
 
   /**
    * Counts billable members for an organization for the purposes of the

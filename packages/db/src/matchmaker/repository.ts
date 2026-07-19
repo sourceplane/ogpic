@@ -2,27 +2,41 @@ import type { SqlExecutor } from "../hyperdrive/executor.js";
 import type {
   Availability,
   AvailabilityState,
+  ChatMessage,
+  ChatMessageKind,
   CreateMatchInput,
+  CreateMatchPollInput,
   CreatePlayerInput,
   CursorPosition,
+  InsertChatMessageInput,
+  ListChatMessagesParams,
   Match,
   MatchCursorPosition,
+  MatchDropout,
   MatchPagedResult,
   MatchPageQueryParams,
   MatchPayment,
+  MatchPoll,
+  MatchPollDetail,
+  MatchPollOption,
+  MatchPollOptionWithVotes,
   MatchStatus,
   MatchmakerRepository,
   MatchmakerResult,
   MatchTeamSnapshot,
+  OrgSettings,
   PagedResult,
   PageQueryParams,
   Player,
   PlayerPosition,
   PlayerVote,
   PlayerVoteStats,
+  PollDeadlineKind,
+  PollOptionKind,
   PositionCount,
   RatingRound,
   RatingRoundStatus,
+  SetOrgSettingsInput,
   UpdateMatchInput,
   UpdatePlayerInput,
 } from "./types.js";
@@ -108,6 +122,66 @@ function mapAvailability(row: Record<string, unknown>): Availability {
     playerId: row.player_id as string,
     state: row.state as AvailabilityState,
     updatedAt: new Date(row.updated_at as string),
+  };
+}
+
+function mapMatchPoll(row: Record<string, unknown>): MatchPoll {
+  return {
+    matchId: row.match_id as string,
+    orgId: row.org_id as string,
+    deadlineKind: row.deadline_kind as PollDeadlineKind,
+    deadlineAt: row.deadline_at ? new Date(row.deadline_at as string) : null,
+    closedAt: row.closed_at ? new Date(row.closed_at as string) : null,
+    createdAt: new Date(row.created_at as string),
+    updatedAt: new Date(row.updated_at as string),
+  };
+}
+
+function mapMatchPollOption(row: Record<string, unknown>): MatchPollOption {
+  return {
+    id: row.id as string,
+    matchId: row.match_id as string,
+    orgId: row.org_id as string,
+    kind: row.kind as PollOptionKind,
+    label: row.label as string,
+    detail: (row.detail as string | null) ?? null,
+    startsAt: row.starts_at ? new Date(row.starts_at as string) : null,
+    position: Number(row.position),
+    createdAt: new Date(row.created_at as string),
+  };
+}
+
+function mapMatchDropout(row: Record<string, unknown>): MatchDropout {
+  return {
+    matchId: row.match_id as string,
+    orgId: row.org_id as string,
+    playerId: row.player_id as string,
+    reason: row.reason as string,
+    resolvedAt: row.resolved_at ? new Date(row.resolved_at as string) : null,
+    createdAt: new Date(row.created_at as string),
+  };
+}
+
+function mapOrgSettings(row: Record<string, unknown>): OrgSettings {
+  return {
+    orgId: row.org_id as string,
+    whatsappBridge: row.whatsapp_bridge === true,
+    updatedAt: new Date(row.updated_at as string),
+  };
+}
+
+function mapChatMessage(row: Record<string, unknown>): ChatMessage {
+  return {
+    id: row.id as string,
+    orgId: row.org_id as string,
+    kind: row.kind as ChatMessageKind,
+    body: row.body as string,
+    matchId: (row.match_id as string | null) ?? null,
+    authorPlayerId: (row.author_player_id as string | null) ?? null,
+    authorSubjectId: (row.author_subject_id as string | null) ?? null,
+    authorName: (row.author_name as string | null) ?? null,
+    reactions: parseJson<Record<string, string[]>>(row.reactions, {}),
+    createdAt: new Date(row.created_at as string),
   };
 }
 
@@ -762,6 +836,378 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
         return { ok: true, value: undefined };
       } catch {
         return safeError("Failed to reset scores to baseline");
+      }
+    },
+
+    async createMatchPoll(input: CreateMatchPollInput, now: Date): Promise<MatchmakerResult<MatchPollDetail>> {
+      try {
+        const iso = now.toISOString();
+        const pollResult = await executor.execute<Record<string, unknown>>(
+          `INSERT INTO matchmaker.match_polls (match_id, org_id, deadline_kind, deadline_at, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $5)
+           ON CONFLICT (match_id) DO NOTHING
+           RETURNING *`,
+          [input.matchId, input.orgId, input.deadlineKind, input.deadlineAt ? input.deadlineAt.toISOString() : null, iso],
+        );
+        if (pollResult.rowCount === 0) {
+          return { ok: false, error: { kind: "conflict", entity: "match_poll" } };
+        }
+        const poll = mapMatchPoll(pollResult.rows[0]!);
+
+        let options: MatchPollOptionWithVotes[] = [];
+        if (input.options.length > 0) {
+          const values: unknown[] = [];
+          const tuples = input.options.map((opt) => {
+            const idIdx = values.push(opt.id);
+            const matchIdx = values.push(input.matchId);
+            const orgIdx = values.push(input.orgId);
+            const kindIdx = values.push(opt.kind);
+            const labelIdx = values.push(opt.label);
+            const detailIdx = values.push(opt.detail);
+            const startsIdx = values.push(opt.startsAt ? opt.startsAt.toISOString() : null);
+            const posIdx = values.push(opt.position);
+            const createdIdx = values.push(iso);
+            return `($${idIdx}, $${matchIdx}, $${orgIdx}, $${kindIdx}, $${labelIdx}, $${detailIdx}, $${startsIdx}, $${posIdx}, $${createdIdx})`;
+          });
+          const optResult = await executor.execute<Record<string, unknown>>(
+            `INSERT INTO matchmaker.match_poll_options (id, match_id, org_id, kind, label, detail, starts_at, position, created_at)
+             VALUES ${tuples.join(", ")}
+             RETURNING *`,
+            values,
+          );
+          options = optResult.rows.map((r) => ({ ...mapMatchPollOption(r), voterPlayerIds: [] }));
+        }
+        return { ok: true, value: { poll, options } };
+      } catch (err: unknown) {
+        if (isUniqueViolation(err)) return { ok: false, error: { kind: "conflict", entity: "match_poll" } };
+        return safeError("Failed to create match poll");
+      }
+    },
+
+    async getMatchPoll(orgId: string, matchId: string): Promise<MatchmakerResult<MatchPollDetail>> {
+      try {
+        const pollResult = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.match_polls WHERE org_id = $1 AND match_id = $2`,
+          [orgId, matchId],
+        );
+        if (pollResult.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
+        const poll = mapMatchPoll(pollResult.rows[0]!);
+
+        const optResult = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.match_poll_options WHERE org_id = $1 AND match_id = $2 ORDER BY kind, position`,
+          [orgId, matchId],
+        );
+        const voteResult = await executor.execute<Record<string, unknown>>(
+          `SELECT option_id, player_id FROM matchmaker.match_poll_votes WHERE org_id = $1 AND match_id = $2`,
+          [orgId, matchId],
+        );
+        const votersByOption = new Map<string, string[]>();
+        for (const row of voteResult.rows) {
+          const optionId = row.option_id as string;
+          const list = votersByOption.get(optionId) ?? [];
+          list.push(row.player_id as string);
+          votersByOption.set(optionId, list);
+        }
+        const options: MatchPollOptionWithVotes[] = optResult.rows.map((r) => {
+          const option = mapMatchPollOption(r);
+          return { ...option, voterPlayerIds: votersByOption.get(option.id) ?? [] };
+        });
+        return { ok: true, value: { poll, options } };
+      } catch {
+        return safeError("Failed to get match poll");
+      }
+    },
+
+    async setPollVotes(
+      orgId: string,
+      matchId: string,
+      playerId: string,
+      optionIds: string[],
+      now: Date,
+    ): Promise<MatchmakerResult<void>> {
+      try {
+        const uniqueIds = Array.from(new Set(optionIds));
+        if (uniqueIds.length > 0) {
+          const check = await executor.execute<Record<string, unknown>>(
+            `SELECT id FROM matchmaker.match_poll_options WHERE org_id = $1 AND match_id = $2 AND id = ANY($3::uuid[])`,
+            [orgId, matchId, uniqueIds],
+          );
+          if (check.rowCount !== uniqueIds.length) {
+            return {
+              ok: false,
+              error: { kind: "validation", message: "One or more option ids do not belong to this match's poll" },
+            };
+          }
+        }
+        const pollOpenGuard = `EXISTS (
+             SELECT 1 FROM matchmaker.match_polls p WHERE p.match_id = $2 AND p.org_id = $1 AND p.closed_at IS NULL
+           )`;
+        if (uniqueIds.length === 0) {
+          await executor.execute(
+            `DELETE FROM matchmaker.match_poll_votes
+             WHERE org_id = $1 AND match_id = $2 AND player_id = $3 AND ${pollOpenGuard}`,
+            [orgId, matchId, playerId],
+          );
+          return { ok: true, value: undefined };
+        }
+        const iso = now.toISOString();
+        // Two separate statements rather than one delete+insert CTE: a single
+        // CTE shares one snapshot, so re-voting while KEEPING an option would
+        // delete then immediately re-insert that row, colliding with a
+        // not-yet-committed identical row (PK conflict). Instead: only
+        // de-selected options are deleted, and newly-selected options are
+        // inserted with ON CONFLICT DO NOTHING so unchanged rows are untouched.
+        await executor.execute(
+          `DELETE FROM matchmaker.match_poll_votes
+           WHERE org_id = $1 AND match_id = $2 AND player_id = $3 AND option_id != ALL($4::uuid[]) AND ${pollOpenGuard}`,
+          [orgId, matchId, playerId, uniqueIds],
+        );
+        await executor.execute(
+          `INSERT INTO matchmaker.match_poll_votes (option_id, match_id, org_id, player_id, created_at)
+           SELECT o.option_id, $2, $1, $3, $5
+           FROM unnest($4::uuid[]) AS o(option_id)
+           WHERE ${pollOpenGuard}
+           ON CONFLICT DO NOTHING`,
+          [orgId, matchId, playerId, uniqueIds, iso],
+        );
+        return { ok: true, value: undefined };
+      } catch {
+        return safeError("Failed to set poll votes");
+      }
+    },
+
+    async closeMatchPoll(orgId: string, matchId: string, now: Date): Promise<MatchmakerResult<MatchPoll>> {
+      try {
+        const iso = now.toISOString();
+        const result = await executor.execute<Record<string, unknown>>(
+          `UPDATE matchmaker.match_polls SET closed_at = $3, updated_at = $3
+           WHERE org_id = $1 AND match_id = $2 AND closed_at IS NULL
+           RETURNING *`,
+          [orgId, matchId, iso],
+        );
+        if (result.rowCount === 0) {
+          const exists = await executor.execute<Record<string, unknown>>(
+            `SELECT match_id FROM matchmaker.match_polls WHERE org_id = $1 AND match_id = $2`,
+            [orgId, matchId],
+          );
+          if (exists.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
+          return { ok: false, error: { kind: "conflict", entity: "match_poll" } };
+        }
+        return { ok: true, value: mapMatchPoll(result.rows[0]!) };
+      } catch {
+        return safeError("Failed to close match poll");
+      }
+    },
+
+    async listDuePolls(now: Date, limit: number): Promise<MatchmakerResult<MatchPoll[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.match_polls
+           WHERE closed_at IS NULL AND deadline_at IS NOT NULL AND deadline_at <= $1
+           ORDER BY deadline_at ASC
+           LIMIT $2`,
+          [now.toISOString(), limit],
+        );
+        return { ok: true, value: result.rows.map(mapMatchPoll) };
+      } catch {
+        return safeError("Failed to list due polls");
+      }
+    },
+
+    async upsertDropout(
+      orgId: string,
+      matchId: string,
+      playerId: string,
+      reason: string,
+      now: Date,
+    ): Promise<MatchmakerResult<MatchDropout>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `INSERT INTO matchmaker.match_dropouts (match_id, org_id, player_id, reason, resolved_at, created_at)
+           VALUES ($1, $2, $3, $4, NULL, $5)
+           ON CONFLICT (match_id, player_id)
+           DO UPDATE SET reason = EXCLUDED.reason, resolved_at = NULL
+           RETURNING *`,
+          [matchId, orgId, playerId, reason, now.toISOString()],
+        );
+        return { ok: true, value: mapMatchDropout(result.rows[0]!) };
+      } catch {
+        return safeError("Failed to set dropout");
+      }
+    },
+
+    async deleteDropout(orgId: string, matchId: string, playerId: string): Promise<MatchmakerResult<MatchDropout>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `DELETE FROM matchmaker.match_dropouts
+           WHERE org_id = $1 AND match_id = $2 AND player_id = $3 AND resolved_at IS NULL
+           RETURNING *`,
+          [orgId, matchId, playerId],
+        );
+        if (result.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
+        return { ok: true, value: mapMatchDropout(result.rows[0]!) };
+      } catch {
+        return safeError("Failed to delete dropout");
+      }
+    },
+
+    async resolveDropout(
+      orgId: string,
+      matchId: string,
+      playerId: string,
+      now: Date,
+    ): Promise<MatchmakerResult<MatchDropout>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `UPDATE matchmaker.match_dropouts SET resolved_at = $4
+           WHERE org_id = $1 AND match_id = $2 AND player_id = $3 AND resolved_at IS NULL
+           RETURNING *`,
+          [orgId, matchId, playerId, now.toISOString()],
+        );
+        if (result.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
+        return { ok: true, value: mapMatchDropout(result.rows[0]!) };
+      } catch {
+        return safeError("Failed to resolve dropout");
+      }
+    },
+
+    async listDropouts(orgId: string, matchId: string): Promise<MatchmakerResult<MatchDropout[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.match_dropouts WHERE org_id = $1 AND match_id = $2 ORDER BY created_at ASC`,
+          [orgId, matchId],
+        );
+        return { ok: true, value: result.rows.map(mapMatchDropout) };
+      } catch {
+        return safeError("Failed to list dropouts");
+      }
+    },
+
+    async listOpenDropouts(orgId: string): Promise<MatchmakerResult<MatchDropout[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.match_dropouts WHERE org_id = $1 AND resolved_at IS NULL ORDER BY created_at ASC`,
+          [orgId],
+        );
+        return { ok: true, value: result.rows.map(mapMatchDropout) };
+      } catch {
+        return safeError("Failed to list open dropouts");
+      }
+    },
+
+    async getOrgSettings(orgId: string): Promise<MatchmakerResult<OrgSettings | null>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.org_settings WHERE org_id = $1`,
+          [orgId],
+        );
+        return { ok: true, value: result.rowCount === 0 ? null : mapOrgSettings(result.rows[0]!) };
+      } catch {
+        return safeError("Failed to get org settings");
+      }
+    },
+
+    async setOrgSettings(orgId: string, input: SetOrgSettingsInput, now: Date): Promise<MatchmakerResult<OrgSettings>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `INSERT INTO matchmaker.org_settings (org_id, whatsapp_bridge, updated_at)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (org_id)
+           DO UPDATE SET whatsapp_bridge = EXCLUDED.whatsapp_bridge, updated_at = EXCLUDED.updated_at
+           RETURNING *`,
+          [orgId, input.whatsappBridge, now.toISOString()],
+        );
+        return { ok: true, value: mapOrgSettings(result.rows[0]!) };
+      } catch {
+        return safeError("Failed to set org settings");
+      }
+    },
+
+    async insertChatMessage(input: InsertChatMessageInput): Promise<MatchmakerResult<ChatMessage>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `INSERT INTO matchmaker.chat_messages (id, org_id, kind, body, match_id, author_player_id, author_subject_id, author_name, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+           ON CONFLICT (id) DO NOTHING
+           RETURNING *`,
+          [
+            input.id,
+            input.orgId,
+            input.kind,
+            input.body,
+            input.matchId,
+            input.authorPlayerId,
+            input.authorSubjectId,
+            input.authorName,
+            input.createdAt.toISOString(),
+          ],
+        );
+        if (result.rowCount === 0) {
+          return { ok: false, error: { kind: "conflict", entity: "chat_message" } };
+        }
+        return { ok: true, value: mapChatMessage(result.rows[0]!) };
+      } catch (err: unknown) {
+        if (isUniqueViolation(err)) return { ok: false, error: { kind: "conflict", entity: "chat_message" } };
+        return safeError("Failed to insert chat message");
+      }
+    },
+
+    async listChatMessages(orgId: string, params: ListChatMessagesParams): Promise<MatchmakerResult<ChatMessage[]>> {
+      try {
+        const conds = ["org_id = $1"];
+        const values: unknown[] = [orgId];
+        if (params.before && params.beforeId) {
+          // Row-value comparison matches the (created_at DESC, id DESC)
+          // index and breaks ties safely when multiple messages share the
+          // same created_at.
+          values.push(params.before.toISOString(), params.beforeId);
+          conds.push(`(created_at, id) < ($${values.length - 1}, $${values.length})`);
+        } else if (params.before) {
+          values.push(params.before.toISOString());
+          conds.push(`created_at < $${values.length}`);
+        }
+        values.push(params.limit);
+        const sql = `SELECT * FROM matchmaker.chat_messages
+           WHERE ${conds.join(" AND ")}
+           ORDER BY created_at DESC, id DESC
+           LIMIT $${values.length}`;
+        const result = await executor.execute<Record<string, unknown>>(sql, values);
+        return { ok: true, value: result.rows.map(mapChatMessage) };
+      } catch {
+        return safeError("Failed to list chat messages");
+      }
+    },
+
+    async toggleChatReaction(
+      orgId: string,
+      messageId: string,
+      emoji: string,
+      subjectId: string,
+    ): Promise<MatchmakerResult<ChatMessage>> {
+      try {
+        // Single atomic jsonb UPDATE (no prior SELECT): a read-modify-write
+        // round trip would lose concurrent reactions from other subjects
+        // arriving between the read and the write.
+        const updated = await executor.execute<Record<string, unknown>>(
+          `UPDATE matchmaker.chat_messages SET reactions = (
+             CASE WHEN COALESCE(reactions->$3, '[]'::jsonb) ? $4 THEN
+               CASE WHEN jsonb_array_length(reactions->$3) <= 1 THEN reactions - $3
+                    ELSE jsonb_set(reactions, ARRAY[$3], (
+                      SELECT COALESCE(jsonb_agg(t.v), '[]'::jsonb)
+                      FROM jsonb_array_elements_text(reactions->$3) AS t(v)
+                      WHERE t.v <> $4
+                    ))
+               END
+             ELSE jsonb_set(reactions, ARRAY[$3], COALESCE(reactions->$3, '[]'::jsonb) || to_jsonb($4::text))
+             END)
+           WHERE org_id = $1 AND id = $2
+           RETURNING *`,
+          [orgId, messageId, emoji, subjectId],
+        );
+        if (updated.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
+        return { ok: true, value: mapChatMessage(updated.rows[0]!) };
+      } catch {
+        return safeError("Failed to toggle chat reaction");
       }
     },
   };
