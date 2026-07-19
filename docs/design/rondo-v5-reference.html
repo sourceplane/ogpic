@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E9E4D8;font-family:'Space Grotesk',system-ui,sans-serif}
+a{color:#1E8A5E;text-decoration:none}a:hover{color:#0F4A33}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:36px 24px 48px">
+<div style="text-align:center;max-width:780px">
+  <div style="font-size:22px;font-weight:700;letter-spacing:-.5px;color:#0E1B14">Rondo v5 — the night-pitch redesign</div>
+  <div style="margin-top:6px;font-size:12.5px;color:rgba(14,27,20,.55);line-height:1.5">Warm paper surfaces, one glowing night-pitch language, ticket-style match cards and a floating dock. Same living prototype — polls, drafts, chat and dropouts sync live between the two phones.</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:44px;justify-content:center;align-items:flex-start;margin-top:28px">
+
+<!-- ══════════ MANAGER PHONE ══════════ -->
+<div style="display:flex;flex-direction:column;gap:12px;align-items:center">
+<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;color:#8A6D2C;background:rgba(201,162,75,.22);padding:6px 14px;border-radius:12px">DANI · MANAGER</span>
+<div style="width:390px;height:844px;flex:none;background:#F5F2E9;border-radius:32px;border:1px solid rgba(14,27,20,.12);box-shadow:0 16px 48px -20px rgba(14,27,20,.35);overflow:hidden;display:flex;flex-direction:column">
+  <div style="height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 28px 0">
+    <span style="font-size:13px;font-weight:600;color:#0E1B14">9:41</span>
+    <div style="display:flex;gap:5px;align-items:center;color:rgba(14,27,20,.7)"><svg width="15" height="10" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"></rect><rect x="4.5" y="5" width="3" height="6" rx="1"></rect><rect x="9" y="2.5" width="3" height="8.5" rx="1"></rect><rect x="13.5" y="0" width="3" height="11" rx="1"></rect></svg><svg width="22" height="10" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="19" height="9" rx="2.5" stroke="currentColor" stroke-opacity=".45"></rect><rect x="2.5" y="2.5" width="14" height="6" rx="1.2" fill="currentColor"></rect></svg></div>
+  </div>
+  <div style="flex:1;min-height:0;position:relative">
+
+  <sc-if value="{{mLogin}}" hint-placeholder-val="{{true}}">
+  <div data-screen-label="M Login" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="flex:1;margin:8px 16px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;border-radius:26px;background:linear-gradient(160deg,#0C1912 0%,#17402B 75%,#1E8A5E 195%);overflow:hidden">
+      <div style="position:absolute;left:50%;top:50%;width:250px;height:250px;border:2px solid rgba(245,242,233,.1);border-radius:50%;transform:translate(-50%,-50%)"></div>
+      <div style="position:absolute;left:50%;top:50%;width:150px;height:150px;border:2px solid rgba(245,242,233,.08);border-radius:50%;transform:translate(-50%,-50%)"></div>
+      <div style="position:absolute;left:0;right:0;top:50%;height:2px;background:rgba(245,242,233,.07)"></div>
+      <div style="width:72px;height:72px;border-radius:22px;background:#F5F2E9;display:flex;align-items:center;justify-content:center;box-shadow:0 0 44px rgba(47,189,127,.45);position:relative"><span style="font-size:34px;font-weight:700;color:#0E1B14">R</span></div>
+      <div style="font-size:34px;font-weight:700;letter-spacing:-1.2px;color:#F5F2E9;margin-top:18px;position:relative">Rondo</div>
+      <div style="font-size:13px;color:rgba(245,242,233,.65);margin-top:5px;position:relative">Balanced sides. Every match.</div>
+    </div>
+    <div style="padding:0 24px 30px;display:flex;flex-direction:column;gap:10px">
+      <div onClick="{{signInM}}" style="height:52px;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;gap:10px;font-size:14px;font-weight:700;color:#0E1B14;cursor:pointer"><span style="width:20px;height:20px;border-radius:50%;background:conic-gradient(#4285F4 0 25%,#34A853 25% 50%,#FBBC05 50% 75%,#EA4335 75% 100%);display:flex;align-items:center;justify-content:center"><span style="width:9px;height:9px;border-radius:50%;background:#FFFFFF"></span></span>Continue with Google</div>
+      <div style="height:48px;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);display:flex;align-items:center;padding:0 16px;color:rgba(14,27,20,.4);font-size:13px">Email or phone…</div>
+      <div onClick="{{signInM}}" style="height:52px;border-radius:16px;background:#0E1B14;color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;cursor:pointer">Continue</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mHub}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="M Team hub" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:16px 24px 0">
+      <div style="font-size:24px;font-weight:700;letter-spacing:-.6px;color:#0E1B14">Your teams</div>
+      <div style="margin-top:4px;font-size:12.5px;color:rgba(14,27,20,.55)">Pick a team, create one, or join with a code.</div>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:16px 24px 20px;display:flex;flex-direction:column;gap:10px">
+      <div onClick="{{openTeamM}}" style="border-radius:20px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:16px;display:flex;align-items:center;gap:13px;cursor:pointer">
+        <div style="width:48px;height:48px;border-radius:15px;background:#1E8A5E;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#F5F2E9">N</div>
+        <div style="flex:1"><div style="font-size:16px;font-weight:700;color:#0E1B14">Northside FC</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.5);margin-top:2px">{{squadN}} MEMBERS · {{liveN}} MATCHES LIVE</div></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:4px 9px;border-radius:10px;background:rgba(201,162,75,.18);color:#8A6D2C">MANAGER</span>
+        <span style="font-size:13px;color:rgba(14,27,20,.35)">›</span>
+      </div>
+      <div style="border-radius:20px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:16px;display:flex;align-items:center;gap:13px;cursor:pointer">
+        <div style="width:48px;height:48px;border-radius:15px;background:#B0512F;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#F5F2E9">S</div>
+        <div style="flex:1"><div style="font-size:16px;font-weight:700;color:#0E1B14">Sunday Ballers</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.5);margin-top:2px">18 MEMBERS · 1 MANAGER</div></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:4px 9px;border-radius:10px;background:rgba(30,138,94,.12);color:#1E8A5E">PLAYER</span>
+        <span style="font-size:13px;color:rgba(14,27,20,.35)">›</span>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <div onClick="{{openTeamM}}" style="flex:1;border-radius:20px;background:#1E8A5E;padding:18px 16px;cursor:pointer;position:relative;overflow:hidden">
+          <div style="position:absolute;right:-30px;top:-30px;width:110px;height:110px;border:2px solid rgba(245,242,233,.15);border-radius:50%"></div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5F2E9" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+          <div style="font-size:15px;font-weight:700;color:#F5F2E9;margin-top:10px">Create a team</div>
+          <div style="font-size:11px;color:rgba(245,242,233,.7);margin-top:3px">You&rsquo;ll be its manager</div>
+        </div>
+        <div style="flex:1;border-radius:20px;background:#FFFFFF;border:2px dashed rgba(14,27,20,.2);padding:18px 16px;cursor:pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E1B14" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.5 1.5"></path><path d="M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.5-1.5"></path></svg>
+          <div style="font-size:15px;font-weight:700;color:#0E1B14;margin-top:10px">Join a team</div>
+          <div style="font-size:11px;color:rgba(14,27,20,.5);margin-top:3px">Code or invite link</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mHome}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="M Home" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:12px 24px 0;display:flex;align-items:center;justify-content:space-between">
+      <div onClick="{{goMHub}}" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <span style="font-size:20px;font-weight:700;letter-spacing:-.6px;color:#0E1B14">Northside FC</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(14,27,20,.5)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+      </div>
+      <div onClick="{{goMProfile}}" style="width:36px;height:36px;border-radius:50%;background:#FFFFFF;border:2px solid #C9A24B;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#0E1B14;cursor:pointer">DS</div>
+    </div>
+    <div onClick="{{goMMatches}}" style="margin:14px 24px 0;border-radius:24px;background:linear-gradient(150deg,#0C1912 0%,#17402B 70%,#1E8A5E 185%);padding:20px;color:#F5F2E9;position:relative;overflow:hidden;box-shadow:0 18px 34px -20px rgba(14,27,20,.55);cursor:pointer">
+      <div style="position:absolute;right:-50px;top:-50px;width:170px;height:170px;border:2px solid rgba(245,242,233,.1);border-radius:50%"></div>
+      <div style="position:absolute;right:-10px;top:30px;width:90px;height:90px;border:2px solid rgba(245,242,233,.08);border-radius:50%"></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:1.5px;color:rgba(245,242,233,.5)">NEXT MATCH</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:4px 9px;border-radius:10px;background:rgba(30,138,94,.4);color:#F5F2E9">{{nextChip}}</span>
+      </div>
+      <div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-top:10px">{{nextTitle}}</div>
+      <div style="font-size:12px;color:rgba(245,242,233,.65);margin-top:4px">{{nextSub}}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:12px">
+        <div style="display:flex">
+          <div style="width:24px;height:24px;border-radius:50%;background:#E5E3D2;border:2px solid #0E1B14;display:flex;align-items:center;justify-content:center;font-size:7.5px;font-weight:700;color:#0E1B14">MS</div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#DCDACA;border:2px solid #0E1B14;margin-left:-7px;display:flex;align-items:center;justify-content:center;font-size:7.5px;font-weight:700;color:#0E1B14">RM</div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#E5E3D2;border:2px solid #0E1B14;margin-left:-7px;display:flex;align-items:center;justify-content:center;font-size:7.5px;font-weight:700;color:#0E1B14">KB</div>
+          <div style="width:24px;height:24px;border-radius:50%;background:#DCDACA;border:2px solid #0E1B14;margin-left:-7px;display:flex;align-items:center;justify-content:center;font-size:7.5px;font-weight:700;color:#0E1B14">+9</div>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(245,242,233,.6)">12 CONFIRMED</span>
+      </div>
+      <div style="margin-top:14px;border-top:1.5px dashed rgba(245,242,233,.22);padding-top:13px;display:flex;gap:8px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:6px 11px;border-radius:11px;background:rgba(201,162,75,.25);color:#E9CB8A">{{pollsChip}}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:6px 11px;border-radius:11px;background:rgba(245,242,233,.12);color:rgba(245,242,233,.8)">ALL MATCHES →</span>
+      </div>
+    </div>
+    <sc-if value="{{hasDrop}}" hint-placeholder-val="{{false}}">
+    <div onClick="{{goMMatches}}" style="margin:10px 24px 0;border-radius:16px;background:rgba(176,81,47,.1);border:1px solid rgba(176,81,47,.3);padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer">
+      <span style="width:8px;height:8px;border-radius:50%;background:#B0512F"></span>
+      <span style="flex:1;font-size:12.5px;font-weight:600;color:#B0512F">{{dropAlert}}</span>
+      <span style="font-size:13px;color:#B0512F">›</span>
+    </div>
+    </sc-if>
+    <div style="margin:12px 24px 0;display:flex;gap:10px">
+      <div onClick="{{goMWizard}}" style="flex:1;border-radius:18px;background:#1E8A5E;padding:15px 16px;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5F2E9" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+        <div style="font-size:14px;font-weight:700;color:#F5F2E9;margin-top:9px">New match</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(245,242,233,.6);margin-top:2px">POLL THE SQUAD</div>
+      </div>
+      <div onClick="{{goMRate}}" style="flex:1;border-radius:18px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:15px 16px;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0E1B14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.1 1.2 6-5.4-3-5.4 3 1.2-6L2 9.3l6.1-.7L12 3z"></path></svg>
+        <div style="font-size:14px;font-weight:700;color:#0E1B14;margin-top:9px">Voting window</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.5);margin-top:2px">{{voteChip}}</div>
+      </div>
+    </div>
+    <div onClick="{{goMChat}}" style="margin:12px 24px 0;border-radius:18px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer">
+      <div style="width:40px;height:40px;border-radius:14px;background:rgba(30,138,94,.1);display:flex;align-items:center;justify-content:center;color:#1E8A5E"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"></path></svg></div>
+      <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700;color:#0E1B14">Team chat</div><div style="font-size:11px;color:rgba(14,27,20,.5);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{lastMsg}}</div></div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:4px 8px;border-radius:10px;background:#1E8A5E;color:#F5F2E9">{{chatN}}</span>
+    </div>
+    <div style="margin:12px 24px 0;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:12px 16px;display:flex;align-items:center;gap:13px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.45)">LAST RESULT</span>
+      <span style="flex:1;font-size:13px;font-weight:600;color:#0E1B14">Green vs Rust</span>
+      <span style="font-size:16px;font-weight:700;color:#0E1B14">4–3</span>
+      <span style="width:22px;height:22px;border-radius:7px;background:rgba(30,138,94,.14);color:#1E8A5E;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">W</span>
+    </div>
+    <div style="margin:12px 24px 0;display:flex;gap:8px">
+      <div style="flex:1;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:11px 0;text-align:center"><div style="font-size:19px;font-weight:700;color:#0E1B14">14</div><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;color:rgba(14,27,20,.45);margin-top:2px">PLAYED</div></div>
+      <div style="flex:1;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:11px 0;text-align:center"><div style="font-size:19px;font-weight:700;color:#1E8A5E">9</div><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;color:rgba(14,27,20,.45);margin-top:2px">WON</div></div>
+      <div style="flex:1;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:11px 0;text-align:center"><div style="font-size:19px;font-weight:700;color:#0E1B14">W·W·D</div><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;color:rgba(14,27,20,.45);margin-top:2px">FORM</div></div>
+    </div>
+    <div onClick="{{goMInvite}}" style="margin:12px 24px 0;border-radius:18px;background:#FFFFFF;border:2px dashed rgba(30,138,94,.45);padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer">
+      <div style="width:38px;height:38px;border-radius:13px;background:rgba(30,138,94,.1);display:flex;align-items:center;justify-content:center;color:#1E8A5E"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"></circle><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><path d="M19 8v6M22 11h-6"></path></svg></div>
+      <div style="flex:1"><div style="font-size:13.5px;font-weight:700;color:#0E1B14">Invite players</div><div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.5);margin-top:1px">TEAM CODE · RON-4F2</div></div>
+      <span style="font-size:12px;font-weight:700;color:#1E8A5E">Share →</span>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mMatches}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="M Matches" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:14px 24px 0;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:24px;font-weight:700;letter-spacing:-.6px;color:#0E1B14">Matches</span>
+      <div onClick="{{goMWizard}}" style="height:36px;padding:0 14px;border-radius:12px;background:#0E1B14;color:#F5F2E9;display:flex;align-items:center;font-size:12px;font-weight:700;cursor:pointer">+ New match</div>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 16px;display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{mCards}}" as="m" hint-placeholder-count="2">
+        <div onClick="{{m.open}}" style="border-radius:18px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:15px 16px;cursor:pointer;flex:none">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:15px;font-weight:700;color:#0E1B14;flex:1">{{m.label}}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;padding:4px 9px;border-radius:10px;background:{{m.chipBg}};color:{{m.chipFg}}">{{m.chip}}</span>
+          </div>
+          <div style="font-size:12px;color:rgba(14,27,20,.55);margin-top:4px">{{m.sub}}</div>
+          <div style="margin-top:10px;height:5px;border-radius:3px;background:#E8E4D6"><div style="width:{{m.progW}};height:100%;border-radius:3px;background:{{m.progC}}"></div></div>
+          <div style="margin-top:6px;display:flex;justify-content:space-between"><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(14,27,20,.4)">POLL → DRAFT → SCHEDULED</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:{{m.progC}}">{{m.stat}}</span></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mWizard}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="M Wizard" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:12px 24px 0;display:flex;align-items:center;gap:12px">
+      <div onClick="{{wizBack}}" style="width:38px;height:38px;border-radius:12px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;color:#0E1B14;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></div>
+      <div style="flex:1"><div style="font-size:19px;font-weight:700;letter-spacing:-.5px;color:#0E1B14">{{wLabel}}</div><div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.45);margin-top:1px">STEP {{wStep}} OF 3 · {{wStepName}}</div></div>
+    </div>
+    <div style="margin:12px 24px 0;display:flex;gap:5px">
+      <div style="flex:1;height:4px;border-radius:2px;background:#1E8A5E"></div>
+      <div style="flex:1;height:4px;border-radius:2px;background:{{wBar2}}"></div>
+      <div style="flex:1;height:4px;border-radius:2px;background:{{wBar3}}"></div>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:16px 24px 0">
+      <sc-if value="{{w1}}" hint-placeholder-val="{{false}}">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#0E1B14">Which times could work?</div>
+        <div style="margin-top:4px;font-size:12px;color:rgba(14,27,20,.55)">Add several — players vote on all of them.</div>
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{wTimes}}" as="o" hint-placeholder-count="3">
+            <div onClick="{{o.tgl}}" style="border-radius:16px;background:{{o.bg}};border:1.5px solid {{o.bd}};padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer">
+              <div style="width:20px;height:20px;border-radius:7px;border:2px solid {{o.ckBd}};background:{{o.ckBg}};display:flex;align-items:center;justify-content:center;color:#F5F2E9;font-size:11px;font-weight:700">{{o.ck}}</div>
+              <span style="flex:1;font-size:14px;font-weight:700;color:#0E1B14">{{o.t}}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.4)">90 MIN</span>
+            </div>
+          </sc-for>
+          <div style="border-radius:16px;border:2px dashed rgba(14,27,20,.2);padding:13px 16px;color:rgba(14,27,20,.5);font-size:13px;font-weight:600;cursor:pointer">+ Add another time</div>
+        </div>
+      </div>
+      </sc-if>
+      <sc-if value="{{w2}}" hint-placeholder-val="{{false}}">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#0E1B14">Which turfs are options?</div>
+        <div style="margin-top:4px;font-size:12px;color:rgba(14,27,20,.55)">Name + Google Maps pin. Players get directions automatically.</div>
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{wTurfs}}" as="o" hint-placeholder-count="3">
+            <div onClick="{{o.tgl}}" style="border-radius:16px;background:{{o.bg}};border:1.5px solid {{o.bd}};padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer">
+              <div style="width:20px;height:20px;border-radius:7px;border:2px solid {{o.ckBd}};background:{{o.ckBg}};display:flex;align-items:center;justify-content:center;color:#F5F2E9;font-size:11px;font-weight:700">{{o.ck}}</div>
+              <div style="flex:1"><div style="font-size:14px;font-weight:700;color:#0E1B14">{{o.t}}</div><div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.45);margin-top:2px">{{o.sub}}</div></div>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1E8A5E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"></circle><path d="M12 21c4-4 7-7.6 7-11a7 7 0 10-14 0c0 3.4 3 7 7 11z"></path></svg>
+            </div>
+          </sc-for>
+          <div style="border-radius:16px;background:#FFFFFF;border:2px dashed rgba(14,27,20,.2);padding:14px 16px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:1.5px;color:rgba(14,27,20,.5)">CUSTOM TURF · ANY PITCH, ANYWHERE</div>
+            <div style="margin-top:9px;display:flex;gap:8px">
+              <input value="{{wTurfNameV}}" onChange="{{setWTurfName}}" placeholder="Turf name…" style="flex:1;min-width:0;height:42px;border-radius:13px;background:#F5F2E9;border:1px solid rgba(14,27,20,.14);padding:0 13px;font-family:'Space Grotesk',sans-serif;font-size:13px;color:#0E1B14;outline:none">
+              <div onClick="{{addTurf}}" style="height:42px;padding:0 16px;border-radius:13px;background:#0E1B14;color:#F5F2E9;display:flex;align-items:center;font-size:12.5px;font-weight:700;cursor:pointer;flex:none">Add</div>
+            </div>
+            <div style="margin-top:9px;border-radius:13px;overflow:hidden;border:1px solid rgba(14,27,20,.12);background:#E7E4D6;position:relative;height:86px">
+              <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent 0 23px,rgba(14,27,20,.05) 23px 24px),repeating-linear-gradient(90deg,transparent 0 23px,rgba(14,27,20,.05) 23px 24px)"></div>
+              <div style="position:absolute;left:-10%;top:46%;width:120%;height:11px;background:rgba(255,255,255,.75);transform:rotate(-6deg)"></div>
+              <div style="position:absolute;left:50%;top:54%;transform:translate(-50%,-100%)"><div style="width:22px;height:22px;border-radius:50%;background:#1E8A5E;border:3px solid #FFFFFF;box-shadow:0 4px 10px rgba(14,27,20,.3)"></div></div>
+              <span style="position:absolute;left:8px;top:8px;font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;color:rgba(14,27,20,.5);background:rgba(255,255,255,.85);padding:3px 7px;border-radius:7px">TAP MAP TO DROP PIN MANUALLY</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+      <sc-if value="{{w3}}" hint-placeholder-val="{{false}}">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#0E1B14">When does the poll close?</div>
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <sc-for list="{{wDeads}}" as="d" hint-placeholder-count="3">
+            <div onClick="{{d.set}}" style="flex:1;height:64px;border-radius:16px;background:{{d.bg}};border:1.5px solid {{d.bd}};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer"><span style="font-size:15px;font-weight:700;color:{{d.fg}}">{{d.k}}</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:{{d.sub}}">{{d.lbl}}</span></div>
+          </sc-for>
+        </div>
+        <div style="margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">REVIEW</div>
+        <div style="margin-top:8px;border-radius:18px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:16px">
+          <div style="display:flex;gap:10px"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.45);width:44px;padding-top:2px">TIMES</span><span style="flex:1;font-size:12.5px;font-weight:600;color:#0E1B14;line-height:1.5">{{wTimeSum}}</span></div>
+          <div style="display:flex;gap:10px;margin-top:10px"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.45);width:44px;padding-top:2px">TURFS</span><span style="flex:1;font-size:12.5px;font-weight:600;color:#0E1B14;line-height:1.5">{{wTurfSum}}</span></div>
+          <div style="display:flex;gap:10px;margin-top:10px"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.45);width:44px;padding-top:2px">POSTS TO</span><span style="flex:1;font-size:12.5px;font-weight:600;color:#0E1B14">Team chat + push to all {{squadN}} members</span></div>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+    <div style="padding:12px 24px 24px;flex:none">
+      <div onClick="{{wizNext}}" style="height:54px;border-radius:17px;background:#1E8A5E;color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;cursor:pointer">{{wizBtn}}</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mDetail}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="M Match detail" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:12px 24px 0;display:flex;align-items:center;gap:12px">
+      <div onClick="{{goMMatches}}" style="width:38px;height:38px;border-radius:12px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;color:#0E1B14;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></div>
+      <span style="flex:1;font-size:20px;font-weight:700;letter-spacing:-.5px;color:#0E1B14">{{mM.label}}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:5px 10px;border-radius:12px;background:{{mChipBg}};color:{{mChipFg}}">{{mChip}}</span>
+    </div>
+
+    <sc-if value="{{phPoll}}" hint-placeholder-val="{{false}}">
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 16px">
+      <div style="border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:13px 16px;display:flex;align-items:center;gap:12px">
+        <div style="flex:1"><div style="font-size:13.5px;font-weight:700;color:#0E1B14">Availability poll is live</div><div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.5);margin-top:2px">CLOSES {{deadLbl}} · OR CLOSE MANUALLY</div></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#1E8A5E">{{votedN}}/12</span>
+      </div>
+      <div style="margin-top:8px;display:{{waDisp}};align-items:center;gap:9px;border-radius:13px;background:rgba(37,211,102,.12);padding:9px 12px">
+        <div style="width:26px;height:26px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;color:#FFFFFF;flex:none"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"></path></svg></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;color:#128C4B;line-height:1.4">MIRRORED TO WHATSAPP · {{ghostN}} NO-APP PLAYERS VOTE BY REPLY</span>
+      </div>
+      <div style="margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">TIMES · VOTES</div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:7px">
+        <sc-for list="{{pollTimes}}" as="o" hint-placeholder-count="2">
+          <div style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:12px 14px">
+            <div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:700;color:#0E1B14">{{o.t}}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#1E8A5E">{{o.v}} VOTES</span></div>
+            <div style="margin-top:8px;height:6px;border-radius:3px;background:#E8E4D6"><div style="width:{{o.w}};height:100%;border-radius:3px;background:#1E8A5E"></div></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">TURFS · VOTES</div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:7px">
+        <sc-for list="{{pollTurfs}}" as="o" hint-placeholder-count="2">
+          <div style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:12px 14px">
+            <div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:700;color:#0E1B14">{{o.t}}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#1E8A5E">{{o.v}} VOTES</span></div>
+            <div style="margin-top:8px;height:6px;border-radius:3px;background:#E8E4D6"><div style="width:{{o.w}};height:100%;border-radius:3px;background:#1E8A5E"></div></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">VOTED · {{votedN}}</div>
+      <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">
+        <sc-for list="{{mVoters}}" as="v" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;border-radius:16px;background:rgba(30,138,94,.1);border:1px solid rgba(30,138,94,.3)">
+            <div style="width:22px;height:22px;border-radius:50%;background:#1E8A5E;color:#F5F2E9;font-size:7.5px;font-weight:700;display:flex;align-items:center;justify-content:center">{{v.id}}</div>
+            <span style="font-size:10.5px;font-weight:700;color:#0E1B14">{{v.nm}}</span>
+            <span style="display:{{v.waDisp}};font-size:7px;font-weight:700;color:#128C4B;background:rgba(37,211,102,.2);border-radius:6px;padding:1px 5px">WA</span>
+            <span style="font-size:9px;color:#128C4B;font-weight:700">✓</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">WAITING · {{mWaitN}}</div>
+      <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">
+        <sc-for list="{{mWaiting}}" as="v" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);opacity:.75">
+            <div style="width:22px;height:22px;border-radius:50%;background:#E5E3D2;color:#0E1B14;font-size:7.5px;font-weight:700;display:flex;align-items:center;justify-content:center">{{v.id}}</div>
+            <span style="font-size:10.5px;font-weight:600;color:rgba(14,27,20,.6)">{{v.nm}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div onClick="{{closePoll}}" style="margin-top:16px;height:52px;border-radius:16px;background:#0E1B14;color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;cursor:pointer">Close poll &amp; finalize →</div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{phClosed}}" hint-placeholder-val="{{false}}">
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 16px">
+      <div style="font-size:15px;font-weight:700;color:#0E1B14">Pick the final slot</div>
+      <div style="margin-top:3px;font-size:12px;color:rgba(14,27,20,.55)">Best-voted options are pre-selected.</div>
+      <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">TIME</div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:7px">
+        <sc-for list="{{finTimes}}" as="o" hint-placeholder-count="2">
+          <div onClick="{{o.pick}}" style="border-radius:14px;background:#FFFFFF;border:1.5px solid {{o.bd}};padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer">
+            <div style="width:18px;height:18px;border-radius:50%;border:{{o.rad}}"></div>
+            <span style="flex:1;font-size:13.5px;font-weight:700;color:#0E1B14">{{o.t}}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#1E8A5E">{{o.v}} ✓</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">TURF</div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:7px">
+        <sc-for list="{{finTurfs}}" as="o" hint-placeholder-count="2">
+          <div onClick="{{o.pick}}" style="border-radius:14px;background:#FFFFFF;border:1.5px solid {{o.bd}};padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer">
+            <div style="width:18px;height:18px;border-radius:50%;border:{{o.rad}}"></div>
+            <span style="flex:1;font-size:13.5px;font-weight:700;color:#0E1B14">{{o.t}}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#1E8A5E">{{o.v}} ✓</span>
+          </div>
+        </sc-for>
+      </div>
+      <div onClick="{{genTeams}}" style="margin-top:16px;height:52px;border-radius:16px;background:#1E8A5E;color:#F5F2E9;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13.5px;font-weight:700;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"></path></svg>Auto-generate balanced teams</div>
+      <div style="text-align:center;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.45)">USES EACH PLAYER&rsquo;S STRENGTH SCORE</div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{phDraft}}" hint-placeholder-val="{{false}}">
+    <div style="flex:1;min-height:0;display:flex;flex-direction:column;padding:0 20px">
+      <div style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:16px">
+        <span style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:{{kitAC}}">{{kitAN}}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:700;letter-spacing:-2px;color:#0E1B14">{{avgA}}<span style="color:rgba(14,27,20,.3)">:</span>{{avgB}}</span>
+        <span style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:{{kitBC}}">{{kitBN}}</span>
+      </div>
+      <div style="align-self:center;margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;padding:4px 11px;border-radius:12px;background:{{gapBg}};color:{{gapFg}}">{{gapLbl}}</div>
+      <div style="flex:1;margin-top:10px;position:relative;border-radius:18px;overflow:hidden;min-height:0">
+        <div style="position:absolute;left:0;right:0;top:0;height:50%;background:linear-gradient(180deg,#143523,#102B1C)"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;height:50%;background:linear-gradient(0deg,#2E1D10,#241A12)"></div>
+        <div style="position:absolute;inset:12px;border:2px solid rgba(245,242,233,.32);border-radius:10px"></div>
+        <div style="position:absolute;left:12px;right:12px;top:50%;height:2px;background:rgba(245,242,233,.32)"></div>
+        <div style="position:absolute;left:50%;top:50%;width:72px;height:72px;border:2px solid rgba(245,242,233,.32);border-radius:50%;transform:translate(-50%,-50%);background:#0E1B14;display:flex;align-items:center;justify-content:center"><span style="font-size:12px;font-weight:700;color:#F5F2E9">VS</span></div>
+        <sc-for list="{{draftA}}" as="p" hint-placeholder-count="6">
+          <div onClick="{{p.swap}}" style="position:absolute;left:{{p.x}}%;top:{{p.y}}%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer">
+            <div style="width:42px;height:42px;border-radius:50%;background:{{p.kit}};color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;box-shadow:{{p.kglow}}">{{p.id}}</div>
+            <span style="font-size:9px;font-weight:700;color:#0E1B14;background:rgba(245,242,233,.92);border-radius:6px;padding:1px 6px">{{p.nm}} {{p.ovr}}</span>
+          </div>
+        </sc-for>
+        <sc-for list="{{draftB}}" as="p" hint-placeholder-count="6">
+          <div onClick="{{p.swap}}" style="position:absolute;left:{{p.x}}%;top:{{p.y}}%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer">
+            <div style="width:42px;height:42px;border-radius:50%;background:{{p.kit}};color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;box-shadow:{{p.kglow}}">{{p.id}}</div>
+            <span style="font-size:9px;font-weight:700;color:#0E1B14;background:rgba(245,242,233,.92);border-radius:6px;padding:1px 6px">{{p.nm}} {{p.ovr}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="text-align:center;padding-top:7px;font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.45)">TAP A PLAYER TO SWAP THEIR SIDE</div>
+      <div style="display:flex;gap:10px;padding:9px 0 16px">
+        <div onClick="{{redraft}}" style="width:52px;height:52px;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;color:#0E1B14;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 4v6h-6M1 20v-6h6"></path><path d="M3.5 9a9 9 0 0114.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0020.5 15"></path></svg></div>
+        <div onClick="{{finalize}}" style="flex:1;height:52px;border-radius:16px;background:#0E1B14;color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;cursor:pointer">Finalize schedule</div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{phSched}}" hint-placeholder-val="{{false}}">
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 16px">
+      <div style="border-radius:22px;background:linear-gradient(150deg,#0C1912 0%,#17402B 70%,#1E8A5E 185%);padding:16px 18px;color:#F5F2E9;position:relative;overflow:hidden;box-shadow:0 16px 30px -18px rgba(14,27,20,.55)">
+        <div style="position:absolute;right:-40px;top:-40px;width:130px;height:130px;border:2px solid rgba(245,242,233,.1);border-radius:50%"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:1.5px;color:rgba(245,242,233,.5)">CONFIRMED</div>
+        <div style="font-size:20px;font-weight:700;margin-top:6px">{{finT}}</div>
+        <div style="font-size:12px;color:rgba(245,242,233,.65);margin-top:3px">{{finF}} · Wapping Wall, E1W · <span style="color:#5FD8A2;font-weight:700">Directions ↗</span></div>
+      </div>
+      <sc-if value="{{mHasDrop}}" hint-placeholder-val="{{false}}">
+      <div style="margin-top:12px;border-radius:18px;background:rgba(176,81,47,.08);border:1px solid rgba(176,81,47,.3);padding:14px 16px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:1.5px;color:#B0512F">DROPOUT</div>
+        <div style="font-size:14px;font-weight:700;color:#0E1B14;margin-top:6px">{{mDropAlert}}</div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <div onClick="{{replaceDrop}}" style="flex:1.4;height:42px;border-radius:13px;background:#B0512F;color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer">Replace with E. Kova ({{ekOvr}})</div>
+          <div onClick="{{adjustTeam}}" style="flex:1;height:42px;border-radius:13px;background:#FFFFFF;border:1px solid rgba(14,27,20,.16);color:#0E1B14;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer">Adjust manually</div>
+        </div>
+      </div>
+      </sc-if>
+      <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">LINEUP · {{avgA}} v {{avgB}}</span>
+        <span onClick="{{adjustTeam}}" style="font-size:11px;font-weight:700;color:#1E8A5E;cursor:pointer">Edit on pitch →</span>
+      </div>
+      <div style="margin-top:8px;position:relative;border-radius:18px;overflow:hidden;height:330px">
+        <div style="position:absolute;left:0;right:0;top:0;height:50%;background:linear-gradient(180deg,#143523,#102B1C)"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;height:50%;background:linear-gradient(0deg,#2E1D10,#241A12)"></div>
+        <div style="position:absolute;inset:10px;border:2px solid rgba(245,242,233,.32);border-radius:10px"></div>
+        <div style="position:absolute;left:10px;right:10px;top:50%;height:2px;background:rgba(245,242,233,.32)"></div>
+        <div style="position:absolute;left:50%;top:50%;width:56px;height:56px;border:2px solid rgba(245,242,233,.32);border-radius:50%;transform:translate(-50%,-50%);background:#0E1B14;display:flex;align-items:center;justify-content:center"><span style="font-size:10px;font-weight:700;color:#F5F2E9">VS</span></div>
+        <sc-for list="{{draftA}}" as="p" hint-placeholder-count="6">
+          <div style="position:absolute;left:{{p.x}}%;top:{{p.y}}%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div style="width:34px;height:34px;border-radius:50%;background:{{p.kit}};color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700">{{p.id}}</div>
+            <span style="font-size:8px;font-weight:700;color:#0E1B14;background:rgba(245,242,233,.9);border-radius:5px;padding:1px 5px">{{p.nm}}</span>
+          </div>
+        </sc-for>
+        <sc-for list="{{draftB}}" as="p" hint-placeholder-count="6">
+          <div style="position:absolute;left:{{p.x}}%;top:{{p.y}}%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div style="width:34px;height:34px;border-radius:50%;background:{{p.kit}};color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700">{{p.id}}</div>
+            <span style="font-size:8px;font-weight:700;color:#0E1B14;background:rgba(245,242,233,.9);border-radius:5px;padding:1px 5px">{{p.nm}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div onClick="{{cancelMatch}}" style="margin-top:12px;text-align:center;font-size:12px;font-weight:700;color:#B0512F;cursor:pointer;padding:6px">Cancel match</div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mChat}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="M Chat" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:14px 24px 10px;display:flex;align-items:center;gap:11px;border-bottom:1px solid rgba(14,27,20,.08)">
+      <div style="width:38px;height:38px;border-radius:13px;background:#1E8A5E;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#F5F2E9">N</div>
+      <div style="flex:1"><div style="font-size:16px;font-weight:700;color:#0E1B14">Northside FC</div><div style="display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:#1E8A5E"></span><span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.5)">8 ONLINE · {{squadN}} MEMBERS</span></div></div>
+      <div onClick="{{goMInvite}}" style="width:36px;height:36px;border-radius:12px;background:rgba(30,138,94,.1);display:flex;align-items:center;justify-content:center;color:#1E8A5E;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"></circle><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><path d="M19 8v6M22 11h-6"></path></svg></div>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column-reverse;padding:10px 14px;gap:7px">
+      <sc-for list="{{mChatRows}}" as="c" hint-placeholder-count="5">
+        <div style="display:flex;flex-direction:column;flex:none">
+          <sc-if value="{{c.isText}}" hint-placeholder-val="{{true}}">
+          <div style="display:flex;gap:7px;justify-content:{{c.just}}">
+            <div style="width:26px;height:26px;border-radius:50%;background:#E5E3D2;display:{{c.avDisp}};align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0E1B14;flex:none;align-self:flex-end">{{c.who}}</div>
+            <div style="max-width:76%;border-radius:14px;background:{{c.bubBg}};border:1px solid {{c.bubBd}};padding:7px 11px 5px;box-shadow:0 1px 2px rgba(14,27,20,.06)">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;font-weight:700;color:{{c.nmC}};display:{{c.nmDisp}}">{{c.nm}}</div>
+              <div style="font-size:12.5px;color:{{c.txtC}};line-height:1.4">{{c.text}}</div>
+              <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:7px;color:{{c.metaC}};margin-top:2px">{{c.t}} {{c.ticks}}</div>
+            </div>
+          </div>
+          <div style="display:{{c.reactDisp}};align-self:{{c.reactSelf}};margin:-5px 36px 0;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);border-radius:10px;padding:2px 8px;font-size:9.5px;box-shadow:0 1px 3px rgba(14,27,20,.15);position:relative;z-index:1">{{c.react}}</div>
+          </sc-if>
+          <sc-if value="{{c.isPoll}}" hint-placeholder-val="{{false}}">
+          <div style="align-self:center;width:92%;border-radius:16px;background:linear-gradient(150deg,#0C1912,#1A4530);padding:11px 14px;color:#F5F2E9">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:#E9CB8A">📊 AVAILABILITY POLL</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(245,242,233,.5)">{{c.mLabel}}</span></div>
+            <div style="font-size:14px;font-weight:700;margin-top:7px">{{c.pollTop}}</div>
+            <div style="margin-top:7px;height:5px;border-radius:3px;background:rgba(245,242,233,.15)"><div style="width:{{c.pollW}};height:100%;border-radius:3px;background:#1E8A5E"></div></div>
+            <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(245,242,233,.55)">{{c.pollMeta}}</span>
+              <span onClick="{{c.go}}" style="font-size:11px;font-weight:700;color:#5FD8A2;cursor:pointer">{{c.pollBtn}}</span>
+            </div>
+          </div>
+          </sc-if>
+          <sc-if value="{{c.isSched}}" hint-placeholder-val="{{false}}">
+          <div style="align-self:center;width:92%;border-radius:16px;background:#FFFFFF;border:1.5px solid #1E8A5E;padding:11px 14px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:#1E8A5E">✓ MATCH CONFIRMED</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(14,27,20,.4)">{{c.mLabel}}</span></div>
+            <div style="font-size:15px;font-weight:700;color:#0E1B14;margin-top:7px">{{c.when}}</div>
+            <div style="font-size:11.5px;color:rgba(14,27,20,.55);margin-top:2px">{{c.where}} · Directions ↗</div>
+            <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.45)">{{c.schedMeta}}</span>
+              <span onClick="{{c.go}}" style="font-size:11px;font-weight:700;color:#1E8A5E;cursor:pointer">View lineup →</span>
+            </div>
+          </div>
+          </sc-if>
+          <sc-if value="{{c.isNote}}" hint-placeholder-val="{{false}}">
+          <div style="align-self:center;font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.45);background:rgba(14,27,20,.05);border-radius:10px;padding:5px 12px">{{c.text}}</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <div style="flex:none;padding:10px 16px 14px;display:flex;gap:8px;border-top:1px solid rgba(14,27,20,.08)">
+      <div onClick="{{openMPlus}}" style="width:42px;height:42px;border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;color:#1E8A5E;cursor:pointer;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></div>
+      <input value="{{mDraftV}}" onChange="{{setMDraft}}" placeholder="Message the squad…" style="flex:1;height:42px;border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);padding:0 14px;font-family:'Space Grotesk',sans-serif;font-size:13px;color:#0E1B14;outline:none">
+      <div onClick="{{sendM}}" style="width:42px;height:42px;border-radius:14px;background:#1E8A5E;display:flex;align-items:center;justify-content:center;color:#F5F2E9;cursor:pointer;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"></path></svg></div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mSquad}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="M Squad" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:14px 24px 0;display:flex;align-items:baseline;justify-content:space-between">
+      <span style="font-size:24px;font-weight:700;letter-spacing:-.6px;color:#0E1B14">Squad</span>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:rgba(14,27,20,.5)">{{squadN}}</span><div onClick="{{openMAdd}}" style="height:32px;padding:0 12px;border-radius:11px;background:#0E1B14;color:#F5F2E9;display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;cursor:pointer">+ Add</div><div onClick="{{goMInvite}}" style="height:32px;padding:0 12px;border-radius:11px;background:#1E8A5E;color:#F5F2E9;display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;cursor:pointer">+ Invite</div></div>
+    </div>
+    <div style="margin:12px 24px 0;height:44px;border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;padding:0 14px;gap:9px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(14,27,20,.4)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+      <input onChange="{{setQ}}" placeholder="Search {{squadN}} players…" style="flex:1;border:none;outline:none;background:transparent;font-family:'Space Grotesk',sans-serif;font-size:13px;color:#0E1B14">
+    </div>
+    <div style="margin:10px 24px 0;display:flex;gap:6px">
+      <sc-for list="{{posChips}}" as="c" hint-placeholder-count="5">
+        <div onClick="{{c.set}}" style="height:32px;padding:0 13px;border-radius:16px;background:{{c.bg}};border:1px solid {{c.bd}};color:{{c.fg}};display:flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;cursor:pointer">{{c.k}}</div>
+      </sc-for>
+    </div>
+    <div style="margin:10px 24px 0;font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:1px;color:rgba(14,27,20,.4)">SHOWING {{shownN}} OF {{squadN}} · TAP TO EDIT SCORE, POSITION &amp; ROLE</div>
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:10px 24px 16px;display:flex;flex-direction:column;gap:7px">
+      <sc-for list="{{squadList}}" as="p" hint-placeholder-count="8">
+        <div onClick="{{p.open}}" style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:10px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;flex:none">
+          <div style="width:36px;height:36px;border-radius:50%;background:#E5E3D2;border:{{p.avB}};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#0E1B14">{{p.id}}</div>
+          <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700;color:#0E1B14">{{p.name}}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.45);margin-top:1px">{{p.pos}}</div></div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;padding:4px 7px;border-radius:8px;background:{{p.tagBg}};color:{{p.tagFg}}">{{p.tag}}</span>
+          <span style="font-size:18px;font-weight:700;color:#0E1B14">{{p.ovr}}</span>
+          <span style="font-size:13px;color:rgba(14,27,20,.35)">›</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mEdit}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="M Edit player" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:12px 24px 0;display:flex;align-items:center;gap:12px">
+      <div onClick="{{backEdit}}" style="width:38px;height:38px;border-radius:12px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;color:#0E1B14;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></div>
+      <span style="font-size:20px;font-weight:700;letter-spacing:-.5px;color:#0E1B14">Edit player</span>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;margin:12px 20px 0;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);border-radius:22px;padding:20px">
+      <div style="display:flex;align-items:center;gap:13px">
+        <div style="width:52px;height:52px;border-radius:50%;background:#E5E3D2;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#0E1B14">{{sel.id}}</div>
+        <div style="flex:1"><div style="font-size:19px;font-weight:700;letter-spacing:-.4px;color:#0E1B14">{{sel.name}}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.5);margin-top:2px">{{sel.roleLbl}}</div></div>
+        <div style="text-align:center"><div style="font-size:30px;font-weight:700;letter-spacing:-1.5px;color:#1E8A5E;line-height:1">{{sel.ovr}}</div><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;color:rgba(14,27,20,.45);margin-top:2px">OVR · LIVE</div></div>
+      </div>
+      <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">POSITION</div>
+      <div style="margin-top:7px;display:flex;gap:6px">
+        <sc-for list="{{posOpts}}" as="c" hint-placeholder-count="4">
+          <div onClick="{{c.set}}" style="flex:1;height:36px;border-radius:12px;background:{{c.bg}};border:1px solid {{c.bd}};color:{{c.fg}};display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer">{{c.k}}</div>
+        </sc-for>
+      </div>
+      <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">SCORE · TAP SEGMENTS</div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:13px">
+        <sc-for list="{{selAttrs}}" as="r" hint-placeholder-count="6">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;color:rgba(14,27,20,.55)">{{r.label}}</span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#0E1B14">{{r.val}}</span></div>
+            <div style="display:flex;gap:5px">
+              <sc-for list="{{r.segs}}" as="seg" hint-placeholder-count="5">
+                <div onClick="{{seg.set}}" style="flex:1;height:24px;border-radius:8px;background:{{seg.bg}};cursor:pointer"></div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:16px;border-radius:14px;border:1px solid rgba(14,27,20,.1);padding:12px 14px;display:flex;align-items:center;gap:12px">
+        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#0E1B14">Manager role</div><div style="font-size:10.5px;color:rgba(14,27,20,.5);margin-top:1px">Managers can schedule, draft &amp; edit scores</div></div>
+        <div onClick="{{toggleMgr}}" style="width:44px;height:26px;border-radius:13px;background:{{mgrBg}};position:relative;cursor:pointer"><div style="position:absolute;top:3px;left:{{mgrX}};width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(14,27,20,.3)"></div></div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <div onClick="{{removePlayer}}" style="flex:1;height:44px;border-radius:14px;border:1px solid rgba(176,81,47,.35);color:#B0512F;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;cursor:pointer">Remove from team</div>
+        <div onClick="{{doneEdit}}" style="flex:1.4;height:44px;border-radius:14px;background:#1E8A5E;color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;cursor:pointer">Save changes</div>
+      </div>
+    </div>
+    <div style="height:14px;flex:none"></div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mRate}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="M Voting window" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:12px 24px 0;display:flex;align-items:center;gap:12px">
+      <div onClick="{{goMHome}}" style="width:38px;height:38px;border-radius:12px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;color:#0E1B14;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></div>
+      <span style="flex:1;font-size:20px;font-weight:700;letter-spacing:-.5px;color:#0E1B14">Ratings</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;padding:5px 10px;border-radius:14px;background:{{voteChipBg}};color:{{voteChipFg}}">{{voteChip}}</span>
+    </div>
+    <div style="margin:14px 24px 0;border-radius:20px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:18px">
+      <div style="font-size:15px;font-weight:700;color:#0E1B14">Voting window</div>
+      <div style="margin-top:4px;font-size:12px;color:rgba(14,27,20,.55);line-height:1.45">Open it whenever — players rate each other anonymously; votes settle into scores when you close it.</div>
+      <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;color:rgba(14,27,20,.5)">7 / 12 VOTED</span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:rgba(14,27,20,.4)">ANONYMOUS</span></div>
+      <div style="margin-top:7px;height:5px;border-radius:3px;background:#E8E4D6"><div style="width:58%;height:100%;border-radius:3px;background:#1E8A5E"></div></div>
+      <div onClick="{{toggleVoting}}" style="margin-top:16px;height:50px;border-radius:15px;background:{{voteBtnBg}};color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;cursor:pointer">{{voteBtn}}</div>
+    </div>
+    <div style="margin:14px 24px 0;border-radius:16px;background:rgba(14,27,20,.04);padding:12px 14px;font-size:11.5px;color:rgba(14,27,20,.55);line-height:1.5">Opening the window posts a card to the team chat and notifies everyone.</div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mProf}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="M Profile" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:12px 24px 0;display:flex;align-items:center;gap:12px">
+      <div onClick="{{goMHome}}" style="width:38px;height:38px;border-radius:12px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;color:#0E1B14;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></div>
+      <span style="font-size:20px;font-weight:700;letter-spacing:-.5px;color:#0E1B14">Profile</span>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 20px">
+      <div style="border-radius:20px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:20px;display:flex;align-items:center;gap:15px">
+        <div style="width:56px;height:56px;border-radius:50%;background:#E5E3D2;border:3px solid #C9A24B;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#0E1B14">DS</div>
+        <div style="flex:1"><div style="font-size:19px;font-weight:700;color:#0E1B14">Dani Silva</div><div style="margin-top:5px;display:flex;gap:6px"><span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:4px 9px;border-radius:10px;background:rgba(201,162,75,.18);color:#8A6D2C">MANAGER</span><span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:4px 9px;border-radius:10px;background:rgba(14,27,20,.06);color:rgba(14,27,20,.55)">dani@gmail.com</span></div></div>
+      </div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:7px">
+        <div style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer"><span style="flex:1;font-size:13.5px;font-weight:600;color:#0E1B14">Club settings</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.4)">NAME · CREST · 6v6</span><span style="font-size:13px;color:rgba(14,27,20,.35)">›</span></div>
+        <div style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer"><span style="flex:1;font-size:13.5px;font-weight:600;color:#0E1B14">Invite code &amp; link</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#1E8A5E">RON-4F2</span><span style="font-size:13px;color:rgba(14,27,20,.35)">›</span></div>
+        <div style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 16px;display:flex;align-items:center;gap:12px"><span style="flex:1;font-size:13.5px;font-weight:600;color:#0E1B14">Notifications</span><div onClick="{{toggleMNotif}}" style="width:44px;height:26px;border-radius:13px;background:{{mNotifBg}};position:relative;cursor:pointer"><div style="position:absolute;top:3px;left:{{mNotifX}};width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(14,27,20,.3)"></div></div></div>
+        <div onClick="{{goMHub}}" style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer"><span style="flex:1;font-size:13.5px;font-weight:600;color:#0E1B14">Switch team</span><span style="font-size:13px;color:rgba(14,27,20,.35)">›</span></div>
+        <div onClick="{{signOutM}}" style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(176,81,47,.3);padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B0512F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><path d="M16 17l5-5-5-5M21 12H9"></path></svg><span style="flex:1;font-size:13.5px;font-weight:700;color:#B0512F">Sign out</span></div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mPlus}}" hint-placeholder-val="{{false}}">
+  <div style="position:absolute;inset:0;z-index:6">
+    <div onClick="{{closeMPlus}}" style="position:absolute;inset:0;background:rgba(14,27,20,.4)"></div>
+    <div style="position:absolute;left:10px;right:10px;bottom:10px;background:#F7F4EB;border-radius:26px;padding:14px 16px 16px;box-shadow:0 -12px 40px rgba(14,27,20,.3)">
+      <div style="width:36px;height:4px;border-radius:2px;background:rgba(14,27,20,.15);margin:0 auto"></div>
+      <div style="font-size:15px;font-weight:700;color:#0E1B14;margin-top:12px">Create</div>
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px">
+        <div onClick="{{plusPoll}}" style="border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(30,138,94,.12);display:flex;align-items:center;justify-content:center;color:#1E8A5E"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg></div>
+          <span style="font-size:10px;font-weight:700;color:#0E1B14;text-align:center">Availability poll</span>
+        </div>
+        <div onClick="{{plusInvite}}" style="border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(201,162,75,.16);display:flex;align-items:center;justify-content:center;color:#8A6D2C"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"></circle><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><path d="M19 8v6M22 11h-6"></path></svg></div>
+          <span style="font-size:10px;font-weight:700;color:#0E1B14;text-align:center">Invite to team</span>
+        </div>
+        <div onClick="{{stubRes}}" style="border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(14,27,20,.06);display:flex;align-items:center;justify-content:center;color:#0E1B14"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a2 2 0 012-2h12l-3 5 3 5H6"></path></svg></div>
+          <span style="font-size:10px;font-weight:700;color:#0E1B14;text-align:center">Match result</span>
+        </div>
+        <div onClick="{{stubPhoto}}" style="border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(14,27,20,.06);display:flex;align-items:center;justify-content:center;color:#0E1B14"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="9" cy="9" r="2"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+          <span style="font-size:10px;font-weight:700;color:#0E1B14;text-align:center">Photo</span>
+        </div>
+        <div onClick="{{stubLoc}}" style="border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(14,27,20,.06);display:flex;align-items:center;justify-content:center;color:#0E1B14"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"></circle><path d="M12 21c4-4 7-7.6 7-11a7 7 0 10-14 0c0 3.4 3 7 7 11z"></path></svg></div>
+          <span style="font-size:10px;font-weight:700;color:#0E1B14;text-align:center">Location</span>
+        </div>
+        <div onClick="{{stubAnn}}" style="border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(14,27,20,.06);display:flex;align-items:center;justify-content:center;color:#0E1B14"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 01-3.4 0"></path></svg></div>
+          <span style="font-size:10px;font-weight:700;color:#0E1B14;text-align:center">Announcement</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mInvite}}" hint-placeholder-val="{{false}}">
+  <div style="position:absolute;inset:0;z-index:7">
+    <div onClick="{{closeInvite}}" style="position:absolute;inset:0;background:rgba(14,27,20,.4)"></div>
+    <div style="position:absolute;left:10px;right:10px;bottom:10px;background:#F7F4EB;border-radius:26px;padding:14px 20px 20px;box-shadow:0 -12px 40px rgba(14,27,20,.3)">
+      <div style="width:36px;height:4px;border-radius:2px;background:rgba(14,27,20,.15);margin:0 auto"></div>
+      <div style="font-size:16px;font-weight:700;color:#0E1B14;margin-top:12px">Invite to Northside FC</div>
+      <div style="font-size:11.5px;color:rgba(14,27,20,.55);margin-top:3px;line-height:1.45">One code per team — anyone with it joins as a player. You approve them in Squad.</div>
+      <div style="margin-top:14px;border-radius:18px;border:2px dashed rgba(30,138,94,.5);background:#FFFFFF;padding:14px;display:flex;align-items:center;gap:12px">
+        <div style="flex:1"><div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(14,27,20,.45)">TEAM CODE</div><div style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;letter-spacing:3px;color:#1E8A5E;margin-top:2px">RON-4F2</div></div>
+        <div onClick="{{copyCode}}" style="height:38px;padding:0 14px;border-radius:12px;background:#FFFFFF;border:1px solid rgba(14,27,20,.16);display:flex;align-items:center;font-size:12px;font-weight:700;color:#0E1B14;cursor:pointer">Copy</div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <div onClick="{{shareInvite}}" style="flex:1;height:46px;border-radius:14px;background:#1E8A5E;color:#F5F2E9;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;font-weight:700;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"></path><path d="M16 6l-4-4-4 4M12 2v13"></path></svg>Share link</div>
+        <div onClick="{{shareInvite}}" style="width:46px;height:46px;border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;color:#0E1B14;cursor:pointer"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><path d="M14 14h3v3h-3zM18 18h3v3h-3z"></path></svg></div>
+      </div>
+      <div style="margin-top:12px;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:12px 14px;display:flex;align-items:center;gap:12px">
+        <div style="width:38px;height:38px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;color:#FFFFFF;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"></path></svg></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#0E1B14">WhatsApp bridge</div><div style="font-size:10.5px;color:rgba(14,27,20,.5);margin-top:1px;line-height:1.4">Polls &amp; lineups mirror to your group — no-app players vote by reply</div></div>
+        <div onClick="{{toggleWa}}" style="width:44px;height:26px;border-radius:13px;background:{{waBg}};position:relative;cursor:pointer;flex:none"><div style="position:absolute;top:3px;left:{{waX}};width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(14,27,20,.3)"></div></div>
+      </div>
+      <div onClick="{{inviteToAdd}}" style="margin-top:8px;text-align:center;font-size:11.5px;font-weight:700;color:#1E8A5E;cursor:pointer;padding:4px">Add a player without the app →</div>
+      <div style="margin-top:6px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(14,27,20,.4)">LINK · RONDO.APP/JOIN/RON-4F2</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{mAdd}}" hint-placeholder-val="{{false}}">
+  <div style="position:absolute;inset:0;z-index:8">
+    <div onClick="{{closeMAdd}}" style="position:absolute;inset:0;background:rgba(14,27,20,.4)"></div>
+    <div style="position:absolute;left:10px;right:10px;bottom:10px;background:#F7F4EB;border-radius:26px;padding:14px 20px 20px;box-shadow:0 -12px 40px rgba(14,27,20,.3)">
+      <div style="width:36px;height:4px;border-radius:2px;background:rgba(14,27,20,.15);margin:0 auto"></div>
+      <div style="font-size:16px;font-weight:700;color:#0E1B14;margin-top:12px">Add player without the app</div>
+      <div style="font-size:11.5px;color:rgba(14,27,20,.55);margin-top:3px;line-height:1.45">They join the roster now. When they sign up later, they claim this exact profile — score and history included.</div>
+      <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">NAME</div>
+      <input value="{{mAddNameV}}" onChange="{{setAddName}}" placeholder="e.g. Ben Carter" style="margin-top:7px;width:100%;box-sizing:border-box;height:46px;border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);padding:0 14px;font-family:'Space Grotesk',sans-serif;font-size:13.5px;color:#0E1B14;outline:none">
+      <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">POSITION</div>
+      <div style="margin-top:7px;display:flex;gap:6px">
+        <sc-for list="{{addPosChips}}" as="c" hint-placeholder-count="4">
+          <div onClick="{{c.set}}" style="flex:1;height:36px;border-radius:12px;background:{{c.bg}};border:1px solid {{c.bd}};color:{{c.fg}};display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer">{{c.k}}</div>
+        </sc-for>
+      </div>
+      <div style="margin-top:12px;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:12px 14px;display:flex;align-items:center;gap:12px">
+        <div style="width:34px;height:34px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;color:#FFFFFF;flex:none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"></path></svg></div>
+        <div style="flex:1"><div style="font-size:12.5px;font-weight:700;color:#0E1B14">WhatsApp updates</div><div style="font-size:10px;color:rgba(14,27,20,.5);margin-top:1px">Polls &amp; lineups by message — they vote by reply</div></div>
+        <div onClick="{{toggleAddWa}}" style="width:44px;height:26px;border-radius:13px;background:{{addWaBg}};position:relative;cursor:pointer;flex:none"><div style="position:absolute;top:3px;left:{{addWaX}};width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(14,27,20,.3)"></div></div>
+      </div>
+      <div onClick="{{addGo}}" style="margin-top:14px;height:50px;border-radius:16px;background:#1E8A5E;color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;cursor:pointer">Add to roster</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <div style="position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:{{mToastDisp}};align-items:center;padding:10px 18px;border-radius:20px;background:#0E1B14;color:#F5F2E9;font-size:12px;font-weight:600;box-shadow:0 10px 24px -8px rgba(14,27,20,.5);white-space:nowrap;z-index:5">{{mToast}}</div>
+  </div>
+  <sc-if value="{{mInTeam}}" hint-placeholder-val="{{false}}">
+  <div style="height:62px;flex:none;margin:8px 14px 12px;border-radius:22px;background:#FFFFFF;border:1px solid rgba(14,27,20,.08);box-shadow:0 12px 28px -12px rgba(14,27,20,.4);display:flex;align-items:center;justify-content:space-around;padding:0 18px">
+    <div onClick="{{goMHome}}" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:{{mNavHome}};cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a2 2 0 01-2 2H5a2 2 0 01-2-2v-9z"></path></svg><span style="font-size:8.5px;font-weight:700;letter-spacing:1px">HOME</span></div>
+    <div onClick="{{goMMatches}}" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:{{mNavMatches}};cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18M3 12h18"></path></svg><span style="font-size:8.5px;font-weight:700;letter-spacing:1px">MATCHES</span></div>
+    <div onClick="{{goMChat}}" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:{{mNavChat}};cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"></path></svg><span style="font-size:8.5px;font-weight:700;letter-spacing:1px">CHAT</span></div>
+    <div onClick="{{goMSquad}}" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:{{mNavSquad}};cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"></circle><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"></path></svg><span style="font-size:8.5px;font-weight:700;letter-spacing:1px">SQUAD</span></div>
+  </div>
+  </sc-if>
+</div>
+</div>
+
+<!-- ══════════ PLAYER PHONE ══════════ -->
+<div style="display:flex;flex-direction:column;gap:12px;align-items:center">
+<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;color:#1E8A5E;background:rgba(30,138,94,.14);padding:6px 14px;border-radius:12px">YUSUF · PLAYER</span>
+<div style="width:390px;height:844px;flex:none;background:#F5F2E9;border-radius:32px;border:1px solid rgba(14,27,20,.12);box-shadow:0 16px 48px -20px rgba(14,27,20,.35);overflow:hidden;display:flex;flex-direction:column">
+  <div style="height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 28px 0">
+    <span style="font-size:13px;font-weight:600;color:#0E1B14">9:41</span>
+    <div style="display:flex;gap:5px;align-items:center;color:rgba(14,27,20,.7)"><svg width="15" height="10" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"></rect><rect x="4.5" y="5" width="3" height="6" rx="1"></rect><rect x="9" y="2.5" width="3" height="8.5" rx="1"></rect><rect x="13.5" y="0" width="3" height="11" rx="1"></rect></svg><svg width="22" height="10" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="19" height="9" rx="2.5" stroke="currentColor" stroke-opacity=".45"></rect><rect x="2.5" y="2.5" width="14" height="6" rx="1.2" fill="currentColor"></rect></svg></div>
+  </div>
+  <div style="flex:1;min-height:0;position:relative">
+
+  <sc-if value="{{pLogin}}" hint-placeholder-val="{{true}}">
+  <div data-screen-label="P Login" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="flex:1;margin:8px 16px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;border-radius:26px;background:linear-gradient(160deg,#0C1912 0%,#17402B 75%,#1E8A5E 195%);overflow:hidden">
+      <div style="position:absolute;left:50%;top:50%;width:250px;height:250px;border:2px solid rgba(245,242,233,.1);border-radius:50%;transform:translate(-50%,-50%)"></div>
+      <div style="position:absolute;left:50%;top:50%;width:150px;height:150px;border:2px solid rgba(245,242,233,.08);border-radius:50%;transform:translate(-50%,-50%)"></div>
+      <div style="position:absolute;left:0;right:0;top:50%;height:2px;background:rgba(245,242,233,.07)"></div>
+      <div style="width:72px;height:72px;border-radius:22px;background:#F5F2E9;display:flex;align-items:center;justify-content:center;box-shadow:0 0 44px rgba(47,189,127,.45);position:relative"><span style="font-size:34px;font-weight:700;color:#0E1B14">R</span></div>
+      <div style="font-size:34px;font-weight:700;letter-spacing:-1.2px;color:#F5F2E9;margin-top:18px;position:relative">Rondo</div>
+      <div style="font-size:13px;color:rgba(245,242,233,.65);margin-top:5px;position:relative">Balanced sides. Every match.</div>
+    </div>
+    <div style="padding:0 24px 30px;display:flex;flex-direction:column;gap:10px">
+      <div onClick="{{signInP}}" style="height:52px;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;gap:10px;font-size:14px;font-weight:700;color:#0E1B14;cursor:pointer"><span style="width:20px;height:20px;border-radius:50%;background:conic-gradient(#4285F4 0 25%,#34A853 25% 50%,#FBBC05 50% 75%,#EA4335 75% 100%);display:flex;align-items:center;justify-content:center"><span style="width:9px;height:9px;border-radius:50%;background:#FFFFFF"></span></span>Continue with Google</div>
+      <div style="height:48px;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);display:flex;align-items:center;padding:0 16px;color:rgba(14,27,20,.4);font-size:13px">Email or phone…</div>
+      <div onClick="{{signInP}}" style="height:52px;border-radius:16px;background:#0E1B14;color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;cursor:pointer">Continue</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{pHub}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="P Hub" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:16px 24px 0">
+      <div style="font-size:24px;font-weight:700;letter-spacing:-.6px;color:#0E1B14">Your teams</div>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:16px 24px 20px;display:flex;flex-direction:column;gap:10px">
+      <div onClick="{{openTeamP}}" style="border-radius:20px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:16px;display:flex;align-items:center;gap:13px;cursor:pointer">
+        <div style="width:48px;height:48px;border-radius:15px;background:#1E8A5E;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#F5F2E9">N</div>
+        <div style="flex:1"><div style="font-size:16px;font-weight:700;color:#0E1B14">Northside FC</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.5);margin-top:2px">{{squadN}} MEMBERS · {{liveN}} MATCHES LIVE</div></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:4px 9px;border-radius:10px;background:rgba(30,138,94,.12);color:#1E8A5E">PLAYER</span>
+        <span style="font-size:13px;color:rgba(14,27,20,.35)">›</span>
+      </div>
+      <div style="border-radius:20px;background:#FFFFFF;border:2px dashed rgba(14,27,20,.2);padding:18px 16px;display:flex;align-items:center;gap:13px;cursor:pointer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E1B14" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.5 1.5"></path><path d="M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.5-1.5"></path></svg>
+        <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#0E1B14">Join a team</div><div style="font-size:11px;color:rgba(14,27,20,.5);margin-top:2px">Enter a code or paste an invite link</div></div>
+        <span style="font-size:13px;color:rgba(14,27,20,.35)">›</span>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{pHome}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="P Home" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:12px 24px 0;display:flex;align-items:center;justify-content:space-between">
+      <div onClick="{{goPHub}}" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <span style="font-size:20px;font-weight:700;letter-spacing:-.6px;color:#0E1B14">Northside FC</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(14,27,20,.5)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+      </div>
+      <div onClick="{{goPProfile}}" style="width:36px;height:36px;border-radius:50%;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#0E1B14;cursor:pointer">YD</div>
+    </div>
+    <div style="padding:10px 24px 0;display:flex;gap:7px;flex-wrap:wrap">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;padding:5px 10px;border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);color:#0E1B14">YOUR OVR {{meOvr}}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;padding:5px 10px;border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);color:#0E1B14">MIDFIELD</span>
+      <span onClick="{{goPRate}}" style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;padding:5px 10px;border-radius:14px;background:#B0512F;color:#F5F2E9;display:{{pBadgeDisp}};cursor:pointer">RATE NOW →</span>
+    </div>
+    <div onClick="{{goPMatches}}" style="margin:14px 24px 0;border-radius:24px;background:linear-gradient(150deg,#0C1912 0%,#17402B 70%,#1E8A5E 185%);padding:20px;color:#F5F2E9;position:relative;overflow:hidden;box-shadow:0 18px 34px -20px rgba(14,27,20,.55);cursor:pointer">
+      <div style="position:absolute;right:-50px;top:-50px;width:170px;height:170px;border:2px solid rgba(245,242,233,.1);border-radius:50%"></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:1.5px;color:rgba(245,242,233,.5)">NEXT MATCH</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:4px 9px;border-radius:10px;background:rgba(30,138,94,.4);color:#F5F2E9">{{nextChip}}</span>
+      </div>
+      <div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-top:10px">{{nextTitle}}</div>
+      <div style="font-size:12px;color:rgba(245,242,233,.65);margin-top:4px">{{pNextSub}}</div>
+      <div style="margin-top:14px;border-top:1.5px dashed rgba(245,242,233,.22);padding-top:13px;display:flex;gap:8px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:6px 11px;border-radius:11px;background:{{pVoteChipBg}};color:{{pVoteChipFg}};display:{{pVoteChipDisp}}">{{pVoteChipTxt}}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:6px 11px;border-radius:11px;background:rgba(245,242,233,.12);color:rgba(245,242,233,.8)">ALL MATCHES →</span>
+      </div>
+    </div>
+    <div onClick="{{goPChat}}" style="margin:12px 24px 0;border-radius:18px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer">
+      <div style="width:40px;height:40px;border-radius:14px;background:rgba(30,138,94,.1);display:flex;align-items:center;justify-content:center;color:#1E8A5E"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"></path></svg></div>
+      <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700;color:#0E1B14">Team chat</div><div style="font-size:11px;color:rgba(14,27,20,.5);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{lastMsg}}</div></div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:4px 8px;border-radius:10px;background:#1E8A5E;color:#F5F2E9">{{chatN}}</span>
+    </div>
+    <div style="margin:12px 24px 0;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:12px 16px;display:flex;align-items:center;gap:13px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.45)">LAST RESULT</span>
+      <span style="flex:1;font-size:13px;font-weight:600;color:#0E1B14">Green vs Rust</span>
+      <span style="font-size:16px;font-weight:700;color:#0E1B14">4–3</span>
+      <span style="width:22px;height:22px;border-radius:7px;background:rgba(30,138,94,.14);color:#1E8A5E;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">W</span>
+    </div>
+    <div style="margin:12px 24px 0;display:flex;gap:8px">
+      <div style="flex:1;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:11px 0;text-align:center"><div style="font-size:19px;font-weight:700;color:#0E1B14">12</div><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;color:rgba(14,27,20,.45);margin-top:2px">GAMES</div></div>
+      <div style="flex:1;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:11px 0;text-align:center"><div style="font-size:19px;font-weight:700;color:#0E1B14">5</div><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;color:rgba(14,27,20,.45);margin-top:2px">GOALS</div></div>
+      <div style="flex:1;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:11px 0;text-align:center"><div style="font-size:19px;font-weight:700;color:#C9A24B">1</div><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;color:rgba(14,27,20,.45);margin-top:2px">MOTM</div></div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{pMatches}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="P Matches" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:14px 24px 0">
+      <span style="font-size:24px;font-weight:700;letter-spacing:-.6px;color:#0E1B14">Matches</span>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 16px;display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{pCards}}" as="m" hint-placeholder-count="2">
+        <div onClick="{{m.open}}" style="border-radius:18px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:15px 16px;cursor:pointer;flex:none">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:15px;font-weight:700;color:#0E1B14;flex:1">{{m.label}}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;padding:4px 9px;border-radius:10px;background:{{m.chipBg}};color:{{m.chipFg}}">{{m.chip}}</span>
+          </div>
+          <div style="font-size:12px;color:rgba(14,27,20,.55);margin-top:4px">{{m.sub}}</div>
+          <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;color:{{m.actC}}">{{m.act}}</span>
+            <span style="font-size:13px;color:rgba(14,27,20,.35)">›</span>
+          </div>
+        </div>
+      </sc-for>
+      <div style="border-radius:14px;border:1px dashed rgba(14,27,20,.2);padding:11px 16px;font-size:11px;color:rgba(14,27,20,.5);text-align:center">Only managers can schedule matches</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{pDetail}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="P Match detail" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:12px 24px 0;display:flex;align-items:center;gap:12px">
+      <div onClick="{{goPMatches}}" style="width:38px;height:38px;border-radius:12px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;color:#0E1B14;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></div>
+      <span style="flex:1;font-size:20px;font-weight:700;letter-spacing:-.5px;color:#0E1B14">{{pM.label}}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:5px 10px;border-radius:12px;background:{{pChipBg}};color:{{pChipFg}}">{{pChip}}</span>
+    </div>
+
+    <sc-if value="{{pPhWait}}" hint-placeholder-val="{{false}}">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 40px;text-align:center">
+      <div style="width:72px;height:72px;border-radius:24px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);display:flex;align-items:center;justify-content:center;color:rgba(14,27,20,.4)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"></rect><path d="M3 9h18M8 3v4M16 3v4"></path></svg></div>
+      <div style="font-size:18px;font-weight:700;color:#0E1B14;margin-top:18px">Poll closed</div>
+      <div style="font-size:12.5px;color:rgba(14,27,20,.55);line-height:1.5;margin-top:8px">Dani is picking the slot and drafting teams — you&rsquo;ll get a push.</div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{pPhPoll}}" hint-placeholder-val="{{false}}">
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 16px">
+      <sc-if value="{{notVoted}}" hint-placeholder-val="{{false}}">
+      <div>
+        <div style="border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:13px 16px">
+          <div style="font-size:13.5px;font-weight:700;color:#0E1B14">Dani asked: when can you play?</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.5);margin-top:2px">PICK ALL THAT WORK · CLOSES {{deadLblP}}</div>
+        </div>
+        <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">TIMES THAT WORK FOR YOU</div>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:7px">
+          <sc-for list="{{pvTimes}}" as="o" hint-placeholder-count="2">
+            <div onClick="{{o.tgl}}" style="border-radius:14px;background:{{o.bg}};border:1.5px solid {{o.bd}};padding:13px 15px;display:flex;align-items:center;gap:12px;cursor:pointer">
+              <div style="width:20px;height:20px;border-radius:7px;border:2px solid {{o.ckBd}};background:{{o.ckBg}};display:flex;align-items:center;justify-content:center;color:#F5F2E9;font-size:11px;font-weight:700">{{o.ck}}</div>
+              <span style="flex:1;font-size:13.5px;font-weight:700;color:#0E1B14">{{o.t}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">TURFS THAT WORK</div>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:7px">
+          <sc-for list="{{pvTurfs}}" as="o" hint-placeholder-count="2">
+            <div onClick="{{o.tgl}}" style="border-radius:14px;background:{{o.bg}};border:1.5px solid {{o.bd}};padding:13px 15px;display:flex;align-items:center;gap:12px;cursor:pointer">
+              <div style="width:20px;height:20px;border-radius:7px;border:2px solid {{o.ckBd}};background:{{o.ckBg}};display:flex;align-items:center;justify-content:center;color:#F5F2E9;font-size:11px;font-weight:700">{{o.ck}}</div>
+              <span style="flex:1;font-size:13.5px;font-weight:700;color:#0E1B14">{{o.t}}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(14,27,20,.4)">MAP ↗</span>
+            </div>
+          </sc-for>
+        </div>
+        <div onClick="{{submitVote}}" style="margin-top:16px;height:52px;border-radius:16px;background:#1E8A5E;color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;cursor:pointer">Submit availability</div>
+      </div>
+      </sc-if>
+      <sc-if value="{{hasVoted}}" hint-placeholder-val="{{false}}">
+      <div>
+        <div style="border-radius:18px;background:rgba(30,138,94,.1);border:1px solid rgba(30,138,94,.3);padding:16px;display:flex;align-items:center;gap:12px">
+          <div style="width:38px;height:38px;border-radius:50%;background:#1E8A5E;display:flex;align-items:center;justify-content:center;color:#F5F2E9"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></div>
+          <div style="flex:1"><div style="font-size:14px;font-weight:700;color:#0E1B14">Vote submitted</div><div style="font-size:11.5px;color:rgba(14,27,20,.55);margin-top:2px">You&rsquo;ll get a push when it&rsquo;s finalized.</div></div>
+          <span onClick="{{editVote}}" style="font-size:11px;font-weight:700;color:#1E8A5E;cursor:pointer">Edit</span>
+        </div>
+        <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">LIVE RESULTS · {{votedNP}}/12 VOTED</div>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:7px">
+          <sc-for list="{{pollTimesP}}" as="o" hint-placeholder-count="2">
+            <div style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:12px 14px">
+              <div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:700;color:#0E1B14">{{o.t}}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#1E8A5E">{{o.v}} VOTES</span></div>
+              <div style="margin-top:8px;height:6px;border-radius:3px;background:#E8E4D6"><div style="width:{{o.w}};height:100%;border-radius:3px;background:#1E8A5E"></div></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">VOTED · {{votedNP}}</div>
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{pVoters}}" as="v" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;border-radius:16px;background:rgba(30,138,94,.1);border:1px solid rgba(30,138,94,.3)">
+              <div style="width:22px;height:22px;border-radius:50%;background:#1E8A5E;color:#F5F2E9;font-size:7.5px;font-weight:700;display:flex;align-items:center;justify-content:center">{{v.id}}</div>
+              <span style="font-size:10.5px;font-weight:700;color:#0E1B14">{{v.nm}}</span>
+              <span style="display:{{v.waDisp}};font-size:7px;font-weight:700;color:#128C4B;background:rgba(37,211,102,.2);border-radius:6px;padding:1px 5px">WA</span>
+              <span style="font-size:9px;color:#128C4B;font-weight:700">✓</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">WAITING · {{pWaitN}}</div>
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{pWaiting}}" as="v" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);opacity:.75">
+              <div style="width:22px;height:22px;border-radius:50%;background:#E5E3D2;color:#0E1B14;font-size:7.5px;font-weight:700;display:flex;align-items:center;justify-content:center">{{v.id}}</div>
+              <span style="font-size:10.5px;font-weight:600;color:rgba(14,27,20,.6)">{{v.nm}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{pPhSched}}" hint-placeholder-val="{{false}}">
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 16px">
+      <div style="border-radius:22px;background:linear-gradient(150deg,#0C1912 0%,#17402B 70%,#1E8A5E 185%);padding:16px 18px;color:#F5F2E9;position:relative;overflow:hidden;box-shadow:0 16px 30px -18px rgba(14,27,20,.55)">
+        <div style="position:absolute;right:-40px;top:-40px;width:130px;height:130px;border:2px solid rgba(245,242,233,.1);border-radius:50%"></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:1.5px;color:rgba(245,242,233,.5)">CONFIRMED</span><span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:4px 9px;border-radius:10px;background:{{myTeamBg}};color:{{myTeamFg}}">{{myTeamLbl}}</span></div>
+        <div style="font-size:20px;font-weight:700;margin-top:6px">{{finTP}}</div>
+        <div style="font-size:12px;color:rgba(245,242,233,.65);margin-top:3px">{{finFP}} · <span style="color:#5FD8A2;font-weight:700">Directions ↗</span></div>
+      </div>
+      <sc-if value="{{notOut}}" hint-placeholder-val="{{false}}">
+      <div style="margin-top:12px;border-radius:18px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:16px">
+        <div style="font-size:14px;font-weight:700;color:#0E1B14">Can&rsquo;t make it anymore?</div>
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+          <sc-for list="{{reasons}}" as="r" hint-placeholder-count="4">
+            <div onClick="{{r.set}}" style="height:34px;padding:0 14px;border-radius:17px;background:{{r.bg}};border:1px solid {{r.bd}};color:{{r.fg}};display:flex;align-items:center;font-size:12px;font-weight:600;cursor:pointer">{{r.k}}</div>
+          </sc-for>
+        </div>
+        <div onClick="{{confirmOut}}" style="margin-top:12px;height:44px;border-radius:14px;border:1.5px solid #B0512F;color:#B0512F;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;cursor:pointer">Drop out · {{meReason}}</div>
+      </div>
+      </sc-if>
+      <sc-if value="{{isOut}}" hint-placeholder-val="{{false}}">
+      <div style="margin-top:12px;border-radius:18px;background:rgba(176,81,47,.08);border:1px solid rgba(176,81,47,.3);padding:16px;display:flex;align-items:center;gap:12px">
+        <div style="width:38px;height:38px;border-radius:50%;background:#B0512F;display:flex;align-items:center;justify-content:center;color:#F5F2E9;font-size:15px;font-weight:700">✕</div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:700;color:#0E1B14">You&rsquo;re out — {{meReason}}</div><div style="font-size:11.5px;color:rgba(14,27,20,.55);margin-top:2px">{{outSub}}</div></div>
+        <span onClick="{{undoOut}}" style="font-size:11px;font-weight:700;color:#B0512F;cursor:pointer;display:{{undoDisp}}">Undo</span>
+      </div>
+      </sc-if>
+      <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">LINEUP · {{avgAP}} v {{avgBP}}</div>
+      <div style="margin-top:8px;position:relative;border-radius:18px;overflow:hidden;height:330px">
+        <div style="position:absolute;left:0;right:0;top:0;height:50%;background:linear-gradient(180deg,#143523,#102B1C)"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;height:50%;background:linear-gradient(0deg,#2E1D10,#241A12)"></div>
+        <div style="position:absolute;inset:10px;border:2px solid rgba(245,242,233,.32);border-radius:10px"></div>
+        <div style="position:absolute;left:10px;right:10px;top:50%;height:2px;background:rgba(245,242,233,.32)"></div>
+        <div style="position:absolute;left:50%;top:50%;width:56px;height:56px;border:2px solid rgba(245,242,233,.32);border-radius:50%;transform:translate(-50%,-50%);background:#0E1B14;display:flex;align-items:center;justify-content:center"><span style="font-size:10px;font-weight:700;color:#F5F2E9">VS</span></div>
+        <sc-for list="{{pPitchA}}" as="p" hint-placeholder-count="6">
+          <div style="position:absolute;left:{{p.x}}%;top:{{p.y}}%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div style="width:34px;height:34px;border-radius:50%;background:{{p.kit}};color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;box-shadow:{{p.glow}}">{{p.id}}</div>
+            <span style="font-size:8px;font-weight:700;color:#0E1B14;background:rgba(245,242,233,.9);border-radius:5px;padding:1px 5px">{{p.nm}}</span>
+          </div>
+        </sc-for>
+        <sc-for list="{{pPitchB}}" as="p" hint-placeholder-count="6">
+          <div style="position:absolute;left:{{p.x}}%;top:{{p.y}}%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div style="width:34px;height:34px;border-radius:50%;background:{{p.kit}};color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;box-shadow:{{p.glow}}">{{p.id}}</div>
+            <span style="font-size:8px;font-weight:700;color:#0E1B14;background:rgba(245,242,233,.9);border-radius:5px;padding:1px 5px">{{p.nm}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{pChat}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="P Chat" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:14px 24px 10px;display:flex;align-items:center;gap:11px;border-bottom:1px solid rgba(14,27,20,.08)">
+      <div style="width:38px;height:38px;border-radius:13px;background:#1E8A5E;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#F5F2E9">N</div>
+      <div style="flex:1"><div style="font-size:16px;font-weight:700;color:#0E1B14">Northside FC</div><div style="display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:#1E8A5E"></span><span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.5)">8 ONLINE · {{squadN}} MEMBERS</span></div></div>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column-reverse;padding:10px 14px;gap:7px">
+      <sc-for list="{{pChatRows}}" as="c" hint-placeholder-count="5">
+        <div style="display:flex;flex-direction:column;flex:none">
+          <sc-if value="{{c.isText}}" hint-placeholder-val="{{true}}">
+          <div style="display:flex;gap:7px;justify-content:{{c.just}}">
+            <div style="width:26px;height:26px;border-radius:50%;background:#E5E3D2;display:{{c.avDisp}};align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0E1B14;flex:none;align-self:flex-end">{{c.who}}</div>
+            <div style="max-width:76%;border-radius:14px;background:{{c.bubBg}};border:1px solid {{c.bubBd}};padding:7px 11px 5px;box-shadow:0 1px 2px rgba(14,27,20,.06)">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;font-weight:700;color:{{c.nmC}};display:{{c.nmDisp}}">{{c.nm}}</div>
+              <div style="font-size:12.5px;color:{{c.txtC}};line-height:1.4">{{c.text}}</div>
+              <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:7px;color:{{c.metaC}};margin-top:2px">{{c.t}} {{c.ticks}}</div>
+            </div>
+          </div>
+          <div style="display:{{c.reactDisp}};align-self:{{c.reactSelf}};margin:-5px 36px 0;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);border-radius:10px;padding:2px 8px;font-size:9.5px;box-shadow:0 1px 3px rgba(14,27,20,.15);position:relative;z-index:1">{{c.react}}</div>
+          </sc-if>
+          <sc-if value="{{c.isPoll}}" hint-placeholder-val="{{false}}">
+          <div style="align-self:center;width:92%;border-radius:16px;background:linear-gradient(150deg,#0C1912,#1A4530);padding:11px 14px;color:#F5F2E9">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:#E9CB8A">📊 AVAILABILITY POLL</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(245,242,233,.5)">{{c.mLabel}}</span></div>
+            <div style="font-size:14px;font-weight:700;margin-top:7px">{{c.pollTop}}</div>
+            <div style="margin-top:7px;height:5px;border-radius:3px;background:rgba(245,242,233,.15)"><div style="width:{{c.pollW}};height:100%;border-radius:3px;background:#1E8A5E"></div></div>
+            <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(245,242,233,.55)">{{c.pollMeta}}</span>
+              <span onClick="{{c.go}}" style="font-size:11px;font-weight:700;color:#5FD8A2;cursor:pointer">{{c.pollBtn}}</span>
+            </div>
+          </div>
+          </sc-if>
+          <sc-if value="{{c.isSched}}" hint-placeholder-val="{{false}}">
+          <div style="align-self:center;width:92%;border-radius:16px;background:#FFFFFF;border:1.5px solid #1E8A5E;padding:11px 14px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:#1E8A5E">✓ MATCH CONFIRMED</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(14,27,20,.4)">{{c.mLabel}}</span></div>
+            <div style="font-size:15px;font-weight:700;color:#0E1B14;margin-top:7px">{{c.when}}</div>
+            <div style="font-size:11.5px;color:rgba(14,27,20,.55);margin-top:2px">{{c.where}} · Directions ↗</div>
+            <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.45)">{{c.schedMeta}}</span>
+              <span onClick="{{c.go}}" style="font-size:11px;font-weight:700;color:#1E8A5E;cursor:pointer">View lineup →</span>
+            </div>
+          </div>
+          </sc-if>
+          <sc-if value="{{c.isNote}}" hint-placeholder-val="{{false}}">
+          <div style="align-self:center;font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.45);background:rgba(14,27,20,.05);border-radius:10px;padding:5px 12px">{{c.text}}</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <div style="flex:none;padding:10px 16px 14px;display:flex;gap:8px;border-top:1px solid rgba(14,27,20,.08)">
+      <div onClick="{{openPPlus}}" style="width:42px;height:42px;border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;color:#1E8A5E;cursor:pointer;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></div>
+      <input value="{{pDraftV}}" onChange="{{setPDraft}}" placeholder="Message the squad…" style="flex:1;height:42px;border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);padding:0 14px;font-family:'Space Grotesk',sans-serif;font-size:13px;color:#0E1B14;outline:none">
+      <div onClick="{{sendP}}" style="width:42px;height:42px;border-radius:14px;background:#1E8A5E;display:flex;align-items:center;justify-content:center;color:#F5F2E9;cursor:pointer;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"></path></svg></div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{pRate}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="P Rate" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:14px 24px 0;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:24px;font-weight:700;letter-spacing:-.6px;color:#0E1B14">Rate</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:#1E8A5E">{{ratedLabel}}</span>
+    </div>
+    <sc-if value="{{rateClosed}}" hint-placeholder-val="{{false}}">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 40px;text-align:center">
+      <div style="width:72px;height:72px;border-radius:24px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);display:flex;align-items:center;justify-content:center;color:rgba(14,27,20,.4)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0110 0v4"></path></svg></div>
+      <div style="font-size:18px;font-weight:700;color:#0E1B14;margin-top:18px">Voting is closed</div>
+      <div style="font-size:12.5px;color:rgba(14,27,20,.55);line-height:1.5;margin-top:8px">A manager opens the rating window — usually after a match. You&rsquo;ll get a notification.</div>
+    </div>
+    </sc-if>
+    <sc-if value="{{rateOpen}}" hint-placeholder-val="{{false}}">
+    <div style="flex:1;min-height:0;display:flex;flex-direction:column">
+      <div style="flex:1;margin:14px 20px 0;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);border-radius:22px;padding:20px;display:flex;flex-direction:column;min-height:0;overflow-y:auto">
+        <div style="display:flex;align-items:center;gap:13px">
+          <div style="width:52px;height:52px;border-radius:50%;background:#E5E3D2;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#0E1B14">{{rT.id}}</div>
+          <div style="flex:1"><div style="font-size:19px;font-weight:700;letter-spacing:-.4px;color:#0E1B14">{{rT.name}}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:rgba(14,27,20,.5);margin-top:2px">{{rT.pos}} · ANONYMOUS</div></div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:5px 10px;border-radius:12px;background:rgba(30,138,94,.1);color:#1E8A5E">OVR {{rT.ovr}}</span>
+        </div>
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:15px">
+          <sc-for list="{{rAttrs}}" as="r" hint-placeholder-count="6">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:rgba(14,27,20,.55)">{{r.label}}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#0E1B14">{{r.val}}</span></div>
+              <div style="display:flex;gap:5px">
+                <sc-for list="{{r.segs}}" as="seg" hint-placeholder-count="5">
+                  <div onClick="{{seg.set}}" style="flex:1;height:26px;border-radius:8px;background:{{seg.bg}};cursor:pointer"></div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="flex:1;min-height:14px"></div>
+        <div onClick="{{nextRate}}" style="height:50px;border-radius:15px;background:#0E1B14;color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;cursor:pointer;flex:none">Save &amp; next →</div>
+      </div>
+      <div style="height:14px;flex:none"></div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{pProf}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="P Profile" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:12px 24px 0;display:flex;align-items:center;gap:12px">
+      <div onClick="{{goPHome}}" style="width:38px;height:38px;border-radius:12px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);display:flex;align-items:center;justify-content:center;color:#0E1B14;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></div>
+      <span style="font-size:20px;font-weight:700;letter-spacing:-.5px;color:#0E1B14">Your profile</span>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 20px">
+      <div style="border-radius:20px;background:#FFFFFF;border:1px solid rgba(14,27,20,.12);padding:20px;display:flex;align-items:center;gap:15px">
+        <div style="width:56px;height:56px;border-radius:50%;background:#0E1B14;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#F5F2E9">YD</div>
+        <div style="flex:1"><div style="font-size:19px;font-weight:700;color:#0E1B14">Yusuf Demir</div><div style="margin-top:5px;display:flex;gap:6px"><span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:4px 9px;border-radius:10px;background:rgba(30,138,94,.12);color:#1E8A5E">MIDFIELD</span></div></div>
+        <div style="text-align:center"><div style="font-size:30px;font-weight:700;letter-spacing:-1.5px;color:#1E8A5E;line-height:1">{{meOvr}}</div><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;color:rgba(14,27,20,.45);margin-top:2px">OVR</div></div>
+      </div>
+      <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:rgba(14,27,20,.5)">YOUR SCORE · FROM TEAMMATE VOTES</div>
+      <div style="margin-top:8px;border-radius:18px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{meAttrs}}" as="r" hint-placeholder-count="6">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;color:rgba(14,27,20,.55)">{{r.label}}</span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#0E1B14">{{r.val}}</span></div>
+            <div style="display:flex;gap:5px">
+              <sc-for list="{{r.segs}}" as="seg" hint-placeholder-count="5">
+                <div style="flex:1;height:16px;border-radius:6px;background:{{seg.bg}}"></div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:7px">
+        <div style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 16px;display:flex;align-items:center;gap:12px"><span style="flex:1;font-size:13.5px;font-weight:600;color:#0E1B14">Notifications</span><div onClick="{{togglePNotif}}" style="width:44px;height:26px;border-radius:13px;background:{{pNotifBg}};position:relative;cursor:pointer"><div style="position:absolute;top:3px;left:{{pNotifX}};width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(14,27,20,.3)"></div></div></div>
+        <div onClick="{{goPHub}}" style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer"><span style="flex:1;font-size:13.5px;font-weight:600;color:#0E1B14">Switch team</span><span style="font-size:13px;color:rgba(14,27,20,.35)">›</span></div>
+        <div onClick="{{signOutP}}" style="border-radius:14px;background:#FFFFFF;border:1px solid rgba(176,81,47,.3);padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B0512F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><path d="M16 17l5-5-5-5M21 12H9"></path></svg><span style="flex:1;font-size:13.5px;font-weight:700;color:#B0512F">Sign out</span></div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{pPlus}}" hint-placeholder-val="{{false}}">
+  <div style="position:absolute;inset:0;z-index:6">
+    <div onClick="{{closePPlus}}" style="position:absolute;inset:0;background:rgba(14,27,20,.4)"></div>
+    <div style="position:absolute;left:10px;right:10px;bottom:10px;background:#F7F4EB;border-radius:26px;padding:14px 16px 16px;box-shadow:0 -12px 40px rgba(14,27,20,.3)">
+      <div style="width:36px;height:4px;border-radius:2px;background:rgba(14,27,20,.15);margin:0 auto"></div>
+      <div style="font-size:15px;font-weight:700;color:#0E1B14;margin-top:12px">Share</div>
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px">
+        <div onClick="{{pStubPhoto}}" style="border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(14,27,20,.06);display:flex;align-items:center;justify-content:center;color:#0E1B14"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="9" cy="9" r="2"></circle><path d="M21 15l-5-5L5 21"></path></svg></div>
+          <span style="font-size:10px;font-weight:700;color:#0E1B14;text-align:center">Photo</span>
+        </div>
+        <div onClick="{{pStubLoc}}" style="border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(14,27,20,.06);display:flex;align-items:center;justify-content:center;color:#0E1B14"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"></circle><path d="M12 21c4-4 7-7.6 7-11a7 7 0 10-14 0c0 3.4 3 7 7 11z"></path></svg></div>
+          <span style="font-size:10px;font-weight:700;color:#0E1B14;text-align:center">Location</span>
+        </div>
+        <div onClick="{{pPlusAvail}}" style="border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.1);padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(30,138,94,.12);display:flex;align-items:center;justify-content:center;color:#1E8A5E"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></div>
+          <span style="font-size:10px;font-weight:700;color:#0E1B14;text-align:center">My availability</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{pClaim}}" hint-placeholder-val="{{false}}">
+  <div data-screen-label="P Claim profile" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;background:#F5F2E9;z-index:4">
+    <div style="padding:22px 26px 0">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(14,27,20,.45)">ONE LAST THING</div>
+      <div style="font-size:26px;font-weight:700;letter-spacing:-.7px;color:#0E1B14;margin-top:8px">We found you on a roster</div>
+      <div style="margin-top:6px;font-size:13px;color:rgba(14,27,20,.55);line-height:1.5">Dani (Northside FC) has been tracking you via WhatsApp. Claim the profile and its history becomes yours.</div>
+    </div>
+    <div style="margin:20px 24px 0;border-radius:22px;border:2px dashed rgba(30,138,94,.5);background:#FFFFFF;padding:18px">
+      <div style="display:flex;align-items:center;gap:13px">
+        <div style="width:52px;height:52px;border-radius:50%;border:2px dashed rgba(14,27,20,.35);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#0E1B14">YD</div>
+        <div style="flex:1"><div style="font-size:17px;font-weight:700;color:#0E1B14">Yusuf D. <span style="font-size:11px;color:rgba(14,27,20,.45)">(roster)</span></div><div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(14,27,20,.5);margin-top:2px">NORTHSIDE FC · MIDFIELD</div></div>
+        <div style="text-align:center"><div style="font-size:26px;font-weight:700;color:#1E8A5E;line-height:1">{{meOvr}}</div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1px;color:rgba(14,27,20,.45)">OVR</div></div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px">
+        <div style="flex:1;border-radius:13px;background:#F5F2E9;padding:9px 0;text-align:center"><div style="font-size:16px;font-weight:700;color:#0E1B14">12</div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1px;color:rgba(14,27,20,.45);margin-top:1px">GAMES</div></div>
+        <div style="flex:1;border-radius:13px;background:#F5F2E9;padding:9px 0;text-align:center"><div style="font-size:16px;font-weight:700;color:#0E1B14">5</div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1px;color:rgba(14,27,20,.45);margin-top:1px">GOALS</div></div>
+        <div style="flex:1;border-radius:13px;background:#F5F2E9;padding:9px 0;text-align:center"><div style="font-size:16px;font-weight:700;color:#128C4B">14</div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1px;color:rgba(14,27,20,.45);margin-top:1px">WA VOTES</div></div>
+      </div>
+      <div style="margin-top:12px;border-radius:12px;background:rgba(37,211,102,.1);padding:10px 12px;font-size:11px;color:#128C4B;line-height:1.45">Your availability came in by WhatsApp reply — it all merges into your account when you claim.</div>
+    </div>
+    <div style="flex:1"></div>
+    <div style="padding:0 24px 26px;display:flex;flex-direction:column;gap:9px">
+      <div onClick="{{claimGo}}" style="height:54px;border-radius:17px;background:#1E8A5E;color:#F5F2E9;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;cursor:pointer">This is me — claim profile</div>
+      <div onClick="{{skipClaim}}" style="height:48px;border-radius:16px;background:#FFFFFF;border:1px solid rgba(14,27,20,.14);color:rgba(14,27,20,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;cursor:pointer">Not me — join with a code</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <div style="position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:{{pToastDisp}};align-items:center;padding:10px 18px;border-radius:20px;background:#0E1B14;color:#F5F2E9;font-size:12px;font-weight:600;box-shadow:0 10px 24px -8px rgba(14,27,20,.5);white-space:nowrap;z-index:5">{{pToast}}</div>
+  </div>
+  <sc-if value="{{pInTeam}}" hint-placeholder-val="{{false}}">
+  <div style="height:62px;flex:none;margin:8px 14px 12px;border-radius:22px;background:#FFFFFF;border:1px solid rgba(14,27,20,.08);box-shadow:0 12px 28px -12px rgba(14,27,20,.4);display:flex;align-items:center;justify-content:space-around;padding:0 20px">
+    <div onClick="{{goPHome}}" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:{{pNavHome}};cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a2 2 0 01-2 2H5a2 2 0 01-2-2v-9z"></path></svg><span style="font-size:8.5px;font-weight:700;letter-spacing:1px">HOME</span></div>
+    <div onClick="{{goPMatches}}" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:{{pNavMatches}};cursor:pointer;position:relative"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18M3 12h18"></path></svg><span style="font-size:8.5px;font-weight:700;letter-spacing:1px">MATCHES</span><span style="position:absolute;top:-5px;right:-8px;width:16px;height:16px;border-radius:50%;background:#B0512F;color:#fff;font-size:9px;font-weight:700;display:{{pollBadge}};align-items:center;justify-content:center">!</span></div>
+    <div onClick="{{goPChat}}" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:{{pNavChat}};cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"></path></svg><span style="font-size:8.5px;font-weight:700;letter-spacing:1px">CHAT</span></div>
+    <div onClick="{{goPRate}}" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:{{pNavRate}};cursor:pointer;position:relative"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.1 1.2 6-5.4-3-5.4 3 1.2-6L2 9.3l6.1-.7L12 3z"></path></svg><span style="font-size:8.5px;font-weight:700;letter-spacing:1px">RATE</span><span style="position:absolute;top:-5px;right:-8px;width:16px;height:16px;border-radius:50%;background:#B0512F;color:#fff;font-size:9px;font-weight:700;display:{{pBadgeDisp}};align-items:center;justify-content:center">!</span></div>
+  </div>
+  </sc-if>
+</div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1000,&quot;height&quot;:1020},&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;match week&quot;,&quot;options&quot;:[&quot;match week&quot;,&quot;poll rush&quot;,&quot;quiet week&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Story&quot;},&quot;squadSize&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:40,&quot;min&quot;:16,&quot;max&quot;:40,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Club&quot;},&quot;kits&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:[&quot;#1E8A5E&quot;,&quot;#B0512F&quot;],&quot;options&quot;:[[&quot;#1E8A5E&quot;,&quot;#B0512F&quot;],[&quot;#2563EB&quot;,&quot;#F59E0B&quot;],[&quot;#0E1B14&quot;,&quot;#D6453C&quot;],[&quot;#7C3AED&quot;,&quot;#0EA5E9&quot;]],&quot;tsType&quot;:&quot;string[]&quot;,&quot;section&quot;:&quot;Kits&quot;}}">
+class Component extends DCLogic {
+  P = [
+    {id:'RM',nm:'Menon',name:'Ravi Menon',pos:'GK',pitch:true,a:[4,3,4,4,5,5]},
+    {id:'KB',nm:'Brandt',name:'Kai Brandt',pos:'DEF',pitch:true,a:[4,4,4,4,5,5]},
+    {id:'SO',nm:'Okafor',name:'Sam Okafor',pos:'DEF',pitch:true,a:[4,4,4,3,4,4]},
+    {id:'TN',nm:'Nowak',name:'Tomas Nowak',pos:'DEF',pitch:true,a:[3,3,4,3,4,4]},
+    {id:'NK',nm:'Klein',name:'Noah Klein',pos:'DEF',pitch:true,a:[3,3,3,3,4,3]},
+    {id:'YD',nm:'Demir',name:'Yusuf Demir',pos:'MID',pitch:true,ghost:true,wa:true,a:[4,5,5,5,4,4]},
+    {id:'AP',nm:'Pirlo',name:'Andre Pirlo',pos:'MID',pitch:true,mgr:true,a:[5,4,5,4,4,3]},
+    {id:'LF',nm:'Fernandes',name:'Leo Fernandes',pos:'MID',pitch:true,a:[4,4,4,4,3,3]},
+    {id:'AH',nm:'Hassan',name:'Ali Hassan',pos:'MID',pitch:true,a:[4,3,4,4,3,3]},
+    {id:'DC',nm:'Costa',name:'Diego Costa',pos:'FWD',pitch:true,a:[4,4,4,4,4,4]},
+    {id:'MS',nm:'Silva',name:'Marco Silva',pos:'FWD',pitch:true,a:[5,5,4,5,5,5]},
+    {id:'JB',nm:'Berg',name:'Jonas Berg',pos:'FWD',pitch:true,a:[4,4,3,4,4,4]},
+  ].concat([
+    ['RW','R. Weiss','GK'],['VK','V. Kral','GK'],
+    ['OB','O. Bakker','DEF'],['MH','M. Haddad','DEF'],['AN','A. Nunez','DEF'],['LM','L. Marino','DEF'],['IW','I. Wolf','DEF'],['NP','N. Petrov','DEF'],['XM','X. Mendez','DEF'],['HC','H. Cruz','DEF'],['EV','E. Vidal','DEF'],
+    ['EK','E. Kova','MID'],['PS','P. Sousa','MID'],['TK','T. Kimura','MID'],['GH','G. Horvat','MID'],['FA','F. Amari','MID'],['UO','U. Okoro','MID'],['QA','Q. Adeyemi','MID'],['YL','Y. Lindt','MID'],['OT','O. Toure','MID'],
+    ['JT','J. Tan','FWD'],['CD','C. Diallo','FWD'],['BF','B. Farah','FWD'],['SD','S. Dube','FWD'],['DZ','D. Zhou','FWD'],['WB','W. Braun','FWD'],['ZR','Z. Rossi','FWD'],['KJ','K. Jansen','FWD'],
+  ].map((t,i)=>({id:t[0],nm:t[1],name:t[1],pos:t[2],a:[0,1,2,3,4,5].map(k=>2+((i*7+k*5)%3))}))).concat([{id:'GB',nm:'G. Barnes',name:'G. Barnes',pos:'DEF',ghost:true,wa:true,a:[3,3,3,2,4,3]},{id:'PK',nm:'P. Kadir',name:'P. Kadir',pos:'FWD',ghost:true,wa:true,a:[4,3,3,3,3,2]}]);
+  ovr(a){ return Math.round(50 + a.reduce((s,v)=>s+v,0)*1.4); }
+  mk(flip){
+    const sorted=[...this.P.filter(p=>p.pitch)].sort((a,b)=>this.ovr(b.a)-this.ovr(a.a));
+    const patA=flip?[1,2,5,6,9,10]:[0,3,4,7,8,11];
+    const A=[],B=[]; sorted.forEach((p,i)=>{(patA.includes(i)?A:B).push(p.id)}); return {A,B};
+  }
+  seedFor(sc){
+    const M1={id:1,label:'Practice #1',phase:'scheduled',times:[{t:'Sat 25 Jul · 18:30',on:true},{t:'Sun 26 Jul · 10:00',on:true}],turfs:[{t:'Riverside Astro',sub:'6-A-SIDE · 3G · 1.4 MI',on:true},{t:'The Cage',sub:'5-A-SIDE · INDOOR · 0.8 MI',on:false}],deadline:'48H',winTime:0,winTurf:0,teams:this.mk(false),flip:false,votedP:true,pT:{0:true},pF:{0:true},dropouts:[],meOut:false,replaced:false};
+    const M2={id:2,label:'Practice #2',phase:'poll',times:[{t:'Wed 29 Jul · 20:00',on:true},{t:'Thu 30 Jul · 19:00',on:true},{t:'Fri 31 Jul · 18:30',on:false}],turfs:[{t:'The Cage',sub:'5-A-SIDE · INDOOR · 0.8 MI',on:true},{t:'Riverside Astro',sub:'6-A-SIDE · 3G · 1.4 MI',on:true}],deadline:'24H',winTime:0,winTurf:0,teams:null,flip:false,votedP:false,pT:{},pF:{},dropouts:[],meOut:false,replaced:false};
+    const poll=(id,label,ts)=>({id,label,phase:'poll',times:ts.map((t,i)=>({t,on:true})),turfs:[{t:'Riverside Astro',sub:'6-A-SIDE · 3G · 1.4 MI',on:true},{t:'The Cage',sub:'5-A-SIDE · INDOOR · 0.8 MI',on:true}],deadline:'24H',winTime:0,winTurf:0,teams:null,flip:false,votedP:false,pT:{},pF:{},dropouts:[],meOut:false,replaced:false});
+    if(sc==='poll rush'){return {matches:[poll(1,'Practice #1',['Tue 28 Jul · 19:00','Wed 29 Jul · 20:00']),poll(2,'Practice #2',['Sat 1 Aug · 18:30','Sun 2 Aug · 10:00']),poll(3,'Friendly vs Ballers',['Sat 8 Aug · 15:00','Sat 8 Aug · 17:00'])],chat:[{k:'text',who:'DS',nm:'Dani',text:'Big week — three matches to vote on 👇',t:'08:55'},{k:'poll',mid:1,t:'08:56'},{k:'poll',mid:2,t:'08:56'},{k:'poll',mid:3,t:'08:57'},{k:'text',who:'MS',nm:'Marco',text:'Voted on all three',t:'09:02',react:'💪 3'}],mSel:1,pSel:1,nextId:4};}
+    if(sc==='quiet week'){return {matches:[],chat:[{k:'note',text:'Pre-season — Dani will post the first poll soon'},{k:'text',who:'MS',nm:'Marco',text:'Anyone up for a casual kickabout Friday?',t:'18:20',react:'⚽ 5'},{k:'text',who:'KB',nm:'Kai',text:'In. Bring the good ball this time',t:'18:24'}],mSel:1,pSel:1,nextId:1};}
+    return {matches:[M1,M2],chat:[{k:'sched',mid:1,t:'THU'},{k:'text',who:'MS',nm:'Marco',text:'Great session Saturday 🔥 same energy this week',t:'09:12',react:'⚽ 2'},{k:'text',who:'KB',nm:'Kai',text:'That last-minute goal was filthy',t:'09:13'},{k:'text',who:'DS',nm:'Dani',text:'New poll for next week — vote below',t:'09:14'},{k:'poll',mid:2,t:'09:15'},{k:'text',who:'YD',nm:'Yusuf',text:'Count me in for Wednesday',t:'09:16',react:'👍 4'}],mSel:1,pSel:2,nextId:3};
+  }
+  componentDidUpdate(pp){ if(pp&&this.props&&pp.scenario!==this.props.scenario){ this.setState(this.seedFor(this.props.scenario)); } }
+  state = {
+    mScreen:'login', pScreen:'login', selId:'MS',
+    ...this.seedFor((this.props&&this.props.scenario)||'match week'),
+    wStep:1, wT:[{t:'Sat 1 Aug · 18:30',on:true},{t:'Sat 1 Aug · 20:00',on:false},{t:'Sun 2 Aug · 10:00',on:true}],
+    wF:[{t:'Riverside Astro',sub:'6-A-SIDE · 3G · 1.4 MI',on:true},{t:'The Cage',sub:'5-A-SIDE · INDOOR · 0.8 MI',on:true},{t:'Central Dome',sub:'11-A-SIDE · GRASS · 3.1 MI',on:false}],
+    wDead:'48H',
+    mDraft:'', pDraft:'', meReason:'Work', mPlus:false, pPlus:false, mInvite:false,
+    waOn:true, mAdd:false, mAddName:'', mAddPos:'MID', mAddWa:true, wTurfName:'',
+    votingOpen:false, rIdx:4, rated:4, rate:{0:3,1:3,2:3,3:3,4:3,5:3},
+    q:'', posF:'ALL', mNotif:true, pNotif:true, mToast:'', pToast:'',
+    players:this.P,
+  };
+  K = ['PACE','SHOOTING','PASSING','DRIBBLING','DEFENDING','STAMINA'];
+  toastM(t){ this.setState({mToast:t}); clearTimeout(this._tm); this._tm=setTimeout(()=>this.setState({mToast:''}),2600); }
+  toastP(t){ this.setState({pToast:t}); clearTimeout(this._tp); this._tp=setTimeout(()=>this.setState({pToast:''}),2600); }
+  upM(id,fn){ this.setState(s=>({matches:s.matches.map(x=>x.id===id?fn(x):x)})); }
+  renderVals(){
+    const S=this.state;
+    const base=S.players.map(p=>({...p,ovr:this.ovr(p.a)}));
+    const byId=id=>base.find(p=>p.id===id);
+    const me=byId('YD');
+    const size=Math.max(16,Math.min(40,(this.props&&this.props.squadSize)||40));
+    const club=base.filter((p,i)=>i<size||p.ghost);
+    const kits=(this.props&&this.props.kits)||['#1E8A5E','#B0512F'];
+    const kitA=kits[0]||'#1E8A5E', kitB=kits[1]||'#B0512F';
+    const kitName=h=>({'#1E8A5E':'GREEN','#B0512F':'RUST','#2563EB':'BLUE','#F59E0B':'AMBER','#0E1B14':'INK','#D6453C':'RED','#7C3AED':'VIOLET','#0EA5E9':'SKY'}[h])||'KIT';
+    const seedT=[7,4,6], seedF=[8,5,2];
+    const chipFor=ph=>({poll:{c:'POLL LIVE',bg:'rgba(201,162,75,.18)',fg:'#8A6D2C'},closed:{c:'FINALIZING',bg:'rgba(201,162,75,.18)',fg:'#8A6D2C'},draft:{c:'DRAFTING',bg:'rgba(201,162,75,.18)',fg:'#8A6D2C'},scheduled:{c:'SCHEDULED',bg:'rgba(30,138,94,.12)',fg:'#1E8A5E'}})[ph];
+    const DUMMY={id:0,label:'—',phase:'poll',times:[{t:'—',on:true}],turfs:[{t:'—',sub:'',on:true}],deadline:'48H',winTime:0,winTurf:0,teams:null,flip:false,votedP:false,pT:{},pF:{},dropouts:[],meOut:false,replaced:false};
+    const mM=S.matches.find(m=>m.id===S.mSel)||S.matches[0]||DUMMY;
+    const pM=S.matches.find(m=>m.id===S.pSel)||S.matches[0]||DUMMY;
+    const ckSty=on=>({ck:on?'✓':'',ckBg:on?'#1E8A5E':'transparent',ckBd:on?'#1E8A5E':'rgba(14,27,20,.25)',bg:on?'rgba(30,138,94,.06)':'#FFFFFF',bd:on?'#1E8A5E':'rgba(14,27,20,.12)'});
+    const votedNof=m=>7+(m.votedP?1:0);
+    const pollRows=(m,pick)=>m.times.map((o,i)=>o.on?{t:o.t,v:seedT[i]+((m.votedP&&m.pT[i])?1:0),w:Math.min(100,Math.round((seedT[i]+((m.votedP&&m.pT[i])?1:0))/12*100))+'%'}:null).filter(Boolean);
+    const turfRows=m=>m.turfs.map((o,i)=>o.on?{t:o.t,v:seedF[i]+((m.votedP&&m.pF[i])?1:0),w:Math.min(100,Math.round((seedF[i]+((m.votedP&&m.pF[i])?1:0))/12*100))+'%'}:null).filter(Boolean);
+    const SA=[{x:50,y:9},{x:26,y:20},{x:74,y:20},{x:26,y:34},{x:74,y:34},{x:50,y:42},{x:38,y:27},{x:62,y:27}];
+    const SB=[{x:50,y:91},{x:26,y:80},{x:74,y:80},{x:26,y:66},{x:74,y:66},{x:50,y:58},{x:38,y:73},{x:62,y:73}];
+    const pitchRows=(m,side,slots,clickable)=>((m.teams||{A:[],B:[]})[side]||[]).slice(0,8).map((id,i)=>{const p=byId(id);return {...p,x:slots[i].x,y:slots[i].y,glow:id==='YD'?('0 0 0 3px rgba(245,242,233,.95),0 0 0 6px '+(side==='A'?kitA:kitB)):('0 0 14px '+(side==='A'?kitA:kitB)+'66'),kit:side==='A'?kitA:kitB,kglow:'0 0 16px '+(side==='A'?kitA:kitB)+'90',swap:clickable?()=>this.upM(m.id,x=>{const t=x.teams;return side==='A'?{...x,teams:{A:t.A.filter(q=>q!==id),B:[...t.B,id]}}:{...x,teams:{A:[...t.A,id],B:t.B.filter(q=>q!==id)}};}):()=>{}};});
+    const avg=(m,side)=>{const ids=(m.teams||{A:[],B:[]})[side];return ids.length?Math.round(ids.reduce((s,id)=>s+byId(id).ovr,0)/ids.length):0;};
+    const avgA=avg(mM,'A'), avgB=avg(mM,'B'), gap=Math.abs(avgA-avgB);
+    const finTof=m=>(m.times[m.winTime]||m.times[0]).t;
+    const finFof=m=>(m.turfs[m.winTurf]||m.turfs[0]).t;
+    // match cards
+    const cardMeta=m=>{const ch=chipFor(m.phase);const prog={poll:'33%',closed:'55%',draft:'75%',scheduled:'100%'}[m.phase];const pc=m.phase==='scheduled'?'#1E8A5E':'#C9A24B';
+      const sub=m.phase==='scheduled'?finTof(m)+' · '+finFof(m):m.phase==='poll'?votedNof(m)+'/12 voted · closes in '+m.deadline.toLowerCase():m.phase==='closed'?'Poll closed — pick the slot':'Balancing teams';
+      return {id:m.id,label:m.label,chip:ch.c,chipBg:ch.bg,chipFg:ch.fg,sub,progW:prog,progC:pc,stat:m.phase.toUpperCase()};};
+    const mCards=S.matches.map(m=>({...cardMeta(m),open:()=>this.setState({mSel:m.id,mScreen:'mdetail'})}));
+    const pCards=S.matches.map(m=>{const c=cardMeta(m);const needVote=m.phase==='poll'&&!m.votedP;
+      return {...c,act:needVote?'● VOTE NEEDED':m.phase==='scheduled'?(m.meOut?'YOU ARE OUT':'YOU ARE PLAYING'):'WAITING FOR MANAGER',actC:needVote?'#B0512F':m.phase==='scheduled'&&!m.meOut?'#1E8A5E':'rgba(14,27,20,.45)',open:()=>this.setState({pSel:m.id,pScreen:'pdetail'})};});
+    // chat rows
+    const mkChat=meWho=>S.chat.map(c=>{
+      const row={isText:c.k==='text',isPoll:c.k==='poll',isSched:c.k==='sched',isNote:c.k==='note',t:c.t||'',text:c.text||'',who:c.who||'',nm:c.nm||''};
+      if(row.isText){const mine=c.who===meWho;row.just=mine?'flex-end':'flex-start';row.avDisp=mine?'none':'flex';row.nmDisp=mine?'none':'block';row.bubBg=mine?'#1E8A5E':'#FFFFFF';row.bubBd=mine?'#1E8A5E':'rgba(14,27,20,.1)';row.txtC=mine?'#F5F2E9':'#0E1B14';row.nmC=c.who==='DS'?'#8A6D2C':'rgba(14,27,20,.45)';row.ticks=mine?'✓✓':'';row.metaC=mine?'rgba(245,242,233,.65)':'rgba(14,27,20,.35)';row.react=c.react||'';row.reactDisp=c.react?'inline-flex':'none';row.reactSelf=mine?'flex-end':'flex-start';}
+      if(row.isPoll||row.isSched){const m=S.matches.find(x=>x.id===c.mid);if(!m){row.isPoll=row.isSched=false;row.isNote=true;row.text='(match removed)';return row;}
+        row.mLabel=m.label.toUpperCase();
+        if(row.isPoll){const rows=pollRows(m);const top=rows.reduce((a,b)=>b.v>a.v?b:a,rows[0]||{t:'—',v:0,w:'0%'});row.pollTop='Leading: '+top.t;row.pollW=top.w;row.pollMeta=votedNof(m)+'/12 VOTED · '+(m.phase==='poll'?'OPEN':'CLOSED');
+          row.pollBtn=meWho==='YD'?(m.votedP?'Voted ✓':'Vote now →'):'View →';
+          row.go=meWho==='YD'?()=>this.setState({pSel:m.id,pScreen:'pdetail'}):()=>this.setState({mSel:m.id,mScreen:'mdetail'});}
+        if(row.isSched){row.when=finTof(m);row.where=finFof(m);row.schedMeta=avg(m,'A')+' v '+avg(m,'B')+' · BALANCED';
+          row.go=meWho==='YD'?()=>this.setState({pSel:m.id,pScreen:'pdetail'}):()=>this.setState({mSel:m.id,mScreen:'mdetail'});}}
+      return row;
+    }).reverse();
+    // player poll vote options
+    const pvTimes=pM.times.map((o,i)=>o.on?{t:o.t,...ckSty(!!pM.pT[i]),tgl:()=>this.upM(pM.id,x=>({...x,pT:{...x.pT,[i]:!x.pT[i]}}))}:null).filter(Boolean);
+    const pvTurfs=pM.turfs.map((o,i)=>o.on?{t:o.t,...ckSty(!!pM.pF[i]),tgl:()=>this.upM(pM.id,x=>({...x,pF:{...x.pF,[i]:!x.pF[i]}}))}:null).filter(Boolean);
+    // finalize pickers (manager, mM)
+    const finTimes=mM.times.map((o,i)=>o.on?{t:o.t,v:seedT[i]+((mM.votedP&&mM.pT[i])?1:0),bd:mM.winTime===i?'#1E8A5E':'rgba(14,27,20,.12)',rad:mM.winTime===i?'5.5px solid #1E8A5E':'1.5px solid rgba(14,27,20,.3)',pick:()=>this.upM(mM.id,x=>({...x,winTime:i}))}:null).filter(Boolean);
+    const finTurfs=mM.turfs.map((o,i)=>o.on?{t:o.t,v:seedF[i]+((mM.votedP&&mM.pF[i])?1:0),bd:mM.winTurf===i?'#1E8A5E':'rgba(14,27,20,.12)',rad:mM.winTurf===i?'5.5px solid #1E8A5E':'1.5px solid rgba(14,27,20,.3)',pick:()=>this.upM(mM.id,x=>({...x,winTurf:i}))}:null).filter(Boolean);
+    // squad
+    const q=S.q.toLowerCase();
+    const openEdit=id=>this.setState({selId:id,mScreen:'edit'});
+    const squadList=club.filter(p=>(S.posF==='ALL'||p.pos===S.posF)&&(!q||p.name.toLowerCase().includes(q))).map(p=>({...p,open:()=>openEdit(p.id),tag:p.mgr?'MGR':(p.ghost?(p.wa?'WHATSAPP':'NO APP'):(p.pitch?'XI':'RES')),tagBg:p.mgr?'rgba(201,162,75,.18)':(p.ghost?'rgba(37,211,102,.15)':(p.pitch?'rgba(30,138,94,.12)':'rgba(14,27,20,.06)')),tagFg:p.mgr?'#8A6D2C':(p.ghost?'#128C4B':(p.pitch?'#1E8A5E':'rgba(14,27,20,.45)')),avB:p.ghost?'2px dashed rgba(14,27,20,.35)':'2px solid transparent'}));
+    const posChips=['ALL','GK','DEF','MID','FWD'].map(k=>({k,bg:S.posF===k?'#0E1B14':'#FFFFFF',fg:S.posF===k?'#F5F2E9':'rgba(14,27,20,.6)',bd:S.posF===k?'#0E1B14':'rgba(14,27,20,.12)',set:()=>this.setState({posF:k})}));
+    const sel=byId(S.selId)||base[0];
+    const selAttrs=this.K.map((k,i)=>({label:k,val:sel.a[i],segs:[1,2,3,4,5].map(v=>({bg:v<=sel.a[i]?'#1E8A5E':'#E8E4D6',set:()=>this.setState(s=>({players:s.players.map(x=>x.id===sel.id?{...x,a:x.a.map((y,j)=>j===i?v:y)}:x)}))}))}));
+    const posOpts=['GK','DEF','MID','FWD'].map(k=>({k,bg:sel.pos===k?'#0E1B14':'#FFFFFF',fg:sel.pos===k?'#F5F2E9':'rgba(14,27,20,.6)',bd:sel.pos===k?'#0E1B14':'rgba(14,27,20,.12)',set:()=>this.setState(s=>({players:s.players.map(x=>x.id===sel.id?{...x,pos:k}:x)}))}));
+    const meAttrs=this.K.map((k,i)=>({label:k,val:me.a[i],segs:[1,2,3,4,5].map(v=>({bg:v<=me.a[i]?'#1E8A5E':'#E8E4D6'}))}));
+    // rate flow
+    const targets=base.filter(p=>p.pitch&&p.id!=='YD');
+    const rT=targets[Math.min(S.rIdx,targets.length-1)];
+    const rAttrs=this.K.map((k,i)=>({label:k,val:S.rate[i],segs:[1,2,3,4,5].map(v=>({bg:v<=S.rate[i]?'#1E8A5E':'#E8E4D6',set:()=>this.setState(s=>({rate:{...s.rate,[i]:v}}))}))}));
+    // home hero
+    const sched=S.matches.filter(m=>m.phase==='scheduled');
+    const polls=S.matches.filter(m=>m.phase==='poll');
+    const next=sched[0]||null;
+    const nextTitle=next?finTof(next):'No match locked yet';
+    const nextSub=next?finFof(next)+' · lineup locked':'Run a poll to get one scheduled';
+    const needVoteN=polls.filter(m=>!m.votedP).length;
+    const wCh=chipFor(mM.phase), pCh=chipFor(pM.phase);
+    const voterMeta=m=>{const v=['MS','KB','RM','SO','TN','NK','AP'].concat(m.votedP?['YD']:[]);const wa=new Set(['TN','NK']);const xi=base.filter(p=>p.pitch).map(p=>p.id);const mkV=id=>{const p=byId(id)||{nm:id};return {id,nm:p.nm,waDisp:wa.has(id)?'inline-flex':'none'};};return {vs:v.map(mkV),ws:xi.filter(id=>!v.includes(id)).map(mkV)};};
+    const mv=voterMeta(mM), pv=voterMeta(pM);
+    const nav=(cur,k)=>cur===k?'#0E1B14':'rgba(14,27,20,.4)';
+    const lastC=S.chat[S.chat.length-1]||{k:'note',text:'No messages yet'};
+    const lastMsg=lastC.k==='text'?lastC.nm+': '+lastC.text:lastC.k==='poll'?'📊 Availability poll':lastC.k==='sched'?'✓ Match confirmed':lastC.text;
+    return {
+      liveN:S.matches.length,
+      // manager nav/screens
+      mLogin:S.mScreen==='login',mHub:S.mScreen==='hub',mHome:S.mScreen==='home',mMatches:S.mScreen==='matches',mWizard:S.mScreen==='wizard',mDetail:S.mScreen==='mdetail',mSquad:S.mScreen==='squad',mEdit:S.mScreen==='edit',mRate:S.mScreen==='rate',mProf:S.mScreen==='profile',mChat:S.mScreen==='chat',
+      mInTeam:['home','matches','wizard','mdetail','squad','edit','rate','profile','chat'].includes(S.mScreen),
+      signInM:()=>{this.setState({mScreen:'hub'});this.toastM('Signed in as Dani');},
+      openTeamM:()=>this.setState({mScreen:'home'}),
+      goMHub:()=>this.setState({mScreen:'hub'}),goMHome:()=>this.setState({mScreen:'home'}),goMMatches:()=>this.setState({mScreen:'matches'}),goMChat:()=>this.setState({mScreen:'chat'}),goMSquad:()=>this.setState({mScreen:'squad'}),goMRate:()=>this.setState({mScreen:'rate'}),goMProfile:()=>this.setState({mScreen:'profile'}),
+      goMWizard:()=>this.setState({mScreen:'wizard',wStep:1}),
+      mNavHome:nav(S.mScreen,'home'),mNavMatches:nav(S.mScreen,'matches'),mNavChat:nav(S.mScreen,'chat'),mNavSquad:nav(S.mScreen,'squad'),
+      // player nav/screens
+      pLogin:S.pScreen==='login',pHub:S.pScreen==='hub',pHome:S.pScreen==='home',pMatches:S.pScreen==='matches',pDetail:S.pScreen==='pdetail',pChat:S.pScreen==='chat',pRate:S.pScreen==='rate',pProf:S.pScreen==='profile',
+      pInTeam:['home','matches','pdetail','chat','rate','profile'].includes(S.pScreen),
+      signInP:()=>{const g=(S.players.find(p=>p.id==='YD')||{}).ghost;this.setState({pScreen:g?'claim':'hub'});this.toastP('Signed in as Yusuf');},
+      pClaim:S.pScreen==='claim',
+      claimGo:()=>{this.setState(s=>({players:s.players.map(p=>p.id==='YD'?{...p,ghost:false}:p),pScreen:'hub',chat:[...s.chat,{k:'note',text:'Yusuf joined the app — roster profile merged ✓'}]}));this.toastP('Profile claimed — your history is yours');this.toastM('Yusuf claimed his roster profile');},
+      skipClaim:()=>this.setState({pScreen:'hub'}),
+      mAdd:S.mAdd,openMAdd:()=>this.setState({mAdd:true,mInvite:false}),closeMAdd:()=>this.setState({mAdd:false}),
+      inviteToAdd:()=>this.setState({mInvite:false,mAdd:true}),
+      mAddNameV:S.mAddName,setAddName:e=>this.setState({mAddName:e.target.value}),
+      addPosChips:['GK','DEF','MID','FWD'].map(k=>({k,bg:S.mAddPos===k?'#0E1B14':'#FFFFFF',fg:S.mAddPos===k?'#F5F2E9':'rgba(14,27,20,.6)',bd:S.mAddPos===k?'#0E1B14':'rgba(14,27,20,.12)',set:()=>this.setState({mAddPos:k})})),
+      toggleAddWa:()=>this.setState(s=>({mAddWa:!s.mAddWa})),
+      addWaBg:S.mAddWa?'#25D366':'rgba(14,27,20,.18)',addWaX:S.mAddWa?'21px':'3px',
+      addGo:()=>{const nm=S.mAddName.trim()||'New Player';let id=(nm.match(/\b\w/g)||['N','P']).slice(0,2).join('').toUpperCase();if(S.players.some(p=>p.id===id))id=id[0]+'2';this.setState(s=>({players:[...s.players,{id,nm,name:nm,pos:s.mAddPos,ghost:true,wa:s.mAddWa,a:[3,3,3,3,3,3]}],mAdd:false,mAddName:'',chat:[...s.chat,{k:'note',text:'Dani added '+nm+' to the roster'+(s.mAddWa?' · WhatsApp updates on':'')}]}));this.toastM(nm+' added — no app needed');},
+      toggleWa:()=>{const v=!S.waOn;this.setState(s=>({waOn:v,chat:[...s.chat,{k:'note',text:v?'WhatsApp bridge connected — updates mirror to the group':'WhatsApp bridge disconnected'}]}));this.toastM(v?'WhatsApp bridge on':'WhatsApp bridge off');},
+      waBg:S.waOn?'#25D366':'rgba(14,27,20,.18)',waX:S.waOn?'21px':'3px',
+      waDisp:S.waOn?'flex':'none',ghostN:base.filter(p=>p.ghost).length,
+      mVoters:mv.vs,mWaiting:mv.ws,mWaitN:mv.ws.length,
+      pVoters:pv.vs,pWaiting:pv.ws,pWaitN:pv.ws.length,
+      wTurfNameV:S.wTurfName,setWTurfName:e=>this.setState({wTurfName:e.target.value}),
+      addTurf:()=>{const t=S.wTurfName.trim();if(!t){this.toastM('Type a turf name first');return;}this.setState(s=>({wF:[...s.wF,{t,sub:'CUSTOM PIN · SET MANUALLY',on:true}],wTurfName:''}));this.toastM(t+' added — drag the pin to adjust');},
+      openTeamP:()=>this.setState({pScreen:'home'}),
+      goPHub:()=>this.setState({pScreen:'hub'}),goPHome:()=>this.setState({pScreen:'home'}),goPMatches:()=>this.setState({pScreen:'matches'}),goPChat:()=>this.setState({pScreen:'chat'}),goPRate:()=>this.setState({pScreen:'rate'}),goPProfile:()=>this.setState({pScreen:'profile'}),
+      pNavHome:nav(S.pScreen,'home'),pNavMatches:nav(S.pScreen,'matches'),pNavChat:nav(S.pScreen,'chat'),pNavRate:nav(S.pScreen,'rate'),
+      // home hero
+      nextChip:next?'IN 6 DAYS':'—',nextTitle,nextSub,
+      pollsChip:polls.length+' POLL'+(polls.length===1?'':'S')+' LIVE',
+      pNextSub:nextSub,
+      pVoteChipDisp:needVoteN?'inline-flex':'none',pVoteChipTxt:'VOTE NEEDED ('+needVoteN+')',pVoteChipBg:'rgba(176,81,47,.35)',pVoteChipFg:'#F8D8CB',
+      lastMsg,chatN:S.chat.length,
+      hasDrop:S.matches.some(m=>m.dropouts.length>0),
+      dropAlert:(S.matches.find(m=>m.dropouts.length>0)||{dropouts:[{}]}).dropouts[0]?((S.matches.find(m=>m.dropouts.length>0)||{dropouts:[{nm:'',reason:''}],label:''}).dropouts[0].nm+' dropped out — tap to resolve'):'',
+      // match cards
+      mCards,pCards,
+      // manager detail
+      mM,mChip:wCh.c,mChipBg:wCh.bg,mChipFg:wCh.fg,
+      phPoll:mM.phase==='poll',phClosed:mM.phase==='closed',phDraft:mM.phase==='draft',phSched:mM.phase==='scheduled',
+      deadLbl:mM.deadline==='MANUAL'?'WHEN YOU CLOSE IT':'IN '+mM.deadline,
+      votedN:votedNof(mM),pollTimes:pollRows(mM),pollTurfs:turfRows(mM),finTimes,finTurfs,
+      closePoll:()=>{this.upM(mM.id,x=>({...x,phase:'closed'}));this.toastM('Poll closed — pick the final slot');},
+      genTeams:()=>{this.upM(mM.id,x=>({...x,teams:this.mk(false),flip:false,phase:'draft'}));this.toastM('Teams balanced by strength');},
+      redraft:()=>{this.upM(mM.id,x=>({...x,teams:this.mk(!x.flip),flip:!x.flip}));this.toastM('Redrafted');},
+      finalize:()=>{this.upM(mM.id,x=>({...x,phase:'scheduled'}));this.setState(s=>({chat:[...s.chat,{k:'sched',mid:mM.id,t:'now'}]}));this.toastM('Scheduled — posted to team chat');this.toastP('Match confirmed: '+finTof(mM));},
+      cancelMatch:()=>{this.setState(s=>({matches:s.matches.filter(x=>x.id!==mM.id),chat:[...s.chat,{k:'note',text:mM.label+' was cancelled'}],mScreen:'matches'}));this.toastP(mM.label+' was cancelled');},
+      adjustTeam:()=>this.upM(mM.id,x=>({...x,phase:'draft'})),
+      replaceDrop:()=>{this.upM(mM.id,x=>({...x,teams:{A:x.teams.A.map(y=>y==='YD'?'EK':y),B:x.teams.B.map(y=>y==='YD'?'EK':y)},dropouts:[],replaced:true}));this.setState(s=>({chat:[...s.chat,{k:'note',text:'E. Kova replaces Y. Demir in '+mM.label}]}));this.toastM('E. Kova is in for Demir');this.toastP("You've been replaced by E. Kova");},
+      mHasDrop:mM.dropouts.length>0,mDropAlert:mM.dropouts.length?mM.dropouts[0].nm+' dropped out — '+mM.dropouts[0].reason:'',
+      ekOvr:byId('EK').ovr,
+      kitAC:kitA,kitBC:kitB,kitAN:kitName(kitA),kitBN:kitName(kitB),
+      avgA,avgB,gapLbl:gap<=1?'BALANCED · GAP '+gap:'GAP '+gap+' — CONSIDER A SWAP',
+      gapBg:gap<=1?'rgba(30,138,94,.12)':'rgba(201,162,75,.2)',gapFg:gap<=1?'#1E8A5E':'#8A6D2C',
+      draftA:pitchRows(mM,'A',SA,true),draftB:pitchRows(mM,'B',SB,true),
+      finT:finTof(mM),finF:finFof(mM),
+      // wizard
+      wStep:S.wStep,w1:S.wStep===1,w2:S.wStep===2,w3:S.wStep===3,
+      wLabel:'Practice #'+S.nextId,wStepName:['TIMES','TURFS','POLL SETTINGS'][S.wStep-1],
+      wBar2:S.wStep>1?'#1E8A5E':'#E8E4D6',wBar3:S.wStep>2?'#1E8A5E':'#E8E4D6',
+      wTimes:S.wT.map((o,i)=>({...o,...ckSty(o.on),tgl:()=>this.setState(s=>({wT:s.wT.map((x,j)=>j===i?{...x,on:!x.on}:x)}))})),
+      wTurfs:S.wF.map((o,i)=>({...o,...ckSty(o.on),tgl:()=>this.setState(s=>({wF:s.wF.map((x,j)=>j===i?{...x,on:!x.on}:x)}))})),
+      wDeads:[{k:'24H',lbl:'AUTO-CLOSE'},{k:'48H',lbl:'AUTO-CLOSE'},{k:'MANUAL',lbl:'YOU DECIDE'}].map(d=>({...d,bg:S.wDead===d.k?'#0E1B14':'#FFFFFF',fg:S.wDead===d.k?'#F5F2E9':'#0E1B14',sub:S.wDead===d.k?'rgba(245,242,233,.6)':'rgba(14,27,20,.4)',bd:S.wDead===d.k?'#0E1B14':'rgba(14,27,20,.12)',set:()=>this.setState({wDead:d.k})})),
+      wTimeSum:S.wT.filter(o=>o.on).map(o=>o.t).join('  ·  ')||'None selected',
+      wTurfSum:S.wF.filter(o=>o.on).map(o=>o.t).join('  ·  ')||'None selected',
+      wizBtn:S.wStep<3?'Next →':'Publish poll to squad',
+      wizNext:()=>{ if(S.wStep<3){this.setState({wStep:S.wStep+1});} else {
+        const nm={id:S.nextId,label:'Practice #'+S.nextId,phase:'poll',times:S.wT.map(o=>({...o})),turfs:S.wF.map(o=>({...o})),deadline:S.wDead,winTime:0,winTurf:0,teams:null,flip:false,votedP:false,pT:{},pF:{},dropouts:[],meOut:false,replaced:false};
+        this.setState(s=>({matches:[...s.matches,nm],nextId:s.nextId+1,mSel:nm.id,mScreen:'mdetail',chat:s.waOn?[...s.chat,{k:'poll',mid:nm.id,t:'now'},{k:'note',text:'Mirrored to WhatsApp — no-app players vote by reply'}]:[...s.chat,{k:'poll',mid:nm.id,t:'now'}]}));
+        this.toastM('Poll posted to team chat');this.toastP('New poll: when can you play?');} },
+      wizBack:()=>{ if(S.wStep>1){this.setState({wStep:S.wStep-1});} else {this.setState({mScreen:'matches'});} },
+      // player detail
+      pM,pChip:pCh.c,pChipBg:pCh.bg,pChipFg:pCh.fg,
+      pPhPoll:pM.phase==='poll',pPhSched:pM.phase==='scheduled',pPhWait:pM.phase==='closed'||pM.phase==='draft',
+      deadLblP:pM.deadline==='MANUAL'?'WHEN DANI CLOSES IT':'IN '+pM.deadline,
+      pvTimes,pvTurfs,notVoted:!pM.votedP,hasVoted:pM.votedP,votedNP:votedNof(pM),pollTimesP:pollRows(pM),
+      submitVote:()=>{this.upM(pM.id,x=>({...x,votedP:true}));this.setState(s=>({chat:[...s.chat,{k:'note',text:'Yusuf voted on '+pM.label+' · '+(votedNof(pM)+1)+'/12'}]}));this.toastP('Availability sent');this.toastM('Yusuf just voted on '+pM.label);},
+      editVote:()=>this.upM(pM.id,x=>({...x,votedP:false})),
+      pollBadge:S.matches.some(m=>m.phase==='poll'&&!m.votedP)?'flex':'none',
+      finTP:finTof(pM),finFP:finFof(pM),
+      avgAP:avg(pM,'A'),avgBP:avg(pM,'B'),
+      pPitchA:pitchRows(pM,'A',SA,false),pPitchB:pitchRows(pM,'B',SB,false),
+      notOut:!pM.meOut,isOut:pM.meOut,
+      reasons:['Injured','Work','Travel','Family'].map(k=>({k,bg:S.meReason===k?'#0E1B14':'#FFFFFF',fg:S.meReason===k?'#F5F2E9':'rgba(14,27,20,.6)',bd:S.meReason===k?'#0E1B14':'rgba(14,27,20,.14)',set:()=>this.setState({meReason:k})})),
+      meReason:S.meReason,
+      confirmOut:()=>{this.upM(pM.id,x=>({...x,meOut:true,dropouts:[{id:'YD',nm:'Yusuf Demir',reason:S.meReason}]}));this.setState(s=>({chat:[...s.chat,{k:'note',text:'Yusuf dropped out of '+pM.label+' — '+S.meReason}]}));this.toastM('Dropout: Yusuf — '+S.meReason);this.toastP('Dani has been notified');},
+      undoOut:()=>{this.upM(pM.id,x=>({...x,meOut:false,dropouts:[]}));this.toastP("You're back in");this.toastM('Yusuf is back in');},
+      undoDisp:pM.replaced?'none':'inline',
+      outSub:pM.replaced?'E. Kova took your spot for this one.':'Dani can replace you or adjust the teams.',
+      myTeamLbl:pM.meOut?'OUT':((pM.teams&&pM.teams.A.includes('YD'))?('TEAM '+kitName(kitA)):('TEAM '+kitName(kitB))),
+      myTeamBg:pM.meOut?'rgba(176,81,47,.35)':'rgba(30,138,94,.4)',myTeamFg:'#F5F2E9',
+      // chat
+      mChatRows:mkChat('DS'),pChatRows:mkChat('YD'),
+      mPlus:S.mPlus,pPlus:S.pPlus,mInvite:S.mInvite,
+      openMPlus:()=>this.setState({mPlus:true}),closeMPlus:()=>this.setState({mPlus:false}),
+      openPPlus:()=>this.setState({pPlus:true}),closePPlus:()=>this.setState({pPlus:false}),
+      plusPoll:()=>this.setState({mPlus:false,mScreen:'wizard',wStep:1}),
+      plusInvite:()=>this.setState({mPlus:false,mInvite:true}),
+      goMInvite:()=>this.setState({mInvite:true}),closeInvite:()=>this.setState({mInvite:false}),
+      copyCode:()=>this.toastM('Code copied — RON-4F2'),shareInvite:()=>this.toastM('Invite link shared'),
+      stubPhoto:()=>{this.setState({mPlus:false});this.toastM('Photo picker (demo)');},
+      stubLoc:()=>{this.setState({mPlus:false});this.toastM('Location share (demo)');},
+      stubRes:()=>{this.setState({mPlus:false});this.toastM('Result poster (demo)');},
+      stubAnn:()=>{this.setState({mPlus:false});this.toastM('Announcement (demo)');},
+      pStubPhoto:()=>{this.setState({pPlus:false});this.toastP('Photo picker (demo)');},
+      pStubLoc:()=>{this.setState({pPlus:false});this.toastP('Location share (demo)');},
+      pPlusAvail:()=>this.setState({pPlus:false,pScreen:'matches'}),
+      mDraftV:S.mDraft,pDraftV:S.pDraft,
+      setMDraft:e=>this.setState({mDraft:e.target.value}),setPDraft:e=>this.setState({pDraft:e.target.value}),
+      sendM:()=>{const t=S.mDraft.trim();if(!t)return;this.setState(s=>({chat:[...s.chat,{k:'text',who:'DS',nm:'Dani',text:t,t:'now'}],mDraft:''}));},
+      sendP:()=>{const t=S.pDraft.trim();if(!t)return;this.setState(s=>({chat:[...s.chat,{k:'text',who:'YD',nm:'Yusuf',text:t,t:'now'}],pDraft:''}));},
+      // squad & edit
+      squadList,posChips,setQ:e=>this.setState({q:e.target.value}),shownN:squadList.length,squadN:club.length,
+      sel:{...sel,roleLbl:sel.pos+(sel.mgr?' · MANAGER':' · PLAYER')},selAttrs,posOpts,
+      backEdit:()=>this.setState({mScreen:'squad'}),
+      doneEdit:()=>{this.setState({mScreen:'squad'});this.toastM(sel.nm+' saved → OVR '+sel.ovr);},
+      toggleMgr:()=>{const v=!sel.mgr;this.setState(s=>({players:s.players.map(x=>x.id===sel.id?{...x,mgr:v}:x)}));this.toastM(v?sel.nm+' is now a manager':sel.nm+' is no longer a manager');},
+      mgrBg:sel.mgr?'#C9A24B':'rgba(14,27,20,.18)',mgrX:sel.mgr?'21px':'3px',
+      removePlayer:()=>{this.setState({mScreen:'squad'});this.toastM(sel.nm+' removed (demo)');},
+      // ratings
+      voteBtn:S.votingOpen?'Close voting & settle scores':'Open voting window',
+      voteBtnBg:S.votingOpen?'#B0512F':'#1E8A5E',
+      voteChip:S.votingOpen?'VOTING LIVE':'VOTING CLOSED',
+      voteChipBg:S.votingOpen?'rgba(30,138,94,.16)':'rgba(14,27,20,.07)',
+      voteChipFg:S.votingOpen?'#1E8A5E':'rgba(14,27,20,.5)',
+      toggleVoting:()=>{const v=!S.votingOpen;this.setState(s=>({votingOpen:v,chat:[...s.chat,{k:'note',text:v?'Dani opened the rating window':'Rating window closed — scores settled'}]}));this.toastM(v?'Voting open — posted to chat':'Voting closed — scores settled');if(v)this.toastP('Rating window opened — go vote');},
+      rateOpen:S.votingOpen,rateClosed:!S.votingOpen,
+      rT,rAttrs,ratedLabel:('0'+Math.min(S.rated,11)).slice(-2)+' / 11 RATED',
+      nextRate:()=>{const last=S.rIdx>=targets.length-1;this.setState({rated:Math.max(S.rated,S.rIdx+1),rIdx:Math.min(S.rIdx+1,targets.length-1),rate:{0:3,1:3,2:3,3:3,4:3,5:3}});this.toastP(last?'All teammates rated — nice one':'Saved · next teammate');},
+      pBadgeDisp:S.votingOpen?'flex':'none',
+      // misc
+      meOvr:me.ovr,meAttrs,
+      toggleMNotif:()=>this.setState(s=>({mNotif:!s.mNotif})),togglePNotif:()=>this.setState(s=>({pNotif:!s.pNotif})),
+      mNotifBg:S.mNotif?'#1E8A5E':'rgba(14,27,20,.18)',mNotifX:S.mNotif?'21px':'3px',
+      pNotifBg:S.pNotif?'#1E8A5E':'rgba(14,27,20,.18)',pNotifX:S.pNotif?'21px':'3px',
+      signOutM:()=>{this.setState({mScreen:'login'});this.toastM('Signed out');},
+      signOutP:()=>{this.setState({pScreen:'login'});this.toastP('Signed out');},
+      mToast:S.mToast,mToastDisp:S.mToast?'flex':'none',
+      pToast:S.pToast,pToastDisp:S.pToast?'flex':'none',
+    };
+  }
+}
+</script>
+</body>
+</html>
