@@ -1,8 +1,9 @@
 import { handleSetPollVotes } from "@matchmaker-worker/handlers/match-polls";
-import { playerPublicId } from "@matchmaker-worker/ids";
+import { playerPublicId, pollOptionPublicId } from "@matchmaker-worker/ids";
 import type { InsertChatMessageInput } from "@saas/db/matchmaker";
 import {
   ACTOR,
+  FOREIGN_OPT,
   MATCH,
   ORG,
   PLAYER,
@@ -29,7 +30,7 @@ describe("handleSetPollVotes — self-service", () => {
       },
     });
     const res = await handleSetPollVotes(
-      jsonReq("PUT", { optionIds: [TIME_OPT] }),
+      jsonReq("PUT", { optionIds: [pollOptionPublicId(TIME_OPT)] }),
       allowEnv() as never,
       "r1",
       ACTOR,
@@ -55,7 +56,7 @@ describe("handleSetPollVotes — self-service", () => {
       },
     });
     const res = await handleSetPollVotes(
-      jsonReq("PUT", { optionIds: [TIME_OPT] }),
+      jsonReq("PUT", { optionIds: [pollOptionPublicId(TIME_OPT)] }),
       allowEnv() as never,
       "r2",
       ACTOR,
@@ -65,7 +66,9 @@ describe("handleSetPollVotes — self-service", () => {
     );
     expect(res.status).toBe(200);
     // Not [TIME_OPT, TURF_OPT] — the handler must hand the repo the caller's
-    // full replacement ballot, never merge it with the prior one.
+    // full replacement ballot, never merge it with the prior one. The handler
+    // translates the wire-level opt_ id back to the internal UUID before
+    // calling the repo.
     expect(captured).toEqual([TIME_OPT]);
   });
 
@@ -85,7 +88,7 @@ describe("handleSetPollVotes — self-service", () => {
       },
     });
     const res = await handleSetPollVotes(
-      jsonReq("PUT", { optionIds: [TIME_OPT] }),
+      jsonReq("PUT", { optionIds: [pollOptionPublicId(TIME_OPT)] }),
       allowEnv() as never,
       "r3",
       ACTOR,
@@ -112,7 +115,7 @@ describe("handleSetPollVotes — self-service", () => {
       },
     });
     const res = await handleSetPollVotes(
-      jsonReq("PUT", { optionIds: [TIME_OPT] }),
+      jsonReq("PUT", { optionIds: [pollOptionPublicId(TIME_OPT)] }),
       allowEnv() as never,
       "r4",
       ACTOR,
@@ -156,7 +159,7 @@ describe("handleSetPollVotes — self-service", () => {
       },
     });
     const res = await handleSetPollVotes(
-      jsonReq("PUT", { optionIds: ["not-in-poll"] }),
+      jsonReq("PUT", { optionIds: [pollOptionPublicId(FOREIGN_OPT)] }),
       allowEnv() as never,
       "r7",
       ACTOR,
@@ -181,7 +184,7 @@ describe("handleSetPollVotes — self-service", () => {
       },
     });
     const res = await handleSetPollVotes(
-      jsonReq("PUT", { optionIds: [TIME_OPT] }),
+      jsonReq("PUT", { optionIds: [pollOptionPublicId(TIME_OPT)] }),
       allowEnv() as never,
       "r8",
       ACTOR,
@@ -200,7 +203,7 @@ describe("handleSetPollVotes — self-service", () => {
       },
     });
     const res = await handleSetPollVotes(
-      jsonReq("PUT", { optionIds: [TIME_OPT] }),
+      jsonReq("PUT", { optionIds: [pollOptionPublicId(TIME_OPT)] }),
       allowEnv() as never,
       "r9",
       ACTOR,
@@ -213,7 +216,7 @@ describe("handleSetPollVotes — self-service", () => {
 
   it("404s (opaque) when policy denies organization.poll.vote", async () => {
     const res = await handleSetPollVotes(
-      jsonReq("PUT", { optionIds: [TIME_OPT] }),
+      jsonReq("PUT", { optionIds: [pollOptionPublicId(TIME_OPT)] }),
       denyEnv() as never,
       "r10",
       ACTOR,
@@ -227,7 +230,7 @@ describe("handleSetPollVotes — self-service", () => {
 
 describe("handleSetPollVotes — manager voting on behalf of a roster player", () => {
   function reqBody() {
-    return { optionIds: [TIME_OPT], playerId: playerPublicId(PLAYER_2) };
+    return { optionIds: [pollOptionPublicId(TIME_OPT)], playerId: playerPublicId(PLAYER_2) };
   }
 
   it("requires organization.poll.manage, not organization.poll.vote, when playerId is supplied", async () => {
@@ -299,7 +302,7 @@ describe("handleSetPollVotes — manager voting on behalf of a roster player", (
 
   it("422s on a malformed playerId", async () => {
     const res = await handleSetPollVotes(
-      jsonReq("PUT", { optionIds: [TIME_OPT], playerId: "not-a-player-id" }),
+      jsonReq("PUT", { optionIds: [pollOptionPublicId(TIME_OPT)], playerId: "not-a-player-id" }),
       allowEnv() as never,
       "r14",
       ACTOR,

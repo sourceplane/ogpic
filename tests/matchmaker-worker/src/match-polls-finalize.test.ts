@@ -1,4 +1,5 @@
 import { handleFinalizeMatch } from "@matchmaker-worker/handlers/match-polls";
+import { pollOptionPublicId } from "@matchmaker-worker/ids";
 import type { UpdateMatchInput } from "@saas/db/matchmaker";
 import {
   ACTOR,
@@ -43,7 +44,7 @@ describe("handleFinalizeMatch", () => {
       },
     });
     const res = await handleFinalizeMatch(
-      jsonReq("POST", { timeOptionId: TIME_OPT, turfOptionId: TURF_OPT }),
+      jsonReq("POST", { timeOptionId: pollOptionPublicId(TIME_OPT), turfOptionId: pollOptionPublicId(TURF_OPT) }),
       allowEnv() as never,
       "r1",
       ACTOR,
@@ -71,7 +72,7 @@ describe("handleFinalizeMatch", () => {
       },
     });
     const res = await handleFinalizeMatch(
-      jsonReq("POST", { timeOptionId: TIME_OPT, turfOptionId: TURF_OPT }),
+      jsonReq("POST", { timeOptionId: pollOptionPublicId(TIME_OPT), turfOptionId: pollOptionPublicId(TURF_OPT) }),
       allowEnv() as never,
       "r2",
       ACTOR,
@@ -92,7 +93,7 @@ describe("handleFinalizeMatch", () => {
       },
     });
     const res = await handleFinalizeMatch(
-      jsonReq("POST", { timeOptionId: TIME_OPT, turfOptionId: TURF_OPT }),
+      jsonReq("POST", { timeOptionId: pollOptionPublicId(TIME_OPT), turfOptionId: pollOptionPublicId(TURF_OPT) }),
       allowEnv() as never,
       "r3",
       ACTOR,
@@ -113,7 +114,7 @@ describe("handleFinalizeMatch", () => {
       },
     });
     const res = await handleFinalizeMatch(
-      jsonReq("POST", { timeOptionId: TIME_OPT, turfOptionId: TURF_OPT }),
+      jsonReq("POST", { timeOptionId: pollOptionPublicId(TIME_OPT), turfOptionId: pollOptionPublicId(TURF_OPT) }),
       allowEnv() as never,
       "r4",
       ACTOR,
@@ -135,7 +136,7 @@ describe("handleFinalizeMatch", () => {
     });
     const res = await handleFinalizeMatch(
       // TURF_OPT is a 'turf' kind option — invalid as the timeOptionId.
-      jsonReq("POST", { timeOptionId: TURF_OPT, turfOptionId: TURF_OPT }),
+      jsonReq("POST", { timeOptionId: pollOptionPublicId(TURF_OPT), turfOptionId: pollOptionPublicId(TURF_OPT) }),
       allowEnv() as never,
       "r5",
       ACTOR,
@@ -158,7 +159,7 @@ describe("handleFinalizeMatch", () => {
       },
     });
     const res = await handleFinalizeMatch(
-      jsonReq("POST", { timeOptionId: TIME_OPT, turfOptionId: FOREIGN_OPT }),
+      jsonReq("POST", { timeOptionId: pollOptionPublicId(TIME_OPT), turfOptionId: pollOptionPublicId(FOREIGN_OPT) }),
       allowEnv() as never,
       "r6",
       ACTOR,
@@ -185,7 +186,7 @@ describe("handleFinalizeMatch", () => {
       },
     });
     const res = await handleFinalizeMatch(
-      jsonReq("POST", { timeOptionId: TIME_OPT, turfOptionId: TURF_OPT }),
+      jsonReq("POST", { timeOptionId: pollOptionPublicId(TIME_OPT), turfOptionId: pollOptionPublicId(TURF_OPT) }),
       allowEnv() as never,
       "r8",
       ACTOR,
@@ -198,7 +199,7 @@ describe("handleFinalizeMatch", () => {
 
   it("404s (opaque) when policy denies organization.poll.manage", async () => {
     const res = await handleFinalizeMatch(
-      jsonReq("POST", { timeOptionId: TIME_OPT, turfOptionId: TURF_OPT }),
+      jsonReq("POST", { timeOptionId: pollOptionPublicId(TIME_OPT), turfOptionId: pollOptionPublicId(TURF_OPT) }),
       denyEnv() as never,
       "r9",
       ACTOR,

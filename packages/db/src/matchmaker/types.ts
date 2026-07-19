@@ -341,6 +341,10 @@ export interface InsertChatMessageInput {
 export interface ListChatMessagesParams {
   limit: number;
   before: Date | null;
+  /** Tie-breaker for `before` when paging past messages with identical
+   *  `created_at`: pairs with `before` for a `(created_at, id) < (…)` keyset
+   *  comparison. Ignored if `before` isn't also set. */
+  beforeId?: string | null;
 }
 
 export interface MatchmakerRepository {

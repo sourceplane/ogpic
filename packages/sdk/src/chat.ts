@@ -21,6 +21,9 @@ export interface PublicChatMessage {
 export interface ListChatQuery {
   limit?: number;
   before?: string;
+  /** Tie-breaker for `before`; pass the id of the oldest message from the
+   *  previous page to page safely past messages with identical timestamps. */
+  beforeId?: string;
 }
 
 export interface ListChatResponse {
@@ -51,13 +54,13 @@ export interface ReactChatResponse {
 export class ChatClient {
   constructor(private readonly transport: Transport) {}
 
-  /** GET /v1/organizations/:orgId/chat?limit=&before= — newest first. */
+  /** GET /v1/organizations/:orgId/chat?limit=&before=&beforeId= — newest first. */
   listChat(orgId: string, query: ListChatQuery = {}, opts: RequestOptions = {}): Promise<ListChatResponse> {
     return this.transport.request<ListChatResponse>(
       {
         method: "GET",
         path: `${orgBase(orgId)}/chat`,
-        query: { limit: query.limit, before: query.before },
+        query: { limit: query.limit, before: query.before, beforeId: query.beforeId },
       },
       opts,
     );

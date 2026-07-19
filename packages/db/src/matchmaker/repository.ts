@@ -939,21 +939,35 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
             };
           }
         }
+        const pollOpenGuard = `EXISTS (
+             SELECT 1 FROM matchmaker.match_polls p WHERE p.match_id = $2 AND p.org_id = $1 AND p.closed_at IS NULL
+           )`;
         if (uniqueIds.length === 0) {
           await executor.execute(
-            `DELETE FROM matchmaker.match_poll_votes WHERE org_id = $1 AND match_id = $2 AND player_id = $3`,
+            `DELETE FROM matchmaker.match_poll_votes
+             WHERE org_id = $1 AND match_id = $2 AND player_id = $3 AND ${pollOpenGuard}`,
             [orgId, matchId, playerId],
           );
           return { ok: true, value: undefined };
         }
         const iso = now.toISOString();
-        // Single statement: the delete + insert commit atomically together.
+        // Two separate statements rather than one delete+insert CTE: a single
+        // CTE shares one snapshot, so re-voting while KEEPING an option would
+        // delete then immediately re-insert that row, colliding with a
+        // not-yet-committed identical row (PK conflict). Instead: only
+        // de-selected options are deleted, and newly-selected options are
+        // inserted with ON CONFLICT DO NOTHING so unchanged rows are untouched.
         await executor.execute(
-          `WITH deleted AS (
-             DELETE FROM matchmaker.match_poll_votes WHERE org_id = $1 AND match_id = $2 AND player_id = $3
-           )
-           INSERT INTO matchmaker.match_poll_votes (option_id, match_id, org_id, player_id, created_at)
-           SELECT unnest($4::uuid[]), $2, $1, $3, $5`,
+          `DELETE FROM matchmaker.match_poll_votes
+           WHERE org_id = $1 AND match_id = $2 AND player_id = $3 AND option_id != ALL($4::uuid[]) AND ${pollOpenGuard}`,
+          [orgId, matchId, playerId, uniqueIds],
+        );
+        await executor.execute(
+          `INSERT INTO matchmaker.match_poll_votes (option_id, match_id, org_id, player_id, created_at)
+           SELECT o.option_id, $2, $1, $3, $5
+           FROM unnest($4::uuid[]) AS o(option_id)
+           WHERE ${pollOpenGuard}
+           ON CONFLICT DO NOTHING`,
           [orgId, matchId, playerId, uniqueIds, iso],
         );
         return { ok: true, value: undefined };
@@ -1142,7 +1156,13 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
       try {
         const conds = ["org_id = $1"];
         const values: unknown[] = [orgId];
-        if (params.before) {
+        if (params.before && params.beforeId) {
+          // Row-value comparison matches the (created_at DESC, id DESC)
+          // index and breaks ties safely when multiple messages share the
+          // same created_at.
+          values.push(params.before.toISOString(), params.beforeId);
+          conds.push(`(created_at, id) < ($${values.length - 1}, $${values.length})`);
+        } else if (params.before) {
           values.push(params.before.toISOString());
           conds.push(`created_at < $${values.length}`);
         }
@@ -1165,24 +1185,24 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
       subjectId: string,
     ): Promise<MatchmakerResult<ChatMessage>> {
       try {
-        const current = await executor.execute<Record<string, unknown>>(
-          `SELECT * FROM matchmaker.chat_messages WHERE org_id = $1 AND id = $2`,
-          [orgId, messageId],
-        );
-        if (current.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
-        const reactions = parseJson<Record<string, string[]>>(current.rows[0]!.reactions, {});
-        const existing = reactions[emoji] ?? [];
-        const hasReacted = existing.includes(subjectId);
-        const nextList = hasReacted ? existing.filter((id) => id !== subjectId) : [...existing, subjectId];
-        const nextReactions: Record<string, string[]> = { ...reactions };
-        if (nextList.length === 0) {
-          delete nextReactions[emoji];
-        } else {
-          nextReactions[emoji] = nextList;
-        }
+        // Single atomic jsonb UPDATE (no prior SELECT): a read-modify-write
+        // round trip would lose concurrent reactions from other subjects
+        // arriving between the read and the write.
         const updated = await executor.execute<Record<string, unknown>>(
-          `UPDATE matchmaker.chat_messages SET reactions = $3::jsonb WHERE org_id = $1 AND id = $2 RETURNING *`,
-          [orgId, messageId, JSON.stringify(nextReactions)],
+          `UPDATE matchmaker.chat_messages SET reactions = (
+             CASE WHEN COALESCE(reactions->$3, '[]'::jsonb) ? $4 THEN
+               CASE WHEN jsonb_array_length(reactions->$3) <= 1 THEN reactions - $3
+                    ELSE jsonb_set(reactions, ARRAY[$3], (
+                      SELECT COALESCE(jsonb_agg(t.v), '[]'::jsonb)
+                      FROM jsonb_array_elements_text(reactions->$3) AS t(v)
+                      WHERE t.v <> $4
+                    ))
+               END
+             ELSE jsonb_set(reactions, ARRAY[$3], COALESCE(reactions->$3, '[]'::jsonb) || to_jsonb($4::text))
+             END)
+           WHERE org_id = $1 AND id = $2
+           RETURNING *`,
+          [orgId, messageId, emoji, subjectId],
         );
         if (updated.rowCount === 0) return { ok: false, error: { kind: "not_found" } };
         return { ok: true, value: mapChatMessage(updated.rows[0]!) };

@@ -164,7 +164,8 @@ POST/PUT/PATCH/DELETE-with-body (DELETE has no body here).
 **Member role (membership-worker)**
 - `PUT /organizations/{id}/members/{memberId}/role` (owner/admin): `{ role: 'admin'|'viewer' }` —
   flips the member's role assignment (promote/demote manager). Cannot change
-  the owner; cannot self-demote the last owner/admin.
+  the owner's role; the owner-retention invariant (leave/remove guards) keeps
+  every org managed.
 
 ## 5. Policy actions (policy-engine + policy-worker redeploy)
 

@@ -13,7 +13,7 @@ import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { requireOrgAction } from "../authz.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { toPublicMatch } from "../mappers.js";
-import { playerPublicId, parsePlayerPublicId } from "../ids.js";
+import { playerPublicId, parsePlayerPublicId, pollOptionPublicId, parsePollOptionPublicId } from "../ids.js";
 
 const LABEL_MAX = 80;
 const DETAIL_MAX = 200;
@@ -23,6 +23,7 @@ const DEADLINE_MS: Record<Exclude<PollDeadlineKind, "manual">, number> = {
   "24h": 24 * 60 * 60 * 1000,
   "48h": 48 * 60 * 60 * 1000,
 };
+const OPTION_NOT_IN_POLL_MSG = "One or more option ids do not belong to this match's poll";
 
 export interface MatchPollsDeps {
   repo?: MatchmakerRepository;
@@ -170,7 +171,7 @@ function toPublicPollDetail(detail: MatchPollDetail, eligible: number) {
   const options: PublicPollOption[] = detail.options.map((o) => {
     for (const voterId of o.voterPlayerIds) voters.add(voterId);
     return {
-      id: o.id,
+      id: pollOptionPublicId(o.id),
       kind: o.kind,
       label: o.label,
       detail: o.detail,
@@ -304,8 +305,17 @@ export async function handleSetPollVotes(
     }
     const hadVotedBefore = pollBefore.value.options.some((o) => o.voterPlayerIds.includes(targetPlayer.id));
 
+    const optionUuids: Uuid[] = [];
+    for (const rawOptionId of parsed.optionIds) {
+      const optionUuid = parsePollOptionPublicId(rawOptionId);
+      if (!optionUuid) {
+        return validationError(requestId, { optionIds: [OPTION_NOT_IN_POLL_MSG] });
+      }
+      optionUuids.push(optionUuid);
+    }
+
     const now = new Date();
-    const setResult = await repo.setPollVotes(orgId, matchId, asUuid(targetPlayer.id), parsed.optionIds, now);
+    const setResult = await repo.setPollVotes(orgId, matchId, asUuid(targetPlayer.id), optionUuids, now);
     if (!setResult.ok) {
       if (setResult.error.kind === "validation") {
         return validationError(requestId, { optionIds: [setResult.error.message] });
@@ -475,11 +485,17 @@ export async function handleFinalizeMatch(
       return errorResponse("conflict", "Match is not ready to finalize", 409, requestId);
     }
 
-    const timeOption = pollResult.value.options.find((o) => o.id === parsed.timeOptionId && o.kind === "time");
+    const timeOptionUuid = parsePollOptionPublicId(parsed.timeOptionId);
+    const timeOption = timeOptionUuid
+      ? pollResult.value.options.find((o) => o.id === timeOptionUuid && o.kind === "time")
+      : undefined;
     if (!timeOption) {
       return validationError(requestId, { timeOptionId: ["Does not belong to this match's poll"] });
     }
-    const turfOption = pollResult.value.options.find((o) => o.id === parsed.turfOptionId && o.kind === "turf");
+    const turfOptionUuid = parsePollOptionPublicId(parsed.turfOptionId);
+    const turfOption = turfOptionUuid
+      ? pollResult.value.options.find((o) => o.id === turfOptionUuid && o.kind === "turf")
+      : undefined;
     if (!turfOption) {
       return validationError(requestId, { turfOptionId: ["Does not belong to this match's poll"] });
     }

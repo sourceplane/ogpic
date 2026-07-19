@@ -1,42 +1,10 @@
-// runAutoClosePolls (apps/matchmaker-worker/src/scheduled.ts) has no injected
-// repo the way every HTTP handler does (no `deps?.repo` escape hatch) — it
-// always builds its own repo from the real `createSqlExecutor` /
-// `createMatchmakerRepository`. Unlike its sibling cron pass in the same
-// file, `runAvailabilityReminders`, which factors its logic into an
-// injectable core (`sendAvailabilityRemindersFor(env, repo, enqueue,
-// matches)` — see reminders.test.ts), `runAutoClosePolls` has no such seam.
-//
-// We tried covering it anyway via Jest's ESM module-mocking primitives
-// (`jest.doMock`/`jest.unstable_mockModule` + dynamic `import()` of
-// "@matchmaker-worker/scheduled", swapping in fakes for "@saas/db/hyperdrive"
-// and "@saas/db/matchmaker"). It is NOT reliable in this repo's exact Jest 29
-// + ts-jest ESM + `--experimental-vm-modules` configuration:
-//   - `jest.resetModules()` does not evict previously dynamic-imported ESM
-//     modules from the VM's SourceTextModule cache, so once any other test
-//     file in the same worker has done a real (unmocked) static import of
-//     "@saas/db/hyperdrive"/"@saas/db/matchmaker" (every handler test file
-//     does, transitively, via `@matchmaker-worker/handlers/*`), later mocks
-//     for those exact specifiers silently do not apply — confirmed by
-//     reproducing a deterministic failure under `--runInBand` and under
-//     repeated `pnpm exec turbo run test --filter=@saas/matchmaker-worker-tests`
-//     runs in this sandbox (both serialize enough test files into shared
-//     workers to hit the collision every time), while plain parallel
-//     `pnpm exec jest` (one OS process per test file) happened to pass by
-//     virtue of true process isolation — not a guarantee.
-//   - `jest.isolateModulesAsync` (the documented fix for exactly this class
-//     of problem) instead throws a Jest-internal error on the second call in
-//     this file/version combination: "Module cache already has entry
-//     .../postgres/src/index.js. This is a bug in Jest, please report it!"
-//     — i.e. Jest's own message identifies this as a Jest bug, not a
-//     fixable test-authoring issue.
-//
-// Rather than ship a suite that passes or fails depending on Jest's worker
-// scheduling (which is exactly what turbo's canonical `pnpm exec turbo run
-// test --filter=@saas/matchmaker-worker-tests` hit here — deterministic
-// failures, not flakes), the contract is documented below as `.skip`. See
-// bugsFound for the recommended fix (extract an injectable core, mirroring
-// `sendAvailabilityRemindersFor`) which would make this trivially testable
-// the same way every other handler in this suite is.
+// closeDuePolls (apps/matchmaker-worker/src/scheduled.ts) is the injectable
+// core extracted out of runAutoClosePolls, mirroring how
+// sendAvailabilityRemindersFor is factored out of runAvailabilityReminders
+// (see reminders.test.ts). runAutoClosePolls itself stays a thin env wrapper
+// that builds the real repo from PLATFORM_DB and delegates here — this suite
+// drives the core directly with a stub repo instead.
+import { closeDuePolls } from "@matchmaker-worker/scheduled";
 import type { InsertChatMessageInput, MatchmakerRepository, MatchPoll, UpdateMatchInput } from "@saas/db/matchmaker";
 import { applyUpdateMatch, match as buildMatch, ORG, MATCH } from "./match-polls-fixtures.js";
 
@@ -53,15 +21,7 @@ function duePoll(overrides: Partial<MatchPoll> = {}): MatchPoll {
   };
 }
 
-describe.skip("runAutoClosePolls (documents the intended contract — see file header for why this cannot run reliably against the current, non-injectable scheduled.ts)", () => {
-  // Would-be `deps`-style entry point this suite assumes exists, e.g.:
-  //   export async function closeDuePolls(repo: MatchmakerRepository, now: Date): Promise<void>
-  // extracted out of runAutoClosePolls the same way sendAvailabilityRemindersFor
-  // was extracted out of runAvailabilityReminders.
-  const closeDuePolls: (repo: MatchmakerRepository, now: Date) => Promise<void> = async () => {
-    throw new Error("closeDuePolls does not exist yet — see file header for the recommended extraction.");
-  };
-
+describe("closeDuePolls", () => {
   it("closes every due poll: match -> finalizing, closed_at stamped, and a chat note posted", async () => {
     const closeCalls: { orgId: string; matchId: string }[] = [];
     const updateCalls: UpdateMatchInput[] = [];
@@ -87,7 +47,7 @@ describe.skip("runAutoClosePolls (documents the intended contract — see file h
       },
     };
 
-    await closeDuePolls(repo as MatchmakerRepository, new Date());
+    await closeDuePolls({} as never, repo as MatchmakerRepository, new Date());
 
     expect(closeCalls).toHaveLength(1);
     expect(updateCalls).toHaveLength(1);
@@ -109,7 +69,7 @@ describe.skip("runAutoClosePolls (documents the intended contract — see file h
       },
     };
 
-    await closeDuePolls(repo as MatchmakerRepository, new Date());
+    await closeDuePolls({} as never, repo as MatchmakerRepository, new Date());
     expect(closeCalls).toHaveLength(0);
   });
 
@@ -128,7 +88,7 @@ describe.skip("runAutoClosePolls (documents the intended contract — see file h
       },
     };
 
-    await expect(closeDuePolls(repo as MatchmakerRepository, new Date())).resolves.toBeUndefined();
+    await expect(closeDuePolls({} as never, repo as MatchmakerRepository, new Date())).resolves.toBeUndefined();
     expect(updateCalls).toHaveLength(0);
   });
 
@@ -156,7 +116,7 @@ describe.skip("runAutoClosePolls (documents the intended contract — see file h
       },
     };
 
-    await expect(closeDuePolls(repo as MatchmakerRepository, new Date())).resolves.toBeUndefined();
+    await expect(closeDuePolls({} as never, repo as MatchmakerRepository, new Date())).resolves.toBeUndefined();
     // Only the second (successful) poll gets a note; the first's update failure
     // doesn't stop the batch or throw.
     expect(notes).toHaveLength(1);

@@ -114,7 +114,7 @@ describe("handleChatList", () => {
   it("defaults to limit 50 with no before cursor", async () => {
     const res = await handleChatList(getReq(), allow() as never, "r2", ACTOR, ORG, { repo: repo() });
     expect(res.status).toBe(200);
-    expect(lastListParams).toEqual({ limit: 50, before: null });
+    expect(lastListParams).toEqual({ limit: 50, before: null, beforeId: null });
   });
 
   it("accepts a limit at the lower bound (1)", async () => {

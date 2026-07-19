@@ -118,15 +118,63 @@ export async function runAvailabilityReminders(env: Env): Promise<void> {
 }
 
 /**
- * Auto-close sweep (cron): every open poll whose deadline has passed is
+ * Auto-close core (testable): every open poll whose deadline has passed is
  * closed exactly like a manual `POST /poll/close` — the match moves to
- * 'finalizing' and a chat note is posted. Bounded per tick by
- * `DUE_POLLS_LIMIT`; failures on one poll don't block the rest.
- * Fails closed when `PLATFORM_DB` is missing; never throws.
- *
- * NOTE: wire this into the worker's `scheduled` export (index.ts) alongside
- * the other cron passes — left out here since index.ts is outside this
- * work item's file set.
+ * 'finalizing' and a chat note is posted. Failures on one poll (a failed
+ * close or a failed match update) are skipped, not thrown — they don't block
+ * the rest of the batch.
+ */
+export async function closeDuePolls(env: Env, repo: MatchmakerRepository, now: Date): Promise<void> {
+  const due = await repo.listDuePolls(now, DUE_POLLS_LIMIT);
+  if (!due.ok) {
+    console.error(`[scheduled] due-polls query failed: ${due.error.kind}`);
+    return;
+  }
+
+  let closed = 0;
+  for (const poll of due.value) {
+    const orgId = asUuid(poll.orgId);
+    const matchId = asUuid(poll.matchId);
+
+    const closeResult = await repo.closeMatchPoll(orgId, matchId, now);
+    if (!closeResult.ok) continue;
+
+    const matchResult = await repo.getMatchById(orgId, matchId);
+    const updateResult = await repo.updateMatch(orgId, matchId, {
+      scheduledAt: null,
+      status: "finalizing",
+      scoreA: null,
+      scoreB: null,
+      venue: null,
+      teamA: null,
+      teamB: null,
+      updatedAt: now,
+    });
+    if (!updateResult.ok) continue;
+    closed++;
+
+    const label = matchResult.ok
+      ? formatMatchLabel(matchResult.value.scheduledAt, matchResult.value.venue.name)
+      : "the match";
+    await repo.insertChatMessage({
+      id: crypto.randomUUID(),
+      orgId,
+      kind: "note",
+      body: pollClosedNoteBody(label),
+      matchId,
+      authorPlayerId: null,
+      authorSubjectId: null,
+      authorName: null,
+      createdAt: now,
+    });
+  }
+  if (closed > 0) console.warn(`[scheduled] auto-closed ${closed} poll(s)`);
+}
+
+/**
+ * Auto-close sweep (cron): thin env wrapper around `closeDuePolls` — builds
+ * the real repo from `PLATFORM_DB` and disposes it afterward. Fails closed
+ * when `PLATFORM_DB` is missing; never throws.
  */
 export async function runAutoClosePolls(env: Env): Promise<void> {
   if (!env.PLATFORM_DB) {
@@ -136,51 +184,7 @@ export async function runAutoClosePolls(env: Env): Promise<void> {
   const executor = createSqlExecutor(env.PLATFORM_DB);
   try {
     const repo = createMatchmakerRepository(executor);
-    const now = new Date();
-    const due = await repo.listDuePolls(now, DUE_POLLS_LIMIT);
-    if (!due.ok) {
-      console.error(`[scheduled] due-polls query failed: ${due.error.kind}`);
-      return;
-    }
-
-    let closed = 0;
-    for (const poll of due.value) {
-      const orgId = asUuid(poll.orgId);
-      const matchId = asUuid(poll.matchId);
-
-      const closeResult = await repo.closeMatchPoll(orgId, matchId, now);
-      if (!closeResult.ok) continue;
-
-      const matchResult = await repo.getMatchById(orgId, matchId);
-      const updateResult = await repo.updateMatch(orgId, matchId, {
-        scheduledAt: null,
-        status: "finalizing",
-        scoreA: null,
-        scoreB: null,
-        venue: null,
-        teamA: null,
-        teamB: null,
-        updatedAt: now,
-      });
-      if (!updateResult.ok) continue;
-      closed++;
-
-      const label = matchResult.ok
-        ? formatMatchLabel(matchResult.value.scheduledAt, matchResult.value.venue.name)
-        : "the match";
-      await repo.insertChatMessage({
-        id: crypto.randomUUID(),
-        orgId,
-        kind: "note",
-        body: pollClosedNoteBody(label),
-        matchId,
-        authorPlayerId: null,
-        authorSubjectId: null,
-        authorName: null,
-        createdAt: now,
-      });
-    }
-    if (closed > 0) console.warn(`[scheduled] auto-closed ${closed} poll(s)`);
+    await closeDuePolls(env, repo, new Date());
   } finally {
     await executor.dispose();
   }

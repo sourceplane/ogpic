@@ -198,6 +198,13 @@ export async function handleResolveDropout(
     const repo = deps?.repo ?? createMatchmakerRepository(executor!);
     const now = new Date();
 
+    // Resolve first: it's the idempotency gate. Only on success (i.e. there
+    // was actually an unresolved dropout) do we apply the team swap and post
+    // the chat note — otherwise a double-click/retry would replay those
+    // side effects against an already-resolved dropout.
+    const resolved = await repo.resolveDropout(orgId, matchId, playerId, now);
+    if (!resolved.ok) return errorResponse("not_found", "Not found", 404, requestId);
+
     let updatedMatch = null;
     if (replacementPlayerId !== undefined) {
       const matchResult = await repo.getMatchById(orgId, matchId);
@@ -258,9 +265,6 @@ export async function handleResolveDropout(
         createdAt: now,
       });
     }
-
-    const resolved = await repo.resolveDropout(orgId, matchId, playerId, now);
-    if (!resolved.ok) return errorResponse("not_found", "Not found", 404, requestId);
 
     return successResponse(
       { dropout: toPublicDropout(resolved.value), match: updatedMatch ? toPublicMatch(updatedMatch) : null },

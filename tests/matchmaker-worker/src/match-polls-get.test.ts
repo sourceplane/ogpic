@@ -83,9 +83,9 @@ describe("handleGetMatchPoll", () => {
   // The rest of the API keeps internal UUIDs off the wire (matchPublicId,
   // playerPublicId, chatMessagePublicId, orgPublicId all translate before a
   // response leaves the worker — see mappers.ts / chat.ts). Poll option ids
-  // are the one place that invariant is dropped: toPublicPollDetail in
-  // match-polls.ts returns `o.id` raw. See bugsFound for file:line.
-  it.skip("option ids are opaque public ids, like every other id on the wire (BUG: currently raw UUIDs — see match-polls.ts toPublicPollDetail)", async () => {
+  // now follow the same rule: toPublicPollDetail in match-polls.ts translates
+  // via pollOptionPublicId (opt_ prefix).
+  it("option ids are opaque public ids, like every other id on the wire", async () => {
     const detail = pollDetail({}, [timeOption()]);
     const r = repo({
       async getMatchPoll() {

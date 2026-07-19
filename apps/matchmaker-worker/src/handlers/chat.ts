@@ -6,7 +6,7 @@ import { createMatchmakerRepository } from "@saas/db/matchmaker";
 import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { requireOrgAction } from "../authz.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
-import { chatMessagePublicId, matchPublicId, playerPublicId } from "../ids.js";
+import { chatMessagePublicId, matchPublicId, parseChatMessagePublicId, playerPublicId } from "../ids.js";
 
 export interface HandleChatDeps {
   repo?: MatchmakerRepository;
@@ -46,7 +46,7 @@ function toPublicChatMessage(message: ChatMessage): PublicChatMessage {
 }
 
 type ParseListParamsResult =
-  | { valid: true; limit: number; before: Date | null }
+  | { valid: true; limit: number; before: Date | null; beforeId: string | null }
   | { valid: false; fields: Record<string, string[]> };
 
 function parseListParams(url: URL): ParseListParamsResult {
@@ -70,10 +70,20 @@ function parseListParams(url: URL): ParseListParamsResult {
     before = parsed;
   }
 
-  return { valid: true, limit, before };
+  const beforeIdParam = url.searchParams.get("beforeId");
+  let beforeId: string | null = null;
+  if (beforeIdParam !== null) {
+    const parsedId = parseChatMessagePublicId(beforeIdParam);
+    if (!parsedId) {
+      return { valid: false, fields: { beforeId: ["Invalid chat message id"] } };
+    }
+    beforeId = parsedId;
+  }
+
+  return { valid: true, limit, before, beforeId };
 }
 
-/** GET /v1/organizations/:orgId/chat?limit=&before= — squad chat feed, newest first. */
+/** GET /v1/organizations/:orgId/chat?limit=&before=&beforeId= — squad chat feed, newest first. */
 export async function handleChatList(
   request: Request,
   env: Env,
@@ -98,7 +108,11 @@ export async function handleChatList(
   const executor = deps?.repo ? null : createSqlExecutor(env.PLATFORM_DB!);
   try {
     const repo = deps?.repo ?? createMatchmakerRepository(executor!);
-    const result = await repo.listChatMessages(orgId, { limit: parsed.limit, before: parsed.before });
+    const result = await repo.listChatMessages(orgId, {
+      limit: parsed.limit,
+      before: parsed.before,
+      beforeId: parsed.beforeId,
+    });
     if (!result.ok) {
       return errorResponse("internal_error", "Service unavailable", 503, requestId);
     }
