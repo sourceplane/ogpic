@@ -248,6 +248,9 @@ export function buildDropoutSeed(args: {
       for (const p of match.teamA.players) inTeam.add(p.id);
       for (const p of match.teamB.players) inTeam.add(p.id);
     }
+    // Defensive: the dropped players themselves are never candidates, even
+    // when the caller didn't thread their match (so inTeam stayed empty).
+    for (const d of rows) inTeam.add(d.playerId);
     const suggestion = suggestReplacement(pool, [...inTeam]);
     let mine: { reason: string } | null = null;
     const open = rows.map((d) => {
