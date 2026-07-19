@@ -11,7 +11,7 @@ const ORG_DRAFT_RE = /^\/v1\/organizations\/[^/]+\/draft$/;
 const ORG_MATCHES_RE = /^\/v1\/organizations\/[^/]+\/matches(?:\/[^/]+(?:\/share|\/payments(?:\/[^/]+)?)?)?$/;
 const ORG_AVAILABILITY_RE = /^\/v1\/organizations\/[^/]+\/availability(?:\/[^/]+)?$/;
 // v5 (docs/design/rondo-v5-spec.md §4): polls, finalize, dropouts, chat, settings.
-const ORG_MATCH_POLL_RE = /^\/v1\/organizations\/[^/]+\/matches\/[^/]+\/(?:poll(?:\/(?:votes|close))?|finalize|dropout|dropouts\/[^/]+\/resolve)$/;
+const ORG_MATCH_POLL_RE = /^\/v1\/organizations\/[^/]+\/matches\/[^/]+\/(?:poll(?:\/(?:votes|close))?|finalize|dropout|dropouts(?:\/[^/]+\/resolve)?)$/;
 const ORG_CHAT_RE = /^\/v1\/organizations\/[^/]+\/chat(?:\/[^/]+\/reactions)?$/;
 const ORG_SETTINGS_RE = /^\/v1\/organizations\/[^/]+\/settings$/;
 

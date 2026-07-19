@@ -9,13 +9,15 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@saas/eslint-config": "workspace:*",
     "@saas/tsconfig": "workspace:*",
     "@types/react": "npm:types-react@19.0.0-rc.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.9"
   },
   "dependencies": {
     "@saas/contracts": "workspace:*",
