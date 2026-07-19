@@ -6,10 +6,10 @@
 "use client";
 
 import * as React from "react";
-import { useRondo, type RondoSeed } from "./use-rondo";
+import { useRondo, type RondoSeed } from "@saas/rondo-core";
 import { ManagerApp } from "./manager-app";
 import { PlayerApp } from "./player-app";
-import { DEMO_SEED } from "./demo-seed";
+import { DEMO_SEED } from "@saas/rondo-core";
 import type { TeamNav } from "./team-switcher";
 
 export function PitchsideApp({

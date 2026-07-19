@@ -8,7 +8,7 @@
 
 import * as React from "react";
 import { C, ink, green, rust, Icon } from "./kit";
-import type { PlayerStats } from "./use-rondo";
+import type { PlayerStats } from "@saas/rondo-core";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 

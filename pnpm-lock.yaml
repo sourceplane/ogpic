@@ -402,6 +402,9 @@ importers:
       '@saas/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@saas/rondo-core':
+        specifier: workspace:*
+        version: link:../../packages/rondo-core
       '@saas/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -604,6 +607,31 @@ importers:
       '@saas/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/tsconfig
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
+  packages/rondo-core:
+    dependencies:
+      '@saas/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@saas/sdk':
+        specifier: workspace:*
+        version: link:../sdk
+      react:
+        specifier: ^19.0.0
+        version: 19.2.7
+    devDependencies:
+      '@saas/eslint-config':
+        specifier: workspace:*
+        version: link:../../tooling/eslint
+      '@saas/tsconfig':
+        specifier: workspace:*
+        version: link:../../tooling/tsconfig
+      '@types/react':
+        specifier: npm:types-react@19.0.0-rc.1
+        version: types-react@19.0.0-rc.1
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
@@ -6139,6 +6167,10 @@ packages:
 
   react@19.0.0-rc-66855b96-20241106:
     resolution: {integrity: sha512-klH7xkT71SxRCx4hb1hly5FJB21Hz0ACyxbXYAECEqssUjtJeFUAaI2U1DgJAzkGEnvEm3DkxuBchMC/9K4ipg==}
+    engines: {node: '>=0.10.0'}
+
+  react@19.2.7:
+    resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
     engines: {node: '>=0.10.0'}
 
   read-cache@1.0.0:
@@ -12605,6 +12637,8 @@ snapshots:
       '@types/react': types-react@19.0.0-rc.1
 
   react@19.0.0-rc-66855b96-20241106: {}
+
+  react@19.2.7: {}
 
   read-cache@1.0.0:
     dependencies:

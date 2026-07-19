@@ -1,0 +1,47 @@
+apiVersion: sourceplane.io/v1
+kind: Component
+metadata:
+  name: rondo-core
+  title: Rondo Core
+  description: Platform-agnostic Rondo domain logic + view model (shared by web and future native shells).
+spec:
+  type: turbo-package
+  lifecycle: production
+  system: platform-libraries
+  owner: platform
+  domain: platform
+  language: typescript
+  tags:
+    - library
+    - package
+    - rondo
+    - view-model
+    - typescript
+  links:
+    - title: Source
+      url: https://github.com/sourceplane/ogpic/tree/main/packages/rondo-core
+      icon: github
+    - title: README
+      url: https://github.com/sourceplane/ogpic/blob/main/packages/rondo-core/README.md
+      icon: book
+  docs:
+    overview: overview.md
+    pages:
+      - { path: runbook.md, role: runbook }
+  subscribe:
+    environments:
+      - name: dev
+        profile: quick-check
+      - name: stage
+        profile: quick-check
+      - name: prod
+        profile: quick-check
+  parameters:
+    nodeVersion: "22"
+    pnpmVersion: "10.12.1"
+    buildCommand: pnpm exec turbo run build --filter=./
+    typecheckCommand: pnpm exec turbo run typecheck --filter=./
+  labels:
+    team: platform
+    layer: shared
+    surface: rondo
