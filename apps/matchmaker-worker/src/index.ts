@@ -1,6 +1,6 @@
 import type { Env } from "./env.js";
 import { route } from "./router.js";
-import { runAutoStartDueMatches, runAvailabilityReminders } from "./scheduled.js";
+import { runAutoStartDueMatches, runAvailabilityReminders, runAutoClosePolls } from "./scheduled.js";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -8,6 +8,7 @@ export default {
   },
 
   async scheduled(_controller: ScheduledController, env: Env, _ctx: ExecutionContext): Promise<void> {
+    await runAutoClosePolls(env);
     await runAutoStartDueMatches(env);
     await runAvailabilityReminders(env);
   },

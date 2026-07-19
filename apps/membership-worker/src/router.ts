@@ -5,6 +5,7 @@ import { handleListOrganizations } from "./handlers/list-organizations.js";
 import { handleGetOrganization } from "./handlers/get-organization.js";
 import { handleListMembers } from "./handlers/list-members.js";
 import { handleUpdateMemberRole } from "./handlers/update-member-role.js";
+import { handleSetMemberRole } from "./handlers/set-member-role.js";
 import { handleRemoveMember } from "./handlers/remove-member.js";
 import { handleLeaveOrganization } from "./handlers/leave.js";
 import { handleCreateInvitation } from "./handlers/create-invitation.js";
@@ -48,6 +49,7 @@ function resolveActor(request: Request): ActorContext | null {
 const ORG_ID_RE = /^\/v1\/organizations\/([^/]+)$/;
 const ORG_MEMBERS_RE = /^\/v1\/organizations\/([^/]+)\/members$/;
 const ORG_MEMBER_ID_RE = /^\/v1\/organizations\/([^/]+)\/members\/([^/]+)$/;
+const ORG_MEMBER_ROLE_RE = /^\/v1\/organizations\/([^/]+)\/members\/([^/]+)\/role$/;
 const ORG_INVITATIONS_ACCEPT_RE = /^\/v1\/organizations\/([^/]+)\/invitations\/accept$/;
 const ORG_INVITATIONS_RE = /^\/v1\/organizations\/([^/]+)\/invitations$/;
 const ORG_INVITATION_ID_RE = /^\/v1\/organizations\/([^/]+)\/invitations\/([^/]+)$/;
@@ -189,6 +191,17 @@ export async function route(request: Request, env: Env): Promise<Response> {
         return handleListMembers(env, requestId, actor, orgMembersMatch[1]!, url);
       }
       return methodNotAllowed(requestId);
+    }
+
+    // ── Member role: promote/demote manager (fixed segment; must precede the member-id route) ──
+    const memberRoleMatch = url.pathname.match(ORG_MEMBER_ROLE_RE);
+    if (memberRoleMatch) {
+      if (request.method !== "PUT") return methodNotAllowed(requestId);
+      const actor = resolveActor(request);
+      if (!actor) {
+        return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      }
+      return handleSetMemberRole(request, env, requestId, actor, memberRoleMatch[1]!, memberRoleMatch[2]!);
     }
 
     const memberIdMatch = url.pathname.match(ORG_MEMBER_ID_RE);

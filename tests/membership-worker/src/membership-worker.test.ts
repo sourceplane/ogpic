@@ -170,6 +170,7 @@ function createFakeRepository(): MembershipRepository & { _orgs: Map<string, Org
     async revokeRoleAssignment() { return { ok: false, error: { kind: "internal" as const, message: "not implemented" } }; },
     async revokeAllRoleAssignments() { return { ok: false, error: { kind: "internal" as const, message: "not implemented" } }; },
     async countActiveOwners() { return { ok: false, error: { kind: "internal" as const, message: "not implemented" } }; },
+    async setMemberRole() { return { ok: false, error: { kind: "internal" as const, message: "not implemented" } }; },
     async countBillableMembers() { return { ok: false, error: { kind: "internal" as const, message: "not implemented" } }; },
     async listChildOrganizations() { return { ok: true as const, value: [] }; },
     async setOrganizationStatus() { return { ok: false as const, error: { kind: "not_found" as const } }; },

@@ -4,6 +4,7 @@ import type { Uuid } from "../ids/index.js";
 export type MatchmakerRepositoryError =
   | { kind: "not_found" }
   | { kind: "conflict"; entity: string }
+  | { kind: "validation"; message: string }
   | { kind: "internal"; message: string };
 
 export type MatchmakerResult<T> =
@@ -12,7 +13,9 @@ export type MatchmakerResult<T> =
 
 export type PlayerPosition = "GK" | "DEF" | "MID" | "FWD" | "ALL";
 export type PlayerStatus = "active" | "archived";
-export type MatchStatus = "scheduled" | "live" | "played" | "cancelled";
+// v5: matches start life as a poll, get finalized, then drafted, before the
+// pre-existing scheduled/live/played/cancelled lifecycle takes over.
+export type MatchStatus = "poll" | "finalizing" | "draft" | "scheduled" | "live" | "played" | "cancelled";
 export type AvailabilityState = "in" | "maybe" | "out";
 
 export interface Availability {
@@ -212,6 +215,134 @@ export interface RatingRound {
   closedAt: Date | null;
 }
 
+// ── Match polls (v5) ─────────────────────────────────────────────
+// The manager posts candidate times/turfs, players vote on all that work, the
+// poll closes (deadline or manually), then the manager finalizes the winning
+// slot. One poll per match.
+
+export type PollDeadlineKind = "24h" | "48h" | "manual";
+export type PollOptionKind = "time" | "turf";
+
+export interface MatchPoll {
+  matchId: string;
+  orgId: string;
+  deadlineKind: PollDeadlineKind;
+  deadlineAt: Date | null;
+  closedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MatchPollOption {
+  id: string;
+  matchId: string;
+  orgId: string;
+  kind: PollOptionKind;
+  label: string;
+  detail: string | null;
+  startsAt: Date | null;
+  position: number;
+  createdAt: Date;
+}
+
+/** A poll option annotated with every player who voted for it. */
+export interface MatchPollOptionWithVotes extends MatchPollOption {
+  voterPlayerIds: string[];
+}
+
+export interface MatchPollVote {
+  optionId: string;
+  matchId: string;
+  orgId: string;
+  playerId: string;
+  createdAt: Date;
+}
+
+/** The full poll: header row plus every option and its voters. */
+export interface MatchPollDetail {
+  poll: MatchPoll;
+  options: MatchPollOptionWithVotes[];
+}
+
+export interface CreateMatchPollOptionInput {
+  id: string;
+  kind: PollOptionKind;
+  label: string;
+  detail: string | null;
+  startsAt: Date | null;
+  position: number;
+}
+
+export interface CreateMatchPollInput {
+  matchId: Uuid;
+  orgId: Uuid;
+  deadlineKind: PollDeadlineKind;
+  deadlineAt: Date | null;
+  options: CreateMatchPollOptionInput[];
+}
+
+// ── Dropouts (v5) ────────────────────────────────────────────────
+// A confirmed player pulling out of a scheduled match; resolved when the
+// manager replaces them or adjusts teams manually.
+
+export interface MatchDropout {
+  matchId: string;
+  orgId: string;
+  playerId: string;
+  reason: string;
+  resolvedAt: Date | null;
+  createdAt: Date;
+}
+
+// ── Org settings (v5) ────────────────────────────────────────────
+
+export interface OrgSettings {
+  orgId: string;
+  whatsappBridge: boolean;
+  updatedAt: Date;
+}
+
+export interface SetOrgSettingsInput {
+  whatsappBridge: boolean;
+}
+
+// ── Chat (v5) ────────────────────────────────────────────────────
+// One squad-wide stream per org. Human messages ('text'), system pills
+// ('note'), and structural cards referencing a match ('poll', 'sched').
+
+export type ChatMessageKind = "text" | "note" | "poll" | "sched";
+
+export interface ChatMessage {
+  id: string;
+  orgId: string;
+  kind: ChatMessageKind;
+  body: string;
+  matchId: string | null;
+  authorPlayerId: string | null;
+  authorSubjectId: string | null;
+  authorName: string | null;
+  /** Emoji -> distinct subject ids who reacted with it. */
+  reactions: Record<string, string[]>;
+  createdAt: Date;
+}
+
+export interface InsertChatMessageInput {
+  id: string;
+  orgId: Uuid;
+  kind: ChatMessageKind;
+  body: string;
+  matchId: string | null;
+  authorPlayerId: string | null;
+  authorSubjectId: string | null;
+  authorName: string | null;
+  createdAt: Date;
+}
+
+export interface ListChatMessagesParams {
+  limit: number;
+  before: Date | null;
+}
+
 export interface MatchmakerRepository {
   createPlayer(input: CreatePlayerInput): Promise<MatchmakerResult<Player>>;
   getPlayerById(orgId: Uuid, playerId: Uuid): Promise<MatchmakerResult<Player>>;
@@ -276,4 +407,55 @@ export interface MatchmakerRepository {
   closeRatingRound(orgId: Uuid, now: Date): Promise<MatchmakerResult<RatingRound>>;
   /** Reset every active player to an equal baseline OVR and clear all votes. */
   resetScoresToBaseline(orgId: Uuid, baseline: number, now: Date): Promise<MatchmakerResult<void>>;
+
+  /** Create a match's poll header + options (conflict if the match already has one). */
+  createMatchPoll(input: CreateMatchPollInput, now: Date): Promise<MatchmakerResult<MatchPollDetail>>;
+  /** The poll, its options, and every option's voters. */
+  getMatchPoll(orgId: Uuid, matchId: Uuid): Promise<MatchmakerResult<MatchPollDetail>>;
+  /** Atomically replace a player's ballot for the match. `optionIds` may be
+   *  empty (clears the vote). Validation error when an id doesn't belong to
+   *  this match's poll. */
+  setPollVotes(
+    orgId: Uuid,
+    matchId: Uuid,
+    playerId: Uuid,
+    optionIds: string[],
+    now: Date,
+  ): Promise<MatchmakerResult<void>>;
+  /** Close the poll (conflict if it's already closed). */
+  closeMatchPoll(orgId: Uuid, matchId: Uuid, now: Date): Promise<MatchmakerResult<MatchPoll>>;
+  /** System cron (all orgs): open polls whose deadline has passed. */
+  listDuePolls(now: Date, limit: number): Promise<MatchmakerResult<MatchPoll[]>>;
+
+  /** Upsert a player's dropout for a match (reopens it if previously resolved). */
+  upsertDropout(
+    orgId: Uuid,
+    matchId: Uuid,
+    playerId: Uuid,
+    reason: string,
+    now: Date,
+  ): Promise<MatchmakerResult<MatchDropout>>;
+  /** Undo a dropout while it's still unresolved (not_found otherwise). */
+  deleteDropout(orgId: Uuid, matchId: Uuid, playerId: Uuid): Promise<MatchmakerResult<MatchDropout>>;
+  /** Manager marks a dropout resolved (replaced or adjusted). */
+  resolveDropout(orgId: Uuid, matchId: Uuid, playerId: Uuid, now: Date): Promise<MatchmakerResult<MatchDropout>>;
+  listDropouts(orgId: Uuid, matchId: Uuid): Promise<MatchmakerResult<MatchDropout[]>>;
+  /** Every unresolved dropout across the org's matches. */
+  listOpenDropouts(orgId: Uuid): Promise<MatchmakerResult<MatchDropout[]>>;
+
+  /** The org's settings row, or null when it has never been set. */
+  getOrgSettings(orgId: Uuid): Promise<MatchmakerResult<OrgSettings | null>>;
+  setOrgSettings(orgId: Uuid, input: SetOrgSettingsInput, now: Date): Promise<MatchmakerResult<OrgSettings>>;
+
+  insertChatMessage(input: InsertChatMessageInput): Promise<MatchmakerResult<ChatMessage>>;
+  /** Newest first, tenant-scoped, optionally paged by `before`. */
+  listChatMessages(orgId: Uuid, params: ListChatMessagesParams): Promise<MatchmakerResult<ChatMessage[]>>;
+  /** Toggle `subjectId`'s reaction on a message: adds it to reactions[emoji],
+   *  or removes it (dropping the key when it empties out). */
+  toggleChatReaction(
+    orgId: Uuid,
+    messageId: Uuid,
+    emoji: string,
+    subjectId: string,
+  ): Promise<MatchmakerResult<ChatMessage>>;
 }

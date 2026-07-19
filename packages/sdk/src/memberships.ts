@@ -19,6 +19,22 @@ import type {
 
 import type { RequestOptions, Transport } from "./transport.js";
 
+/** v5: the two roles `PUT .../role` may assign (never `owner`). */
+export type MembershipRole = "admin" | "viewer";
+
+export interface SetMemberRoleRequest {
+  role: MembershipRole;
+}
+
+export interface PublicMemberRoleUpdate {
+  memberId: string;
+  role: MembershipRole;
+}
+
+export interface SetMemberRoleResponse {
+  membership: PublicMemberRoleUpdate;
+}
+
 /**
  * Memberships resource client.
  *
@@ -72,6 +88,29 @@ export class MembershipsClient {
       {
         method: "DELETE",
         path: `/v1/organizations/${encodeURIComponent(orgId)}/members/${encodeURIComponent(memberId)}`,
+      },
+      opts,
+    );
+  }
+
+  /**
+   * PUT /v1/organizations/:orgId/members/:memberId/role — promote/demote a
+   * member between `admin` and `viewer` (owner/admin only; see
+   * `organization.member_role.set` in policy-engine). Distinct from
+   * `updateMemberRole` (PATCH): this endpoint never targets or grants
+   * `owner`.
+   */
+  setMemberRole(
+    orgId: string,
+    memberId: string,
+    body: SetMemberRoleRequest,
+    opts: RequestOptions = {},
+  ): Promise<SetMemberRoleResponse> {
+    return this.transport.request<SetMemberRoleResponse>(
+      {
+        method: "PUT",
+        path: `/v1/organizations/${encodeURIComponent(orgId)}/members/${encodeURIComponent(memberId)}/role`,
+        body,
       },
       opts,
     );

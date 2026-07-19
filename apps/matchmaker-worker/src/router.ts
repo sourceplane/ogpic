@@ -15,6 +15,10 @@ import { handleUpdateMatch } from "./handlers/update-match.js";
 import { handleCancelMatch } from "./handlers/cancel-match.js";
 import { handleShareMatch } from "./handlers/share-match.js";
 import { handleListMatchPayments, handleSetMatchPayment } from "./handlers/match-payments.js";
+import { handleGetMatchPoll, handleSetPollVotes, handleClosePoll, handleFinalizeMatch } from "./handlers/match-polls.js";
+import { handleSetDropout, handleUndoDropout, handleResolveDropout } from "./handlers/match-dropouts.js";
+import { handleGetOrgSettings, handleSetOrgSettings } from "./handlers/org-settings.js";
+import { handleChatList, handleChatPost, handleChatReact } from "./handlers/chat.js";
 import { handleListAvailability } from "./handlers/list-availability.js";
 import { handleSetAvailability } from "./handlers/set-availability.js";
 import { handleSetCaptain } from "./handlers/set-captain.js";
@@ -23,7 +27,7 @@ import { handleCastVotes } from "./handlers/cast-votes.js";
 import { handleGetVotes } from "./handlers/get-votes.js";
 import { handleGetRatingRound, handleOpenRatingRound, handleCloseRatingRound } from "./handlers/rating-round.js";
 import { errorResponse, notFound, methodNotAllowed } from "./http.js";
-import { generateRequestId, parseOrgPublicId, parsePlayerPublicId, parseMatchPublicId } from "./ids.js";
+import { generateRequestId, parseOrgPublicId, parsePlayerPublicId, parseMatchPublicId, parseChatMessagePublicId } from "./ids.js";
 
 const REQUEST_ID_RE = /^[\w-]{1,128}$/;
 
@@ -62,6 +66,15 @@ const ORG_MATCHES_RE = /^\/v1\/organizations\/([^/]+)\/matches$/;
 const ORG_MATCH_SHARE_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/share$/;
 const ORG_MATCH_PAYMENTS_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/payments$/;
 const ORG_MATCH_PAYMENT_PLAYER_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/payments\/([^/]+)$/;
+const ORG_MATCH_POLL_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/poll$/;
+const ORG_MATCH_POLL_VOTES_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/poll\/votes$/;
+const ORG_MATCH_POLL_CLOSE_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/poll\/close$/;
+const ORG_MATCH_FINALIZE_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/finalize$/;
+const ORG_MATCH_DROPOUT_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/dropout$/;
+const ORG_MATCH_DROPOUT_RESOLVE_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/dropouts\/([^/]+)\/resolve$/;
+const ORG_CHAT_RE = /^\/v1\/organizations\/([^/]+)\/chat$/;
+const ORG_CHAT_REACTIONS_RE = /^\/v1\/organizations\/([^/]+)\/chat\/([^/]+)\/reactions$/;
+const ORG_SETTINGS_RE = /^\/v1\/organizations\/([^/]+)\/settings$/;
 const ORG_MATCH_ID_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)$/;
 const ORG_AVAILABILITY_RE = /^\/v1\/organizations\/([^/]+)\/availability$/;
 const ORG_AVAILABILITY_PLAYER_RE = /^\/v1\/organizations\/([^/]+)\/availability\/([^/]+)$/;
@@ -241,6 +254,104 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return unauthenticated(requestId);
       return handleListMatchPayments(env, requestId, actor, orgUuid, matchUuid);
+    }
+
+    // ── Fixtures: polls / finalize / dropouts (fixed segments; precede /matches/:id) ──
+    const pollVotesMatch = url.pathname.match(ORG_MATCH_POLL_VOTES_RE);
+    if (pollVotesMatch) {
+      if (request.method !== "PUT") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(pollVotesMatch[1]!);
+      const matchUuid = parseMatchPublicId(pollVotesMatch[2]!);
+      if (!orgUuid || !matchUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleSetPollVotes(request, env, requestId, actor, orgUuid, matchUuid);
+    }
+    const pollCloseMatch = url.pathname.match(ORG_MATCH_POLL_CLOSE_RE);
+    if (pollCloseMatch) {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(pollCloseMatch[1]!);
+      const matchUuid = parseMatchPublicId(pollCloseMatch[2]!);
+      if (!orgUuid || !matchUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleClosePoll(env, requestId, actor, orgUuid, matchUuid);
+    }
+    const pollMatch = url.pathname.match(ORG_MATCH_POLL_RE);
+    if (pollMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(pollMatch[1]!);
+      const matchUuid = parseMatchPublicId(pollMatch[2]!);
+      if (!orgUuid || !matchUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleGetMatchPoll(env, requestId, actor, orgUuid, matchUuid);
+    }
+    const finalizeMatch = url.pathname.match(ORG_MATCH_FINALIZE_RE);
+    if (finalizeMatch) {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(finalizeMatch[1]!);
+      const matchUuid = parseMatchPublicId(finalizeMatch[2]!);
+      if (!orgUuid || !matchUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleFinalizeMatch(request, env, requestId, actor, orgUuid, matchUuid);
+    }
+    const dropoutResolveMatch = url.pathname.match(ORG_MATCH_DROPOUT_RESOLVE_RE);
+    if (dropoutResolveMatch) {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(dropoutResolveMatch[1]!);
+      const matchUuid = parseMatchPublicId(dropoutResolveMatch[2]!);
+      const playerUuid = parsePlayerPublicId(dropoutResolveMatch[3]!);
+      if (!orgUuid || !matchUuid || !playerUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleResolveDropout(request, env, requestId, actor, orgUuid, matchUuid, playerUuid);
+    }
+    const dropoutMatch = url.pathname.match(ORG_MATCH_DROPOUT_RE);
+    if (dropoutMatch) {
+      const orgUuid = parseOrgPublicId(dropoutMatch[1]!);
+      const matchUuid = parseMatchPublicId(dropoutMatch[2]!);
+      if (!orgUuid || !matchUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      if (request.method === "PUT") return handleSetDropout(request, env, requestId, actor, orgUuid, matchUuid);
+      if (request.method === "DELETE") return handleUndoDropout(env, requestId, actor, orgUuid, matchUuid);
+      return methodNotAllowed(requestId);
+    }
+
+    // ── Team chat ──
+    const chatReactionsMatch = url.pathname.match(ORG_CHAT_REACTIONS_RE);
+    if (chatReactionsMatch) {
+      if (request.method !== "PUT") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(chatReactionsMatch[1]!);
+      const messageUuid = parseChatMessagePublicId(chatReactionsMatch[2]!);
+      if (!orgUuid || !messageUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleChatReact(request, env, requestId, actor, orgUuid, messageUuid);
+    }
+    const chatMatch = url.pathname.match(ORG_CHAT_RE);
+    if (chatMatch) {
+      const orgUuid = parseOrgPublicId(chatMatch[1]!);
+      if (!orgUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      if (request.method === "GET") return handleChatList(request, env, requestId, actor, orgUuid);
+      if (request.method === "POST") return handleChatPost(request, env, requestId, actor, orgUuid);
+      return methodNotAllowed(requestId);
+    }
+
+    // ── Org settings ──
+    const settingsMatch = url.pathname.match(ORG_SETTINGS_RE);
+    if (settingsMatch) {
+      const orgUuid = parseOrgPublicId(settingsMatch[1]!);
+      if (!orgUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      if (request.method === "GET") return handleGetOrgSettings(env, requestId, actor, orgUuid);
+      if (request.method === "PUT") return handleSetOrgSettings(request, env, requestId, actor, orgUuid);
+      return methodNotAllowed(requestId);
     }
 
     // ── Fixtures: collection ──
