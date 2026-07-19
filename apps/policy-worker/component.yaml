@@ -79,3 +79,8 @@ spec:
 #     does NOT select this worker in orun's changed-only plan, so the new actions
 #     stayed dark on stage/prod and every roster/fixture request denied as 404.
 #     Touch this file alongside a policy-engine action change to redeploy. (2026-07-11)
+# ci: redeploy to pick up the Rondo grants added since 2026-07-11 —
+#     organization.join_code.read/rotate (owner/admin + read for builder/viewer)
+#     and organization.availability.set for self-service. Without this bundle the
+#     deployed engine denies those actions (unknown_action → 404), which surfaced
+#     as "generate invite code / manager features not working". (2026-07-15)

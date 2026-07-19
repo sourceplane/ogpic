@@ -68,7 +68,10 @@ export async function handleMatchmakerRoute(
       method: request.method,
       headers,
     };
-    if (request.method === "POST" || request.method === "PATCH") {
+    // Forward the body for every method that carries one. PUT matters here:
+    // availability.set and match-payment.set are PUT-with-JSON-body, and
+    // dropping the body silently no-ops the write ("changes don't persist").
+    if (request.method === "POST" || request.method === "PUT" || request.method === "PATCH") {
       init.body = request.body;
     }
 
