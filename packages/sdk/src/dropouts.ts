@@ -41,8 +41,20 @@ export interface ResolveDropoutResponse {
  * match, and a manager resolving it with or without a replacement
  * (docs/design/rondo-v5-spec.md §4 Dropouts). Org-scoped, match-scoped.
  */
+export interface ListDropoutsResponse {
+  dropouts: PublicMatchDropout[];
+}
+
 export class DropoutsClient {
   constructor(private readonly transport: Transport) {}
+
+  /** GET /v1/organizations/:orgId/matches/:matchId/dropouts — list a match's dropouts. */
+  listDropouts(orgId: string, matchId: string, opts: RequestOptions = {}): Promise<ListDropoutsResponse> {
+    return this.transport.request<ListDropoutsResponse>(
+      { method: "GET", path: `${orgBase(orgId)}/matches/${encodeURIComponent(matchId)}/dropouts` },
+      opts,
+    );
+  }
 
   /** PUT /v1/organizations/:orgId/matches/:matchId/dropout — self-service. */
   setDropout(

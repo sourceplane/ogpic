@@ -13,7 +13,8 @@ Pure TypeScript + React **hooks** (zero DOM, zero Next.js, zero native APIs):
 | `logic.ts` | Domain types (`Player`, `Position`, `Availability`, `TeamMeta`, `Goal`, …) and pure roster/rating math (`balance`, `tierOf`, `skillsFor`, `initials`, seed data). |
 | `formation.ts` | Pitch-formation geometry — maps a roster / drafted teams to normalized slot coordinates (`placeRoster`, `placeDraft`). Coordinates are unitless (0–1), so each shell scales them to its own canvas. |
 | `live.ts` | Derives view-ready rows from raw `@saas/sdk` / `@saas/contracts` payloads (`buildLiveSeed`, `availabilityMap`, `matchRows`, `computePlayerStats`, …). |
-| `use-rondo.ts` | `useRondo(seed)` — the **view model**. Holds all Rondo state + actions and returns a `RondoVM`. Both shells drive their UI from this single object. |
+| `use-rondo.ts` | `useRondo(seed)` — the **view model**. Holds all Rondo state + actions and returns a `RondoVM`, including the v5 slices (match `phase`, `poll`s, `chat`, `dropouts`, org `settings`). Both shells drive their UI from this single object. |
+| `wizard.ts` | `createWizardModel()` — the New-match wizard's standalone state helper (times/turfs/deadline drafts → `scheduleWithPoll`). |
 | `demo-seed.ts` | Deterministic demo data (`DEMO_SEED`) for the try-it-out flow. |
 
 Everything is re-exported from the package root:

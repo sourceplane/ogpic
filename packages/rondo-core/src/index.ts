@@ -12,4 +12,5 @@ export * from "./logic";
 export * from "./formation";
 export * from "./live";
 export * from "./use-rondo";
+export * from "./wizard";
 export * from "./demo-seed";

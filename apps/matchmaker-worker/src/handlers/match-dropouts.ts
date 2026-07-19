@@ -46,6 +46,34 @@ function parseDropoutBody(body: unknown): { valid: true; reason: string } | { va
   return { valid: true, reason: reason.trim() };
 }
 
+/** GET /v1/organizations/:orgId/matches/:matchId/dropouts — list a match's dropouts. */
+export async function handleListDropouts(
+  env: Env,
+  requestId: string,
+  actor: ActorContext,
+  orgId: Uuid,
+  matchId: Uuid,
+  deps?: MatchDropoutsDeps,
+): Promise<Response> {
+  if (!env.PLATFORM_DB && !deps?.repo) {
+    return errorResponse("internal_error", "Service unavailable", 503, requestId);
+  }
+  const denied = await requireOrgAction(env, requestId, actor, orgId, "organization.fixture.read");
+  if (denied) return denied;
+
+  const executor = deps?.repo ? null : createSqlExecutor(env.PLATFORM_DB!);
+  try {
+    const repo = deps?.repo ?? createMatchmakerRepository(executor!);
+    const result = await repo.listDropouts(orgId, matchId);
+    if (!result.ok) return errorResponse("internal_error", "Service unavailable", 503, requestId);
+    return successResponse({ dropouts: result.value.map(toPublicDropout) }, requestId);
+  } catch {
+    return errorResponse("internal_error", "Service unavailable", 503, requestId);
+  } finally {
+    if (executor) await executor.dispose();
+  }
+}
+
 /**
  * PUT /v1/organizations/:orgId/matches/:matchId/dropout — self-service: the
  * caller's own claimed player pulls out of a scheduled/draft match.

@@ -42,9 +42,13 @@ export const DEMO_SEED: RondoSeed = {
     { id: "jr_pn", name: "Pavel Novak", via: "VIA LINK" },
   ],
   matches: [
-    { id: "m1", dateLabel: "05 JUL", score: "4 – 3", color: "#17694A", venue: "Riverside Astro", mapsUrl: null },
-    { id: "m2", dateLabel: "28 JUN", score: "2 – 2", color: "#8A8D93", venue: "Riverside Astro", mapsUrl: null },
-    { id: "m3", dateLabel: "21 JUN", score: "1 – 2", color: "#B0512F", venue: "Riverside Astro", mapsUrl: null },
+    { id: "m1", dateLabel: "05 JUL", score: "4 – 3", color: "#17694A", venue: "Riverside Astro", mapsUrl: null, phase: "played", progressStep: 100, label: "05 JUL", subLabel: "Riverside Astro" },
+    { id: "m2", dateLabel: "28 JUN", score: "2 – 2", color: "#8A8D93", venue: "Riverside Astro", mapsUrl: null, phase: "played", progressStep: 100, label: "28 JUN", subLabel: "Riverside Astro" },
+    { id: "m3", dateLabel: "21 JUN", score: "1 – 2", color: "#B0512F", venue: "Riverside Astro", mapsUrl: null, phase: "played", progressStep: 100, label: "21 JUN", subLabel: "Riverside Astro" },
   ],
   votingOpen: true,
+  // v5: no live poll/dropout data in the demo flow; chat starts empty and the
+  // WhatsApp bridge defaults off.
+  chat: [],
+  orgSettings: { whatsappBridge: false },
 };

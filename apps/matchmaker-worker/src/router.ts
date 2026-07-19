@@ -16,7 +16,7 @@ import { handleCancelMatch } from "./handlers/cancel-match.js";
 import { handleShareMatch } from "./handlers/share-match.js";
 import { handleListMatchPayments, handleSetMatchPayment } from "./handlers/match-payments.js";
 import { handleGetMatchPoll, handleSetPollVotes, handleClosePoll, handleFinalizeMatch } from "./handlers/match-polls.js";
-import { handleSetDropout, handleUndoDropout, handleResolveDropout } from "./handlers/match-dropouts.js";
+import { handleSetDropout, handleUndoDropout, handleResolveDropout, handleListDropouts } from "./handlers/match-dropouts.js";
 import { handleGetOrgSettings, handleSetOrgSettings } from "./handlers/org-settings.js";
 import { handleChatList, handleChatPost, handleChatReact } from "./handlers/chat.js";
 import { handleListAvailability } from "./handlers/list-availability.js";
@@ -71,6 +71,7 @@ const ORG_MATCH_POLL_VOTES_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)
 const ORG_MATCH_POLL_CLOSE_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/poll\/close$/;
 const ORG_MATCH_FINALIZE_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/finalize$/;
 const ORG_MATCH_DROPOUT_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/dropout$/;
+const ORG_MATCH_DROPOUTS_LIST_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/dropouts$/;
 const ORG_MATCH_DROPOUT_RESOLVE_RE = /^\/v1\/organizations\/([^/]+)\/matches\/([^/]+)\/dropouts\/([^/]+)\/resolve$/;
 const ORG_CHAT_RE = /^\/v1\/organizations\/([^/]+)\/chat$/;
 const ORG_CHAT_REACTIONS_RE = /^\/v1\/organizations\/([^/]+)\/chat\/([^/]+)\/reactions$/;
@@ -307,6 +308,16 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return unauthenticated(requestId);
       return handleResolveDropout(request, env, requestId, actor, orgUuid, matchUuid, playerUuid);
+    }
+    const dropoutsListMatch = url.pathname.match(ORG_MATCH_DROPOUTS_LIST_RE);
+    if (dropoutsListMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(dropoutsListMatch[1]!);
+      const matchUuid = parseMatchPublicId(dropoutsListMatch[2]!);
+      if (!orgUuid || !matchUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return unauthenticated(requestId);
+      return handleListDropouts(env, requestId, actor, orgUuid, matchUuid);
     }
     const dropoutMatch = url.pathname.match(ORG_MATCH_DROPOUT_RE);
     if (dropoutMatch) {

@@ -151,3 +151,64 @@ export const SEED_TEAMS: TeamMeta[] = [
   { id: "northside", name: "Northside FC", crest: "N", role: "Manager", members: 12, league: "Sunday League · 7-a-side", pts: 1840, rank: 4, streak: 3, accentCol: "#56C98D" },
   { id: "vets", name: "Vets United", crest: "V", role: "Player", members: 18, league: "Vets · 5-a-side", pts: 1210, rank: 11, streak: 0, accentCol: "#E0C074" },
 ];
+
+// ── v5: match lifecycle (docs/design/rondo-v5-spec.md §3, §7) ──────────────
+//
+// A poll-born match walks `poll → finalizing → draft` before reaching the
+// classic `scheduled → live → played | cancelled` tail. This mirrors the
+// backend's `MatchStatus` union verbatim (kept as its own VM-facing type so
+// this package never has to import `@saas/sdk`/`@saas/contracts` types
+// directly — `live.ts` does that translation at the boundary).
+export type MatchPhase = "poll" | "finalizing" | "draft" | "scheduled" | "live" | "played" | "cancelled";
+
+/** Design's phase chip copy (Matches screen cards, spec §2 screen 4). */
+export const MATCH_PHASE_LABEL: Record<MatchPhase, string> = {
+  poll: "POLL LIVE",
+  finalizing: "FINALIZING",
+  draft: "DRAFTING",
+  scheduled: "SCHEDULED",
+  live: "LIVE",
+  played: "PLAYED",
+  cancelled: "CANCELLED",
+};
+
+/** Progress-bar fill for the Matches screen card (POLL → DRAFT → SCHEDULED,
+ *  33/55/75/100%, spec §2 screen 4). Post-schedule phases stay full; a
+ *  cancelled match shows an empty bar. */
+export const MATCH_PHASE_PROGRESS: Record<MatchPhase, number> = {
+  poll: 33,
+  finalizing: 55,
+  draft: 75,
+  scheduled: 100,
+  live: 100,
+  played: 100,
+  cancelled: 0,
+};
+
+/**
+ * A match is a "confirmed fixture" once it has left the pre-schedule poll
+ * pipeline. `nextActionableMatch`/`matchRows`/`computePlayerStats` (live.ts)
+ * all gate on this so a poll/finalizing/draft match never masquerades as a
+ * scheduled one.
+ */
+export function isConfirmedPhase(phase: MatchPhase): boolean {
+  return phase === "scheduled" || phase === "live" || phase === "played";
+}
+
+/** The new-match poll's voting-window choice (spec §4 Polls). */
+export type PollDeadlineKind = "24h" | "48h" | "manual";
+
+/**
+ * The manager's suggested drop-out replacement (spec §2 match-detail
+ * scheduled screen: "Replace with X (ovr)"): the highest-OVR player in `pool`
+ * who isn't already in `excludeIds`. Callers should pre-filter `pool` to
+ * available players (and pass both teams' player ids as `excludeIds`) —
+ * this helper stays availability-agnostic so it also works against a plain
+ * roster slice in tests.
+ */
+export function suggestReplacement(pool: Player[], excludeIds: string[]): Player | null {
+  const exclude = new Set(excludeIds);
+  const candidates = pool.filter((p) => !exclude.has(p.id));
+  if (candidates.length === 0) return null;
+  return candidates.reduce((best, p) => (p.ovr > best.ovr ? p : best));
+}
