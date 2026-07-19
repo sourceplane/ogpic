@@ -8,7 +8,7 @@
 "use client";
 
 import * as React from "react";
-import type { RondoVM } from "./use-rondo";
+import type { RondoVM } from "@saas/rondo-core";
 import { TeamSwitcher, type TeamNav } from "./team-switcher";
 import { AddPlayerSheet } from "./add-player";
 import { PlayerScoreSheet, type EditablePlayer } from "./player-edit";
@@ -17,7 +17,7 @@ import { MatchResultSheet } from "./match-result";
 import { PaymentsSheet } from "./payments-sheet";
 import { ProfileSheet } from "./profile-menu";
 import { RateView, GamesView } from "./views";
-import { placeRoster, placeDraft } from "./formation";
+import { placeRoster, placeDraft } from "@saas/rondo-core";
 import {
   C,
   ink,

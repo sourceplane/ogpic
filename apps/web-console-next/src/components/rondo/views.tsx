@@ -7,7 +7,7 @@
 "use client";
 
 import * as React from "react";
-import type { RondoVM } from "./use-rondo";
+import type { RondoVM } from "@saas/rondo-core";
 import { C, ink, green, rust, PhoneShell, StatusBar, ScreenBody, MonoLabel, Avatar, Icon, RatingSegments, MapCard } from "./kit";
 import { whatsappHref, downloadIcs, type ShareMatch } from "./match-share";
 

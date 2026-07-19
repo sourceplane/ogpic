@@ -10,16 +10,16 @@
 "use client";
 
 import * as React from "react";
-import type { RondoVM } from "./use-rondo";
+import type { RondoVM } from "@saas/rondo-core";
 import { TeamSwitcher, type TeamNav } from "./team-switcher";
 import { ProfileSheet } from "./profile-menu";
 import { ClaimSheet } from "./claim-sheet";
 import { PlayerStatsSheet } from "./player-stats";
 import { RateView, GamesView } from "./views";
-import { AVAIL_META } from "./use-rondo";
-import { placeRoster } from "./formation";
+import { AVAIL_META } from "@saas/rondo-core";
+import { placeRoster } from "@saas/rondo-core";
 import { C, ink, green, PhoneShell, StatusBar, ScreenBody, Avatar, Icon, PitchCanvas, PlayerToken, BottomNavPlayer, type PlayerTab } from "./kit";
-import type { Availability } from "./logic";
+import type { Availability } from "@saas/rondo-core";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 

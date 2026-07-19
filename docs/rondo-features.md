@@ -100,7 +100,10 @@ Legend — **Status**: ✅ integrated & merged · ⚠️ integrated, verificatio
 ## Architecture (one-liner)
 
 TypeScript end-to-end. **Frontend**: Next.js 15 App Router + React 19, TanStack
-Query, typed SDK, served as a Cloudflare Worker via OpenNext. **Backend**:
+Query, typed SDK, served as a Cloudflare Worker via OpenNext. The
+platform-agnostic Rondo logic + view model lives in **`@saas/rondo-core`**
+(pure TS + React hooks, no DOM), so a future React Native / Expo shell can share
+it and only re-render — see `packages/rondo-core/README.md`. **Backend**:
 per-domain Cloudflare Workers (identity, membership, matchmaker, notifications,
 policy) behind an `api-edge` gateway; Postgres via Hyperdrive; RBAC via
 `policy-engine`. Monorepo: pnpm + Turborepo.

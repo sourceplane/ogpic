@@ -17,7 +17,7 @@ import { C, ink, green, gold, Avatar, Icon } from "./kit";
 import { PlayerStatsSheet } from "./player-stats";
 import { getStoredTheme, applyTheme, type Theme } from "./theme";
 import { enableNotifications, notifyState, type NotifyState } from "./notifications";
-import type { PlayerStats } from "./use-rondo";
+import type { PlayerStats } from "@saas/rondo-core";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 
