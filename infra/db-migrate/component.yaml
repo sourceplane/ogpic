@@ -70,3 +70,9 @@ spec:
 #     under the `db` component's tree (packages/db/src/migrations), so adding a
 #     migration does not by itself mark db-migrate changed; touch this file
 #     alongside a new migration to trigger the apply lane. (2026-07-11)
+# ci: apply 350_matchmaker_match_polls + 360_matchmaker_chat — the v5 backend
+#     (polls/options/votes, dropouts, org_settings, chat_messages) merged in
+#     PR #98 but, per the standing caveat above, migrations under packages/db
+#     don't select db-migrate in the changed-only plan. Without this apply,
+#     every v5 endpoint 500s on missing tables ("none of the features work").
+#     (2026-07-20)
