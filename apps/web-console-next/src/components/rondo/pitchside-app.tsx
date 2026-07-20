@@ -7,8 +7,7 @@
 
 import * as React from "react";
 import { useRondo, type RondoSeed } from "@saas/rondo-core";
-import { ManagerApp } from "./manager-app";
-import { PlayerApp } from "./player-app";
+import { RondoApp5 } from "./v5/app5";
 import { DEMO_SEED } from "@saas/rondo-core";
 import type { TeamNav } from "./team-switcher";
 
@@ -22,7 +21,7 @@ export function PitchsideApp({
   teamNav?: TeamNav;
 }) {
   const vm = useRondo(seed);
-  return role === "manager" ? <ManagerApp vm={vm} teamNav={teamNav} /> : <PlayerApp vm={vm} teamNav={teamNav} />;
+  return <RondoApp5 vm={vm} role={role} teamNav={teamNav} />;
 }
 
 /**

@@ -11,13 +11,24 @@ import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import "../../../styles/rondo-kit.css";
 import { PitchsideApp } from "@/components/rondo/pitchside-app";
-import { buildLiveSeed, availabilityMap, availabilityAtMap, matchRows, joinRequestRows, nextActionableMatch, computePlayerStats } from "@saas/rondo-core";
+import {
+  buildLiveSeed,
+  availabilityMap,
+  availabilityAtMap,
+  matchRows,
+  joinRequestRows,
+  nextActionableMatch,
+  computePlayerStats,
+  matchPhaseOf,
+  chatSeedRows,
+} from "@saas/rondo-core";
 import type { RondoLive } from "@saas/rondo-core";
 import type { Availability } from "@saas/rondo-core";
+import type { MatchPollResponse, PublicMatchDropout } from "@saas/sdk";
 import { useRequireAuth } from "@/lib/use-async";
 import { useSession } from "@/lib/session";
 import { useApiQuery, qk } from "@/lib/query";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { wrap } from "@/lib/api";
 
 export default function ConnectedRondoPage() {
@@ -83,6 +94,78 @@ export default function ConnectedRondoPage() {
   );
   const paymentsMap: Record<string, boolean> = {};
   for (const p of paymentsQuery.data ?? []) paymentsMap[p.playerId] = p.paid;
+
+  // The caller's own account (v5 chat `mine` fallback for unclaimed accounts).
+  // Same query key as the profile menu's own fetch (profile-menu.tsx) so the
+  // two share a single cached request instead of double-fetching.
+  const profile = useApiQuery(
+    ["auth-profile"],
+    () => wrap(async () => (await client.auth.getProfile()).user),
+    { enabled: ready },
+  );
+  const mySubjectId = profile.data?.id ?? null;
+
+  // v5: squad chat — polled like a live feed so new messages/reactions show
+  // up without a manual refresh.
+  const chatQuery = useQuery({
+    queryKey: orgId ? ["chat", orgId] : ["chat", "pending"],
+    queryFn: async () => {
+      const r = await wrap(() => client.chat.listChat(orgId!));
+      if (!r.ok) throw r.error;
+      return r.data.messages;
+    },
+    enabled: !!orgId,
+    refetchInterval: 5000,
+  });
+
+  // v5: org-wide settings (currently just the WhatsApp mirror toggle).
+  const orgSettingsQuery = useApiQuery(
+    orgId ? ["org-settings", orgId] : ["org-settings", "pending"],
+    () => wrap(() => client.orgSettings.getSettings(orgId!)),
+    { enabled: !!orgId },
+  );
+
+  // v5: per-match polls, one query per match currently in `poll`/`finalizing`
+  // (a dynamic list, so `useQueries` rather than a fixed set of `useApiQuery`
+  // calls — the roster/count of such matches varies fixture to fixture).
+  const fixturesData = fixtures.data ?? [];
+  const pollMatchIds = fixturesData
+    .filter((m) => matchPhaseOf(m.status) === "poll" || matchPhaseOf(m.status) === "finalizing")
+    .map((m) => m.id);
+  const pollQueries = useQueries({
+    queries: pollMatchIds.map((matchId) => ({
+      queryKey: ["poll", orgId, matchId] as const,
+      queryFn: async () => {
+        const r = await wrap(() => client.polls.getMatchPoll(orgId!, matchId));
+        if (!r.ok) throw r.error;
+        return r.data;
+      },
+      enabled: !!orgId,
+    })),
+  });
+  const pollsMap: Record<string, MatchPollResponse> = {};
+  pollMatchIds.forEach((matchId, i) => {
+    const data = pollQueries[i]?.data;
+    if (data) pollsMap[matchId] = data;
+  });
+
+  // v5: drop-outs for matches still open to them (`scheduled`/`draft`) — same
+  // dynamic-list shape as the poll queries above.
+  const dropoutMatchIds = fixturesData
+    .filter((m) => matchPhaseOf(m.status) === "scheduled" || matchPhaseOf(m.status) === "draft")
+    .map((m) => m.id);
+  const dropoutQueries = useQueries({
+    queries: dropoutMatchIds.map((matchId) => ({
+      queryKey: ["dropouts", orgId, matchId] as const,
+      queryFn: async () => {
+        const r = await wrap(() => client.dropouts.listDropouts(orgId!, matchId));
+        if (!r.ok) throw r.error;
+        return r.data.dropouts;
+      },
+      enabled: !!orgId,
+    })),
+  });
+  const dropoutsFlat: PublicMatchDropout[] = dropoutQueries.flatMap((q) => q.data ?? []);
 
   // Live backend handlers — memoised so RondoApp's hook keeps a stable reference.
   const live = React.useMemo<RondoLive>(() => {
@@ -177,7 +260,7 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: qk.fixtures(orgId) }),
         );
       },
-      saveTeams: (matchId, teamA, teamB) => {
+      saveTeams: (matchId, teamA, teamB, opts) => {
         const toTeam = (t: { name: string; players: { id: string; name: string; position: string; rating: number }[] }) => ({
           name: t.name,
           players: t.players.map((p) => ({
@@ -187,9 +270,13 @@ export default function ConnectedRondoPage() {
             rating: p.rating,
           })),
         });
-        void wrap(() => client.fixtures.update(orgId, matchId, { teamA: toTeam(teamA), teamB: toTeam(teamB) })).then(() =>
-          qc.invalidateQueries({ queryKey: qk.fixtures(orgId) }),
-        );
+        void wrap(() =>
+          client.fixtures.update(orgId, matchId, {
+            teamA: toTeam(teamA),
+            teamB: toTeam(teamB),
+            ...(opts?.status ? { status: opts.status } : {}),
+          }),
+        ).then(() => qc.invalidateQueries({ queryKey: qk.fixtures(orgId) }));
       },
       recordResult: (matchId: string, scoreA: number, scoreB: number) => {
         void wrap(() => client.fixtures.update(orgId, matchId, { scoreA, scoreB, status: "played" })).then(() =>
@@ -233,6 +320,77 @@ export default function ConnectedRondoPage() {
         if (res.ok) await qc.invalidateQueries({ queryKey: qk.fixtures(orgId) });
         return res.ok;
       },
+      // ── v5 additions ──
+      scheduleWithPoll: async ({ times, turfs, deadline }) => {
+        const res = await wrap(() => client.fixtures.schedule(orgId, { poll: { times, turfs, deadline } }));
+        if (res.ok) await qc.invalidateQueries({ queryKey: qk.fixtures(orgId) });
+        return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't publish the poll. Try again." };
+      },
+      votePoll: async (matchId: string, optionIds: string[]) => {
+        const res = await wrap(() => client.polls.setPollVotes(orgId, matchId, { optionIds }));
+        if (res.ok) await qc.invalidateQueries({ queryKey: ["poll", orgId, matchId] });
+        return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't save your vote. Try again." };
+      },
+      closePoll: async (matchId: string) => {
+        const res = await wrap(() => client.polls.closePoll(orgId, matchId));
+        if (res.ok) {
+          await qc.invalidateQueries({ queryKey: ["poll", orgId, matchId] });
+          await qc.invalidateQueries({ queryKey: qk.fixtures(orgId) });
+        }
+        return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't close the poll. Try again." };
+      },
+      finalizeMatch: async (matchId: string, timeOptionId: string, turfOptionId: string) => {
+        const res = await wrap(() => client.polls.finalizeMatch(orgId, matchId, { timeOptionId, turfOptionId }));
+        if (res.ok) {
+          await qc.invalidateQueries({ queryKey: ["poll", orgId, matchId] });
+          await qc.invalidateQueries({ queryKey: qk.fixtures(orgId) });
+        }
+        return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't finalize the match. Try again." };
+      },
+      sendChat: async (body: string) => {
+        const res = await wrap(() => client.chat.postChat(orgId, { body }));
+        if (res.ok) await qc.invalidateQueries({ queryKey: ["chat", orgId] });
+        return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't send. Try again." };
+      },
+      reactChat: async (messageId: string, emoji: string) => {
+        const res = await wrap(() => client.chat.reactChat(orgId, messageId, { emoji }));
+        if (res.ok) await qc.invalidateQueries({ queryKey: ["chat", orgId] });
+        return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't react. Try again." };
+      },
+      loadOlderChat: async (before: string, beforeId: string) => {
+        const res = await wrap(() => client.chat.listChat(orgId, { before, beforeId }));
+        return res.ok ? chatSeedRows(res.data.messages) : [];
+      },
+      dropOut: async (matchId: string, reason: string) => {
+        const res = await wrap(() => client.dropouts.setDropout(orgId, matchId, { reason }));
+        if (res.ok) await qc.invalidateQueries({ queryKey: ["dropouts", orgId, matchId] });
+        return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't record the drop-out. Try again." };
+      },
+      undoDropout: async (matchId: string) => {
+        const res = await wrap(() => client.dropouts.undoDropout(orgId, matchId));
+        if (res.ok) await qc.invalidateQueries({ queryKey: ["dropouts", orgId, matchId] });
+        return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't undo the drop-out. Try again." };
+      },
+      resolveDropout: async (matchId: string, playerId: string, replacementPlayerId?: string) => {
+        const res = await wrap(() =>
+          client.dropouts.resolveDropout(orgId, matchId, playerId, replacementPlayerId ? { replacementPlayerId } : {}),
+        );
+        if (res.ok) {
+          await qc.invalidateQueries({ queryKey: ["dropouts", orgId, matchId] });
+          if (res.data.match) await qc.invalidateQueries({ queryKey: qk.fixtures(orgId) });
+        }
+        return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't resolve the drop-out. Try again." };
+      },
+      setWhatsappBridge: async (on: boolean) => {
+        const res = await wrap(() => client.orgSettings.setSettings(orgId, { whatsappBridge: on }));
+        if (res.ok) await qc.invalidateQueries({ queryKey: ["org-settings", orgId] });
+        return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't update settings. Try again." };
+      },
+      setMemberRole: async (memberId: string, role: "admin" | "viewer") => {
+        const res = await wrap(() => client.memberships.setMemberRole(orgId, memberId, { role }));
+        if (res.ok) await qc.invalidateQueries({ queryKey: qk.members(orgId) });
+        return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't update their role. Try again." };
+      },
     };
   }, [orgId, client, qc, router, myPlayerId, nextMatchId]);
 
@@ -262,10 +420,16 @@ export default function ConnectedRondoPage() {
     nextMatch: nextActionableMatch(fixtures.data ?? []),
     playerStats: computePlayerStats(fixtures.data ?? []),
     myPlayerId,
+    mySubjectId,
     payments: paymentsMap,
     ...(joinCode.data ? { joinCode: joinCode.data } : {}),
     joinRequests: joinRequestRows(joinReqs.data ?? []),
     votingOpen: (ratingRound.data ?? null) != null,
+    chat: chatQuery.data ?? [],
+    polls: pollsMap,
+    dropouts: dropoutsFlat,
+    dropoutMatches: fixturesData,
+    ...(orgSettingsQuery.data ? { orgSettings: orgSettingsQuery.data } : {}),
     live,
   });
 
