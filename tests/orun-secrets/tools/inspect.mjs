@@ -1,10 +1,11 @@
 // Live orun-cloud secrets inspector for the saas-orun-secrets migration.
 //
 // Part A — runtime injection proof: when secrets are injected at run time
-// (`orun run`, via component secretEnv), print a NON-REVERSIBLE fingerprint
-// (length + sha256 prefix) for each, and for a Supabase token run a live
-// connection test (HTTP + account id). A raw secret value is NEVER printed —
-// the orun runner also redacts injected values from logs by design.
+// (`orun run`, via component secretEnv), report PRESENCE ONLY for each (no
+// value, no length, no hash — even a fingerprint is a partial disclosure in a
+// CI log), and for a Supabase token run a live connection test (HTTP + account
+// id). A raw secret value is NEVER printed — the orun runner also redacts
+// injected values from logs by design.
 //
 // Part B — inventory (needs ORUN_TOKEN): display every secret across the
 // workspace/project/environments (names + metadata only), and for brokered
@@ -12,11 +13,6 @@
 //
 // No-op-friendly: each part is independently guarded, so it never breaks a
 // cloud-free CI verify lane.
-
-import { createHash } from "node:crypto";
-
-const fp = (v) =>
-  `len=${v.length} sha256=${createHash("sha256").update(v).digest("hex").slice(0, 16)}`;
 
 // All network calls are hard-bounded so a slow/blocked egress can never hang
 // the CI build step.
@@ -32,12 +28,16 @@ const injected = [
   ["SUPABASE_ACCESS_TOKEN", process.env.SUPABASE_ACCESS_TOKEN],
 ].filter(([, v]) => typeof v === "string" && v.length > 0);
 
-console.log("== runtime-injected secrets (fingerprints — never raw) ==");
+console.log("== runtime-injected secrets (presence only — never value or fingerprint) ==");
 if (injected.length === 0) {
   console.log("  (none injected in this lane — run under `orun run` with secretEnv)");
 }
-for (const [name, v] of injected) {
-  console.log(`  ${name}: injected ${fp(v)}`);
+for (const [name] of injected) {
+  // Presence only. Do NOT log length or any hash of the value: for a bounded /
+  // low-entropy secret even a sha256 prefix + length is a partial disclosure in
+  // a CI log. Scope verification below uses provider-side metadata, not the
+  // token's shape.
+  console.log(`  ${name}: injected (present)`);
 }
 
 // ---- Part A2: Supabase — the brokered management-access credential ---------

@@ -45,12 +45,14 @@ spec:
         secretEnv:
           OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/dev/OGPIC_ORUN_SMOKE
           TEST_SUPABASE_API: secret://ws_8D3ZJQM2/ogpic/dev/TEST_SUPABASE_API
-          # TEST_CLOUDFLARE_API is temporarily excluded: its connection
-          # int_a3b02fdf7fe84046bfafee14da466d86 is SUSPENDED (the first real
-          # mint failed at Cloudflare and IH9 flipped the connection), so the
-          # fail-closed resolve would fail the whole job. Re-add after the
-          # connection is reconnected in the console (Integrations → Reconnect).
-          # TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/dev/TEST_CLOUDFLARE_API
+          # PREREQUISITE: connection int_a3b02fdf7fe84046bfafee14da466d86 must be
+          # reconnected in the console (Integrations → Reconnect) BEFORE this
+          # merges. It was SUSPENDED (first mint failed at Cloudflare, IH9
+          # flipped it). secretEnv resolve is fail-closed, so while suspended
+          # this reference fails the whole dev·verify job. Once reconnected, the
+          # dev lane mints a fresh workers-deploy token and inspect.mjs runs the
+          # positive/negative scope proof against the Cloudflare API.
+          TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/dev/TEST_CLOUDFLARE_API
       - name: stage
         profile: verify
         secretEnv:

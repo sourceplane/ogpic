@@ -19,8 +19,9 @@ describe("print the smoke secret (CI demo)", () => {
     };
 
     const value = resolveSecret(ref, { env });
-    // eslint-disable-next-line no-console
-    console.log(`OGPIC_ORUN_SMOKE (raw)      = ${value}`);
+    // Only the REDACTED form is ever logged. Never print the raw value: if the
+    // runner injects a real orun-cloud value under OGPIC_ORUN_SMOKE, resolve()
+    // returns it here, and a raw console.log would leak it into CI logs.
     // eslint-disable-next-line no-console
     console.log(`OGPIC_ORUN_SMOKE (redacted) = ${redact(value)}`);
     expect(value.length).toBeGreaterThan(0);
