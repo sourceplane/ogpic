@@ -321,10 +321,13 @@ export async function handleSetPollVotes(
         return validationError(requestId, { optionIds: [setResult.error.message] });
       }
       // A non-validation failure is a real server-side error (the write threw in
-      // the repo). Log the preserved cause so the opaque 503 is diagnosable
-      // instead of collapsing every write failure to a blank "Service unavailable".
+      // the repo). Log the preserved cause AND surface it to the client so the
+      // opaque 503 is diagnosable from the app instead of a blank "Service
+      // unavailable". (TEMPORARY diagnostic — revert to a generic message once
+      // the poll-vote write is confirmed healthy in prod.)
+      const detail = "message" in setResult.error ? setResult.error.message : "internal error";
       console.error(`[${requestId}] handleSetPollVotes: setPollVotes failed —`, setResult.error);
-      return errorResponse("internal_error", "Service unavailable", 503, requestId);
+      return errorResponse("internal_error", detail, 503, requestId);
     }
 
     const pollAfter = await repo.getMatchPoll(orgId, matchId);

@@ -38,8 +38,8 @@ function recordingExecutor(): { executor: SqlExecutor; calls: RecordedCall[] } {
     async execute<T extends SqlRow = SqlRow>(text: string, params: unknown[] = []): Promise<SqlExecutorResult<T>> {
       calls.push({ text, params });
       if (text.includes("SELECT id FROM matchmaker.match_poll_options")) {
-        // params: [orgId, matchId, uniqueIds] — echo one row per requested id.
-        const ids = (params[2] as string[]) ?? [];
+        // params: [orgId, matchId, ...ids] (expanded IN) — echo a row per id.
+        const ids = params.slice(2) as string[];
         return { rows: ids.map((id) => ({ id })) as unknown as T[], rowCount: ids.length };
       }
       return { rows: [], rowCount: 0 };
@@ -49,7 +49,7 @@ function recordingExecutor(): { executor: SqlExecutor; calls: RecordedCall[] } {
 }
 
 describe("handleSetPollVotes — real setPollVotes SQL (freshly-created player, time+turf)", () => {
-  it("returns 200 (not 503) and issues casted scalar-param writes without unnest/array binding", async () => {
+  it("returns 200 (not 503) with proven-pattern scalar writes (no unnest/array/SELECT-VALUES)", async () => {
     const { executor, calls } = recordingExecutor();
     const realRepo = createMatchmakerRepository(executor);
 
@@ -86,15 +86,19 @@ describe("handleSetPollVotes — real setPollVotes SQL (freshly-created player, 
     expect(del).toBeDefined();
     expect(ins).toBeDefined();
 
-    // The write no longer relies on driver array-type inference: no unnest / no
-    // `uuid[]` array param, and every id is bound as its own casted scalar.
+    // Structurally identical to the proven castPlayerVotes: a plain expanded
+    // VALUES insert with ON CONFLICT DO NOTHING — no array param, no unnest, no
+    // `SELECT … FROM (VALUES …)` wrapper, no in-SQL EXISTS guard; the DELETE is
+    // an unconditional ballot clear (poll-open is guarded in the handler).
     expect(ins!.text).not.toContain("unnest");
-    expect(ins!.text).toContain("::uuid");
-    expect(ins!.text).toContain("::timestamptz");
+    expect(ins!.text).toContain("VALUES");
+    expect(ins!.text).toContain("ON CONFLICT");
+    expect(ins!.text).not.toContain("SELECT");
     expect(del!.text).not.toContain("!= ALL");
-    expect(del!.text).toContain("NOT IN");
-    // INSERT params: [orgId, matchId, playerId, TIME_OPT, TURF_OPT, iso].
-    expect(ins!.params).toEqual([ORG, MATCH, PLAYER, TIME_OPT, TURF_OPT, expect.any(String)]);
+    expect(del!.text).not.toContain("NOT IN");
+    expect(del!.text).not.toContain("EXISTS");
+    // INSERT params: [orgId, matchId, playerId, iso, TIME_OPT, TURF_OPT].
+    expect(ins!.params).toEqual([ORG, MATCH, PLAYER, expect.any(String), TIME_OPT, TURF_OPT]);
   });
 
   it("surfaces a diagnosable internal error (not a blank one) when the write throws", async () => {

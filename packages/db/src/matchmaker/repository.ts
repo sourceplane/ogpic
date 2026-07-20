@@ -1038,12 +1038,26 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
       optionIds: string[],
       now: Date,
     ): Promise<MatchmakerResult<void>> {
+      // Structurally identical to the proven `castPlayerVotes` bulk insert:
+      // an expanded `VALUES` tuple list with bare params + `ON CONFLICT DO
+      // NOTHING`, and — crucially — NO array parameter, NO `SELECT … FROM
+      // (VALUES …)` wrapper, and NO in-SQL `EXISTS` guard (the poll-open check
+      // already runs in the handler as a JS guard before this call). Replacing
+      // a ballot is delete-all-then-insert as TWO separate statements, which is
+      // safe (each commits before the next reads — the PK-collision that a
+      // single CTE would hit does not apply across statements).
       try {
         const uniqueIds = Array.from(new Set(optionIds));
+
+        // Validate every option belongs to this match's poll. Expanded `IN
+        // (...)` with bare params rather than `= ANY($n::uuid[])`, so the write
+        // path never depends on array-parameter binding.
         if (uniqueIds.length > 0) {
+          const placeholders = uniqueIds.map((_, i) => `$${i + 3}`).join(", ");
           const check = await executor.execute<Record<string, unknown>>(
-            `SELECT id FROM matchmaker.match_poll_options WHERE org_id = $1 AND match_id = $2 AND id = ANY($3::uuid[])`,
-            [orgId, matchId, uniqueIds],
+            `SELECT id FROM matchmaker.match_poll_options
+             WHERE org_id = $1 AND match_id = $2 AND id IN (${placeholders})`,
+            [orgId, matchId, ...uniqueIds],
           );
           if (check.rowCount !== uniqueIds.length) {
             return {
@@ -1052,51 +1066,27 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
             };
           }
         }
-        const pollOpenGuard = `EXISTS (
-             SELECT 1 FROM matchmaker.match_polls p WHERE p.match_id = $2 AND p.org_id = $1 AND p.closed_at IS NULL
-           )`;
-        if (uniqueIds.length === 0) {
+
+        // Replace the player's ballot for this match.
+        await executor.execute(
+          `DELETE FROM matchmaker.match_poll_votes WHERE org_id = $1 AND match_id = $2 AND player_id = $3`,
+          [orgId, matchId, playerId],
+        );
+
+        if (uniqueIds.length > 0) {
+          const iso = now.toISOString();
+          const values: unknown[] = [orgId, matchId, playerId, iso];
+          const tuples = uniqueIds.map((id) => {
+            const idx = values.push(id);
+            return `($${idx}, $2, $1, $3, $4)`;
+          });
           await executor.execute(
-            `DELETE FROM matchmaker.match_poll_votes
-             WHERE org_id = $1 AND match_id = $2 AND player_id = $3 AND ${pollOpenGuard}`,
-            [orgId, matchId, playerId],
+            `INSERT INTO matchmaker.match_poll_votes (option_id, match_id, org_id, player_id, created_at)
+             VALUES ${tuples.join(", ")}
+             ON CONFLICT DO NOTHING`,
+            values,
           );
-          return { ok: true, value: undefined };
         }
-        const iso = now.toISOString();
-        // Bind each option id as its own scalar `$n::uuid` (mirroring the
-        // proven expanded-VALUES bulk insert in castPlayerVotes) rather than a
-        // single `uuid[]` array parameter fed to `unnest`/`!= ALL`. Every value
-        // bound to a uuid/timestamptz column carries an explicit cast so the
-        // write never depends on the driver's parameter-type inference — a bare
-        // string param landing in a uuid column can surface as a Postgres type
-        // error ("column ... is of type uuid but expression is of type text"),
-        // which the catch below would otherwise swallow into a blanket 503.
-        const idPlaceholders = uniqueIds.map((_, i) => `$${i + 4}::uuid`);
-        // Two separate statements rather than one delete+insert CTE: a single
-        // CTE shares one snapshot, so re-voting while KEEPING an option would
-        // delete then immediately re-insert that row, colliding with a
-        // not-yet-committed identical row (PK conflict). Instead: only
-        // de-selected options are deleted, and newly-selected options are
-        // inserted with ON CONFLICT DO NOTHING so unchanged rows are untouched.
-        await executor.execute(
-          `DELETE FROM matchmaker.match_poll_votes
-           WHERE org_id = $1 AND match_id = $2 AND player_id = $3
-             AND option_id NOT IN (${idPlaceholders.join(", ")}) AND ${pollOpenGuard}`,
-          [orgId, matchId, playerId, ...uniqueIds],
-        );
-        const isoIdx = uniqueIds.length + 4;
-        const valuesRows = uniqueIds.map(
-          (_, i) => `($${i + 4}::uuid, $2::uuid, $1::uuid, $3::uuid, $${isoIdx}::timestamptz)`,
-        );
-        await executor.execute(
-          `INSERT INTO matchmaker.match_poll_votes (option_id, match_id, org_id, player_id, created_at)
-           SELECT v.option_id, v.match_id, v.org_id, v.player_id, v.created_at
-           FROM (VALUES ${valuesRows.join(", ")}) AS v(option_id, match_id, org_id, player_id, created_at)
-           WHERE ${pollOpenGuard}
-           ON CONFLICT DO NOTHING`,
-          [orgId, matchId, playerId, ...uniqueIds, iso],
-        );
         return { ok: true, value: undefined };
       } catch (err) {
         return { ok: false, error: { kind: "internal", message: `Failed to set poll votes: ${describeDbError(err)}` } };
