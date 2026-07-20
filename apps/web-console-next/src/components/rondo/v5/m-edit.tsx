@@ -96,7 +96,6 @@ export function MEdit({
       setSkills(player.skills);
       setMgrOn(vm.myPlayerId === playerId && vm.isManager);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerId]);
 
   if (!player) {

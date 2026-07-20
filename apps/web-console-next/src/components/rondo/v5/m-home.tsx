@@ -54,7 +54,7 @@ const AVATAR_BG = ["#E5E3D2", "#DCDACA"];
 export function MHome({
   vm,
   nav,
-  toast,
+  toast: _toast,
   onInvite,
 }: {
   vm: RondoVM;
