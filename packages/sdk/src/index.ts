@@ -27,6 +27,7 @@ import { OrgSettingsClient } from "./orgSettings.js";
 import { PollsClient } from "./polls.js";
 import { ProjectsClient } from "./projects.js";
 import { RosterClient, DraftClient, FixturesClient, AvailabilityClient } from "./matchmaker.js";
+import { RatingRoundClient } from "./rating-round.js";
 import { SecurityEventsClient } from "./securityEvents.js";
 import { WebhooksClient } from "./webhooks.js";
 import { Transport, type ClientOptions } from "./transport.js";
@@ -51,6 +52,7 @@ export class Ogpic {
   readonly fixtures: FixturesClient;
   readonly availability: AvailabilityClient;
   readonly polls: PollsClient;
+  readonly ratingRound: RatingRoundClient;
   readonly dropouts: DropoutsClient;
   readonly chat: ChatClient;
   readonly orgSettings: OrgSettingsClient;
@@ -78,6 +80,7 @@ export class Ogpic {
     this.fixtures = new FixturesClient(this.transport);
     this.availability = new AvailabilityClient(this.transport);
     this.polls = new PollsClient(this.transport);
+    this.ratingRound = new RatingRoundClient(this.transport);
     this.dropouts = new DropoutsClient(this.transport);
     this.chat = new ChatClient(this.transport);
     this.orgSettings = new OrgSettingsClient(this.transport);
@@ -121,6 +124,7 @@ export { AuthClient } from "./auth.js";
 export { IntegrationsClient } from "./integrations.js";
 export { RosterClient, DraftClient, FixturesClient, AvailabilityClient } from "./matchmaker.js";
 export { PollsClient } from "./polls.js";
+export { RatingRoundClient } from "./rating-round.js";
 export { DropoutsClient } from "./dropouts.js";
 export { ChatClient } from "./chat.js";
 export { OrgSettingsClient } from "./orgSettings.js";
@@ -418,6 +422,17 @@ export type {
   ClosePollResponse,
   FinalizeMatchResponse,
 } from "./polls.js";
+
+export type {
+  RatingRoundDeadlineKind,
+  RatingRoundV2Status,
+  PublicRatingRoundV2,
+  RatingRoundResultEntry,
+  OpenRatingRoundV2Request,
+  OpenRatingRoundV2Response,
+  CloseRatingRoundV2Response,
+  GetRatingRoundV2Response,
+} from "./rating-round.js";
 
 export type {
   PublicMatchDropout,

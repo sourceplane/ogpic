@@ -6,12 +6,16 @@ import { asUuid } from "@saas/db/ids";
 import { enqueueNotification, buildIdempotencyKey } from "@saas/notifications-client";
 import { matchPublicId } from "./ids.js";
 import { formatMatchLabel, pollClosedNoteBody } from "./handlers/match-polls.js";
+import { ratingRoundClosedNoteBody, settleRatingRound } from "./handlers/rating-round.js";
 
 /** How far ahead of kickoff a scheduled fixture becomes eligible for reminders. */
 const REMINDER_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 /** Cap on how many overdue polls a single cron tick will close. */
 const DUE_POLLS_LIMIT = 100;
+
+/** Cap on how many overdue rating rounds a single cron tick will close. */
+const DUE_RATING_ROUNDS_LIMIT = 100;
 
 /**
  * Auto-start pass (cron): flip every scheduled fixture whose kickoff time has
@@ -185,6 +189,64 @@ export async function runAutoClosePolls(env: Env): Promise<void> {
   try {
     const repo = createMatchmakerRepository(executor);
     await closeDuePolls(env, repo, new Date());
+  } finally {
+    await executor.dispose();
+  }
+}
+
+/**
+ * Auto-close pass (cron, testable core): every open rating round whose
+ * deadline has passed is closed and settled exactly like a manual
+ * `POST /rating-round/close` — same `closeRatingRound` + `settleRatingRound`
+ * + chat note. Mirrors `closeDuePolls`'s factoring; a failed close (e.g. the
+ * round was already closed manually) is skipped, not thrown, so it doesn't
+ * block the rest of the batch.
+ */
+export async function closeDueRatingRounds(env: Env, repo: MatchmakerRepository, now: Date): Promise<void> {
+  const due = await repo.listDueRatingRounds(now, DUE_RATING_ROUNDS_LIMIT);
+  if (!due.ok) {
+    console.error(`[scheduled] due-rating-rounds query failed: ${due.error.kind}`);
+    return;
+  }
+
+  let closed = 0;
+  for (const round of due.value) {
+    const orgId = asUuid(round.orgId);
+
+    const closeResult = await repo.closeRatingRound(orgId, now);
+    if (!closeResult.ok) continue;
+    closed++;
+
+    await settleRatingRound(repo, orgId, closeResult.value, now);
+    await repo.insertChatMessage({
+      id: crypto.randomUUID(),
+      orgId,
+      kind: "note",
+      body: ratingRoundClosedNoteBody(),
+      matchId: null,
+      authorPlayerId: null,
+      authorSubjectId: null,
+      authorName: null,
+      createdAt: now,
+    });
+  }
+  if (closed > 0) console.warn(`[scheduled] auto-closed ${closed} rating round(s)`);
+}
+
+/**
+ * Auto-close sweep (cron): thin env wrapper around `closeDueRatingRounds` —
+ * builds the real repo from `PLATFORM_DB` and disposes it afterward. Fails
+ * closed when `PLATFORM_DB` is missing; never throws.
+ */
+export async function runAutoCloseRatingRounds(env: Env): Promise<void> {
+  if (!env.PLATFORM_DB) {
+    console.error("[scheduled] PLATFORM_DB binding missing");
+    return;
+  }
+  const executor = createSqlExecutor(env.PLATFORM_DB);
+  try {
+    const repo = createMatchmakerRepository(executor);
+    await closeDueRatingRounds(env, repo, new Date());
   } finally {
     await executor.dispose();
   }

@@ -31,10 +31,14 @@ import type {
   PlayerPosition,
   PlayerVote,
   PlayerVoteStats,
+  InsertRatingRoundResultInput,
+  OpenRatingRoundInput,
   PollDeadlineKind,
   PollOptionKind,
   PositionCount,
   RatingRound,
+  RatingRoundDeadlineKind,
+  RatingRoundResult,
   RatingRoundStatus,
   SetOrgSettingsInput,
   UpdateMatchInput,
@@ -129,6 +133,20 @@ function mapRatingRound(row: Record<string, unknown>): RatingRound {
     openedBy: row.opened_by as string,
     openedAt: new Date(row.opened_at as string),
     closedAt: row.closed_at ? new Date(row.closed_at as string) : null,
+    deadlineKind: row.deadline_kind as RatingRoundDeadlineKind,
+    deadlineAt: row.deadline_at ? new Date(row.deadline_at as string) : null,
+  };
+}
+
+function mapRatingRoundResult(row: Record<string, unknown>): RatingRoundResult {
+  return {
+    roundId: row.round_id as string,
+    orgId: row.org_id as string,
+    playerId: row.player_id as string,
+    ovrBefore: Number(row.ovr_before),
+    ovrAfter: Number(row.ovr_after),
+    votesReceived: Number(row.votes_received),
+    createdAt: new Date(row.created_at as string),
   };
 }
 
@@ -810,14 +828,20 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
       }
     },
 
-    async openRatingRound(id, orgId, openedBy, now): Promise<MatchmakerResult<RatingRound>> {
+    async openRatingRound(input: OpenRatingRoundInput): Promise<MatchmakerResult<RatingRound>> {
       try {
-        const iso = now.toISOString();
         const result = await executor.execute<Record<string, unknown>>(
-          `INSERT INTO matchmaker.rating_rounds (id, org_id, status, opened_by, opened_at)
-           VALUES ($1, $2, 'open', $3, $4)
+          `INSERT INTO matchmaker.rating_rounds (id, org_id, status, opened_by, opened_at, deadline_kind, deadline_at)
+           VALUES ($1, $2, 'open', $3, $4, $5, $6)
            RETURNING *`,
-          [id, orgId, openedBy, iso],
+          [
+            input.id,
+            input.orgId,
+            input.openedBy,
+            input.now.toISOString(),
+            input.deadlineKind,
+            input.deadlineAt ? input.deadlineAt.toISOString() : null,
+          ],
         );
         return { ok: true, value: mapRatingRound(result.rows[0]!) };
       } catch (err: unknown) {
@@ -838,6 +862,79 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
         return { ok: true, value: mapRatingRound(result.rows[0]!) };
       } catch {
         return safeError("Failed to close rating round");
+      }
+    },
+
+    async getLatestClosedRatingRound(orgId): Promise<MatchmakerResult<RatingRound | null>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.rating_rounds
+           WHERE org_id = $1 AND status = 'closed'
+           ORDER BY closed_at DESC NULLS LAST
+           LIMIT 1`,
+          [orgId],
+        );
+        return { ok: true, value: result.rowCount === 0 ? null : mapRatingRound(result.rows[0]!) };
+      } catch {
+        return safeError("Failed to get latest closed rating round");
+      }
+    },
+
+    async insertRatingRoundResults(rows: InsertRatingRoundResultInput[]): Promise<MatchmakerResult<void>> {
+      if (rows.length === 0) return { ok: true, value: undefined };
+      try {
+        const values: unknown[] = [];
+        const tuples = rows.map((r) => {
+          const roundIdx = values.push(r.roundId);
+          const orgIdx = values.push(r.orgId);
+          const playerIdx = values.push(r.playerId);
+          const beforeIdx = values.push(r.ovrBefore);
+          const afterIdx = values.push(r.ovrAfter);
+          const votesIdx = values.push(r.votesReceived);
+          const createdIdx = values.push(r.createdAt.toISOString());
+          return `($${roundIdx}::uuid, $${orgIdx}::uuid, $${playerIdx}::uuid, $${beforeIdx}::numeric, $${afterIdx}::numeric, $${votesIdx}::int, $${createdIdx}::timestamptz)`;
+        });
+        await executor.execute(
+          `INSERT INTO matchmaker.rating_round_results (round_id, org_id, player_id, ovr_before, ovr_after, votes_received, created_at)
+           VALUES ${tuples.join(", ")}
+           ON CONFLICT (round_id, player_id) DO NOTHING`,
+          values,
+        );
+        return { ok: true, value: undefined };
+      } catch (err) {
+        return {
+          ok: false,
+          error: { kind: "internal", message: `Failed to insert rating round results: ${describeDbError(err)}` },
+        };
+      }
+    },
+
+    async listRatingRoundResults(orgId, roundId): Promise<MatchmakerResult<RatingRoundResult[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.rating_round_results
+           WHERE org_id = $1 AND round_id = $2
+           ORDER BY created_at ASC`,
+          [orgId, roundId],
+        );
+        return { ok: true, value: result.rows.map(mapRatingRoundResult) };
+      } catch {
+        return safeError("Failed to list rating round results");
+      }
+    },
+
+    async listDueRatingRounds(now, limit): Promise<MatchmakerResult<RatingRound[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT * FROM matchmaker.rating_rounds
+           WHERE status = 'open' AND deadline_at IS NOT NULL AND deadline_at <= $1
+           ORDER BY deadline_at ASC
+           LIMIT $2`,
+          [now.toISOString(), limit],
+        );
+        return { ok: true, value: result.rows.map(mapRatingRound) };
+      } catch {
+        return safeError("Failed to list due rating rounds");
       }
     },
 
