@@ -205,6 +205,9 @@ export interface MatchPayment {
 
 export type RatingRoundStatus = "open" | "closed";
 
+/** Rating Window v2: a dated round auto-closes via cron; 'manual' waits for the manager. */
+export type RatingRoundDeadlineKind = "24h" | "48h" | "manual";
+
 /** A manager-gated voting window. At most one is open per org at a time. */
 export interface RatingRound {
   id: string;
@@ -213,6 +216,38 @@ export interface RatingRound {
   openedBy: string;
   openedAt: Date;
   closedAt: Date | null;
+  deadlineKind: RatingRoundDeadlineKind;
+  deadlineAt: Date | null;
+}
+
+export interface OpenRatingRoundInput {
+  id: string;
+  orgId: Uuid;
+  openedBy: string;
+  deadlineKind: RatingRoundDeadlineKind;
+  deadlineAt: Date | null;
+  now: Date;
+}
+
+/** One settled row per rated player: the OVR movement a closed round produced. */
+export interface RatingRoundResult {
+  roundId: string;
+  orgId: string;
+  playerId: string;
+  ovrBefore: number;
+  ovrAfter: number;
+  votesReceived: number;
+  createdAt: Date;
+}
+
+export interface InsertRatingRoundResultInput {
+  roundId: Uuid;
+  orgId: Uuid;
+  playerId: Uuid;
+  ovrBefore: number;
+  ovrAfter: number;
+  votesReceived: number;
+  createdAt: Date;
 }
 
 // ── Match polls (v5) ─────────────────────────────────────────────
@@ -406,9 +441,18 @@ export interface MatchmakerRepository {
   /** The org's currently-open rating round, or null when voting is closed. */
   getOpenRatingRound(orgId: Uuid): Promise<MatchmakerResult<RatingRound | null>>;
   /** Open a rating round (conflict if one is already open). */
-  openRatingRound(id: string, orgId: Uuid, openedBy: string, now: Date): Promise<MatchmakerResult<RatingRound>>;
+  openRatingRound(input: OpenRatingRoundInput): Promise<MatchmakerResult<RatingRound>>;
   /** Close the org's open rating round (not_found when none is open). */
   closeRatingRound(orgId: Uuid, now: Date): Promise<MatchmakerResult<RatingRound>>;
+  /** The org's most recently closed rating round, or null when none has ever closed
+   *  (drives the "last window" analytics on both the manager and player sides). */
+  getLatestClosedRatingRound(orgId: Uuid): Promise<MatchmakerResult<RatingRound | null>>;
+  /** Bulk-write a closed round's settled results (one row per rated player). */
+  insertRatingRoundResults(rows: InsertRatingRoundResultInput[]): Promise<MatchmakerResult<void>>;
+  /** A round's settled results, tenant-scoped. */
+  listRatingRoundResults(orgId: Uuid, roundId: Uuid): Promise<MatchmakerResult<RatingRoundResult[]>>;
+  /** System cron (all orgs): open rounds whose deadline has passed. */
+  listDueRatingRounds(now: Date, limit: number): Promise<MatchmakerResult<RatingRound[]>>;
   /** Reset every active player to an equal baseline OVR and clear all votes. */
   resetScoresToBaseline(orgId: Uuid, baseline: number, now: Date): Promise<MatchmakerResult<void>>;
 
