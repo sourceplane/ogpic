@@ -338,6 +338,11 @@ type Position = (typeof POSITIONS)[number];
 export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; open: boolean; onClose: () => void; toast: (msg: string) => void }) {
   const [name, setName] = React.useState("");
   const [pos, setPos] = React.useState<Position>("MID");
+  // Optional pre-link: when the manager already knows the player's email/phone,
+  // recording them lets the joining member's "claim mine" match this exact
+  // roster row instead of minting a duplicate.
+  const [email, setEmail] = React.useState("");
+  const [phone, setPhone] = React.useState("");
   // Presentational-only: `vm.addPlayer`'s input has no WhatsApp field yet, so
   // this preference doesn't (yet) round-trip to the roster — it just drives
   // the confirmation copy below, matching the design's toggle row.
@@ -348,6 +353,8 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
     if (open) {
       setName("");
       setPos("MID");
+      setEmail("");
+      setPhone("");
       setWa(true);
       setBusy(false);
     }
@@ -357,7 +364,12 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
     const trimmed = name.trim();
     if (!trimmed || busy) return;
     setBusy(true);
-    const res = await vm.addPlayer({ name: trimmed, position: pos });
+    const res = await vm.addPlayer({
+      name: trimmed,
+      position: pos,
+      email: email.trim() || null,
+      phone: phone.trim() || null,
+    });
     setBusy(false);
     if (res.ok) {
       toast(wa ? `${trimmed} added — WhatsApp updates on` : `${trimmed} added to the roster`);
@@ -366,6 +378,21 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
       toast(res.message ?? "Couldn't add the player");
     }
   }
+
+  const inputStyle: React.CSSProperties = {
+    marginTop: 7,
+    width: "100%",
+    boxSizing: "border-box",
+    height: 46,
+    borderRadius: 14,
+    background: C5.card,
+    border: `1px solid ${ink(0.14)}`,
+    padding: "0 14px",
+    fontFamily: "inherit",
+    fontSize: 13.5,
+    color: C5.ink,
+    outline: "none",
+  };
 
   return (
     <Sheet open={open} onClose={onClose}>
@@ -385,20 +412,7 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
           if (e.key === "Enter") add();
         }}
         placeholder="e.g. Ben Carter"
-        style={{
-          marginTop: 7,
-          width: "100%",
-          boxSizing: "border-box",
-          height: 46,
-          borderRadius: 14,
-          background: C5.card,
-          border: `1px solid ${ink(0.14)}`,
-          padding: "0 14px",
-          fontFamily: "inherit",
-          fontSize: 13.5,
-          color: C5.ink,
-          outline: "none",
-        }}
+        style={inputStyle}
       />
 
       <MonoLabel size={9} style={{ marginTop: 12 }}>
@@ -432,6 +446,38 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
           );
         })}
       </div>
+
+      <MonoLabel size={9} style={{ marginTop: 12 }}>
+        EMAIL · OPTIONAL
+      </MonoLabel>
+      <input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") add();
+        }}
+        type="email"
+        inputMode="email"
+        autoCapitalize="none"
+        autoCorrect="off"
+        placeholder="e.g. ben@example.com"
+        style={inputStyle}
+      />
+
+      <MonoLabel size={9} style={{ marginTop: 12 }}>
+        PHONE · OPTIONAL
+      </MonoLabel>
+      <input
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") add();
+        }}
+        type="tel"
+        inputMode="tel"
+        placeholder="e.g. +1 555 010 1234"
+        style={inputStyle}
+      />
 
       <div
         style={{

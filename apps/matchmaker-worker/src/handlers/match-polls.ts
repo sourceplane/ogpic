@@ -320,6 +320,10 @@ export async function handleSetPollVotes(
       if (setResult.error.kind === "validation") {
         return validationError(requestId, { optionIds: [setResult.error.message] });
       }
+      // A non-validation failure is a real server-side error (the write threw in
+      // the repo). Log the preserved cause so the opaque 503 is diagnosable
+      // instead of collapsing every write failure to a blank "Service unavailable".
+      console.error(`[${requestId}] handleSetPollVotes: setPollVotes failed —`, setResult.error);
       return errorResponse("internal_error", "Service unavailable", 503, requestId);
     }
 

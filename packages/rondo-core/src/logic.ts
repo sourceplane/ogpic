@@ -22,6 +22,10 @@ export interface Player {
   /** Contact email (live roster only); lets the profile menu match the viewer
    *  to their own player row for "my score". Absent on the demo seed. */
   email?: string | null;
+  /** True when a member has already claimed this roster player (live roster
+   *  only). Lets the Claim screen show only the unclaimed rows a joining
+   *  player can self-select. Absent on the demo seed. */
+  claimed?: boolean;
 }
 
 export interface Tier {
