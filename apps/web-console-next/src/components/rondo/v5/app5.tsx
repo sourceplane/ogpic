@@ -29,6 +29,7 @@ import { PMatches } from "./p-matches";
 import { PDetail } from "./p-detail";
 import { PRate } from "./p-rate";
 import { PProfile } from "./p-profile";
+import { PClaim } from "./p-claim";
 import { TeamSwitcher, type TeamNav } from "../team-switcher";
 
 const MANAGER_DOCK: readonly { key: string; label: string; icon: DockItem["icon"] }[] = [
@@ -63,6 +64,7 @@ export function RondoApp5({
   teamNav?: TeamNav | undefined;
 }) {
   const [screen, setScreen] = React.useState("home");
+  const [claimDismissed, setClaimDismissed] = React.useState(false);
   const [switcher, setSwitcher] = React.useState(false);
   const [plusOpen, setPlusOpen] = React.useState(false);
   const [inviteOpen, setInviteOpen] = React.useState(false);
@@ -72,6 +74,7 @@ export function RondoApp5({
   const { client, setToken } = useSession();
 
   const nav = React.useCallback((s: string) => {
+    setClaimDismissed(true);
     if (s === "hub") {
       setSwitcher(true);
       return;
@@ -118,6 +121,10 @@ export function RondoApp5({
     else if (base === "rate") body = <MRate vm={vm} nav={nav} toast={toast} />;
     else if (base === "profile") body = <MProfile vm={vm} nav={nav} toast={toast} onInvite={openInvite} onSignOut={onSignOut} />;
     else body = <MHome vm={vm} nav={nav} toast={toast} onInvite={openInvite} />;
+  } else if (vm.canClaim && !claimDismissed) {
+    // A signed-in player matching an unclaimed roster profile claims it first —
+    // self-service (voting, drop-outs, ratings) hangs off the claimed player.
+    body = <PClaim vm={vm} nav={nav} toast={toast} />;
   } else {
     if (base === "home") body = <PHome vm={vm} nav={nav} toast={toast} />;
     else if (base === "matches") body = <PMatches vm={vm} nav={nav} toast={toast} />;

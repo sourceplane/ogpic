@@ -283,7 +283,7 @@ export interface RondoLive {
   /** Kick a scheduled match off now (manager) → status 'live'. */
   startMatch?: (matchId: string) => void;
   /** Persist the drafted line-ups onto a scheduled fixture. */
-  saveTeams?: (matchId: string, teamA: TeamPayload, teamB: TeamPayload) => void;
+  saveTeams?: (matchId: string, teamA: TeamPayload, teamB: TeamPayload, opts?: { status?: "scheduled" }) => void;
   /** Record the final score → status 'played'. */
   recordResult?: (matchId: string, scoreA: number, scoreB: number) => void;
   /** Claim a roster player as yourself (email must match). Resolves true on success. */
@@ -823,6 +823,24 @@ export function useRondo(seed: RondoSeed = {}) {
       if (home.length && away.length) seed.live.saveTeams(id, toPayload("Home", home), toPayload("Away", away));
     },
     canSaveTeams: !!seed.live?.saveTeams && !!seed.nextMatch,
+    // v5: persist the drafted sides onto the match BEING VIEWED (not the
+    // legacy seed.nextMatch target), optionally flipping draft → scheduled —
+    // the "Finalize schedule" step of the poll pipeline.
+    saveTeamsFor: (matchId: string, opts?: { schedule?: boolean }) => {
+      if (!matchId || !seed.live?.saveTeams) return;
+      const toPayload = (name: string, list: typeof home): TeamPayload => ({
+        name,
+        players: list.map((p) => ({ id: p.id, name: p.name, position: p.pos, rating: p.ovr })),
+      });
+      if (home.length && away.length) {
+        seed.live.saveTeams(
+          matchId,
+          toPayload("Home", home),
+          toPayload("Away", away),
+          opts?.schedule ? { status: "scheduled" } : {},
+        );
+      }
+    },
     recordResult: (scoreA: number, scoreB: number) => {
       const id = seed.nextMatch?.id;
       if (id) seed.live?.recordResult?.(id, Math.max(0, Math.round(scoreA)), Math.max(0, Math.round(scoreB)));

@@ -252,7 +252,7 @@ export function MDetail({
   }
 
   function handleFinalizeSchedule() {
-    vm.saveTeams();
+    vm.saveTeamsFor(matchId, { schedule: phase === "draft" });
     setEditingLineup(false);
     toast("Scheduled — posted to team chat");
   }

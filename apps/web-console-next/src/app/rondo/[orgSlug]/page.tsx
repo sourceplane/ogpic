@@ -260,7 +260,7 @@ export default function ConnectedRondoPage() {
           qc.invalidateQueries({ queryKey: qk.fixtures(orgId) }),
         );
       },
-      saveTeams: (matchId, teamA, teamB) => {
+      saveTeams: (matchId, teamA, teamB, opts) => {
         const toTeam = (t: { name: string; players: { id: string; name: string; position: string; rating: number }[] }) => ({
           name: t.name,
           players: t.players.map((p) => ({
@@ -270,9 +270,13 @@ export default function ConnectedRondoPage() {
             rating: p.rating,
           })),
         });
-        void wrap(() => client.fixtures.update(orgId, matchId, { teamA: toTeam(teamA), teamB: toTeam(teamB) })).then(() =>
-          qc.invalidateQueries({ queryKey: qk.fixtures(orgId) }),
-        );
+        void wrap(() =>
+          client.fixtures.update(orgId, matchId, {
+            teamA: toTeam(teamA),
+            teamB: toTeam(teamB),
+            ...(opts?.status ? { status: opts.status } : {}),
+          }),
+        ).then(() => qc.invalidateQueries({ queryKey: qk.fixtures(orgId) }));
       },
       recordResult: (matchId: string, scoreA: number, scoreB: number) => {
         void wrap(() => client.fixtures.update(orgId, matchId, { scoreA, scoreB, status: "played" })).then(() =>
