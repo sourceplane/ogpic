@@ -650,7 +650,7 @@ describe("availabilityMap / availabilityAtMap", () => {
 
 describe("mapPlayer", () => {
   it("maps a PublicPlayer into the VM's Player shape", () => {
-    const p = mapPlayer(publicPlayer({ id: "p1", name: "Marco", position: "FWD", rating: 91, isCaptain: true, email: "m@x.test" }));
+    const p = mapPlayer(publicPlayer({ id: "p1", name: "Marco", position: "FWD", rating: 91, isCaptain: true, email: "m@x.test", claimed: true }));
     expect(p).toEqual({
       id: "p1",
       name: "Marco",
@@ -660,6 +660,7 @@ describe("mapPlayer", () => {
       myStars: {},
       isCaptain: true,
       email: "m@x.test",
+      claimed: true,
     });
   });
 

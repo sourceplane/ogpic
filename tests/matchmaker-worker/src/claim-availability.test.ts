@@ -57,22 +57,28 @@ const deny = () => ({
 });
 
 describe("handleClaimPlayer", () => {
-  it("claims when the caller email matches an unclaimed player", async () => {
+  it("claims an active, unclaimed roster player (self-selection, no email match required)", async () => {
     const res = await handleClaimPlayer(allow() as never, "r1", ACTOR, ORG, PLAYER, { repo: repo() });
     expect(res.status).toBe(200);
     const json = (await res.json()) as { data: { player: { claimed: boolean } } };
     expect(json.data.player.claimed).toBe(true);
   });
 
-  it("forbids when the player email does not match the caller", async () => {
+  it("claims even when the roster player's email differs from the caller's (self-selection)", async () => {
     const r = repo({ async getPlayerById() { return { ok: true, value: player({ email: "other@example.com" }) }; } });
     const res = await handleClaimPlayer(allow() as never, "r2", ACTOR, ORG, PLAYER, { repo: r });
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
   });
 
-  it("forbids when the caller has no email", async () => {
+  it("claims even when the caller's account has no email (self-selection)", async () => {
     const res = await handleClaimPlayer(allow() as never, "r3", { ...ACTOR, email: null }, ORG, PLAYER, { repo: repo() });
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
+  });
+
+  it("404s when the player does not exist / is not active", async () => {
+    const r = repo({ async getPlayerById() { return { ok: false, error: { kind: "not_found" } }; } });
+    const res = await handleClaimPlayer(allow() as never, "r3b", ACTOR, ORG, PLAYER, { repo: r });
+    expect(res.status).toBe(404);
   });
 
   it("conflicts (409) when the player is already claimed", async () => {

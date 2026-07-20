@@ -26,9 +26,12 @@ function playerNameFromEmail(email: string | null | undefined): string {
 
 /**
  * POST /v1/organizations/:orgId/players/:playerId/claim
- * A signed-in member claims a roster player as themselves so they can manage
- * their own availability. Safe: the player's contact email must match the
- * caller's account email, and the player must be currently unclaimed.
+ * A signed-in member self-selects the roster player that is them — the manager
+ * added them by name+position (no email), and approving their join established
+ * the trust, so any active member may claim any active, currently-unclaimed
+ * roster player. The player-picks-themselves model replaces the old
+ * email-matching gate (managers rarely record a roster email, so it never
+ * matched and every joiner minted a duplicate).
  */
 export async function handleClaimPlayer(
   env: Env,
@@ -41,25 +44,18 @@ export async function handleClaimPlayer(
   if (!env.PLATFORM_DB && !deps?.repo) {
     return errorResponse("internal_error", "Service unavailable", 503, requestId);
   }
-  // Any active member may claim (read-level); the email check gates identity.
+  // Any active member may claim (read-level); the player self-selects which
+  // unclaimed roster row is them.
   const denied = await requireOrgAction(env, requestId, actor, orgId, "organization.roster.read");
   if (denied) return denied;
-
-  const callerEmail = actor.email?.trim().toLowerCase();
-  if (!callerEmail) {
-    return errorResponse("forbidden", "Your account has no email to match a player", 403, requestId);
-  }
 
   const executor = deps?.repo ? null : createSqlExecutor(env.PLATFORM_DB!);
   try {
     const repo = deps?.repo ?? createMatchmakerRepository(executor!);
+    // getPlayerById is active-only (404 for a missing or archived player);
+    // claimPlayer enforces "still unclaimed" and returns conflict otherwise.
     const target = await repo.getPlayerById(orgId, playerId);
     if (!target.ok) return errorResponse("not_found", "Player not found", 404, requestId);
-
-    const playerEmail = target.value.email?.trim().toLowerCase();
-    if (!playerEmail || playerEmail !== callerEmail) {
-      return errorResponse("forbidden", "This player is not linked to your email", 403, requestId);
-    }
 
     const claimed = await repo.claimPlayer(orgId, playerId, actor.subjectId, new Date());
     if (!claimed.ok) {

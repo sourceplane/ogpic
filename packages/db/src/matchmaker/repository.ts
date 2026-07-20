@@ -105,6 +105,22 @@ function safeError(message: string): MatchmakerResult<never> {
   return { ok: false, error: { kind: "internal", message } };
 }
 
+/** A short, log-safe description of an unknown DB error. postgres.js errors
+ *  carry a human `message` and a SQLSTATE `code`; preserving both turns a
+ *  swallowed write failure (which otherwise collapses to a blank internal
+ *  error → blanket 503) into something diagnosable in the server logs. */
+function describeDbError(err: unknown): string {
+  if (typeof err === "object" && err !== null) {
+    const e = err as { message?: unknown; code?: unknown };
+    const message = typeof e.message === "string" ? e.message : undefined;
+    const code = typeof e.code === "string" ? e.code : undefined;
+    if (message && code) return `${message} (${code})`;
+    if (message) return message;
+    if (code) return `SQLSTATE ${code}`;
+  }
+  return "unknown error";
+}
+
 function mapRatingRound(row: Record<string, unknown>): RatingRound {
   return {
     id: row.id as string,
@@ -951,6 +967,15 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
           return { ok: true, value: undefined };
         }
         const iso = now.toISOString();
+        // Bind each option id as its own scalar `$n::uuid` (mirroring the
+        // proven expanded-VALUES bulk insert in castPlayerVotes) rather than a
+        // single `uuid[]` array parameter fed to `unnest`/`!= ALL`. Every value
+        // bound to a uuid/timestamptz column carries an explicit cast so the
+        // write never depends on the driver's parameter-type inference — a bare
+        // string param landing in a uuid column can surface as a Postgres type
+        // error ("column ... is of type uuid but expression is of type text"),
+        // which the catch below would otherwise swallow into a blanket 503.
+        const idPlaceholders = uniqueIds.map((_, i) => `$${i + 4}::uuid`);
         // Two separate statements rather than one delete+insert CTE: a single
         // CTE shares one snapshot, so re-voting while KEEPING an option would
         // delete then immediately re-insert that row, colliding with a
@@ -959,20 +984,25 @@ export function createMatchmakerRepository(executor: SqlExecutor): MatchmakerRep
         // inserted with ON CONFLICT DO NOTHING so unchanged rows are untouched.
         await executor.execute(
           `DELETE FROM matchmaker.match_poll_votes
-           WHERE org_id = $1 AND match_id = $2 AND player_id = $3 AND option_id != ALL($4::uuid[]) AND ${pollOpenGuard}`,
-          [orgId, matchId, playerId, uniqueIds],
+           WHERE org_id = $1 AND match_id = $2 AND player_id = $3
+             AND option_id NOT IN (${idPlaceholders.join(", ")}) AND ${pollOpenGuard}`,
+          [orgId, matchId, playerId, ...uniqueIds],
+        );
+        const isoIdx = uniqueIds.length + 4;
+        const valuesRows = uniqueIds.map(
+          (_, i) => `($${i + 4}::uuid, $2::uuid, $1::uuid, $3::uuid, $${isoIdx}::timestamptz)`,
         );
         await executor.execute(
           `INSERT INTO matchmaker.match_poll_votes (option_id, match_id, org_id, player_id, created_at)
-           SELECT o.option_id, $2, $1, $3, $5
-           FROM unnest($4::uuid[]) AS o(option_id)
+           SELECT v.option_id, v.match_id, v.org_id, v.player_id, v.created_at
+           FROM (VALUES ${valuesRows.join(", ")}) AS v(option_id, match_id, org_id, player_id, created_at)
            WHERE ${pollOpenGuard}
            ON CONFLICT DO NOTHING`,
-          [orgId, matchId, playerId, uniqueIds, iso],
+          [orgId, matchId, playerId, ...uniqueIds, iso],
         );
         return { ok: true, value: undefined };
-      } catch {
-        return safeError("Failed to set poll votes");
+      } catch (err) {
+        return { ok: false, error: { kind: "internal", message: `Failed to set poll votes: ${describeDbError(err)}` } };
       }
     },
 

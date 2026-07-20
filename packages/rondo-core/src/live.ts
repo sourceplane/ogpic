@@ -277,6 +277,7 @@ export function mapPlayer(p: PublicPlayer): Player {
     myStars: {},
     isCaptain: p.isCaptain,
     email: p.email ?? null,
+    claimed: p.claimed,
   };
 }
 
