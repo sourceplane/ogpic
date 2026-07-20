@@ -61,14 +61,14 @@ const DOCK_ORDER = ["home", "matches", "chat", "squad", "rate"];
 /** Back-navigation target per push screen, for the swipe-back gesture — each
  *  is the exact `nav(...)` those screens already fire from their header back
  *  button, so the gesture pops to the same place with no behaviour change.
- *  (Wizard's header back is step-aware; an edge-swipe is a screen-level exit
- *  to Matches, matching its final back step.) */
+ *  Wizard is deliberately EXCLUDED: its header back is step-aware (step > 1
+ *  goes back a step, not out), so an edge-swipe would discard in-progress
+ *  draft state — the wizard keeps its own back button only. */
 const BACK_TARGET: Record<string, string> = {
   mdetail: "matches",
   pdetail: "matches",
   edit: "squad",
   pview: "psquad",
-  wizard: "matches",
 };
 
 /** Dock keys that show the dock; param screens map to their base tab. */

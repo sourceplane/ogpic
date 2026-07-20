@@ -742,11 +742,17 @@ export function Sheet({
   if (!mounted) return null;
 
   const backdropOpacity = shown ? (dragging ? Math.max(0, 1 - dragY / (drag.current.height || 1)) : 1) : 0;
-  const cardTransform = dragging
-    ? `translateY(${dragY}px)`
-    : shown
-      ? "translateY(0)"
-      : "translateY(102%)";
+  // Gate on `open` first: on drag-dismiss the parent flips `open` a render
+  // before the `[open]` effect clears `shown`, so keying off `shown` alone made
+  // the card animate briefly up-to-origin before dropping. Once closing, go
+  // straight down.
+  const cardTransform = !open
+    ? "translateY(102%)"
+    : dragging
+      ? `translateY(${dragY}px)`
+      : shown
+        ? "translateY(0)"
+        : "translateY(102%)";
 
   return (
     <div

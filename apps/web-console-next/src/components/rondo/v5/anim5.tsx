@@ -342,8 +342,11 @@ export function Stagger({
         // reorders/prepends (id-keyed lists, e.g. the chat feed) — the rise
         // animation then plays on true mount only, not on in-place updates.
         const key = React.isValidElement(child) && child.key != null ? child.key : i;
+        // Cap the cascade so a long list (e.g. a big chat feed) doesn't delay
+        // its last rows by seconds — the first ~10 stagger, the rest ride in together.
+        const delay = Math.min(i, 10) * step;
         return (
-          <div key={key} className="rk5-rise" style={{ animationDelay: `${i * step}ms`, ...style }}>
+          <div key={key} className="rk5-rise" style={{ animationDelay: `${delay}ms`, ...style }}>
             {child}
           </div>
         );
