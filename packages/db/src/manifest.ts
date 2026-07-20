@@ -327,5 +327,14 @@ export const manifest: MigrationManifest = {
       description:
         "Team chat stream per org — text messages, system notes, and poll/match-confirmed cards with emoji reactions, owned by the matchmaker context",
     },
+    {
+      id: "370_matchmaker_rating_deadline_results",
+      context: "matchmaker",
+      path: "370_matchmaker_rating_deadline_results/up.sql",
+      checksum:
+        "6d3171093f1e7855f961d98df53b32eb40b63c472606cbf31af7e24470a38632",
+      description:
+        "Rating Window v2 — rating rounds gain a deadline (24h/48h/manual) for cron auto-close, plus a per-round per-player results ledger (OVR before/after + votes) so score movement is visible to managers and players, owned by the matchmaker context",
+    },
   ],
 };

@@ -76,3 +76,7 @@ spec:
 #     don't select db-migrate in the changed-only plan. Without this apply,
 #     every v5 endpoint 500s on missing tables ("none of the features work").
 #     (2026-07-20)
+# ci: apply 370_matchmaker_rating_deadline_results — Rating Window v2
+#     (rating_rounds deadline_kind/deadline_at + rating_round_results). Same
+#     changed-only caveat: migrations under packages/db don't select db-migrate,
+#     so touch this file alongside the migration to run the apply. (2026-07-20)
