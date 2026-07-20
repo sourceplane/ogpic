@@ -187,6 +187,18 @@ export class RosterClient {
     );
   }
 
+  /**
+   * POST /v1/organizations/:orgId/players/mine/claim — "claim mine": server
+   * resolves an unclaimed roster player matching the caller's email, or mints
+   * one, and claims it. Idempotent if the caller already has a claimed player.
+   */
+  claimMine(orgId: string, opts: RequestOptions = {}): Promise<ClaimPlayerResponse> {
+    return this.transport.request<ClaimPlayerResponse>(
+      { method: "POST", path: `${orgBase(orgId)}/players/mine/claim` },
+      opts,
+    );
+  }
+
   /** DELETE /v1/organizations/:orgId/players/:playerId (soft archive) */
   release(orgId: string, playerId: string, opts: RequestOptions = {}): Promise<ArchivePlayerResponse> {
     return this.transport.request<ArchivePlayerResponse>(
