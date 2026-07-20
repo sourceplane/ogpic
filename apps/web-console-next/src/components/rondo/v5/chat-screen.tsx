@@ -20,6 +20,7 @@
 import * as React from "react";
 import { initials, type ChatRowVM, type RondoVM } from "@saas/rondo-core";
 import { C5, Icon, ink, MONO } from "./kit5";
+import { Stagger } from "./anim5";
 
 /** The system cards' dark gradient (design lines 459/986) — a 2-stop variant
  *  distinct from `TicketHero`'s 3-stop `heroGrad`, so kept local here rather
@@ -304,9 +305,11 @@ export function ChatScreen({
 
       {/* feed */}
       <div style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column-reverse", padding: "10px 14px", gap: 7 }}>
-        {feed.map((row) => (
-          <ChatRow key={row.id} vm={vm} row={row} role={role} nav={nav} />
-        ))}
+        <Stagger style={{ flex: "none" }}>
+          {feed.map((row) => (
+            <ChatRow key={row.id} vm={vm} row={row} role={role} nav={nav} />
+          ))}
+        </Stagger>
         {vm.chat.hasMore && (
           <div
             onClick={() => vm.chat.loadOlder()}

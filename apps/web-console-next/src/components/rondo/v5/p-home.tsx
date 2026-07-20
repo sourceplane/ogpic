@@ -13,6 +13,7 @@
 import * as React from "react";
 import { initials, MATCH_PHASE_LABEL, type LiveMatchRow, type MatchPhase, type Position, type RondoVM } from "@saas/rondo-core";
 import { C5, ChipTag, dashedDivider, Icon, ink, MONO, MonoLabel, TicketHero } from "./kit5";
+import { CountUp } from "./anim5";
 
 /** Position → the chips row / profile identity chip's full-word label
  *  (design line 768's "MIDFIELD" chip) — shared with `PProfile`/`PClaim`. */
@@ -302,19 +303,25 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
 
         <div style={{ margin: "12px 24px 0", display: "flex", gap: 8 }}>
           <div style={{ flex: 1, borderRadius: 16, background: C5.card, border: `1px solid ${ink(0.1)}`, padding: "11px 0", textAlign: "center" }}>
-            <div style={{ fontSize: 19, fontWeight: 700, color: C5.ink }}>{games}</div>
+            <div style={{ fontSize: 19, fontWeight: 700, color: C5.ink }}>
+              <CountUp value={games} />
+            </div>
             <MonoLabel size={7.5} tone={0.45} style={{ marginTop: 2 }}>
               GAMES
             </MonoLabel>
           </div>
           <div style={{ flex: 1, borderRadius: 16, background: C5.card, border: `1px solid ${ink(0.1)}`, padding: "11px 0", textAlign: "center" }}>
-            <div style={{ fontSize: 19, fontWeight: 700, color: C5.ink }}>{goalsN}</div>
+            <div style={{ fontSize: 19, fontWeight: 700, color: C5.ink }}>
+              <CountUp value={goalsN} />
+            </div>
             <MonoLabel size={7.5} tone={0.45} style={{ marginTop: 2 }}>
               GOALS
             </MonoLabel>
           </div>
           <div style={{ flex: 1, borderRadius: 16, background: C5.card, border: `1px solid ${ink(0.1)}`, padding: "11px 0", textAlign: "center" }}>
-            <div style={{ fontSize: 19, fontWeight: 700, color: C5.gold }}>{motmN}</div>
+            <div style={{ fontSize: 19, fontWeight: 700, color: C5.gold }}>
+              <CountUp value={motmN} />
+            </div>
             <MonoLabel size={7.5} tone={0.45} style={{ marginTop: 2 }}>
               MOTM
             </MonoLabel>

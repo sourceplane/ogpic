@@ -12,6 +12,7 @@
 import * as React from "react";
 import { initials, MATCH_PHASE_LABEL, type LiveMatchRow, type MatchPhase, type RondoVM } from "@saas/rondo-core";
 import { C5, ChipTag, dashedDivider, Icon, ink, MONO, MonoLabel, TicketHero } from "./kit5";
+import { CountUp, Pressable } from "./anim5";
 
 /** Priority order for "what's the next match to feature" — the live one if
  *  any, else wherever the poll pipeline is furthest along, else the soonest
@@ -211,19 +212,19 @@ export function MHome({
         )}
 
         <div style={{ margin: "12px 24px 0", display: "flex", gap: 10 }}>
-          <div onClick={() => nav("wizard")} style={{ flex: 1, borderRadius: 18, background: C5.green, padding: "15px 16px", cursor: "pointer" }}>
+          <Pressable onClick={() => nav("wizard")} style={{ flex: 1, borderRadius: 18, background: C5.green, padding: "15px 16px", cursor: "pointer" }}>
             <Icon name="plus" size={18} color={C5.surface} stroke={2.2} />
             <div style={{ fontSize: 14, fontWeight: 700, color: C5.surface, marginTop: 9 }}>New match</div>
             <div style={{ fontFamily: MONO, fontSize: 8.5, color: "rgba(245,242,233,.6)", marginTop: 2 }}>POLL THE SQUAD</div>
-          </div>
-          <div
+          </Pressable>
+          <Pressable
             onClick={() => nav("rate")}
             style={{ flex: 1, borderRadius: 18, background: C5.card, border: `1px solid ${ink(0.12)}`, padding: "15px 16px", cursor: "pointer" }}
           >
             <Icon name="star" size={18} color={C5.ink} stroke={2} />
             <div style={{ fontSize: 14, fontWeight: 700, color: C5.ink, marginTop: 9 }}>Voting window</div>
             <div style={{ fontFamily: MONO, fontSize: 8.5, color: ink(0.5), marginTop: 2 }}>{vm.votingOpen ? "OPEN" : "CLOSED"}</div>
-          </div>
+          </Pressable>
         </div>
 
         <div
@@ -340,13 +341,17 @@ export function MHome({
 
         <div style={{ margin: "12px 24px 0", display: "flex", gap: 8 }}>
           <div style={{ flex: 1, borderRadius: 16, background: C5.card, border: `1px solid ${ink(0.1)}`, padding: "11px 0", textAlign: "center" }}>
-            <div style={{ fontSize: 19, fontWeight: 700, color: C5.ink }}>{playedCount}</div>
+            <div style={{ fontSize: 19, fontWeight: 700, color: C5.ink }}>
+              <CountUp value={playedCount} />
+            </div>
             <MonoLabel size={7.5} tone={0.45} style={{ marginTop: 2 }}>
               PLAYED
             </MonoLabel>
           </div>
           <div style={{ flex: 1, borderRadius: 16, background: C5.card, border: `1px solid ${ink(0.1)}`, padding: "11px 0", textAlign: "center" }}>
-            <div style={{ fontSize: 19, fontWeight: 700, color: C5.green }}>{wonCount}</div>
+            <div style={{ fontSize: 19, fontWeight: 700, color: C5.green }}>
+              <CountUp value={wonCount} />
+            </div>
             <MonoLabel size={7.5} tone={0.45} style={{ marginTop: 2 }}>
               WON
             </MonoLabel>

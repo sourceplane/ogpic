@@ -12,6 +12,7 @@
 import * as React from "react";
 import type { RondoVM } from "@saas/rondo-core";
 import { C5, Icon, ink, MONO, MonoLabel, Sheet, Toggle } from "./kit5";
+import { Pressable } from "./anim5";
 
 type Role = "manager" | "player";
 
@@ -39,7 +40,7 @@ function CreateTile({
   onClick: () => void;
 }) {
   return (
-    <div
+    <Pressable
       onClick={onClick}
       style={{
         borderRadius: 16,
@@ -68,7 +69,7 @@ function CreateTile({
         {icon}
       </div>
       <span style={{ fontSize: 10, fontWeight: 700, color: C5.ink, textAlign: "center" }}>{label}</span>
-    </div>
+    </Pressable>
   );
 }
 
@@ -513,8 +514,9 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
         <Toggle on={wa} onClick={() => setWa((w) => !w)} />
       </div>
 
-      <div
+      <Pressable
         onClick={add}
+        disabled={busy}
         style={{
           marginTop: 14,
           height: 50,
@@ -530,7 +532,7 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
         }}
       >
         {busy ? "Adding…" : "Add to roster"}
-      </div>
+      </Pressable>
     </Sheet>
   );
 }

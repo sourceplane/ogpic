@@ -14,6 +14,7 @@
 import * as React from "react";
 import type { LiveMatchRow, RondoVM } from "@saas/rondo-core";
 import { C5, ink, MONO, PhaseChip } from "./kit5";
+import { Pressable, Stagger } from "./anim5";
 
 interface MatchAction {
   label: string;
@@ -53,26 +54,28 @@ export function PMatches({ vm, nav }: { vm: RondoVM; nav: (screen: string) => vo
         {rows.length === 0 && (
           <div style={{ fontSize: 13, color: ink(0.5), textAlign: "center", marginTop: 40 }}>No matches yet.</div>
         )}
-        {rows.map((m) => {
-          const action = deriveAction(vm, m);
-          return (
-            <div
-              key={m.id}
-              onClick={() => nav(`pdetail:${m.id}`)}
-              style={{ borderRadius: 18, background: C5.card, border: `1px solid ${ink(0.12)}`, padding: "15px 16px", cursor: "pointer", flex: "none" }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: C5.ink, flex: 1 }}>{m.label}</span>
-                <PhaseChip phase={m.phase} />
-              </div>
-              <div style={{ fontSize: 12, color: ink(0.55), marginTop: 4 }}>{m.subLabel}</div>
-              <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, color: action.color }}>{action.label}</span>
-                <span style={{ fontSize: 13, color: ink(0.35) }}>›</span>
-              </div>
-            </div>
-          );
-        })}
+        <Stagger style={{ flex: "none" }}>
+          {rows.map((m) => {
+            const action = deriveAction(vm, m);
+            return (
+              <Pressable
+                key={m.id}
+                onClick={() => nav(`pdetail:${m.id}`)}
+                style={{ borderRadius: 18, background: C5.card, border: `1px solid ${ink(0.12)}`, padding: "15px 16px", cursor: "pointer" }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: C5.ink, flex: 1 }}>{m.label}</span>
+                  <PhaseChip phase={m.phase} />
+                </div>
+                <div style={{ fontSize: 12, color: ink(0.55), marginTop: 4 }}>{m.subLabel}</div>
+                <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, color: action.color }}>{action.label}</span>
+                  <span style={{ fontSize: 13, color: ink(0.35) }}>›</span>
+                </div>
+              </Pressable>
+            );
+          })}
+        </Stagger>
         <div style={{ borderRadius: 14, border: `1px dashed ${ink(0.2)}`, padding: "11px 16px", fontSize: 11, color: ink(0.5), textAlign: "center" }}>
           Only managers can schedule matches
         </div>
