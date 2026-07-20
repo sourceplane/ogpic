@@ -5,7 +5,14 @@
  * scoring / community remain local state until their backend slices land.
  */
 import type { PublicAvailability, PublicMatch, PublicPlayer } from "@saas/contracts/matchmaker";
-import type { MatchPollResponse, PublicChatMessage, PublicJoinRequest, PublicMatchDropout } from "@saas/sdk";
+import type {
+  GetRatingRoundV2Response,
+  MatchPollResponse,
+  PublicChatMessage,
+  PublicJoinRequest,
+  PublicMatchDropout,
+  RatingRoundResultEntry,
+} from "@saas/sdk";
 import {
   MATCH_PHASE_LABEL,
   MATCH_PHASE_PROGRESS,
@@ -23,6 +30,7 @@ import type {
   MatchDropoutSeed,
   MatchPollSeed,
   NextMatch,
+  RatingRoundResult,
   RondoSeed,
 } from "./use-rondo";
 
@@ -194,6 +202,21 @@ export function pollsSeedMap(polls: Record<string, MatchPollResponse>): Record<s
   return out;
 }
 
+/** SDK `RatingRoundResultEntry[]` (Rating Window v2's settled per-player
+ *  deltas) → the seed's rating-results rows. Identity mapping today, kept as
+ *  its own function — matching the `pollsSeedMap`/`chatSeedRows` convention —
+ *  so the boundary can diverge from the SDK shape later without touching
+ *  every call site. */
+export function ratingResultsSeedMap(results: RatingRoundResultEntry[]): RatingRoundResult[] {
+  return results.map((r) => ({
+    playerId: r.playerId,
+    ovrBefore: r.ovrBefore,
+    ovrAfter: r.ovrAfter,
+    delta: r.delta,
+    votesReceived: r.votesReceived,
+  }));
+}
+
 /** SDK `PublicChatMessage[]` → the seed's chat rows (any order — `useRondo`
  *  sorts oldest→newest itself). */
 export function chatSeedRows(messages: PublicChatMessage[]): ChatMessageSeed[] {
@@ -301,6 +324,11 @@ export function buildLiveSeed(args: {
   joinCode?: string;
   joinRequests?: LiveJoinRequest[];
   votingOpen?: boolean;
+  /** v5: Rating Window v2's `GET /rating-round` response — the deadline
+   *  choice/timestamp and the latest closed round's settled deltas thread
+   *  through into the seed's `ratingDeadlineKind`/`ratingDeadlineAt`/
+   *  `ratingResults`. */
+  ratingRound?: GetRatingRoundV2Response;
   /** v5: raw squad chat (any order). */
   chat?: PublicChatMessage[];
   /** v5: per-match poll responses, keyed by match id. */
@@ -344,6 +372,13 @@ export function buildLiveSeed(args: {
     ...(args.joinCode ? { joinCode: args.joinCode } : {}),
     ...(args.joinRequests ? { joinRequests: args.joinRequests } : {}),
     ...(args.votingOpen !== undefined ? { votingOpen: args.votingOpen } : {}),
+    ...(args.ratingRound
+      ? {
+          ratingDeadlineKind: args.ratingRound.deadlineKind,
+          ratingDeadlineAt: args.ratingRound.deadlineAt,
+          ratingResults: ratingResultsSeedMap(args.ratingRound.results ?? []),
+        }
+      : {}),
     ...(args.chat ? { chat: chatSeedRows(args.chat) } : {}),
     ...(args.polls ? { polls: pollsSeedMap(args.polls) } : {}),
     ...(args.dropouts

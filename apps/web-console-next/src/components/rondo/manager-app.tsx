@@ -363,7 +363,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
                   <div style={{ fontSize: 13.5, fontWeight: 700 }}>Rating window</div>
                   <div style={{ fontFamily: MONO, fontSize: 9.5, color: vm.votingOpen ? C.green : ink(0.45), marginTop: 2 }}>{vm.votingOpen ? "OPEN — PLAYERS CAN VOTE" : "CLOSED"}</div>
                 </div>
-                <div onClick={() => (vm.votingOpen ? vm.closeRound() : vm.openRound(false))} className="rk-press" style={{ height: 38, padding: "0 16px", borderRadius: 12, background: vm.votingOpen ? C.surface : C.green, border: vm.votingOpen ? `1px solid ${ink(0.14)}` : "none", color: vm.votingOpen ? C.ink : C.onDark, display: "flex", alignItems: "center", fontSize: 12, fontWeight: 700, flex: "none" }}>
+                <div onClick={() => (vm.votingOpen ? vm.closeRound() : vm.openRound())} className="rk-press" style={{ height: 38, padding: "0 16px", borderRadius: 12, background: vm.votingOpen ? C.surface : C.green, border: vm.votingOpen ? `1px solid ${ink(0.14)}` : "none", color: vm.votingOpen ? C.ink : C.onDark, display: "flex", alignItems: "center", fontSize: 12, fontWeight: 700, flex: "none" }}>
                   {vm.votingOpen ? "Close" : "Open"}
                 </div>
               </div>

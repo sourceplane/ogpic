@@ -32,14 +32,16 @@ const POS_FILTERS: Position[] = ["ALL", "GK", "DEF", "MID", "FWD"];
 
 type SquadRowVM = RondoVM["players"][number];
 
-interface TagStyle {
+export interface TagStyle {
   label: string;
   bg: string;
   fg: string;
 }
 
-/** The row's role/status tag — see the module doc comment for the derivation. */
-function squadTag(p: SquadRowVM, vm: RondoVM): TagStyle {
+/** The row's role/status tag — see the module doc comment for the derivation.
+ *  Exported so the read-only player Squad screen (`PSquad`) reuses the exact
+ *  same derivation instead of duplicating it. */
+export function squadTag(p: SquadRowVM, vm: RondoVM): TagStyle {
   const isMe = !!vm.myPlayerId && p.id === vm.myPlayerId;
   if (isMe && vm.isManager) return { label: "MGR", bg: C5.goldBg, fg: C5.goldText };
   const isGhost = !p.email;

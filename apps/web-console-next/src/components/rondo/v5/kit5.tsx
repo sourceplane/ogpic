@@ -325,6 +325,19 @@ export function PhaseChip({ phase, style }: { phase: MatchPhase; style?: React.C
   );
 }
 
+/** Rating Window v2's settled-delta chip (MRate's RESULTS list, PRate's
+ *  LAST WINDOW summary — docs/design/rondo-rating-window-spec.md): green
+ *  `▲+n` for a gain, rust `▼-n` for a drop, neutral `·` for no change. */
+export function DeltaChip({ delta, size = 9 }: { delta: number; size?: number }) {
+  if (delta > 0) return <ChipTag bg="rgba(30,138,94,.14)" fg={C5.green} size={size}>{`▲+${delta}`}</ChipTag>;
+  if (delta < 0) return <ChipTag bg="rgba(176,81,47,.14)" fg={C5.rust} size={size}>{`▼${delta}`}</ChipTag>;
+  return (
+    <ChipTag bg={ink(0.06)} fg={ink(0.5)} size={size}>
+      ·
+    </ChipTag>
+  );
+}
+
 /* ── decorative helpers ───────────────────────────────────────────────── */
 
 /** The hero's decorative ring outlines. `variant: "hero"` is the ticket-hero
