@@ -23,9 +23,7 @@ const fetchT = (url, opts = {}) =>
 // ---- Part A: runtime-injected secrets -------------------------------------
 const injected = [
   ["OGPIC_ORUN_SMOKE", process.env.OGPIC_ORUN_SMOKE],
-  ["TEST_SUPABASE_API", process.env.TEST_SUPABASE_API],
-  ["TEST_CLOUDFLARE_API", process.env.TEST_CLOUDFLARE_API],
-  ["SUPABASE_ACCESS_TOKEN", process.env.SUPABASE_ACCESS_TOKEN],
+  ["CLOUDFLARE_TEST_KEY", process.env.CLOUDFLARE_TEST_KEY],
 ].filter(([, v]) => typeof v === "string" && v.length > 0);
 
 console.log("== runtime-injected secrets (presence only — never value or fingerprint) ==");
@@ -40,60 +38,15 @@ for (const [name] of injected) {
   console.log(`  ${name}: injected (present)`);
 }
 
-// ---- Part A2: Supabase — the brokered management-access credential ---------
-// TEST_SUPABASE_API is a BROKERED secret (supabase/management-access): the
-// value here was minted at resolve time from the integration connection. Prove
-// it works end to end by listing the organization(s) and the project(s) it
-// governs, and print the associated DATABASE metadata (host/version/region/
-// status) from the Management API. Metadata only — never the token, never a
-// connection string.
-const sbToken = process.env.TEST_SUPABASE_API || process.env.SUPABASE_ACCESS_TOKEN;
-const sbVia = process.env.TEST_SUPABASE_API ? "TEST_SUPABASE_API (brokered mint)" : "SUPABASE_ACCESS_TOKEN (CI env)";
-if (sbToken) {
-  console.log(`\n== Supabase Management API via ${sbVia} ==`);
-  const sb = (path) =>
-    fetchT(`https://api.supabase.com${path}`, {
-      headers: { Authorization: `Bearer ${sbToken}` },
-    });
-  try {
-    const orgRes = await sb("/v1/organizations");
-    const orgs = await orgRes.json().catch(() => null);
-    console.log(`  GET /v1/organizations -> HTTP ${orgRes.status}`);
-    if (Array.isArray(orgs)) {
-      for (const o of orgs) {
-        console.log(`    org: id=${o.id} name=${JSON.stringify(o.name)}${o.slug ? ` slug=${o.slug}` : ""}`);
-      }
-    }
-
-    const prjRes = await sb("/v1/projects");
-    const projects = await prjRes.json().catch(() => null);
-    console.log(`  GET /v1/projects -> HTTP ${prjRes.status}`);
-    if (Array.isArray(projects)) {
-      for (const p of projects) {
-        console.log(
-          `    project: ref=${p.id} name=${JSON.stringify(p.name)} org=${p.organization_id} region=${p.region} status=${p.status}`,
-        );
-        if (p.database) {
-          console.log(
-            `      database: host=${p.database.host} version=${p.database.version}` +
-              (p.database.postgres_engine ? ` engine=${p.database.postgres_engine}` : ""),
-          );
-        }
-      }
-    }
-  } catch (e) {
-    console.log(`  Supabase connection test error: ${e.message}`);
-  }
-}
-
-// ---- Part A3: Cloudflare — verify the brokered token + its SCOPE -----------
-// TEST_CLOUDFLARE_API is a BROKERED secret (cloudflare/workers-deploy). Prove
-// (a) the minted token is valid, (b) it CAN act within its template's scope
-// (list Workers scripts), and (c) it CANNOT act outside it (zones read is
-// denied) — the scope boundary, demonstrated positively and negatively.
-const cfToken = process.env.TEST_CLOUDFLARE_API;
+// ---- Part A2: Cloudflare — verify the brokered token + its SCOPE -----------
+// CLOUDFLARE_TEST_KEY is an ORG-scoped BROKERED secret (cloudflare/workers-
+// deploy). Prove (a) the minted token is valid, (b) it CAN act within its
+// template's scope (list Workers scripts), and (c) it CANNOT act outside it
+// (zones read is denied) — the scope boundary, demonstrated positively and
+// negatively. Metadata only — the raw token is never printed.
+const cfToken = process.env.CLOUDFLARE_TEST_KEY;
 if (cfToken) {
-  console.log("\n== Cloudflare API via TEST_CLOUDFLARE_API (brokered mint, workers-deploy) ==");
+  console.log("\n== Cloudflare API via CLOUDFLARE_TEST_KEY (brokered mint, workers-deploy) ==");
   const cf = (path) =>
     fetchT(`https://api.cloudflare.com/client/v4${path}`, {
       headers: { Authorization: `Bearer ${cfToken}` },

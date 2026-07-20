@@ -30,41 +30,37 @@ spec:
     # secretEnv injects the resolved value at runtime (orun run) under the named
     # env var — references only, never values; the runner redacts injected
     # values from all log sinks. OGPIC_ORUN_SMOKE is env-scoped (a distinct
-    # value per env); TEST_SUPABASE_API and TEST_CLOUDFLARE_API are PROJECT-
-    # scoped brokered bindings (supabase/management-access and
-    # cloudflare/workers-deploy) — the chain walk serves them at every env, and
-    # each resolve mints a fresh short-lived provider credential.
+    # value per env); CLOUDFLARE_TEST_KEY is an ORG-scoped brokered binding
+    # (cloudflare/workers-deploy) — the scope-chain walk (env → project → org)
+    # serves it from any env lane, and each resolve mints a fresh short-lived
+    # provider credential.
     # Ref spelling: the workspace segment uses the DECLARED workspace ref
     # (execution.state.workspace: ws_8D3ZJQM2) — immutable and guaranteed to
     # name the run's own workspace. The diagnostic matrix proved the platform
     # workspace's SLUG is not "sourceplane" (a slug-spelled ref fails segment
     # verification with 422), while ws_ + project slug "ogpic" verifies clean.
+    # The KEY segment is CLOUDFLARE_TEST_KEY (the live org secret); the dev-lane
+    # ref resolves it via the scope chain since the parser requires 4 segments.
+    #
+    # Removed the stale TEST_SUPABASE_API / TEST_CLOUDFLARE_API references: those
+    # names did not match real secrets. The live keys are CLOUDFLARE_TEST_KEY
+    # (healthy, tested here) and SUPABASE-API (currently ORPHANED — its
+    # connection is revoked, so it is intentionally not consumed until it is
+    # reconnected in the console).
     environments:
       - name: dev
         profile: verify
         secretEnv:
           OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/dev/OGPIC_ORUN_SMOKE
-          TEST_SUPABASE_API: secret://ws_8D3ZJQM2/ogpic/dev/TEST_SUPABASE_API
-          # PREREQUISITE: connection int_a3b02fdf7fe84046bfafee14da466d86 must be
-          # reconnected in the console (Integrations → Reconnect) BEFORE this
-          # merges. It was SUSPENDED (first mint failed at Cloudflare, IH9
-          # flipped it). secretEnv resolve is fail-closed, so while suspended
-          # this reference fails the whole dev·verify job. Once reconnected, the
-          # dev lane mints a fresh workers-deploy token and inspect.mjs runs the
-          # positive/negative scope proof against the Cloudflare API.
-          TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/dev/TEST_CLOUDFLARE_API
+          CLOUDFLARE_TEST_KEY: secret://ws_8D3ZJQM2/ogpic/dev/CLOUDFLARE_TEST_KEY
       - name: stage
         profile: verify
         secretEnv:
           OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/stage/OGPIC_ORUN_SMOKE
-          TEST_SUPABASE_API: secret://ws_8D3ZJQM2/ogpic/stage/TEST_SUPABASE_API
-          # TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/stage/TEST_CLOUDFLARE_API  (see dev note)
       - name: prod
         profile: verify
         secretEnv:
           OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/prod/OGPIC_ORUN_SMOKE
-          TEST_SUPABASE_API: secret://ws_8D3ZJQM2/ogpic/prod/TEST_SUPABASE_API
-          # TEST_CLOUDFLARE_API: secret://ws_8D3ZJQM2/ogpic/prod/TEST_CLOUDFLARE_API  (see dev note)
   parameters:
     nodeVersion: "20"
     pnpmVersion: "10.12.1"

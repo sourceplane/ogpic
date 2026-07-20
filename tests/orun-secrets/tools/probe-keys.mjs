@@ -1,8 +1,8 @@
 // Brokered-key runtime-availability + access probe (saas-orun-secrets).
 //
-// Answers two questions for the two brokered secrets created from integration
-// — TEST_CLOUDFLARE_API and TEST_SUPABASE_API — using ONLY metadata the
-// platform already exposes (no value is ever fetched, minted, or printed):
+// Answers two questions for the brokered secret CLOUDFLARE_TEST_KEY (cloudflare
+// / workers-deploy) using ONLY metadata the platform already exposes (no value
+// is ever fetched, minted, or printed):
 //
 //   1. Runtime availability — will the key resolve at plan/run time? A brokered
 //      secret mints its value at resolve time from an integration connection.
@@ -27,7 +27,7 @@ import { promisify } from "node:util";
 
 const run = promisify(execFile);
 
-const TARGET_KEYS = ["TEST_CLOUDFLARE_API", "TEST_SUPABASE_API"];
+const TARGET_KEYS = ["CLOUDFLARE_TEST_KEY"];
 
 // Template → what it authorizes (human legend; the authoritative grant lives in
 // the provider adapter's scopeTemplates()).

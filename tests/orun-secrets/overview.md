@@ -29,8 +29,12 @@ local-fallback path the runner uses when no backend is reachable.
   and environments (names + metadata only, never values), and for `brokered`
   secrets follows the integration connection to report connection health and
   the external account — i.e. it tests the connection and pulls the account id
-  via the orun API, without ever touching a raw provider token. It is a no-op
-  in cloud-free lanes (no token), so it never breaks CI verify.
+  via the orun API, without ever touching a raw provider token. When the
+  brokered `CLOUDFLARE_TEST_KEY` (cloudflare/workers-deploy) is injected at run
+  time, it also runs a scope proof against the Cloudflare API — positive
+  (Workers scripts readable) and negative (DNS zones read denied) — logging
+  only HTTP statuses and account/worker metadata, never the token. It is a
+  no-op in cloud-free lanes (no token), so it never breaks CI verify.
 
 Failing or flaky? Follow the shared
 [test triage runbook](../../docs/testing/triage-runbook.md).
