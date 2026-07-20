@@ -266,6 +266,36 @@ export function MHome({
           </ChipTag>
         </div>
 
+        {vm.ratingResults.length > 0 && (() => {
+          const biggest = [...vm.ratingResults].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))[0]!;
+          const biggestName = vm.byId(biggest.playerId)?.name ?? "Player";
+          const arrow = biggest.delta > 0 ? "▲" : biggest.delta < 0 ? "▼" : "·";
+          return (
+            <div
+              onClick={() => nav("rate")}
+              style={{
+                margin: "12px 24px 0",
+                borderRadius: 16,
+                background: C5.card,
+                border: `1px solid ${ink(0.1)}`,
+                padding: "12px 16px",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                cursor: "pointer",
+              }}
+            >
+              <MonoLabel size={9} tone={0.45} style={{ letterSpacing: 1.5 }}>
+                LAST WINDOW
+              </MonoLabel>
+              <span style={{ flex: 1, fontSize: 12, color: ink(0.6) }}>
+                {vm.ratingResults.length} scores updated · biggest mover {biggestName} {arrow}
+                {Math.abs(biggest.delta)}
+              </span>
+            </div>
+          );
+        })()}
+
         {lastResult && (
           <div
             style={{

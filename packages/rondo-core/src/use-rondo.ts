@@ -245,6 +245,20 @@ export interface OpenDropoutAlert {
   reason: string;
 }
 
+// ── v5: rating window v2 (docs/design/rondo-rating-window-spec.md) ────────
+
+/** One player's settled OVR movement from the latest closed rating round.
+ *  Carried on the seed near-verbatim from the SDK's `RatingRoundResultEntry`
+ *  and exposed on the VM unchanged — no viewer-specific derivation needed
+ *  (unlike polls/dropouts, there's no "mine" flag to compute). */
+export interface RatingRoundResult {
+  playerId: string;
+  ovrBefore: number;
+  ovrAfter: number;
+  delta: number;
+  votesReceived: number;
+}
+
 // ── v5: org settings (spec §4 Org settings, §7) ────────────────────────────
 
 export interface OrgSettingsVM {
@@ -272,8 +286,10 @@ export interface RondoLive {
   addPlayer?: (input: { name: string; position: string; email?: string | null; phone?: string | null }) => Promise<{ ok: boolean; message?: string }>;
   /** Leave the current squad (self-removal); the host redirects afterwards. */
   leaveTeam?: () => void;
-  /** Open the manager-gated voting window (optionally resetting scores). */
-  openRound?: (resetScores: boolean) => void;
+  /** Open the manager-gated voting window (optionally resetting scores), with
+   *  the deadline choice for auto-close (rondo-rating-window-spec.md: 24h/48h/
+   *  manual, mirrors the poll deadline UX). */
+  openRound?: (resetScores: boolean, deadline?: PollDeadlineKind) => void;
   /** Close the voting window. */
   closeRound?: () => void;
   /** Mint a fresh shareable join code (also mints the first one if none). */
@@ -357,6 +373,15 @@ export interface RondoSeed {
   joinCode?: string;
   joinRequests?: LiveJoinRequest[];
   votingOpen?: boolean;
+  /** Rating Window v2: the open (or most-recently-open) window's deadline
+   *  choice — "manual" when no round has ever carried a deadline. */
+  ratingDeadlineKind?: PollDeadlineKind;
+  /** Rating Window v2: the auto-close timestamp, or null for a manual window
+   *  (or when no round has opened yet). */
+  ratingDeadlineAt?: string | null;
+  /** Rating Window v2: the latest closed round's settled per-player deltas.
+   *  Absent/empty when no round has ever closed. */
+  ratingResults?: RatingRoundResult[];
   /** matchId → poll payload (v5). Absent/omitted matches have no poll. */
   polls?: Record<string, MatchPollSeed>;
   /** Squad chat, oldest or newest first — order doesn't matter, `useRondo`
@@ -872,7 +897,12 @@ export function useRondo(seed: RondoSeed = {}) {
     // reflects the org's real round and exposes manager open/close controls.
     votingOpen: seed.votingOpen ?? !seed.live,
     canManageRound: isManager && !!seed.live?.openRound,
-    openRound: (resetScores: boolean) => seed.live?.openRound?.(resetScores),
+    // Rating Window v2: deadline choice/timestamp for the current (or last)
+    // window, and the latest closed round's settled per-player deltas.
+    ratingDeadlineKind: seed.ratingDeadlineKind ?? "manual",
+    ratingDeadlineAt: seed.ratingDeadlineAt ?? null,
+    ratingResults: seed.ratingResults ?? [],
+    openRound: (deadline?: PollDeadlineKind) => seed.live?.openRound?.(false, deadline),
     closeRound: () => seed.live?.closeRound?.(),
     approveJoin: (id: string) => {
       setInvitesResolved((r) => ({ ...r, [id]: "accepted" }));

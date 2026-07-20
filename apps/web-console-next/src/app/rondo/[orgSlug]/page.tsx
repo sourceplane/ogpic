@@ -23,7 +23,7 @@ import {
   chatSeedRows,
 } from "@saas/rondo-core";
 import type { RondoLive } from "@saas/rondo-core";
-import type { Availability } from "@saas/rondo-core";
+import type { Availability, PollDeadlineKind } from "@saas/rondo-core";
 import type { MatchPollResponse, PublicMatchDropout } from "@saas/sdk";
 import { useRequireAuth } from "@/lib/use-async";
 import { useSession } from "@/lib/session";
@@ -79,9 +79,11 @@ export default function ConnectedRondoPage() {
     () => wrap(async () => (await client.memberships.listJoinRequests(orgId!)).joinRequests),
     { enabled: !!orgId, refetchInterval: LIVE_POLL_MS, refetchOnWindowFocus: true },
   );
+  // v5: Rating Window v2 — deadline-aware open/close plus the latest closed
+  // round's settled per-player deltas (docs/design/rondo-rating-window-spec.md).
   const ratingRound = useApiQuery(
     orgId ? ["rating-round", orgId] : ["rating-round", "pending"],
-    () => wrap(async () => (await client.roster.getRatingRound(orgId!)).round),
+    () => wrap(async () => client.ratingRound.get(orgId!)),
     { enabled: !!orgId, refetchInterval: LIVE_POLL_MS, refetchOnWindowFocus: true },
   );
   // The caller's own claimed player (self-service availability); null when unclaimed.
@@ -244,14 +246,14 @@ export default function ConnectedRondoPage() {
           router.replace("/rondo");
         });
       },
-      openRound: (resetScores: boolean) => {
-        void wrap(() => client.roster.openRatingRound(orgId, { resetScores })).then(() => {
+      openRound: (resetScores: boolean, deadline?: PollDeadlineKind) => {
+        void wrap(() => client.ratingRound.open(orgId, { resetScores, ...(deadline ? { deadline } : {}) })).then(() => {
           void qc.invalidateQueries({ queryKey: ["rating-round", orgId] });
           if (resetScores) void qc.invalidateQueries({ queryKey: qk.roster(orgId) });
         });
       },
       closeRound: () => {
-        void wrap(() => client.roster.closeRatingRound(orgId)).then(() =>
+        void wrap(() => client.ratingRound.close(orgId)).then(() =>
           qc.invalidateQueries({ queryKey: ["rating-round", orgId] }),
         );
       },
@@ -443,7 +445,8 @@ export default function ConnectedRondoPage() {
     payments: paymentsMap,
     ...(joinCode.data ? { joinCode: joinCode.data } : {}),
     joinRequests: joinRequestRows(joinReqs.data ?? []),
-    votingOpen: (ratingRound.data ?? null) != null,
+    votingOpen: ratingRound.data?.status === "open",
+    ...(ratingRound.data ? { ratingRound: ratingRound.data } : {}),
     chat: chatQuery.data ?? [],
     polls: pollsMap,
     dropouts: dropoutsFlat,

@@ -28,6 +28,8 @@ import { PHome } from "./p-home";
 import { PMatches } from "./p-matches";
 import { PDetail } from "./p-detail";
 import { PRate } from "./p-rate";
+import { PSquad } from "./p-squad";
+import { PPlayerView } from "./p-player-view";
 import { PProfile } from "./p-profile";
 import { PClaim } from "./p-claim";
 import type { TeamNav } from "../team-switcher";
@@ -52,6 +54,10 @@ function dockKeyOf(screen: string): string {
   const base = screen.split(":")[0]!;
   if (base === "mdetail" || base === "pdetail" || base === "wizard") return "matches";
   if (base === "edit") return "squad";
+  // PSquad/PPlayerView are player push-screens reached from Home/Rate, not a
+  // dock tab of their own (the player dock stays HOME/MATCHES/CHAT/RATE) —
+  // Home is the closest tab while either is open.
+  if (base === "psquad" || base === "pview") return "home";
   return base;
 }
 
@@ -138,6 +144,8 @@ export function RondoApp5({
     else if (base === "pdetail") body = <PDetail vm={vm} nav={nav} toast={toast} matchId={param} />;
     else if (base === "chat") body = <ChatScreen vm={vm} nav={nav} toast={toast} role="player" onPlus={() => setPlusOpen(true)} />;
     else if (base === "rate") body = <PRate vm={vm} nav={nav} toast={toast} />;
+    else if (base === "psquad") body = <PSquad vm={vm} nav={nav} toast={toast} />;
+    else if (base === "pview") body = <PPlayerView vm={vm} nav={nav} toast={toast} playerId={param} />;
     else if (base === "profile") body = <PProfile vm={vm} nav={nav} toast={toast} onSignOut={onSignOut} />;
     else body = <PHome vm={vm} nav={nav} toast={toast} />;
   }

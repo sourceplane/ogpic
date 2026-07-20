@@ -4,7 +4,14 @@
 import { describe, expect, it } from "vitest";
 
 import type { PublicAvailability, PublicMatch, PublicPlayer } from "@saas/contracts/matchmaker";
-import type { MatchPollResponse, PublicChatMessage, PublicJoinRequest, PublicMatchDropout } from "@saas/sdk";
+import type {
+  GetRatingRoundV2Response,
+  MatchPollResponse,
+  PublicChatMessage,
+  PublicJoinRequest,
+  PublicMatchDropout,
+  RatingRoundResultEntry,
+} from "@saas/sdk";
 import {
   availabilityAtMap,
   availabilityMap,
@@ -18,6 +25,7 @@ import {
   matchRows,
   nextActionableMatch,
   pollsSeedMap,
+  ratingResultsSeedMap,
 } from "./live";
 
 // ---------------------------------------------------------------------------
@@ -526,6 +534,58 @@ describe("buildDropoutSeed", () => {
 });
 
 // ---------------------------------------------------------------------------
+// ratingResultsSeedMap
+// ---------------------------------------------------------------------------
+
+function ratingResult(overrides: Partial<RatingRoundResultEntry> = {}): RatingRoundResultEntry {
+  return {
+    playerId: "p1",
+    ovrBefore: 80,
+    ovrAfter: 84,
+    delta: 4,
+    votesReceived: 6,
+    ...overrides,
+  };
+}
+
+function ratingRoundResponse(overrides: Partial<GetRatingRoundV2Response> = {}): GetRatingRoundV2Response {
+  return {
+    status: "closed",
+    deadlineKind: "24h",
+    deadlineAt: "2026-08-01T00:00:00.000Z",
+    closedAt: "2026-08-02T00:00:00.000Z",
+    ratedCount: 10,
+    eligible: 12,
+    ...overrides,
+  };
+}
+
+describe("ratingResultsSeedMap", () => {
+  it("maps every field 1:1", () => {
+    const rows = ratingResultsSeedMap([ratingResult()]);
+    expect(rows).toEqual([{ playerId: "p1", ovrBefore: 80, ovrAfter: 84, delta: 4, votesReceived: 6 }]);
+  });
+
+  it("preserves a negative delta untouched", () => {
+    const rows = ratingResultsSeedMap([ratingResult({ playerId: "p2", ovrBefore: 84, ovrAfter: 80, delta: -4 })]);
+    expect(rows[0]!.delta).toBe(-4);
+  });
+
+  it("handles multiple entries independently", () => {
+    const rows = ratingResultsSeedMap([
+      ratingResult({ playerId: "p1" }),
+      ratingResult({ playerId: "p2", delta: -2 }),
+    ]);
+    expect(rows.map((r) => r.playerId)).toEqual(["p1", "p2"]);
+    expect(rows[1]!.delta).toBe(-2);
+  });
+
+  it("returns an empty array for no entries", () => {
+    expect(ratingResultsSeedMap([])).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // buildLiveSeed
 // ---------------------------------------------------------------------------
 
@@ -553,6 +613,9 @@ describe("buildLiveSeed", () => {
       "joinCode",
       "joinRequests",
       "votingOpen",
+      "ratingDeadlineKind",
+      "ratingDeadlineAt",
+      "ratingResults",
       "chat",
       "polls",
       "dropouts",
@@ -601,6 +664,32 @@ describe("buildLiveSeed", () => {
   it("derives the org crest from the first letter of orgName, uppercased", () => {
     const seed = buildLiveSeed({ orgName: "northside fc", players: [], isManager: true });
     expect(seed.teams![0]!.crest).toBe("N");
+  });
+
+  it("threads the rating round's deadlineKind/deadlineAt/results through ratingResultsSeedMap", () => {
+    const seed = buildLiveSeed({
+      orgName: "Org",
+      players: [],
+      isManager: true,
+      ratingRound: ratingRoundResponse({
+        deadlineKind: "manual",
+        deadlineAt: null,
+        results: [ratingResult({ playerId: "p1", delta: 3 })],
+      }),
+    });
+    expect(seed.ratingDeadlineKind).toBe("manual");
+    expect(seed.ratingDeadlineAt).toBeNull();
+    expect(seed.ratingResults).toEqual(ratingResultsSeedMap([ratingResult({ playerId: "p1", delta: 3 })]));
+  });
+
+  it("defaults ratingResults to an empty array when the round has no results yet", () => {
+    const seed = buildLiveSeed({
+      orgName: "Org",
+      players: [],
+      isManager: true,
+      ratingRound: ratingRoundResponse(),
+    });
+    expect(seed.ratingResults).toEqual([]);
   });
 });
 
