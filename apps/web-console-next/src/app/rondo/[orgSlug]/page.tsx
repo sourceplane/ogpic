@@ -31,6 +31,12 @@ import { useApiQuery, qk } from "@/lib/query";
 import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { wrap } from "@/lib/api";
 
+// Live sync: player-facing surfaces (availability windows, rating rounds,
+// match polls) change from manager actions elsewhere, so poll + revalidate on
+// focus rather than requiring a manual refresh. Matches the squad chat's
+// existing poll cadence (below).
+const LIVE_POLL_MS = 8000;
+
 export default function ConnectedRondoPage() {
   const params = useParams<{ orgSlug: string }>();
   const router = useRouter();
@@ -50,17 +56,17 @@ export default function ConnectedRondoPage() {
   const roster = useApiQuery(
     orgId ? qk.roster(orgId) : ["roster", "pending"],
     () => wrap(async () => (await client.roster.list(orgId!)).players),
-    { enabled: !!orgId },
+    { enabled: !!orgId, refetchInterval: LIVE_POLL_MS, refetchOnWindowFocus: true },
   );
   const availability = useApiQuery(
     orgId ? ["availability", orgId] : ["availability", "pending"],
     () => wrap(async () => (await client.availability.list(orgId!)).availability),
-    { enabled: !!orgId },
+    { enabled: !!orgId, refetchInterval: LIVE_POLL_MS, refetchOnWindowFocus: true },
   );
   const fixtures = useApiQuery(
     orgId ? qk.fixtures(orgId) : ["fixtures", "pending"],
     () => wrap(async () => (await client.fixtures.list(orgId!)).matches),
-    { enabled: !!orgId },
+    { enabled: !!orgId, refetchInterval: LIVE_POLL_MS, refetchOnWindowFocus: true },
   );
   // Manager-only surfaces — viewers get 404, so failures stay silent (no gate).
   const joinCode = useApiQuery(
@@ -71,12 +77,12 @@ export default function ConnectedRondoPage() {
   const joinReqs = useApiQuery(
     orgId ? ["join-requests", orgId] : ["join-requests", "pending"],
     () => wrap(async () => (await client.memberships.listJoinRequests(orgId!)).joinRequests),
-    { enabled: !!orgId },
+    { enabled: !!orgId, refetchInterval: LIVE_POLL_MS, refetchOnWindowFocus: true },
   );
   const ratingRound = useApiQuery(
     orgId ? ["rating-round", orgId] : ["rating-round", "pending"],
     () => wrap(async () => (await client.roster.getRatingRound(orgId!)).round),
-    { enabled: !!orgId },
+    { enabled: !!orgId, refetchInterval: LIVE_POLL_MS, refetchOnWindowFocus: true },
   );
   // The caller's own claimed player (self-service availability); null when unclaimed.
   const myPlayer = useApiQuery(
@@ -122,7 +128,7 @@ export default function ConnectedRondoPage() {
   const orgSettingsQuery = useApiQuery(
     orgId ? ["org-settings", orgId] : ["org-settings", "pending"],
     () => wrap(() => client.orgSettings.getSettings(orgId!)),
-    { enabled: !!orgId },
+    { enabled: !!orgId, refetchInterval: LIVE_POLL_MS, refetchOnWindowFocus: true },
   );
 
   // v5: per-match polls, one query per match currently in `poll`/`finalizing`
@@ -141,6 +147,8 @@ export default function ConnectedRondoPage() {
         return r.data;
       },
       enabled: !!orgId,
+      refetchInterval: LIVE_POLL_MS,
+      refetchOnWindowFocus: true,
     })),
   });
   const pollsMap: Record<string, MatchPollResponse> = {};
@@ -163,6 +171,8 @@ export default function ConnectedRondoPage() {
         return r.data.dropouts;
       },
       enabled: !!orgId,
+      refetchInterval: LIVE_POLL_MS,
+      refetchOnWindowFocus: true,
     })),
   });
   const dropoutsFlat: PublicMatchDropout[] = dropoutQueries.flatMap((q) => q.data ?? []);
@@ -290,6 +300,15 @@ export default function ConnectedRondoPage() {
           await qc.invalidateQueries({ queryKey: qk.roster(orgId) });
         }
         return r.ok;
+      },
+      claimMine: async () => {
+        const r = await wrap(() => client.roster.claimMine(orgId));
+        if (r.ok) {
+          await qc.invalidateQueries({ queryKey: ["my-player", orgId] });
+          await qc.invalidateQueries({ queryKey: qk.roster(orgId) });
+          return { ok: true };
+        }
+        return { ok: false, message: r.error.message || "Couldn't set up your profile. Try again." };
       },
       setMyAvailability: (state: Availability) => {
         if (!myPlayerId) return;

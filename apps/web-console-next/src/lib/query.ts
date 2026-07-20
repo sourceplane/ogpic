@@ -35,7 +35,7 @@ export interface AsyncState<T> {
 export function useApiQuery<T>(
   key: QueryKey,
   fn: () => Promise<ApiResult<T>>,
-  opts?: { enabled?: boolean },
+  opts?: { enabled?: boolean; refetchInterval?: number; refetchOnWindowFocus?: boolean },
 ): AsyncState<T> {
   const qc = useQueryClient();
   const enabled = opts?.enabled ?? true;
@@ -47,6 +47,8 @@ export function useApiQuery<T>(
       return r.data;
     },
     enabled,
+    ...(opts?.refetchInterval !== undefined ? { refetchInterval: opts.refetchInterval } : {}),
+    ...(opts?.refetchOnWindowFocus !== undefined ? { refetchOnWindowFocus: opts.refetchOnWindowFocus } : {}),
   });
 
   return {

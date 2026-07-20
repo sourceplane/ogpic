@@ -1,16 +1,23 @@
 /*
  * PClaim — the player's v5 "night-pitch" Claim-profile screen (design-
- * reference lines 1121-1147, spec §2 player screen 2): shown when a roster
- * ghost matches the viewer's account (`vm.canClaim`) — "We found you on a
- * roster", a dashed profile card (GAMES/GOALS/WA VOTES tiles, the WhatsApp
- * merge note), `This is me — claim profile` (→ `vm.claimPlayer` + toast, then
- * `nav('home')` on success) and `Not me — join with a code` (→ `nav('hub')`).
+ * reference lines 1121-1147, spec §2 player screen 2): shown to any
+ * signed-in player who hasn't claimed a roster player yet (`vm.canClaim`),
+ * including members who joined the squad by code and have no roster row of
+ * their own at all.
  *
- * `RondoVM` has no "which roster player matched my email" lookup of its own
- * (the server resolves that at claim time) — `candidatePlayerId` is an
- * optional extra prop the host passes once it knows the match; omitted, the
- * screen falls back to the roster's first player so it still renders
- * sensibly stand-alone/in demo mode. "WA votes" (how many live polls this
+ * "Claim mine" (one tap, server-resolved): the old flow guessed at a
+ * "candidate" roster player to claim, which meant a member with no matching
+ * roster row got shown an arbitrary, unrelated player's card. Now the single
+ * primary button always calls `vm.claimMine()` — the server finds an
+ * unclaimed roster player matching the caller's email, or mints a fresh one,
+ * and claims it; no client-side guessing. On success the shell re-renders
+ * once `myPlayerId` lands (`vm.canClaim` flips false).
+ *
+ * `RondoVM` has no "which roster player matches my email" lookup of its own
+ * (there's no viewer-email field to compare roster emails against from here),
+ * so `candidatePlayerId` is only ever set by a host that already knows the
+ * match; absent (today, always), the screen renders the generic "set up your
+ * profile" copy instead of guessing. "WA votes" (how many live polls this
  * ghost's WhatsApp reply already voted in) is derived from `vm.polls` — spec
  * §8 has no dedicated ghost-vote counter yet, and this is the only VM data
  * that actually reflects "voted by WhatsApp reply".
@@ -34,22 +41,22 @@ export function PClaim({
   candidatePlayerId?: string;
 }) {
   const [busy, setBusy] = React.useState(false);
-  const candidate = (candidatePlayerId ? vm.byId(candidatePlayerId) : vm.players[0]) ?? null;
+  const candidate = candidatePlayerId ? vm.byId(candidatePlayerId) : null;
+  const matched = !!candidate;
   const stats = candidate ? vm.playerStats[candidate.id] : undefined;
   const games = stats?.apps ?? 0;
   const goalsN = stats?.goals ?? 0;
   const waVotes = candidate ? Object.values(vm.polls).filter((p) => p.votersPlayerIds.includes(candidate.id)).length : 0;
 
   async function handleClaim() {
-    if (!candidate || busy) return;
+    if (busy) return;
     setBusy(true);
-    const ok = await vm.claimPlayer(candidate.id);
+    const result = await vm.claimMine();
     setBusy(false);
-    if (ok) {
-      toast("Profile claimed");
-      nav("home");
+    if (result.ok) {
+      toast(matched ? "Profile claimed" : "You're all set up");
     } else {
-      toast("Couldn't claim that profile — check with your manager");
+      toast(result.message ?? "Couldn't set up your profile — try again");
     }
   }
 
@@ -57,9 +64,13 @@ export function PClaim({
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", background: C5.surface }}>
       <div style={{ padding: "22px 26px 0", flex: "none" }}>
         <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: 2, color: ink(0.45) }}>ONE LAST THING</div>
-        <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: -0.7, color: C5.ink, marginTop: 8 }}>We found you on a roster</div>
+        <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: -0.7, color: C5.ink, marginTop: 8 }}>
+          {matched ? "We found you on a roster" : "Set up your player profile"}
+        </div>
         <div style={{ marginTop: 6, fontSize: 13, color: ink(0.55), lineHeight: 1.5 }}>
-          {vm.activeTeamName} has been tracking you via WhatsApp. Claim the profile and its history becomes yours.
+          {matched
+            ? `${vm.activeTeamName} has been tracking you via WhatsApp. Claim the profile and its history becomes yours.`
+            : "You'll appear on the pitch and can vote, RSVP and rate teammates."}
         </div>
       </div>
 
@@ -119,11 +130,11 @@ export function PClaim({
             justifyContent: "center",
             fontSize: 14,
             fontWeight: 700,
-            cursor: candidate ? "pointer" : "default",
-            opacity: busy || !candidate ? 0.7 : 1,
+            cursor: "pointer",
+            opacity: busy ? 0.7 : 1,
           }}
         >
-          This is me — claim profile
+          {matched ? "This is me — claim profile" : "Set me up"}
         </div>
         <div
           onClick={() => nav("hub")}

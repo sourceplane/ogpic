@@ -288,6 +288,10 @@ export interface RondoLive {
   recordResult?: (matchId: string, scoreA: number, scoreB: number) => void;
   /** Claim a roster player as yourself (email must match). Resolves true on success. */
   claimPlayer?: (playerId: string) => Promise<boolean>;
+  /** "Claim mine": server-resolved self-service claim for a member with no
+   *  claimable roster player yet (joined by code). Finds/creates one for the
+   *  caller and claims it in a single tap. */
+  claimMine?: () => Promise<{ ok: boolean; message?: string }> | void;
   /** Set the caller's own availability (for their claimed player). */
   setMyAvailability?: (state: Availability) => void;
   /** Toggle whether a player has paid for the current match's pitch. */
@@ -802,6 +806,8 @@ export function useRondo(seed: RondoSeed = {}) {
       seed.live?.setMyAvailability?.(state);
     },
     claimPlayer: (playerId: string) => seed.live?.claimPlayer?.(playerId) ?? Promise.resolve(false),
+    claimMine: (): Promise<{ ok: boolean; message?: string }> =>
+      seed.live?.claimMine?.() ?? Promise.resolve({ ok: false }),
     payments: { ...(seed.payments ?? {}), ...paymentsLocal },
     canManagePayments: !!seed.live?.setPayment && !!seed.nextMatch,
     setPayment: (playerId: string, paid: boolean) => {

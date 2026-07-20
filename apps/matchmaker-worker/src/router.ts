@@ -22,7 +22,7 @@ import { handleChatList, handleChatPost, handleChatReact } from "./handlers/chat
 import { handleListAvailability } from "./handlers/list-availability.js";
 import { handleSetAvailability } from "./handlers/set-availability.js";
 import { handleSetCaptain } from "./handlers/set-captain.js";
-import { handleClaimPlayer, handleGetMyPlayer } from "./handlers/claim-player.js";
+import { handleClaimPlayer, handleClaimMine, handleGetMyPlayer } from "./handlers/claim-player.js";
 import { handleCastVotes } from "./handlers/cast-votes.js";
 import { handleGetVotes } from "./handlers/get-votes.js";
 import { handleGetRatingRound, handleOpenRatingRound, handleCloseRatingRound } from "./handlers/rating-round.js";
@@ -121,10 +121,14 @@ export async function route(request: Request, env: Env): Promise<Response> {
     if (claimMatch) {
       if (request.method !== "POST") return methodNotAllowed(requestId);
       const orgUuid = parseOrgPublicId(claimMatch[1]!);
-      const playerUuid = parsePlayerPublicId(claimMatch[2]!);
-      if (!orgUuid || !playerUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      if (!orgUuid) return errorResponse("not_found", "Not found", 404, requestId);
       const actor = resolveActor(request);
       if (!actor) return unauthenticated(requestId);
+      // "mine" is a reserved id segment: server-resolved "claim mine" flow,
+      // not a player id lookup.
+      if (claimMatch[2] === "mine") return handleClaimMine(env, requestId, actor, orgUuid);
+      const playerUuid = parsePlayerPublicId(claimMatch[2]!);
+      if (!playerUuid) return errorResponse("not_found", "Not found", 404, requestId);
       return handleClaimPlayer(env, requestId, actor, orgUuid, playerUuid);
     }
 
