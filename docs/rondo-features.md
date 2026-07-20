@@ -27,10 +27,10 @@ Legend — **Status**: ✅ integrated & merged · ⚠️ integrated, verificatio
 
 | Feature | Status | UI | Backend path |
 |---|---|---|---|
-| Add player (scout) | ⚠️ | `add-player.tsx` | `roster.scout` → matchmaker `create-player` → `matchmaker.players` |
+| Add player (scout) | ✅ | `add-player.tsx` | `roster.scout` → matchmaker `create-player` → `matchmaker.players` |
 | View & edit player score (attribute sliders) | ✅ | `player-edit.tsx` | `roster.update({attributes})` → `update-player` (OVR = mean) |
 | Set captain / release player | ✅ | manage-squad | `roster.setCaptain` / `roster.release` |
-| Invite code — view / share / rotate / generate | ⚠️ | settings + manage-squad | `memberships.getJoinCode` / `rotateJoinCode` (read now allowed for all members) |
+| Invite code — view / share / rotate / generate | ✅ | settings + manage-squad | `memberships.getJoinCode` / `rotateJoinCode` (read now allowed for all members) |
 | Approve / decline join requests | ✅ | manage-squad | `memberships.approve/declineJoinRequest` |
 | Link player ↔ account (claim) | ✅ | `claim-sheet.tsx` | `roster.claim` (email match) → `players.subject_id` |
 | Leave squad | ✅ | settings | `memberships.leave` |
@@ -82,6 +82,25 @@ Legend — **Status**: ✅ integrated & merged · ⚠️ integrated, verificatio
 | Dark mode / theming (system/light/dark) | ✅ | profile menu | CSS variables + `data-theme` |
 | Notifications (service worker + enable) | ⚠️/🔧 | profile menu | `public/sw.js`; **device push needs VAPID keys (ops)** |
 | Static bottom nav + scrollable screens | ✅ | all screens | layout |
+
+---
+
+## v5 "Night-Pitch" additions (epic #96 — PRs #97/#98/#99/#100)
+
+| Feature | Status | UI | Backend path |
+|---|---|---|---|
+| Match availability polls (times + turfs, vote on all that work) | ✅ | wizard + match detail + chat cards | `polls.getMatchPoll/setPollVotes` → matchmaker `match_polls/options/votes` |
+| Poll deadlines (24h/48h/manual) + cron auto-close | ✅ | wizard step 3 | `match_polls.deadline_at` + `closeDuePolls` cron |
+| Close poll → pick winning slot → draft → finalize schedule | ✅ | manager detail phases | `polls.closePoll/finalizeMatch` + `saveTeamsFor` (status draft→scheduled) |
+| Team chat (texts, reactions, system notes, poll/confirmed cards) | ✅ | Chat tab (both roles) | `chat.listChat/postChat/reactChat` → `chat_messages` |
+| Dropouts with reason + manager resolution / replacement | ✅ | player scheduled view + manager dropout card | `dropouts.setDropout/undoDropout/resolveDropout/listDropouts` |
+| WhatsApp bridge toggle (mirror notes; delivery = future ops) | ✅/🔧 | invite sheet | `orgSettings.get/setSettings` → `org_settings` |
+| Promote/demote manager | ✅ | edit player toggle | `memberships.setMemberRole` → role_assignments |
+| Claim-first onboarding for ghost/no-app players | ✅ | PClaim screen (auto-shown) | existing claim + poll/chat merge |
+| Night-pitch design system (ticket heroes, glowing pitch, dock, sheets, segments) | ✅ | `components/rondo/v5/` | — |
+
+Design source: `docs/design/rondo-v5-reference.html` · spec `docs/design/rondo-v5-spec.md`.
+The v4 screens remain in the tree but are no longer rendered (cleanup pending).
 
 ---
 
