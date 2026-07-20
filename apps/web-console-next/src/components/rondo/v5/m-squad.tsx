@@ -55,6 +55,7 @@ function squadTag(p: SquadRowVM, vm: RondoVM): TagStyle {
 export function MSquad({
   vm,
   nav,
+  toast,
   onAdd,
   onInvite,
 }: {
@@ -166,6 +167,42 @@ export function MSquad({
           );
         })}
       </div>
+
+      {(vm.joinRequests?.length ?? 0) > 0 && (
+        <div style={{ margin: "12px 24px 0", flex: "none" }}>
+          <div style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 600, letterSpacing: 1.5, color: C5.goldText }}>
+            JOIN REQUESTS · {vm.joinRequests!.length}
+          </div>
+          <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 7 }}>
+            {vm.joinRequests!.map((r) => (
+              <div key={r.id} style={{ borderRadius: 14, background: C5.card, border: `1.5px solid ${C5.gold}`, padding: "10px 14px", display: "flex", alignItems: "center", gap: 11 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: C5.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</div>
+                  <div style={{ fontFamily: MONO, fontSize: 8.5, color: ink(0.5), marginTop: 1 }}>{r.via.toUpperCase()}</div>
+                </div>
+                <div
+                  onClick={() => {
+                    vm.approveJoin(r.id);
+                    toast(`${r.name} approved — they're in`);
+                  }}
+                  style={{ height: 34, padding: "0 14px", borderRadius: 12, background: C5.green, color: C5.surface, display: "flex", alignItems: "center", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                >
+                  Approve
+                </div>
+                <div
+                  onClick={() => {
+                    vm.declineJoin(r.id);
+                    toast(`${r.name} declined`);
+                  }}
+                  style={{ height: 34, padding: "0 12px", borderRadius: 12, border: `1px solid ${ink(0.16)}`, color: ink(0.6), display: "flex", alignItems: "center", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                >
+                  Decline
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div style={{ margin: "10px 24px 0", fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: ink(0.4), flex: "none" }}>
         SHOWING {filtered.length} OF {squad.length} · TAP TO EDIT SCORE, POSITION &amp; ROLE
