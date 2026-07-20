@@ -78,9 +78,16 @@ export function MWizard({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string)
   const [timeInput, setTimeInput] = React.useState("");
   const [turfInput, setTurfInput] = React.useState("");
 
+  // The backend requires a real kickoff instant on at least one option
+  // (provisional scheduled_at = earliest startsAt), so times are picked with a
+  // datetime input and the design's "Sat 25 Jul · 18:30" label is derived.
   const addTime = () => {
-    if (!timeInput.trim()) return;
-    wizard.addTime({ label: timeInput.trim() });
+    if (!timeInput) return;
+    const d = new Date(timeInput);
+    if (Number.isNaN(d.getTime())) return;
+    const day = d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+    const hm = d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false });
+    wizard.addTime({ label: `${day} · ${hm}`, startsAt: d.toISOString() });
     setTimeInput("");
   };
   const addTurf = () => {
@@ -168,12 +175,12 @@ export function MWizard({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string)
               <div style={{ borderRadius: 16, border: `2px dashed ${ink(0.2)}`, padding: "13px 16px" }}>
                 <div style={{ display: "flex", gap: 8 }}>
                   <input
+                    type="datetime-local"
                     value={timeInput}
                     onChange={(e) => setTimeInput(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") addTime();
                     }}
-                    placeholder="Add another time…"
                     style={inputStyle}
                   />
                   <div onClick={addTime} style={addBtnStyle}>

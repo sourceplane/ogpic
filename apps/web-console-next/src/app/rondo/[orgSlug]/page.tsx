@@ -434,7 +434,7 @@ export default function ConnectedRondoPage() {
   });
 
   const teamNav = {
-    teams: (orgs.data ?? []).map((o) => ({ slug: o.slug, name: o.name, crest: (o.name.trim()[0] ?? "R").toUpperCase() })),
+    teams: (orgs.data ?? []).map((o) => ({ slug: o.slug, name: o.name, crest: (o.name.trim()[0] ?? "R").toUpperCase(), role: o.role })),
     currentSlug: slug,
     onSelect: (s: string) => router.push(`/rondo/${s}`),
     onCreate: () => router.push("/rondo/new"),
