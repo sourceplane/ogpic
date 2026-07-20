@@ -27,6 +27,7 @@
 import * as React from "react";
 import type { Position, RondoVM } from "@saas/rondo-core";
 import { C5, Icon, ink, MONO } from "./kit5";
+import { Pressable, Stagger } from "./anim5";
 
 const POS_FILTERS: Position[] = ["ALL", "GK", "DEF", "MID", "FWD"];
 
@@ -211,11 +212,12 @@ export function MSquad({
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "10px 24px 16px", display: "flex", flexDirection: "column", gap: 7 }}>
+        <Stagger style={{ flex: "none" }}>
         {filtered.map((p) => {
           const tag = squadTag(p, vm);
           const isGhost = !p.email;
           return (
-            <div
+            <Pressable
               key={p.id}
               onClick={() => nav(`edit:${p.id}`)}
               style={{
@@ -227,7 +229,6 @@ export function MSquad({
                 alignItems: "center",
                 gap: 11,
                 cursor: "pointer",
-                flex: "none",
               }}
             >
               <div
@@ -268,9 +269,10 @@ export function MSquad({
               </span>
               <span style={{ fontSize: 18, fontWeight: 700, color: C5.ink, flex: "none" }}>{p.ovr}</span>
               <span style={{ fontSize: 13, color: ink(0.35), flex: "none" }}>›</span>
-            </div>
+            </Pressable>
           );
         })}
+        </Stagger>
         {filtered.length === 0 && <div style={{ textAlign: "center", marginTop: 30, fontSize: 13, color: ink(0.5) }}>No players match.</div>}
       </div>
     </div>

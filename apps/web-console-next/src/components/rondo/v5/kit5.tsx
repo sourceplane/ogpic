@@ -15,6 +15,7 @@
 
 import * as React from "react";
 import type { MatchPhase } from "@saas/rondo-core";
+import { EASE, Pressable, useReducedMotion } from "./anim5";
 
 /* ── design tokens (spec §1) ──────────────────────────────────────────── */
 
@@ -491,8 +492,26 @@ export function NightPitch({
   const inset = interactive ? 12 : 10;
   const vs = interactive ? 72 : 56;
 
-  const renderSide = (list: PitchToken[], kit: string) =>
-    list.map((p) => {
+  // #10 token settle — tokens fly in from a slight downward offset to their
+  // slots with a staggered spring on mount / whenever the drafted set of
+  // players changes. Positions (left/top) are unchanged; only transform +
+  // opacity animate, so a swap (same id-set, new position) still snaps as
+  // before. Read-only: `placeDraft` remains the source of truth.
+  const reduced = useReducedMotion();
+  const rosterSig = React.useMemo(
+    () => [...a.map((p) => p.id), "|", ...b.map((p) => p.id)].sort().join(","),
+    [a, b],
+  );
+  const [settled, setSettled] = React.useState(false);
+  React.useEffect(() => {
+    setSettled(false);
+    const r = requestAnimationFrame(() => setSettled(true));
+    return () => cancelAnimationFrame(r);
+  }, [rosterSig]);
+  const shown = reduced || settled;
+
+  const renderSide = (list: PitchToken[], kit: string, baseIndex: number) =>
+    list.map((p, i) => {
       const isMe = mePlayerId != null && p.id === mePlayerId;
       const glow = isMe
         ? `0 0 0 3px rgba(245,242,233,.95), 0 0 0 6px ${kit}`
@@ -505,7 +524,10 @@ export function NightPitch({
             position: "absolute",
             left: `${p.x}%`,
             top: `${p.y}%`,
-            transform: "translate(-50%,-50%)",
+            transform: shown ? "translate(-50%,-50%) scale(1)" : "translate(-50%,calc(-50% + 34px)) scale(.6)",
+            opacity: shown ? 1 : 0,
+            transition: reduced ? undefined : `transform 500ms ${EASE}, opacity 380ms ${EASE}`,
+            transitionDelay: reduced ? undefined : `${(baseIndex + i) * 45}ms`,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -572,8 +594,8 @@ export function NightPitch({
       >
         <span style={{ fontSize: interactive ? 12 : 10, fontWeight: 700, color: C5.surface }}>VS</span>
       </div>
-      {renderSide(a, kitA)}
-      {renderSide(b, kitB)}
+      {renderSide(a, kitA, 0)}
+      {renderSide(b, kitB, a.length)}
     </div>
   );
 }
@@ -669,15 +691,79 @@ export function Sheet({
   onClose: () => void;
   children: React.ReactNode;
 }) {
-  if (!open) return null;
+  const reduced = useReducedMotion();
+  // Keep the sheet mounted through its exit so the spring-down/backdrop-fade
+  // can play; `open`/`onClose` semantics are unchanged.
+  const [mounted, setMounted] = React.useState(open);
+  const [shown, setShown] = React.useState(false);
+  const [dragY, setDragY] = React.useState(0);
+  const [dragging, setDragging] = React.useState(false);
+  const cardRef = React.useRef<HTMLDivElement | null>(null);
+  const drag = React.useRef({ active: false, startY: 0, height: 1, pointerId: -1 });
+
+  React.useEffect(() => {
+    if (open) {
+      setMounted(true);
+      setDragY(0);
+      const r = requestAnimationFrame(() => setShown(true));
+      return () => cancelAnimationFrame(r);
+    }
+    setShown(false);
+    const t = setTimeout(() => setMounted(false), reduced ? 0 : 340);
+    return () => clearTimeout(t);
+  }, [open, reduced]);
+
+  const onHandleDown = React.useCallback<React.PointerEventHandler<HTMLDivElement>>((e) => {
+    const h = cardRef.current?.offsetHeight ?? 1;
+    drag.current = { active: true, startY: e.clientY, height: h, pointerId: e.pointerId };
+    setDragging(true);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* best-effort */
+    }
+  }, []);
+  const onHandleMove = React.useCallback<React.PointerEventHandler<HTMLDivElement>>((e) => {
+    if (!drag.current.active) return;
+    setDragY(Math.max(0, e.clientY - drag.current.startY));
+  }, []);
+  const onHandleUp = React.useCallback<React.PointerEventHandler<HTMLDivElement>>(
+    (e) => {
+      if (!drag.current.active) return;
+      drag.current.active = false;
+      setDragging(false);
+      const dy = Math.max(0, e.clientY - drag.current.startY);
+      if (dy > drag.current.height * 0.3) onClose();
+      else setDragY(0);
+    },
+    [onClose],
+  );
+
+  if (!mounted) return null;
+
+  const backdropOpacity = shown ? (dragging ? Math.max(0, 1 - dragY / (drag.current.height || 1)) : 1) : 0;
+  // Gate on `open` first: on drag-dismiss the parent flips `open` a render
+  // before the `[open]` effect clears `shown`, so keying off `shown` alone made
+  // the card animate briefly up-to-origin before dropping. Once closing, go
+  // straight down.
+  const cardTransform = !open
+    ? "translateY(102%)"
+    : dragging
+      ? `translateY(${dragY}px)`
+      : shown
+        ? "translateY(0)"
+        : "translateY(102%)";
+
   return (
     <div
+      className="rk5-sheet-backdrop"
       onClick={onClose}
       style={{
         position: "fixed",
         inset: 0,
         zIndex: 200,
         background: "rgba(14,27,20,.4)",
+        opacity: backdropOpacity,
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-end",
@@ -685,6 +771,8 @@ export function Sheet({
       }}
     >
       <div
+        ref={cardRef}
+        className="rk5-sheet"
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "calc(100% - 20px)",
@@ -697,9 +785,19 @@ export function Sheet({
           boxShadow: "0 -12px 40px rgba(14,27,20,.3)",
           maxHeight: "86dvh",
           overflowY: "auto",
+          transform: cardTransform,
+          transition: dragging ? "none" : undefined,
         }}
       >
-        <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(14,27,20,.15)", margin: "0 auto" }} />
+        <div
+          onPointerDown={onHandleDown}
+          onPointerMove={onHandleMove}
+          onPointerUp={onHandleUp}
+          onPointerCancel={onHandleUp}
+          style={{ padding: "2px 0 8px", margin: "-2px 0 0", cursor: "grab", touchAction: "none" }}
+        >
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(14,27,20,.15)", margin: "0 auto" }} />
+        </div>
         {children}
       </div>
     </div>
@@ -748,7 +846,7 @@ export function DockNav({
       {items.map((it) => {
         const on = it.key === active;
         return (
-          <div
+          <Pressable
             key={it.key}
             onClick={() => onSelect(it.key)}
             style={{
@@ -761,10 +859,19 @@ export function DockNav({
               position: "relative",
             }}
           >
-            <Icon name={it.icon} size={20} />
+            <span
+              style={{
+                display: "block",
+                transform: on ? "scale(1.16)" : "scale(1)",
+                transition: `transform 280ms ${EASE}`,
+              }}
+            >
+              <Icon name={it.icon} size={20} />
+            </span>
             <span style={{ fontSize: 8.5, fontWeight: 700, letterSpacing: 1 }}>{it.label}</span>
             {it.badge && (
               <span
+                className="rk5-badge-pop"
                 style={{
                   position: "absolute",
                   top: -5,
@@ -784,7 +891,7 @@ export function DockNav({
                 !
               </span>
             )}
-          </div>
+          </Pressable>
         );
       })}
     </div>
@@ -797,9 +904,21 @@ export function DockNav({
  *  (`POLL → DRAFT → SCHEDULED`) and the wizard's step bar. */
 export function ProgressSteps({ percent, color = C5.green }: { percent: number; color?: string }) {
   const pct = Math.max(0, Math.min(100, percent));
+  // Eased fill via `scaleX` (transform, GPU-friendly) rather than animating
+  // the layout `width` — the reduced-motion media query collapses it.
   return (
-    <div style={{ height: 5, borderRadius: 3, background: C5.track }}>
-      <div style={{ width: `${pct}%`, height: "100%", borderRadius: 3, background: color }} />
+    <div style={{ height: 5, borderRadius: 3, background: C5.track, overflow: "hidden" }}>
+      <div
+        className="rk5-bar"
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: 3,
+          background: color,
+          transform: `scaleX(${pct / 100})`,
+          transformOrigin: "left",
+        }}
+      />
     </div>
   );
 }
@@ -811,28 +930,41 @@ export function ProgressSteps({ percent, color = C5.green }: { percent: number; 
  *  of the screen/shell (it's `position: fixed`, so placement doesn't matter). */
 export function useToast(): { toast: (msg: string) => void; node: React.ReactNode } {
   const [msg, setMsg] = React.useState("");
-  const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [shown, setShown] = React.useState(false);
+  const hideTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafRef = React.useRef(0);
 
   const toast = React.useCallback((m: string) => {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    if (clearTimer.current) clearTimeout(clearTimer.current);
+    cancelAnimationFrame(rafRef.current);
     setMsg(m);
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setMsg(""), 2600);
+    setShown(false);
+    // Next frame → flip to shown so the spring-up entrance transition plays.
+    rafRef.current = requestAnimationFrame(() => setShown(true));
+    hideTimer.current = setTimeout(() => setShown(false), 2600);
+    clearTimer.current = setTimeout(() => setMsg(""), 2940);
   }, []);
 
   React.useEffect(
     () => () => {
-      if (timer.current) clearTimeout(timer.current);
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+      if (clearTimer.current) clearTimeout(clearTimer.current);
+      cancelAnimationFrame(rafRef.current);
     },
     [],
   );
 
   const node = msg ? (
     <div
+      className="rk5-toast"
       style={{
         position: "fixed",
         left: "50%",
         bottom: 14,
-        transform: "translateX(-50%)",
+        transform: shown ? "translateX(-50%) translateY(0) scale(1)" : "translateX(-50%) translateY(16px) scale(.94)",
+        opacity: shown ? 1 : 0,
         zIndex: 500,
         display: "flex",
         alignItems: "center",
@@ -844,6 +976,7 @@ export function useToast(): { toast: (msg: string) => void; node: React.ReactNod
         fontWeight: 600,
         boxShadow: "0 10px 24px -8px rgba(14,27,20,.5)",
         whiteSpace: "nowrap",
+        pointerEvents: "none",
       }}
     >
       {msg}

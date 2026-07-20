@@ -14,6 +14,7 @@ import type { RondoVM } from "@saas/rondo-core";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session";
 import { C5, DockNav, useToast, type DockItem } from "./kit5";
+import { Anim5Styles, ScreenTransition, useSwipeBack, type NavDirection } from "./anim5";
 import { MHome } from "./m-home";
 import { MMatches } from "./m-matches";
 import { MWizard } from "./m-wizard";
@@ -48,6 +49,27 @@ const PLAYER_DOCK: readonly { key: string; label: string; icon: DockItem["icon"]
   { key: "chat", label: "CHAT", icon: "chat" },
   { key: "rate", label: "RATE", icon: "star" },
 ];
+
+/** Push/pop direction hint for ScreenTransition (spec §Integration). "Deep"
+ *  screens are the pushed detail/edit/wizard surfaces; the dock tabs sit at
+ *  depth 0. Going deeper animates forward; returning to a tab (or a lower
+ *  dock-order tab) animates back. Purely presentational — it never changes
+ *  which screen renders. */
+const DEEP_SCREENS = new Set(["mdetail", "pdetail", "edit", "pview", "wizard", "hub", "profile", "psquad"]);
+const DOCK_ORDER = ["home", "matches", "chat", "squad", "rate"];
+
+/** Back-navigation target per push screen, for the swipe-back gesture — each
+ *  is the exact `nav(...)` those screens already fire from their header back
+ *  button, so the gesture pops to the same place with no behaviour change.
+ *  Wizard is deliberately EXCLUDED: its header back is step-aware (step > 1
+ *  goes back a step, not out), so an edge-swipe would discard in-progress
+ *  draft state — the wizard keeps its own back button only. */
+const BACK_TARGET: Record<string, string> = {
+  mdetail: "matches",
+  pdetail: "matches",
+  edit: "squad",
+  pview: "psquad",
+};
 
 /** Dock keys that show the dock; param screens map to their base tab. */
 function dockKeyOf(screen: string): string {
@@ -98,6 +120,35 @@ export function RondoApp5({
     const i = screen.indexOf(":");
     return i === -1 ? [screen, ""] : [screen.slice(0, i), screen.slice(i + 1)];
   }, [screen]);
+
+  // Push/pop direction for the screen transition, derived from the previous vs
+  // next screen (no change to the state machine — `screen`/`setScreen` are the
+  // same). `prevScreenRef` trails by one commit so the memo sees the outgoing
+  // screen at transition time.
+  const prevScreenRef = React.useRef(screen);
+  const direction = React.useMemo<NavDirection>(() => {
+    const prevBase = prevScreenRef.current.split(":")[0] ?? prevScreenRef.current;
+    const nextBase = screen.split(":")[0] ?? screen;
+    const prevDepth = DEEP_SCREENS.has(prevBase) ? 1 : 0;
+    const nextDepth = DEEP_SCREENS.has(nextBase) ? 1 : 0;
+    if (nextDepth > prevDepth) return "forward";
+    if (nextDepth < prevDepth) return "back";
+    const pi = DOCK_ORDER.indexOf(prevBase);
+    const ni = DOCK_ORDER.indexOf(nextBase);
+    if (pi >= 0 && ni >= 0 && ni < pi) return "back";
+    return "forward";
+  }, [screen]);
+  React.useEffect(() => {
+    prevScreenRef.current = screen;
+  }, [screen]);
+
+  // Interactive edge-swipe-back on push screens — calls the same back nav their
+  // header button already uses (never a new destination).
+  const backTarget = BACK_TARGET[base];
+  const onSwipeBack = React.useCallback(() => {
+    if (backTarget) nav(backTarget);
+  }, [backTarget, nav]);
+  const swipe = useSwipeBack(onSwipeBack, backTarget !== undefined);
 
   // Dock badges: RATE ! while the voting window is open; MATCHES ! while a
   // poll still needs the viewer's vote (design reference lines 1154-1156).
@@ -152,7 +203,17 @@ export function RondoApp5({
 
   return (
     <div style={{ minHeight: "100dvh", background: C5.surface, display: "flex", flexDirection: "column", maxWidth: 430, margin: "0 auto", position: "relative" }}>
-      <div style={{ flex: 1, minHeight: 0, position: "relative", display: "flex", flexDirection: "column", overflow: "hidden" }}>{body}</div>
+      <Anim5Styles />
+      <div style={{ flex: 1, minHeight: 0, position: "relative", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div
+          {...swipe.handlers}
+          style={{ position: "absolute", inset: 0, touchAction: backTarget !== undefined ? "pan-y" : undefined, ...swipe.style }}
+        >
+          <ScreenTransition screenKey={screen} direction={direction}>
+            {body}
+          </ScreenTransition>
+        </div>
+      </div>
       <DockNav items={dockItems} active={dockKeyOf(screen)} onSelect={(k) => setScreen(k)} />
       <PlusSheet
         vm={vm}

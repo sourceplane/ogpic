@@ -24,6 +24,7 @@
 import * as React from "react";
 import { placeDraft, type MatchPhase, type RondoVM } from "@saas/rondo-core";
 import { C5, Icon, ink, MONO, MonoLabel, PhaseChip, TicketHero, NightPitch, type PitchToken } from "./kit5";
+import { CountUp, Pressable } from "./anim5";
 
 /* ── small row helpers (poll voters/waiting, finalize radios, vote bars) ── */
 
@@ -110,10 +111,15 @@ function VoteBar({ label, votes, pct }: { label: string; votes: number; pct: num
     <div style={{ borderRadius: 14, background: C5.card, border: `1px solid ${ink(0.1)}`, padding: "12px 14px" }}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: C5.ink }}>{label}</span>
-        <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: C5.green }}>{votes} VOTES</span>
+        <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: C5.green }}>
+          <CountUp value={votes} /> VOTES
+        </span>
       </div>
-      <div style={{ marginTop: 8, height: 6, borderRadius: 3, background: C5.track }}>
-        <div style={{ width: `${pct}%`, height: "100%", borderRadius: 3, background: C5.green }} />
+      <div style={{ marginTop: 8, height: 6, borderRadius: 3, background: C5.track, overflow: "hidden" }}>
+        <div
+          className="rk5-bar"
+          style={{ width: "100%", height: "100%", borderRadius: 3, background: C5.green, transform: `scaleX(${pct / 100})`, transformOrigin: "left" }}
+        />
       </div>
     </div>
   );
@@ -369,7 +375,7 @@ export function MDetail({
             ))}
           </div>
 
-          <div
+          <Pressable
             onClick={handleClosePoll}
             style={{
               marginTop: 16,
@@ -387,7 +393,7 @@ export function MDetail({
             }}
           >
             Close poll &amp; finalize →
-          </div>
+          </Pressable>
         </div>
       )}
 
@@ -414,7 +420,7 @@ export function MDetail({
             ))}
           </div>
 
-          <div
+          <Pressable
             onClick={handleGenTeams}
             style={{
               marginTop: 16,
@@ -434,7 +440,7 @@ export function MDetail({
           >
             <Icon name="zap" size={16} color={C5.surface} stroke={2.2} />
             Auto-generate balanced teams
-          </div>
+          </Pressable>
           <MonoLabel size={8.5} tone={0.45} weight={400} style={{ textAlign: "center", marginTop: 8 }}>
             USES EACH PLAYER&rsquo;S STRENGTH SCORE
           </MonoLabel>
@@ -478,12 +484,12 @@ export function MDetail({
             >
               <Icon name="refresh" size={18} />
             </div>
-            <div
+            <Pressable
               onClick={handleFinalizeSchedule}
               style={{ flex: 1, height: 52, borderRadius: 16, background: C5.ink, color: C5.surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
             >
               Finalize schedule
-            </div>
+            </Pressable>
           </div>
         </div>
       )}
@@ -560,12 +566,12 @@ export function MDetail({
                 >
                   <Icon name="refresh" size={18} />
                 </div>
-                <div
+                <Pressable
                   onClick={handleFinalizeSchedule}
                   style={{ flex: 1, height: 52, borderRadius: 16, background: C5.ink, color: C5.surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
                 >
                   Save lineup
-                </div>
+                </Pressable>
               </div>
             </>
           ) : (

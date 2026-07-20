@@ -10,6 +10,7 @@
 import * as React from "react";
 import type { MatchPhase, RondoVM } from "@saas/rondo-core";
 import { C5, ink, MONO, PhaseChip, ProgressSteps } from "./kit5";
+import { Pressable, Stagger } from "./anim5";
 
 /** Progress-bar fill colour (spec §2 screen 4): gold through the poll
  *  pipeline, green once scheduled (or further); rust once cancelled. */
@@ -51,29 +52,31 @@ export function MMatches({ vm, nav }: { vm: RondoVM; nav: (screen: string) => vo
             No matches yet — start one to poll the squad.
           </div>
         )}
-        {rows.map((m) => {
-          const color = progressColor(m.phase);
-          return (
-            <div
-              key={m.id}
-              onClick={() => nav(`mdetail:${m.id}`)}
-              style={{ borderRadius: 18, background: C5.card, border: `1px solid ${ink(0.12)}`, padding: "15px 16px", cursor: "pointer", flex: "none" }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: C5.ink, flex: 1 }}>{m.label}</span>
-                <PhaseChip phase={m.phase} />
-              </div>
-              <div style={{ fontSize: 12, color: ink(0.55), marginTop: 4 }}>{m.subLabel}</div>
-              <div style={{ marginTop: 10 }}>
-                <ProgressSteps percent={m.progressStep} color={color} />
-              </div>
-              <div style={{ marginTop: 6, display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontFamily: MONO, fontSize: 8, color: ink(0.4) }}>POLL → DRAFT → SCHEDULED</span>
-                <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, color }}>{m.progressStep}%</span>
-              </div>
-            </div>
-          );
-        })}
+        <Stagger style={{ flex: "none" }}>
+          {rows.map((m) => {
+            const color = progressColor(m.phase);
+            return (
+              <Pressable
+                key={m.id}
+                onClick={() => nav(`mdetail:${m.id}`)}
+                style={{ borderRadius: 18, background: C5.card, border: `1px solid ${ink(0.12)}`, padding: "15px 16px", cursor: "pointer" }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: C5.ink, flex: 1 }}>{m.label}</span>
+                  <PhaseChip phase={m.phase} />
+                </div>
+                <div style={{ fontSize: 12, color: ink(0.55), marginTop: 4 }}>{m.subLabel}</div>
+                <div style={{ marginTop: 10 }}>
+                  <ProgressSteps percent={m.progressStep} color={color} />
+                </div>
+                <div style={{ marginTop: 6, display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontFamily: MONO, fontSize: 8, color: ink(0.4) }}>POLL → DRAFT → SCHEDULED</span>
+                  <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, color }}>{m.progressStep}%</span>
+                </div>
+              </Pressable>
+            );
+          })}
+        </Stagger>
       </div>
     </div>
   );
