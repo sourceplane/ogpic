@@ -10,7 +10,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import "../../styles/rondo-kit.css";
 import { RondoLogin } from "@/components/rondo/rondo-login";
-import { TeamSelectScreen } from "@/components/rondo/team-select";
+import { Hub5 } from "@/components/rondo/v5/hub5";
 import { useSession } from "@/lib/session";
 import { useApiQuery, qk } from "@/lib/query";
 import { wrap } from "@/lib/api";
@@ -33,23 +33,24 @@ export default function RondoEntryPage() {
 
   React.useEffect(() => {
     if (!token || !orgs.data) return;
-    // No squads → onboarding. Exactly one → open it. Two or more → let the
-    // member pick (the team-selection screen renders below).
+    // No squads → onboarding. Otherwise the v5 hub lists every team (even a
+    // single one) so members always see and can switch between all squads.
     if (orgs.data.length === 0) router.replace("/rondo/start");
-    else if (orgs.data.length === 1) router.replace(`/rondo/${orgs.data[0]!.slug}`);
   }, [token, orgs.data, router]);
 
   if (!ready) return <RondoBoot />;
   if (!token) return <RondoLogin />;
   // Signed in with several squads: the initial team selection (design 2a).
-  if (orgs.data && teams.length > 1) {
+  if (orgs.data && teams.length >= 1) {
     return (
-      <TeamSelectScreen
-        teams={teams.map((o) => ({ slug: o.slug, name: o.name }))}
-        onOpen={(slug) => router.replace(`/rondo/${slug}`)}
-        onCreate={() => router.push("/rondo/new")}
-        onJoin={() => router.push("/rondo/join")}
-      />
+      <div style={{ minHeight: "100dvh", background: "#F5F2E9", maxWidth: 430, margin: "0 auto", position: "relative" }}>
+        <Hub5
+          teams={teams.map((o) => ({ slug: o.slug, name: o.name, role: o.role }))}
+          onOpen={(slug) => router.replace(`/rondo/${slug}`)}
+          onCreate={() => router.push("/rondo/new")}
+          onJoin={() => router.push("/rondo/join")}
+        />
+      </div>
     );
   }
   return <RondoBoot label="Finding your squad…" />;

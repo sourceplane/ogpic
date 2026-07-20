@@ -13,7 +13,7 @@ import { C, ink, green, Icon } from "./kit";
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 
 export type TeamNav = {
-  teams: { slug: string; name: string; crest: string }[];
+  teams: { slug: string; name: string; crest: string; role?: string | undefined }[];
   currentSlug?: string | undefined;
   onSelect: (slug: string) => void;
   onCreate: () => void;

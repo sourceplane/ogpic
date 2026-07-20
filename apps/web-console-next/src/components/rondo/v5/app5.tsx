@@ -30,7 +30,8 @@ import { PDetail } from "./p-detail";
 import { PRate } from "./p-rate";
 import { PProfile } from "./p-profile";
 import { PClaim } from "./p-claim";
-import { TeamSwitcher, type TeamNav } from "../team-switcher";
+import type { TeamNav } from "../team-switcher";
+import { Hub5 } from "./hub5";
 
 const MANAGER_DOCK: readonly { key: string; label: string; icon: DockItem["icon"] }[] = [
   { key: "home", label: "HOME", icon: "home" },
@@ -65,7 +66,6 @@ export function RondoApp5({
 }) {
   const [screen, setScreen] = React.useState("home");
   const [claimDismissed, setClaimDismissed] = React.useState(false);
-  const [switcher, setSwitcher] = React.useState(false);
   const [plusOpen, setPlusOpen] = React.useState(false);
   const [inviteOpen, setInviteOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
@@ -75,10 +75,6 @@ export function RondoApp5({
 
   const nav = React.useCallback((s: string) => {
     setClaimDismissed(true);
-    if (s === "hub") {
-      setSwitcher(true);
-      return;
-    }
     setScreen(s);
   }, []);
 
@@ -109,7 +105,18 @@ export function RondoApp5({
   const openAdd = React.useCallback(() => setAddOpen(true), []);
 
   let body: React.ReactNode = null;
-  if (role === "manager") {
+  if (base === "hub") {
+    // The v5 "Your teams" hub — every squad with role chips (design 54-88).
+    body = (
+      <Hub5
+        teams={(teamNav?.teams ?? []).map((t) => ({ slug: t.slug, name: t.name, role: t.role }))}
+        currentSlug={teamNav?.currentSlug}
+        onOpen={(slug) => teamNav?.onSelect(slug)}
+        onCreate={() => teamNav?.onCreate()}
+        onJoin={() => teamNav?.onJoin()}
+      />
+    );
+  } else if (role === "manager") {
     if (base === "home") body = <MHome vm={vm} nav={nav} toast={toast} onInvite={openInvite} />;
     else if (base === "matches") body = <MMatches vm={vm} nav={nav} toast={toast} />;
     else if (base === "wizard") body = <MWizard vm={vm} nav={nav} toast={toast} />;
@@ -160,7 +167,6 @@ export function RondoApp5({
       />
       <InviteSheet vm={vm} open={inviteOpen} onClose={() => setInviteOpen(false)} toast={toast} />
       <AddPlayerSheet5 vm={vm} open={addOpen} onClose={() => setAddOpen(false)} toast={toast} />
-      {teamNav && <TeamSwitcher open={switcher} onClose={() => setSwitcher(false)} nav={teamNav} />}
       {toastNode}
     </div>
   );
