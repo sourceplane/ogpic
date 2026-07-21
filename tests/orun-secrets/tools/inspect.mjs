@@ -24,6 +24,7 @@ const fetchT = (url, opts = {}) =>
 const injected = [
   ["OGPIC_ORUN_SMOKE", process.env.OGPIC_ORUN_SMOKE],
   ["CLOUDFLARE_TEST_KEY", process.env.CLOUDFLARE_TEST_KEY],
+  ["SUPABASE_KEY_TEST", process.env.SUPABASE_KEY_TEST],
 ].filter(([, v]) => typeof v === "string" && v.length > 0);
 
 console.log("== runtime-injected secrets (presence only — never value or fingerprint) ==");
@@ -91,6 +92,45 @@ if (cfToken) {
     );
   } catch (e) {
     console.log(`  Cloudflare scope test error: ${e.message}`);
+  }
+}
+
+// ---- Part A3: Supabase — verify the brokered token + its SCOPE ------------
+// SUPABASE_KEY_TEST is an ORG-scoped BROKERED secret (supabase/management-
+// access). Prove the minted token is valid and bounded to its org by listing
+// the organization(s) and project(s) it governs via the Management API —
+// metadata only (id / name / region / status), never the token, never a
+// connection string.
+const sbToken = process.env.SUPABASE_KEY_TEST;
+if (sbToken) {
+  console.log("\n== Supabase Management API via SUPABASE_KEY_TEST (brokered mint, management-access) ==");
+  const sb = (path) =>
+    fetchT(`https://api.supabase.com${path}`, {
+      headers: { Authorization: `Bearer ${sbToken}` },
+    });
+  try {
+    // POSITIVE scope proof: management-access must enumerate the org + projects.
+    const orgRes = await sb("/v1/organizations");
+    const orgs = await orgRes.json().catch(() => null);
+    console.log(`  GET /v1/organizations -> HTTP ${orgRes.status}`);
+    if (Array.isArray(orgs)) {
+      for (const o of orgs) console.log(`    org: id=${o.id} name=${JSON.stringify(o.name)}`);
+    }
+    const prjRes = await sb("/v1/projects");
+    const projects = await prjRes.json().catch(() => null);
+    console.log(`  GET /v1/projects -> HTTP ${prjRes.status}`);
+    if (Array.isArray(projects)) {
+      for (const p of projects) {
+        console.log(
+          `    project: ref=${p.id} name=${JSON.stringify(p.name)} region=${p.region} status=${p.status}`,
+        );
+      }
+    }
+    console.log(
+      `    scope check (positive): management read ${prjRes.status === 200 ? "ALLOWED — in template scope ✓" : `HTTP ${prjRes.status} — unexpected for management-access`}`,
+    );
+  } catch (e) {
+    console.log(`  Supabase scope test error: ${e.message}`);
   }
 }
 

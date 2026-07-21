@@ -6,6 +6,7 @@
       "passThroughEnv": [
         "OGPIC_ORUN_SMOKE",
         "CLOUDFLARE_TEST_KEY",
+        "SUPABASE_KEY_TEST",
         "CLOUDFLARE_ACCOUNT_ID",
         "ORUN_TOKEN",
         "ORUN_WORKSPACE",

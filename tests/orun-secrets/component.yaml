@@ -42,17 +42,18 @@ spec:
     # The KEY segment is CLOUDFLARE_TEST_KEY (the live org secret); the dev-lane
     # ref resolves it via the scope chain since the parser requires 4 segments.
     #
-    # Removed the stale TEST_SUPABASE_API / TEST_CLOUDFLARE_API references: those
-    # names did not match real secrets. The live keys are CLOUDFLARE_TEST_KEY
-    # (healthy, tested here) and SUPABASE-API (currently ORPHANED — its
-    # connection is revoked, so it is intentionally not consumed until it is
-    # reconnected in the console).
+    # The live brokered keys tested here are CLOUDFLARE_TEST_KEY (cloudflare/
+    # workers-deploy) and SUPABASE_KEY_TEST (supabase/management-access), both
+    # ORG-scoped and resolved on the dev lane via the scope chain. (The earlier
+    # stale names TEST_CLOUDFLARE_API / TEST_SUPABASE_API and the orphaned
+    # SUPABASE-API were removed — they did not match live, healthy secrets.)
     environments:
       - name: dev
         profile: verify
         secretEnv:
           OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/dev/OGPIC_ORUN_SMOKE
           CLOUDFLARE_TEST_KEY: secret://ws_8D3ZJQM2/ogpic/dev/CLOUDFLARE_TEST_KEY
+          SUPABASE_KEY_TEST: secret://ws_8D3ZJQM2/ogpic/dev/SUPABASE_KEY_TEST
       - name: stage
         profile: verify
         secretEnv:
