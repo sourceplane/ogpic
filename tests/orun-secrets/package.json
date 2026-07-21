@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "tsc --noEmit && node --experimental-vm-modules node_modules/jest/bin/jest.js && node tools/inspect.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "inspect": "node tools/inspect.mjs",
     "lint": "eslint src"
   },
   "devDependencies": {

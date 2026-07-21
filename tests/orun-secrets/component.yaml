@@ -22,12 +22,53 @@ spec:
       url: https://github.com/sourceplane/ogpic/tree/main/tests/orun-secrets
       icon: github
   subscribe:
+    # Runtime resolution history: it failed in CI because the runner addressed
+    # the run by its raw exec id instead of the contract run ULID — fixed in
+    # orun#524 (remoteSecretResolver maps exec id → RunULID, mirroring
+    # wireRunID) and released in v2.33.0, which ci.yml now pins.
+    #
+    # secretEnv injects the resolved value at runtime (orun run) under the named
+    # env var — references only, never values; the runner redacts injected
+    # values from all log sinks. OGPIC_ORUN_SMOKE is env-scoped (a distinct
+    # value per env); CLOUDFLARE_TEST_KEY is an ORG-scoped brokered binding
+    # (cloudflare/workers-deploy) — the scope-chain walk (env → project → org)
+    # serves it from any env lane, and each resolve mints a fresh short-lived
+    # provider credential.
+    # Ref spelling: the workspace segment uses the DECLARED workspace ref
+    # (execution.state.workspace: ws_8D3ZJQM2) — immutable and guaranteed to
+    # name the run's own workspace. The diagnostic matrix proved the platform
+    # workspace's SLUG is not "sourceplane" (a slug-spelled ref fails segment
+    # verification with 422), while ws_ + project slug "ogpic" verifies clean.
+    # The KEY segment is CLOUDFLARE_TEST_KEY (the live org secret); the dev-lane
+    # ref resolves it via the scope chain since the parser requires 4 segments.
+    #
+    # The live brokered keys tested here are CLOUDFLARE_TEST_KEY (cloudflare/
+    # workers-deploy) and SUPABASE_KEY_TEST (supabase/management-access), both
+    # ORG-scoped and resolved on the dev lane via the scope chain. (The earlier
+    # stale names TEST_CLOUDFLARE_API / TEST_SUPABASE_API and the orphaned
+    # SUPABASE-API were removed — they did not match live, healthy secrets.)
     environments:
       - name: dev
         profile: verify
+        secretEnv:
+          OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/dev/OGPIC_ORUN_SMOKE
+          CLOUDFLARE_TEST_KEY: secret://ws_8D3ZJQM2/ogpic/dev/CLOUDFLARE_TEST_KEY
+          SUPABASE_KEY_TEST: secret://ws_8D3ZJQM2/ogpic/dev/SUPABASE_KEY_TEST
+      - name: stage
+        profile: verify
+        secretEnv:
+          OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/stage/OGPIC_ORUN_SMOKE
+      - name: prod
+        profile: verify
+        secretEnv:
+          OGPIC_ORUN_SMOKE: secret://ws_8D3ZJQM2/ogpic/prod/OGPIC_ORUN_SMOKE
   parameters:
     nodeVersion: "20"
     pnpmVersion: "10.12.1"
+    # NOTE: the turbo-package verify job template skips preBuildCommand (its
+    # guard reads .preBuildCommand, but the value is at .parameters.*), so the
+    # jest suite is run from the `build` script instead (tsc --noEmit && jest).
+    # That is the step that actually executes in CI and prints the smoke value.
     buildCommand: pnpm exec turbo run build --filter=./
     typecheckCommand: pnpm exec turbo run typecheck --filter=./
     preBuildCommand: pnpm exec turbo run test --filter=./

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "passThroughEnv": [
+        "OGPIC_ORUN_SMOKE",
+        "CLOUDFLARE_TEST_KEY",
+        "SUPABASE_KEY_TEST",
+        "CLOUDFLARE_ACCOUNT_ID",
+        "ORUN_TOKEN",
+        "ORUN_WORKSPACE",
+        "ORUN_ORG",
+        "ORUN_PROJECT",
+        "ORUN_BACKEND_URL"
+      ]
+    }
+  }
+}
