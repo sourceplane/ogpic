@@ -53,21 +53,25 @@ export function Anim5Styles() {
 }
 
 const ANIM5_CSS = `
-.rk5-pressable{ -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform 160ms ${EASE}; }
+.rk5-pressable{ -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform 140ms ${EASE}; }
 .rk5-screen{ position:absolute; inset:0; }
+/* Both animating screen layers get their own GPU compositor layer so the
+   transform runs off the main thread — without this, two full (heavy) screen
+   trees animating on the main thread janks on mobile and the old screen
+   appears to linger. will-change is only on the transient enter/exit classes. */
 @keyframes rk5-enter-fwd{ from{ transform: translateX(100%); } to{ transform: translateX(0); } }
-@keyframes rk5-exit-fwd{ from{ transform: translateX(0); opacity:1; } to{ transform: translateX(-28%); opacity:.55; } }
-@keyframes rk5-enter-back{ from{ transform: translateX(-28%); opacity:.55; } to{ transform: translateX(0); opacity:1; } }
+@keyframes rk5-exit-fwd{ from{ transform: translateX(0); opacity:1; } to{ transform: translateX(-22%); opacity:0; } }
+@keyframes rk5-enter-back{ from{ transform: translateX(-22%); opacity:0; } to{ transform: translateX(0); opacity:1; } }
 @keyframes rk5-exit-back{ from{ transform: translateX(0); } to{ transform: translateX(100%); } }
-.rk5-enter-forward{ animation: rk5-enter-fwd 300ms ${EASE} both; z-index:2; }
-.rk5-exit-forward{ animation: rk5-exit-fwd 300ms ${EASE} both; z-index:1; }
-.rk5-enter-back{ animation: rk5-enter-back 300ms ${EASE} both; z-index:1; }
-.rk5-exit-back{ animation: rk5-exit-back 300ms ${EASE} both; z-index:2; }
+.rk5-enter-forward{ animation: rk5-enter-fwd 230ms ${EASE} both; z-index:2; will-change: transform; }
+.rk5-exit-forward{ animation: rk5-exit-fwd 210ms ${EASE} both; z-index:1; will-change: transform, opacity; }
+.rk5-enter-back{ animation: rk5-enter-back 230ms ${EASE} both; z-index:1; will-change: transform, opacity; }
+.rk5-exit-back{ animation: rk5-exit-back 210ms ${EASE} both; z-index:2; will-change: transform; }
 @keyframes rk5-rise{ from{ opacity:0; transform: translateY(12px); } to{ opacity:1; transform: none; } }
-.rk5-rise{ animation: rk5-rise 380ms ${EASE} both; }
+.rk5-rise{ animation: rk5-rise 340ms ${EASE} both; }
 @keyframes rk5-badge-pop{ from{ transform: scale(0); } to{ transform: scale(1); } }
 .rk5-badge-pop{ animation: rk5-badge-pop 300ms ${EASE} both; }
-.rk5-sheet{ transition: transform 380ms ${EASE}; }
+.rk5-sheet{ transition: transform 320ms ${EASE}; will-change: transform; }
 .rk5-sheet-backdrop{ transition: opacity 300ms ${EASE}; }
 .rk5-toast{ transition: transform 320ms ${EASE}, opacity 320ms ${EASE}; }
 .rk5-bar{ transition: transform 700ms ${EASE}; }
@@ -133,7 +137,7 @@ interface Outgoing {
 /** Wraps app5's rendered body. On `screenKey` change the incoming screen
  *  slides in (from the right on `forward`, the left on `back`) while the
  *  outgoing screen parallax-shifts the other way and dims. Both layers only
- *  coexist for the ~300ms transition; then the outgoing layer unmounts.
+ *  coexist for the ~230ms transition; then the outgoing layer unmounts.
  *
  *  The app's screen state machine is untouched — this renders at most one
  *  extra (frozen) child during a transition. Layer keys reuse the screen id so
@@ -162,7 +166,11 @@ export function ScreenTransition({
 
   React.useEffect(() => {
     if (!outgoing) return;
-    const t = setTimeout(() => setOutgoing(null), 340);
+    // Unmount just after the incoming enter (230ms) finishes — the outgoing
+    // exit (210ms) has already faded to opacity:0 by then, so dropping its
+    // fiber promptly releases the GPU layer rather than leaving two heavy
+    // screen trees mounted longer than they animate.
+    const t = setTimeout(() => setOutgoing(null), 250);
     return () => clearTimeout(t);
   }, [outgoing]);
 
