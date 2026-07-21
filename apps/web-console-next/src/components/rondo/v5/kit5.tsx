@@ -705,11 +705,21 @@ export function Sheet({
     if (open) {
       setMounted(true);
       setDragY(0);
-      const r = requestAnimationFrame(() => setShown(true));
-      return () => cancelAnimationFrame(r);
+      // Double-RAF: guarantee the browser paints the closed frame
+      // (translateY 102%) before flipping to open, so the slide-up transition
+      // reliably plays. A single RAF can land in the same paint as the mount,
+      // which made the sheet occasionally pop in with no animation.
+      let r2 = 0;
+      const r1 = requestAnimationFrame(() => {
+        r2 = requestAnimationFrame(() => setShown(true));
+      });
+      return () => {
+        cancelAnimationFrame(r1);
+        cancelAnimationFrame(r2);
+      };
     }
     setShown(false);
-    const t = setTimeout(() => setMounted(false), reduced ? 0 : 340);
+    const t = setTimeout(() => setMounted(false), reduced ? 0 : 300);
     return () => clearTimeout(t);
   }, [open, reduced]);
 
