@@ -24,7 +24,7 @@ import {
 } from "@saas/rondo-core";
 import type { RondoLive } from "@saas/rondo-core";
 import type { Availability, PollDeadlineKind } from "@saas/rondo-core";
-import type { MatchPollResponse, PublicMatchDropout } from "@saas/sdk";
+import type { MatchPollResponse, PublicMatchDropout, PublicChatMessage } from "@saas/sdk";
 import { useRequireAuth } from "@/lib/use-async";
 import { useSession } from "@/lib/session";
 import { useApiQuery, qk } from "@/lib/query";
@@ -369,13 +369,61 @@ export default function ConnectedRondoPage() {
         return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't finalize the match. Try again." };
       },
       sendChat: async (body: string) => {
+        // Optimistic: paint the bubble instantly, then reconcile with the
+        // POST response — no waiting on the 5s poll round-trip. cancelQueries
+        // stops an in-flight poll refetch from clobbering the optimistic row.
+        const tempId = `temp-${crypto.randomUUID()}`;
+        const optimistic: PublicChatMessage = {
+          id: tempId,
+          kind: "text",
+          body,
+          matchId: null,
+          authorPlayerId: myPlayerId,
+          authorSubjectId: mySubjectId,
+          authorName: null,
+          reactions: {},
+          createdAt: new Date().toISOString(),
+        };
+        await qc.cancelQueries({ queryKey: ["chat", orgId] });
+        qc.setQueryData<PublicChatMessage[]>(["chat", orgId], (old) => [optimistic, ...(old ?? [])]);
         const res = await wrap(() => client.chat.postChat(orgId, { body }));
-        if (res.ok) await qc.invalidateQueries({ queryKey: ["chat", orgId] });
+        if (res.ok) {
+          const real = res.data.message;
+          // Upsert: drop the temp (and any duplicate of the real row a poll may
+          // have raced in) and prepend the confirmed message.
+          qc.setQueryData<PublicChatMessage[]>(["chat", orgId], (old) => [
+            real,
+            ...(old ?? []).filter((m) => m.id !== tempId && m.id !== real.id),
+          ]);
+        } else {
+          qc.setQueryData<PublicChatMessage[]>(["chat", orgId], (old) => (old ?? []).filter((m) => m.id !== tempId));
+        }
         return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't send. Try again." };
       },
       reactChat: async (messageId: string, emoji: string) => {
+        // Optimistic toggle keyed on the subject id (what the backend stores),
+        // reconciled with the server's canonical reactions on success.
+        const meKey = mySubjectId ?? myPlayerId ?? "me";
+        await qc.cancelQueries({ queryKey: ["chat", orgId] });
+        qc.setQueryData<PublicChatMessage[]>(["chat", orgId], (old) =>
+          (old ?? []).map((m) => {
+            if (m.id !== messageId) return m;
+            const list = m.reactions[emoji] ?? [];
+            const nextList = list.includes(meKey) ? list.filter((k) => k !== meKey) : [...list, meKey];
+            const reactions = { ...m.reactions, [emoji]: nextList };
+            if (nextList.length === 0) delete reactions[emoji];
+            return { ...m, reactions };
+          }),
+        );
         const res = await wrap(() => client.chat.reactChat(orgId, messageId, { emoji }));
-        if (res.ok) await qc.invalidateQueries({ queryKey: ["chat", orgId] });
+        if (res.ok) {
+          const real = res.data.message;
+          qc.setQueryData<PublicChatMessage[]>(["chat", orgId], (old) =>
+            (old ?? []).map((m) => (m.id === messageId ? real : m)),
+          );
+        } else {
+          await qc.invalidateQueries({ queryKey: ["chat", orgId] });
+        }
         return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't react. Try again." };
       },
       loadOlderChat: async (before: string, beforeId: string) => {
@@ -413,7 +461,7 @@ export default function ConnectedRondoPage() {
         return res.ok ? { ok: true } : { ok: false, message: res.error.message || "Couldn't update their role. Try again." };
       },
     };
-  }, [orgId, client, qc, router, myPlayerId, nextMatchId]);
+  }, [orgId, client, qc, router, myPlayerId, mySubjectId, nextMatchId]);
 
   const loading =
     !ready ||
