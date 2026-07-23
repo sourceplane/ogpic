@@ -189,6 +189,10 @@ export interface ChatRowVM {
   /** From the viewer's own claimed player or account subject. */
   mine: boolean;
   reactions: Record<string, string[]>;
+  /** Emojis the viewer has themselves reacted with (subset of
+   *  `Object.keys(reactions)`) — lets the UI highlight the caller's own pills
+   *  and toggle them off. Derived from the viewer's player/subject id. */
+  myReactions: string[];
   createdAt: string;
 }
 
@@ -699,6 +703,9 @@ export function useRondo(seed: RondoSeed = {}) {
   // optimistic sends, deduped by id (later entries win), sorted oldest→newest,
   // with any demo-mode-only reaction-toggle overrides applied.
   const chatMeKey = seed.myPlayerId ?? seed.mySubjectId ?? "me";
+  // The viewer reacts under whichever id the backend stored — a claimed
+  // player's id or (unclaimed) the account subject id — so match on either.
+  const myReactionKeys = new Set([seed.myPlayerId, seed.mySubjectId].filter((k): k is string => !!k));
   const chatCombined = [...(seed.chat ?? []), ...olderChat, ...chatAppended];
   const chatById = new Map<string, ChatMessageSeed>();
   for (const m of chatCombined) chatById.set(m.id, m);
@@ -706,6 +713,9 @@ export function useRondo(seed: RondoSeed = {}) {
     .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt) || a.id.localeCompare(b.id))
     .map((m) => {
       const reactions = chatReactionOverrides[m.id] ?? m.reactions;
+      const myReactions = Object.entries(reactions)
+        .filter(([, ids]) => ids.some((id) => myReactionKeys.has(id)))
+        .map(([emoji]) => emoji);
       return {
         id: m.id,
         kind: m.kind,
@@ -716,6 +726,7 @@ export function useRondo(seed: RondoSeed = {}) {
           (!!seed.myPlayerId && m.authorPlayerId === seed.myPlayerId) ||
           (!!seed.mySubjectId && m.authorSubjectId === seed.mySubjectId),
         reactions,
+        myReactions,
         createdAt: m.createdAt,
       };
     });

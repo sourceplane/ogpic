@@ -27,10 +27,66 @@ import { Stagger } from "./anim5";
  *  than folded into kit5. */
 const CARD_GRAD = "linear-gradient(150deg,#0C1912,#1A4530)";
 
+/** The reaction palette offered by the tap-to-react picker. The backend stores
+ *  any emoji (up to 8 chars), so this is purely the UI's curated shortlist —
+ *  football-flavoured. ⚽ stays first as the quick default. */
+const REACTIONS = ["⚽", "🔥", "💪", "👏", "😂", "🎯"] as const;
+
 function timeLabel(iso: string): string {
   const t = Date.parse(iso);
   if (!Number.isFinite(t)) return "";
   return new Date(t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+/** A day-divider label for the feed: TODAY / YESTERDAY / a short date. */
+function dayLabel(iso: string): string {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return "";
+  const d = new Date(t);
+  const now = new Date();
+  const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const days = Math.round((startOf(now) - startOf(d)) / 86_400_000);
+  if (days <= 0) return "TODAY";
+  if (days === 1) return "YESTERDAY";
+  return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }).toUpperCase();
+}
+
+/** Same-calendar-day test for grouping consecutive rows under one divider. */
+function sameDay(a: string, b: string): boolean {
+  const da = new Date(Date.parse(a));
+  const db = new Date(Date.parse(b));
+  return da.getFullYear() === db.getFullYear() && da.getMonth() === db.getMonth() && da.getDate() === db.getDate();
+}
+
+const URL_RE = /(https?:\/\/[^\s]+)/g;
+
+/** Split a message body into text + clickable link segments. Purely display —
+ *  the stored body is untouched. */
+function linkify(body: string): React.ReactNode {
+  if (!URL_RE.test(body)) return body;
+  URL_RE.lastIndex = 0;
+  const out: React.ReactNode[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = URL_RE.exec(body)) !== null) {
+    if (m.index > last) out.push(body.slice(last, m.index));
+    const href = m[0];
+    out.push(
+      <a
+        key={m.index}
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        style={{ color: "inherit", textDecoration: "underline", wordBreak: "break-all" }}
+      >
+        {href}
+      </a>,
+    );
+    last = m.index + href.length;
+  }
+  if (last < body.length) out.push(body.slice(last));
+  return out;
 }
 
 /** See file banner: best-effort "is this author the manager" check for the
@@ -48,14 +104,113 @@ function detailScreen(role: Role, matchId: string): string {
 
 /* ── row kinds ────────────────────────────────────────────────────────── */
 
+/** The floating emoji picker shown above a bubble on tap. */
+function ReactionPicker({ mine, onPick }: { mine: boolean; onPick: (emoji: string) => void }) {
+  return (
+    <div
+      className="rk5-rise"
+      style={{
+        alignSelf: mine ? "flex-end" : "flex-start",
+        margin: mine ? "3px 36px 0 0" : "3px 0 0 36px",
+        display: "flex",
+        gap: 2,
+        background: C5.card,
+        border: `1px solid ${ink(0.12)}`,
+        borderRadius: 18,
+        padding: "3px 5px",
+        boxShadow: "0 6px 18px -6px rgba(14,27,20,.35)",
+        position: "relative",
+        zIndex: 3,
+      }}
+    >
+      {REACTIONS.map((e) => (
+        <button
+          key={e}
+          onClick={(ev) => {
+            ev.stopPropagation();
+            onPick(e);
+          }}
+          style={{
+            border: "none",
+            background: "transparent",
+            cursor: "pointer",
+            fontSize: 17,
+            lineHeight: 1,
+            padding: "4px 5px",
+            borderRadius: 12,
+          }}
+        >
+          {e}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** The reaction pills below a bubble — one per emoji with count > 0, the
+ *  viewer's own reactions highlighted; tapping a pill toggles it. */
+function ReactionPills({ vm, row, mine }: { vm: RondoVM; row: ChatRowVM; mine: boolean }) {
+  const entries = Object.entries(row.reactions).filter(([, ids]) => ids.length > 0);
+  if (entries.length === 0) return null;
+  return (
+    <div
+      style={{
+        alignSelf: mine ? "flex-end" : "flex-start",
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 4,
+        margin: mine ? "-4px 36px 0 0" : "-4px 0 0 36px",
+        position: "relative",
+        zIndex: 1,
+      }}
+    >
+      {entries.map(([emoji, ids]) => {
+        const isMine = row.myReactions.includes(emoji);
+        return (
+          <button
+            key={emoji}
+            onClick={(e) => {
+              e.stopPropagation();
+              vm.chat.react(row.id, emoji);
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 3,
+              background: isMine ? "rgba(30,138,94,.14)" : C5.card,
+              border: `1px solid ${isMine ? C5.green : ink(0.12)}`,
+              borderRadius: 10,
+              padding: "2px 7px",
+              fontSize: 9.5,
+              fontWeight: 700,
+              color: isMine ? C5.green : ink(0.6),
+              cursor: "pointer",
+              boxShadow: "0 1px 3px rgba(14,27,20,.12)",
+            }}
+          >
+            <span style={{ fontSize: 11 }}>{emoji}</span>
+            {ids.length}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function TextBubble({ vm, row }: { vm: RondoVM; row: ChatRowVM }) {
   const mine = row.mine;
-  const ball = row.reactions["⚽"] ?? [];
-  const reacted = ball.length > 0;
   const gold = !mine && isManagerAuthor(vm, row.authorName);
+  const [picking, setPicking] = React.useState(false);
+  const pending = row.id.startsWith("temp-");
+
+  const react = (emoji: string) => {
+    setPicking(false);
+    vm.chat.react(row.id, emoji);
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: "none" }}>
+      {picking && <ReactionPicker mine={mine} onPick={react} />}
       <div style={{ display: "flex", gap: 7, justifyContent: mine ? "flex-end" : "flex-start" }}>
         {!mine && (
           <div
@@ -78,7 +233,7 @@ function TextBubble({ vm, row }: { vm: RondoVM; row: ChatRowVM }) {
           </div>
         )}
         <div
-          onClick={() => vm.chat.react(row.id, "⚽")}
+          onClick={() => setPicking((p) => !p)}
           style={{
             maxWidth: "76%",
             borderRadius: 14,
@@ -87,6 +242,7 @@ function TextBubble({ vm, row }: { vm: RondoVM; row: ChatRowVM }) {
             padding: "7px 11px 5px",
             boxShadow: "0 1px 2px rgba(14,27,20,.06)",
             cursor: "pointer",
+            opacity: pending ? 0.6 : 1,
           }}
         >
           {!mine && (
@@ -94,7 +250,9 @@ function TextBubble({ vm, row }: { vm: RondoVM; row: ChatRowVM }) {
               {row.authorName ?? "Player"}
             </div>
           )}
-          <div style={{ fontSize: 12.5, color: mine ? C5.surface : C5.ink, lineHeight: 1.4 }}>{row.body}</div>
+          <div style={{ fontSize: 12.5, color: mine ? C5.surface : C5.ink, lineHeight: 1.4, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+            {linkify(row.body)}
+          </div>
           <div
             style={{
               textAlign: "right",
@@ -104,28 +262,11 @@ function TextBubble({ vm, row }: { vm: RondoVM; row: ChatRowVM }) {
               marginTop: 2,
             }}
           >
-            {timeLabel(row.createdAt)} {mine ? "✓✓" : ""}
+            {timeLabel(row.createdAt)} {mine ? (pending ? "🕓" : "✓✓") : ""}
           </div>
         </div>
       </div>
-      {reacted && (
-        <div
-          style={{
-            alignSelf: mine ? "flex-end" : "flex-start",
-            margin: "-5px 36px 0",
-            background: C5.card,
-            border: `1px solid ${ink(0.12)}`,
-            borderRadius: 10,
-            padding: "2px 8px",
-            fontSize: 9.5,
-            boxShadow: "0 1px 3px rgba(14,27,20,.15)",
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          ⚽ {ball.length}
-        </div>
-      )}
+      <ReactionPills vm={vm} row={row} mine={mine} />
     </div>
   );
 }
@@ -213,6 +354,27 @@ function NotePill({ row }: { row: ChatRowVM }) {
   );
 }
 
+function DayDivider({ label }: { label: string }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", margin: "3px 0", flex: "none" }}>
+      <span
+        style={{
+          fontFamily: MONO,
+          fontSize: 8,
+          fontWeight: 700,
+          letterSpacing: 1,
+          color: ink(0.4),
+          background: ink(0.05),
+          borderRadius: 8,
+          padding: "3px 11px",
+        }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
 function ChatRow({ vm, row, role, nav }: { vm: RondoVM; row: ChatRowVM; role: Role; nav: (screen: string) => void }) {
   switch (row.kind) {
     case "poll":
@@ -244,7 +406,19 @@ export function ChatScreen({
   onPlus?: () => void;
 }) {
   const [draft, setDraft] = React.useState("");
+  const taRef = React.useRef<HTMLTextAreaElement>(null);
   const feed = [...vm.chat.rows].reverse();
+
+  // Auto-grow the composer up to ~4 lines, then scroll internally.
+  const resize = React.useCallback(() => {
+    const el = taRef.current;
+    if (!el) return;
+    el.style.height = "0px";
+    el.style.height = `${Math.min(el.scrollHeight, 104)}px`;
+  }, []);
+  React.useEffect(() => {
+    resize();
+  }, [draft, resize]);
 
   async function send() {
     const body = draft.trim();
@@ -306,9 +480,18 @@ export function ChatScreen({
       {/* feed */}
       <div style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column-reverse", padding: "10px 14px", gap: 7 }}>
         <Stagger style={{ flex: "none" }}>
-          {feed.map((row) => (
-            <ChatRow key={row.id} vm={vm} row={row} role={role} nav={nav} />
-          ))}
+          {feed.flatMap((row, i) => {
+            const nodes = [<ChatRow key={row.id} vm={vm} row={row} role={role} nav={nav} />];
+            // The feed is newest-first inside a column-reverse container, so a
+            // divider placed *after* a row in DOM order renders just *above* it
+            // on screen — insert one wherever the next-older row is a new day
+            // (and at the oldest row) to head each day's block with its label.
+            const older = feed[i + 1];
+            if (!older || !sameDay(row.createdAt, older.createdAt)) {
+              nodes.push(<DayDivider key={`day-${row.id}`} label={dayLabel(row.createdAt)} />);
+            }
+            return nodes;
+          })}
         </Stagger>
         {vm.chat.hasMore && (
           <div
@@ -321,7 +504,7 @@ export function ChatScreen({
       </div>
 
       {/* composer */}
-      <div style={{ flex: "none", padding: "10px 16px 14px", display: "flex", gap: 8, borderTop: `1px solid ${ink(0.08)}` }}>
+      <div style={{ flex: "none", padding: "10px 16px 14px", display: "flex", alignItems: "flex-end", gap: 8, borderTop: `1px solid ${ink(0.08)}` }}>
         <div
           onClick={onPlus}
           style={{
@@ -340,25 +523,35 @@ export function ChatScreen({
         >
           <Icon name="plus" size={17} stroke={2.2} />
         </div>
-        <input
+        <textarea
+          ref={taRef}
           value={draft}
+          rows={1}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") send();
+            // Enter sends; Shift+Enter (or the mobile newline key) inserts a line.
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              send();
+            }
           }}
           placeholder="Message the squad…"
           style={{
             flex: 1,
             minWidth: 0,
-            height: 42,
+            minHeight: 42,
+            maxHeight: 104,
             borderRadius: 14,
             background: C5.card,
             border: `1px solid ${ink(0.14)}`,
-            padding: "0 14px",
+            padding: "11px 14px",
             fontFamily: "inherit",
             fontSize: 13,
+            lineHeight: 1.35,
             color: C5.ink,
             outline: "none",
+            resize: "none",
+            overflowY: "auto",
           }}
         />
         <div
