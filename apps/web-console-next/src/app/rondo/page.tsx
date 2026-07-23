@@ -8,40 +8,81 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import "../../styles/rondo-kit.css";
 import { RondoLogin } from "@/components/rondo/rondo-login";
 import { Hub5 } from "@/components/rondo/v5/hub5";
 import { useSession } from "@/lib/session";
-import { useApiQuery, qk } from "@/lib/query";
+import { qk } from "@/lib/query";
 import { wrap } from "@/lib/api";
 
 export default function RondoEntryPage() {
   const router = useRouter();
-  const { token, client } = useSession();
+  const { token, client, setToken } = useSession();
+  const qc = useQueryClient();
   const [ready, setReady] = React.useState(false);
 
   // Avoid a flash of the login while the stored token hydrates.
   React.useEffect(() => setReady(true), []);
 
-  const orgs = useApiQuery(
-    qk.orgs(),
-    () => wrap(async () => (await client.organizations.list()).organizations),
-    { enabled: !!token },
-  );
+  // Raw useQuery (not useApiQuery) so we can read `isFetching`/`isSuccess` and
+  // force a fresh fetch on every mount: returning to this page must re-check
+  // membership rather than trust a possibly-stale cache. That stale-cache read
+  // was what flashed the create/join fork at members who already had a squad.
+  const orgsQuery = useQuery({
+    queryKey: qk.orgs(),
+    queryFn: async () => {
+      const r = await wrap(async () => (await client.organizations.list()).organizations);
+      if (!r.ok) throw r.error;
+      return r.data;
+    },
+    enabled: !!token,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    staleTime: 0,
+  });
 
-  const teams = orgs.data ?? [];
+  const teams = orgsQuery.data ?? [];
+
+  // The signed-in account panel for the hub (profile photo, name, email,
+  // settings, sign out) — the piece the teams page was missing.
+  const profileQuery = useQuery({
+    queryKey: ["auth-profile"],
+    queryFn: async () => {
+      const r = await wrap(async () => (await client.auth.getProfile()).user);
+      if (!r.ok) throw r.error;
+      return r.data;
+    },
+    enabled: !!token,
+  });
+
+  const onSignOut = React.useCallback(async () => {
+    try {
+      await client.auth.logout();
+    } catch {
+      /* session may already be gone */
+    }
+    setToken(null);
+    qc.clear();
+    router.replace("/rondo");
+  }, [client, setToken, qc, router]);
 
   React.useEffect(() => {
-    if (!token || !orgs.data) return;
-    // No squads → onboarding. Otherwise the v5 hub lists every team (even a
-    // single one) so members always see and can switch between all squads.
-    if (orgs.data.length === 0) router.replace("/rondo/start");
-  }, [token, orgs.data, router]);
+    if (!token) return;
+    // Only decide onboarding from a settled, fresh fetch — never from stale
+    // cache mid-revalidation (which caused the create/join flash on return).
+    if (orgsQuery.isFetching || !orgsQuery.isSuccess) return;
+    if (orgsQuery.data.length === 0) router.replace("/rondo/start");
+  }, [token, orgsQuery.isFetching, orgsQuery.isSuccess, orgsQuery.data, router]);
 
   if (!ready) return <RondoBoot />;
   if (!token) return <RondoLogin />;
-  // Signed in with several squads: the initial team selection (design 2a).
-  if (orgs.data && teams.length >= 1) {
+  // Signed in with at least one squad: the team selector (design 2a). The v5
+  // hub lists every team (even a single one) so members always see and can
+  // switch between all their squads — now with their account panel on top.
+  if (teams.length >= 1) {
+    const email = profileQuery.data?.email ?? null;
+    const name = profileQuery.data?.displayName || (email ? email.split("@")[0]! : "You");
     return (
       <div style={{ minHeight: "100dvh", background: "#F5F2E9", maxWidth: 430, margin: "0 auto", position: "relative" }}>
         <Hub5
@@ -49,6 +90,7 @@ export default function RondoEntryPage() {
           onOpen={(slug) => router.replace(`/rondo/${slug}`)}
           onCreate={() => router.push("/rondo/new")}
           onJoin={() => router.push("/rondo/join")}
+          account={{ name, email, onSignOut }}
         />
       </div>
     );

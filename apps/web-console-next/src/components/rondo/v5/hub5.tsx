@@ -8,6 +8,7 @@
 
 import * as React from "react";
 import { C5, ink, Icon, MONO } from "./kit5";
+import { AccountCard5, type AccountInfo } from "./account-card5";
 
 export interface HubTeam {
   slug: string;
@@ -31,12 +32,17 @@ export function Hub5({
   onOpen,
   onCreate,
   onJoin,
+  account,
 }: {
   teams: HubTeam[];
   currentSlug?: string | undefined;
   onOpen: (slug: string) => void;
   onCreate: () => void;
   onJoin: () => void;
+  /** When set, renders the signed-in user's account panel (profile photo,
+   *  name + email, notifications/theme settings, sign out) atop the list —
+   *  used by the standalone /rondo hub. */
+  account?: AccountInfo | undefined;
 }) {
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", background: C5.surface }}>
@@ -45,6 +51,7 @@ export function Hub5({
         <div style={{ marginTop: 4, fontSize: 12.5, color: ink(0.55) }}>Pick a team, create one, or join with a code.</div>
       </div>
       <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "16px 24px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
+        {account && <AccountCard5 {...account} />}
         {teams.map((t, i) => {
           const manager = isManagerRole(t.role);
           const current = t.slug === currentSlug;
