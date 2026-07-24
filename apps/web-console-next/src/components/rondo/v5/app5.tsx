@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session";
 import { C5, DockNav, useToast, type DockItem } from "./kit5";
 import { Anim5Styles, ScreenTransition, useSwipeBack, type NavDirection } from "./anim5";
+import { useNativeBack } from "./native5";
 import { MHome } from "./m-home";
 import { MMatches } from "./m-matches";
 import { MWizard } from "./m-wizard";
@@ -149,6 +150,40 @@ export function RondoApp5({
     if (backTarget) nav(backTarget);
   }, [backTarget, nav]);
   const swipe = useSwipeBack(onSwipeBack, backTarget !== undefined);
+
+  // Android hardware / gesture Back (Capacitor native shell). Steps back the
+  // same way the UI does — close an open sheet, pop a deep screen, drop from a
+  // dock tab to Home — and only lets the app exit from Home with nothing open.
+  // No-op in the browser / PWA.
+  useNativeBack(
+    React.useCallback(() => {
+      if (plusOpen) {
+        setPlusOpen(false);
+        return true;
+      }
+      if (inviteOpen) {
+        setInviteOpen(false);
+        return true;
+      }
+      if (addOpen) {
+        setAddOpen(false);
+        return true;
+      }
+      if (backTarget) {
+        nav(backTarget);
+        return true;
+      }
+      if (base === "wizard") {
+        nav("matches");
+        return true;
+      }
+      if (base !== "home") {
+        setScreen("home");
+        return true;
+      }
+      return false;
+    }, [plusOpen, inviteOpen, addOpen, backTarget, base, nav]),
+  );
 
   // Dock badges: RATE ! while the voting window is open; MATCHES ! while a
   // poll still needs the viewer's vote (design reference lines 1154-1156).
