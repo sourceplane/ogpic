@@ -14,9 +14,14 @@ currently-deployed UI:
 
 Built by GitHub Actions and attached to a GitHub Release.
 
-1. **Actions → "Android APK (Capacitor)" → Run workflow** (or push an `apk-*` tag).
-2. Download `rondo.apk` from the **`android-latest`** Release (or the run's
-   build artifact).
+1. **Actions → "Android APK (Capacitor)" → Run workflow** → pick a **variant**
+   (or push an `apk-*` tag, which builds prod):
+   - **prod** → production URL, real email login → Release **`android-latest`**
+   - **dev** → stage URL, where the backend runs in `local_debug` so the login
+     screen shows the **DEV CODE** (no real email needed); a separate app id
+     (`ai.sourceplane.rondo.dev`, "Rondo Dev") lets it install alongside prod →
+     Release **`android-dev`**
+2. Download `rondo.apk` from the matching Release (or the run's build artifact).
 3. On your phone: open the APK, allow "install unknown apps", install.
 
 ## Notes
