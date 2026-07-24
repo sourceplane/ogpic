@@ -25,9 +25,17 @@ interface CapacitorStatusBarPlugin {
   setStyle?: (opts: { style: string }) => Promise<void> | void;
   setBackgroundColor?: (opts: { color: string }) => Promise<void> | void;
 }
+interface CapacitorHapticsPlugin {
+  impact?: (opts: { style: string }) => Promise<void> | void;
+  selectionChanged?: () => Promise<void> | void;
+}
 interface CapacitorGlobal {
   isNativePlatform?: () => boolean;
-  Plugins?: { App?: CapacitorAppPlugin; StatusBar?: CapacitorStatusBarPlugin };
+  Plugins?: {
+    App?: CapacitorAppPlugin;
+    StatusBar?: CapacitorStatusBarPlugin;
+    Haptics?: CapacitorHapticsPlugin;
+  };
 }
 
 function capacitor(): CapacitorGlobal | undefined {
@@ -62,6 +70,25 @@ export function useFullscreen(): void {
       void sb.setBackgroundColor?.({ color: "#00000000" });
     } catch {
       /* best effort — a missing StatusBar plugin just means no overlay */
+    }
+  }, []);
+}
+
+/**
+ * A tiny haptic tick for navigation gestures (tab switch, pop, swipe-back
+ * commit) — the physical feedback that makes a WebView app feel native.
+ * Returns a stable no-op outside the native shell, and never throws or awaits
+ * in the caller's path.
+ */
+export function useHaptic(): (kind?: "light" | "select") => void {
+  return React.useCallback((kind: "light" | "select" = "select") => {
+    const h = capacitor()?.Plugins?.Haptics;
+    if (!h) return;
+    try {
+      if (kind === "light") void h.impact?.({ style: "LIGHT" });
+      else void h.selectionChanged?.();
+    } catch {
+      /* haptics are cosmetic — never let them break navigation */
     }
   }, []);
 }

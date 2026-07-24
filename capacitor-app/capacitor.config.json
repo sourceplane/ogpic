@@ -9,5 +9,11 @@
   },
   "android": {
     "backgroundColor": "#0E1B14"
+  },
+  "plugins": {
+    "Keyboard": {
+      "resize": "native",
+      "resizeOnFullScreen": true
+    }
   }
 }

@@ -14,8 +14,8 @@ import type { RondoVM } from "@saas/rondo-core";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session";
 import { C5, DockNav, useToast, type DockItem } from "./kit5";
-import { Anim5Styles, ScreenTransition, useSwipeBack, type NavDirection } from "./anim5";
-import { useNativeBack } from "./native5";
+import { Anim5Styles, ScreenTransition, useSwipeBack, useSwipeTabs, type NavDirection } from "./anim5";
+import { useNativeBack, useHaptic } from "./native5";
 import { MHome } from "./m-home";
 import { MMatches } from "./m-matches";
 import { MWizard } from "./m-wizard";
@@ -62,14 +62,18 @@ const DOCK_ORDER = ["home", "matches", "chat", "squad", "rate"];
 /** Back-navigation target per push screen, for the swipe-back gesture — each
  *  is the exact `nav(...)` those screens already fire from their header back
  *  button, so the gesture pops to the same place with no behaviour change.
- *  Wizard is deliberately EXCLUDED: its header back is step-aware (step > 1
- *  goes back a step, not out), so an edge-swipe would discard in-progress
- *  draft state — the wizard keeps its own back button only. */
+ *  The wizard is included now that its header back always leaves the screen
+ *  (step-back is a separate footer control), so a swipe can't strand a draft
+ *  mid-step. */
 const BACK_TARGET: Record<string, string> = {
   mdetail: "matches",
   pdetail: "matches",
   edit: "squad",
   pview: "psquad",
+  wizard: "matches",
+  profile: "home",
+  hub: "home",
+  psquad: "home",
 };
 
 /** Dock keys that show the dock; param screens map to their base tab. */
@@ -102,10 +106,16 @@ export function RondoApp5({
   const router = useRouter();
   const { client, setToken } = useSession();
 
-  const nav = React.useCallback((s: string) => {
-    setClaimDismissed(true);
-    setScreen(s);
-  }, []);
+  const haptic = useHaptic();
+
+  const nav = React.useCallback(
+    (s: string) => {
+      setClaimDismissed(true);
+      setScreen(s);
+      haptic();
+    },
+    [haptic],
+  );
 
   const onSignOut = React.useCallback(async () => {
     try {
@@ -147,9 +157,40 @@ export function RondoApp5({
   // header button already uses (never a new destination).
   const backTarget = BACK_TARGET[base];
   const onSwipeBack = React.useCallback(() => {
-    if (backTarget) nav(backTarget);
-  }, [backTarget, nav]);
-  const swipe = useSwipeBack(onSwipeBack, backTarget !== undefined);
+    if (!backTarget) return;
+    haptic("light"); // the gesture committed — a firmer tick than a tap
+    nav(backTarget);
+  }, [backTarget, nav, haptic]);
+  const deep = backTarget !== undefined;
+  const swipeBack = useSwipeBack(onSwipeBack, deep);
+
+  // Slide left/right on a dock-level screen to move between dock tabs — the
+  // dock highlight follows because it derives from `screen`. Only the tabs this
+  // role actually shows are reachable, and it is off on deep screens (there a
+  // drag means "back").
+  const dockKeys = React.useMemo(
+    () => (role === "manager" ? MANAGER_DOCK : PLAYER_DOCK).map((d) => d.key),
+    [role],
+  );
+  const tabIndex = dockKeys.indexOf(base);
+  const goTab = React.useCallback(
+    (delta: number) => {
+      const next = dockKeys[tabIndex + delta];
+      if (!next) return;
+      haptic("light");
+      setScreen(next);
+    },
+    [dockKeys, tabIndex, haptic],
+  );
+  const swipeTabs = useSwipeTabs({
+    onNext: () => goTab(1),
+    onPrev: () => goTab(-1),
+    canNext: tabIndex >= 0 && tabIndex < dockKeys.length - 1,
+    canPrev: tabIndex > 0,
+    enabled: !deep && tabIndex >= 0,
+  });
+
+  const swipe = deep ? swipeBack : swipeTabs;
 
   // Android hardware / gesture Back (Capacitor native shell). Steps back the
   // same way the UI does — close an open sheet, pop a deep screen, drop from a
@@ -256,7 +297,10 @@ export function RondoApp5({
       <div style={{ flex: 1, minHeight: 0, position: "relative", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <div
           {...swipe.handlers}
-          style={{ position: "absolute", inset: 0, touchAction: backTarget !== undefined ? "pan-y" : undefined, ...swipe.style }}
+          // pan-y keeps vertical scrolling native while letting the horizontal
+          // axis reach our gesture handlers (swipe-back on deep screens, tab
+          // slide on dock screens).
+          style={{ position: "absolute", inset: 0, touchAction: deep || tabIndex >= 0 ? "pan-y" : undefined, ...swipe.style }}
         >
           <ScreenTransition screenKey={screen} direction={direction}>
             {body}
