@@ -52,6 +52,9 @@ export interface LiveMatchRow {
   phase: MatchPhase;
   /** Progress-bar fill 0-100 (poll 33 / finalizing 55 / draft 75 / scheduled+ 100). */
   progressStep: number;
+  /** Kickoff instant (ISO) when the fixture has one — lets the UI show a
+   *  countdown ("IN 6 DAYS") rather than only a formatted date. */
+  scheduledAt?: string | null;
   /** Card headline (date + kickoff time, or a phase fallback pre-schedule). */
   label: string;
   /** Card sub-line (venue name, or a phase fallback when there's none yet). */

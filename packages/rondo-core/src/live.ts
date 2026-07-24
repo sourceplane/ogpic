@@ -110,6 +110,7 @@ export function matchRows(matches: PublicMatch[]): LiveMatchRow[] {
       teamB: { name: m.teamB.name || "Away", players: m.teamB.players.map((p) => p.name), rating: Math.round(Number(m.ratingB)) },
       phase,
       progressStep: MATCH_PHASE_PROGRESS[phase],
+      scheduledAt: m.scheduledAt ?? null,
       label: dateLabel ? `${dateLabel} · ${formatTime(m.scheduledAt)}` : MATCH_PHASE_LABEL[phase],
       subLabel: venueName ?? MATCH_PHASE_LABEL[phase],
     };
