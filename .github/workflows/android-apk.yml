@@ -50,6 +50,16 @@ jobs:
 
       - name: Configure Bubblewrap (use runner's preinstalled JDK + Android SDK)
         run: |
+          echo "JAVA_HOME=$JAVA_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          # Bubblewrap validates the SDK root by looking for a top-level `tools/`
+          # or `bin/` dir and expects sdkmanager at `tools/bin/sdkmanager` — the
+          # modern runner SDK only ships `cmdline-tools/latest`, so it rejects it
+          # ("The provided androidSdk isn't correct."). Bridge the layouts with a
+          # symlink so both the validation and the sdkmanager path resolve.
+          ln -sfn "$ANDROID_SDK_ROOT/cmdline-tools/latest" "$ANDROID_SDK_ROOT/tools" \
+            || sudo ln -sfn "$ANDROID_SDK_ROOT/cmdline-tools/latest" "$ANDROID_SDK_ROOT/tools"
+          ls -la "$ANDROID_SDK_ROOT/tools/bin/sdkmanager"
           mkdir -p "$HOME/.bubblewrap"
           cat > "$HOME/.bubblewrap/config.json" <<EOF
           {
@@ -57,9 +67,7 @@ jobs:
             "androidSdkPath": "${ANDROID_SDK_ROOT}"
           }
           EOF
-          echo "JAVA_HOME=$JAVA_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          yes | "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          yes | "${ANDROID_SDK_ROOT}/tools/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
 
       - name: Generate signing keystore (throwaway, test-only)
         working-directory: android-twa
