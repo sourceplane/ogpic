@@ -1,16 +1,14 @@
-name: Android APK (TWA)
+name: Android APK (Capacitor)
 
-# Builds a Trusted Web Activity (TWA) APK that wraps the live Rondo PWA — the
-# UI is loaded online from the production URL, so the app always shows the
-# deployed UI (nothing is bundled). Run it from the Actions tab
-# ("Run workflow") or by pushing an `apk-*` tag; the signed APK is attached to
-# a GitHub Release (a stable download link) and uploaded as a build artifact.
+# Builds an Android APK with Capacitor that wraps the LIVE Rondo web app in a
+# native WebView — no browser address bar. `server.url` in
+# capacitor-app/capacitor.config.json points at production, so the app loads the
+# UI online (nothing is bundled) and always shows the deployed UI.
 #
-# The signing key is generated fresh each run (this is a throwaway test build),
-# so the TWA cannot pass Digital Asset Links verification and Chrome shows a
-# thin address bar. That is expected and fine for UI testing. To get a
-# bar-less install, use a stable keystore and serve /.well-known/assetlinks.json
-# with its SHA-256 fingerprint (printed in the build log).
+# Run from the Actions tab ("Run workflow") or by pushing an `apk-*` tag. The
+# signed debug APK is attached to a GitHub Release (a stable download link) and
+# uploaded as a build artifact. A debug APK is used so it installs by sideload
+# with no signing setup; it is not for Play Store distribution.
 
 on:
   workflow_dispatch:
@@ -18,7 +16,7 @@ on:
       release_tag:
         description: "Release tag to publish the APK under"
         required: false
-        default: "twa-latest"
+        default: "android-latest"
   push:
     tags:
       - "apk-*"
@@ -45,65 +43,38 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Install Bubblewrap
-        run: npm install -g @bubblewrap/cli@1.22.0
+      - name: Install Capacitor deps
+        working-directory: capacitor-app
+        run: npm install
 
-      - name: Configure Bubblewrap (use runner's preinstalled JDK + Android SDK)
+      - name: Add Android platform
+        working-directory: capacitor-app
+        run: npx cap add android
+
+      - name: Generate app icons (branded launcher icon)
+        working-directory: capacitor-app
+        run: npx capacitor-assets generate --android --iconBackgroundColor "#0E1B14" --iconBackgroundColorDark "#0E1B14" || echo "icon generation skipped — using defaults"
+
+      - name: Sync web assets + config into the Android project
+        working-directory: capacitor-app
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: capacitor-app/android
         run: |
-          echo "JAVA_HOME=$JAVA_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          # Bubblewrap validates the SDK root by looking for a top-level `tools/`
-          # or `bin/` dir and expects sdkmanager at `tools/bin/sdkmanager` — the
-          # modern runner SDK only ships `cmdline-tools/latest`, so it rejects it
-          # ("The provided androidSdk isn't correct."). Bridge the layouts with a
-          # symlink so both the validation and the sdkmanager path resolve.
-          ln -sfn "$ANDROID_SDK_ROOT/cmdline-tools/latest" "$ANDROID_SDK_ROOT/tools" \
-            || sudo ln -sfn "$ANDROID_SDK_ROOT/cmdline-tools/latest" "$ANDROID_SDK_ROOT/tools"
-          ls -la "$ANDROID_SDK_ROOT/tools/bin/sdkmanager"
-          mkdir -p "$HOME/.bubblewrap"
-          cat > "$HOME/.bubblewrap/config.json" <<EOF
-          {
-            "jdkPath": "${JAVA_HOME}",
-            "androidSdkPath": "${ANDROID_SDK_ROOT}"
-          }
-          EOF
-          yes | "${ANDROID_SDK_ROOT}/tools/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Generate signing keystore (throwaway, test-only)
-        working-directory: android-twa
+      - name: Collect APK
+        working-directory: capacitor-app
         run: |
-          keytool -genkeypair -v \
-            -keystore android.keystore \
-            -alias android \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass rondotwa -keypass rondotwa \
-            -dname "CN=Rondo TWA, OU=Rondo, O=Sourceplane, C=US"
-
-      - name: Build TWA APK
-        working-directory: android-twa
-        env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: rondotwa
-          BUBBLEWRAP_KEY_PASSWORD: rondotwa
-        run: |
-          # `yes` answers the "generate the Android project?" confirm; passwords
-          # come from the env vars above, so the build runs unattended.
-          yes | bubblewrap build --skipPwaValidation
-          ls -la app-release-signed.apk
-
-      - name: Print signing fingerprint (for optional assetlinks.json)
-        working-directory: android-twa
-        run: |
-          keytool -list -v -keystore android.keystore -alias android -storepass rondotwa \
-            | grep "SHA256:" || true
-
-      - name: Rename APK
-        working-directory: android-twa
-        run: cp app-release-signed.apk rondo-twa.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk rondo.apk
+          ls -la rondo.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: rondo-twa-apk
-          path: android-twa/rondo-twa.apk
+          name: rondo-apk
+          path: capacitor-app/rondo.apk
           if-no-files-found: error
 
       - name: Publish GitHub Release with the APK
@@ -111,14 +82,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="${{ github.event.inputs.release_tag || github.ref_name }}"
-          [ -z "$TAG" ] && TAG="twa-latest"
-          NOTES=$'Trusted Web Activity wrapper for Rondo.\n\nLoads the live UI from https://ogpic-web-console-next-prod.rahulvarghesepullely.workers.dev/rondo — nothing is bundled, so it always shows the deployed UI.\n\nInstall on Android: download rondo-twa.apk, allow "install unknown apps" for your browser/files app, then open it. Chrome shows a thin address bar because this test build is signed with a throwaway key (expected).'
+          [ -z "$TAG" ] && TAG="android-latest"
+          NOTES=$'Capacitor (native WebView) build of Rondo — no browser address bar.\n\nLoads the live UI from https://ogpic-web-console-next-prod.rahulvarghesepullely.workers.dev/rondo — nothing is bundled, so it always shows the deployed UI.\n\nInstall on Android: download rondo.apk, allow "install unknown apps" for your browser/files app, then open it.'
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$TAG" android-twa/rondo-twa.apk --clobber --repo "$GITHUB_REPOSITORY"
+            gh release upload "$TAG" capacitor-app/rondo.apk --clobber --repo "$GITHUB_REPOSITORY"
           else
-            gh release create "$TAG" android-twa/rondo-twa.apk \
+            gh release create "$TAG" capacitor-app/rondo.apk \
               --repo "$GITHUB_REPOSITORY" \
-              --title "Rondo TWA (Android)" \
+              --title "Rondo (Android)" \
               --notes "$NOTES"
           fi
           echo "Release: $(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url --jq .url)"

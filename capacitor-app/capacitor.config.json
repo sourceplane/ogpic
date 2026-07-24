@@ -1,0 +1,13 @@
+{
+  "appId": "ai.sourceplane.rondo",
+  "appName": "Rondo",
+  "webDir": "www",
+  "server": {
+    "url": "https://ogpic-web-console-next-prod.rahulvarghesepullely.workers.dev/rondo",
+    "cleartext": false,
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#0E1B14"
+  }
+}

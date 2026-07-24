@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Rondo</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #0E1B14; color: #F2F4F1;
+        font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; }
+      .card { text-align: center; }
+      .badge { width: 84px; height: 84px; border-radius: 24px; background: #101511;
+        border: 3px solid #1E8A5E; display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 16px; font-size: 44px; font-weight: 700; }
+      a { color: #2FBE7E; }
+    </style>
+  </head>
+  <body>
+    <!--
+      With `server.url` set in capacitor.config.json, the app's WebView loads the
+      live Rondo site directly, so this file is only a fallback shown if that URL
+      can't be reached (e.g. offline on first launch).
+    -->
+    <div class="card">
+      <div class="badge">R</div>
+      <div>Loading Rondo…</div>
+      <p style="opacity:.7;font-size:13px">Check your connection, then reopen the app.</p>
+      <p><a href="https://ogpic-web-console-next-prod.rahulvarghesepullely.workers.dev/rondo">Open in browser</a></p>
+    </div>
+  </body>
+</html>

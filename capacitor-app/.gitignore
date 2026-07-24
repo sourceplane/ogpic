@@ -1,0 +1,6 @@
+# Capacitor generates the native Android project + installs deps at build time.
+node_modules/
+package-lock.json
+android/
+*.apk
+*.aab
