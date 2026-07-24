@@ -79,7 +79,7 @@ export function PProfile({
             <div style={{ fontSize: 19, fontWeight: 700, color: C5.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
             {myPosLabel && (
               <div style={{ marginTop: 5, display: "flex", gap: 6 }}>
-                <ChipTag bg="rgba(30,138,94,.12)" fg={C5.green} size={8.5}>
+                <ChipTag bg="rgba(23,105,74,.12)" fg={C5.green} size={8.5}>
                   {myPosLabel}
                 </ChipTag>
               </div>

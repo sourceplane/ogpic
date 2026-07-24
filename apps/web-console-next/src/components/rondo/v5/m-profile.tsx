@@ -80,7 +80,7 @@ export function MProfile({
               width: 56,
               height: 56,
               borderRadius: "50%",
-              background: "#E5E3D2",
+              background: "#E4EBE3",
               border: `3px solid ${C5.gold}`,
               display: "flex",
               alignItems: "center",

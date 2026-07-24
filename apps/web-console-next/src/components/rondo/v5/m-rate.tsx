@@ -83,7 +83,7 @@ export function MRate({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) =
             fontWeight: 600,
             padding: "5px 10px",
             borderRadius: 14,
-            background: open ? "rgba(30,138,94,.12)" : ink(0.06),
+            background: open ? "rgba(23,105,74,.12)" : ink(0.06),
             color: open ? C5.green : ink(0.55),
           }}
         >
@@ -125,7 +125,7 @@ export function MRate({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) =
                       }}
                     >
                       <span style={{ fontSize: 13.5, fontWeight: 700, color: on ? C5.surface : C5.ink }}>{d.k}</span>
-                      <span style={{ fontFamily: MONO, fontSize: 7.5, color: on ? "rgba(245,242,233,.7)" : ink(0.45) }}>{d.lbl}</span>
+                      <span style={{ fontFamily: MONO, fontSize: 7.5, color: on ? "rgba(242,244,241,.7)" : ink(0.45) }}>{d.lbl}</span>
                     </div>
                   );
                 })}

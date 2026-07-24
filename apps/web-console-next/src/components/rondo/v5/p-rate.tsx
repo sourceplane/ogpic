@@ -143,14 +143,14 @@ export function PRate({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) =
         <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
           <div style={{ flex: 1, margin: "14px 20px 0", background: C5.card, border: `1px solid ${ink(0.1)}`, borderRadius: 22, padding: 20, display: "flex", flexDirection: "column", minHeight: 0, overflowY: "auto" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
-              <div style={{ width: 52, height: 52, borderRadius: "50%", background: "#E5E3D2", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: C5.ink, flex: "none" }}>
+              <div style={{ width: 52, height: 52, borderRadius: "50%", background: "#E4EBE3", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: C5.ink, flex: "none" }}>
                 {t.initials}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 19, fontWeight: 700, letterSpacing: -0.4, color: C5.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.name}</div>
                 <div style={{ fontFamily: MONO, fontSize: 9.5, color: ink(0.5), marginTop: 2 }}>{t.pos} · ANONYMOUS</div>
               </div>
-              <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: "5px 10px", borderRadius: 12, background: "rgba(30,138,94,.1)", color: C5.green }}>OVR {t.ovr}</span>
+              <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: "5px 10px", borderRadius: 12, background: "rgba(23,105,74,.1)", color: C5.green }}>OVR {t.ovr}</span>
             </div>
 
             <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 15 }}>
