@@ -1,19 +1,29 @@
 /*
- * Hub5 — the v5 "Your teams" screen (design reference lines 54-88). Lists
- * EVERY squad the member belongs to with a MANAGER/PLAYER role chip, plus the
- * Create-a-team (green) and Join-a-team (dashed) cards. Used full-screen by
- * the /rondo start page and in-shell by RondoApp5's hub navigation.
+ * Hub5 — the v5 "Your teams" screen. A slim account header (profile photo,
+ * name, email, sign out) sits above the real focus of the page: a clean,
+ * tappable list of every squad the member belongs to with a MANAGER/PLAYER
+ * chip, then a compact New-team / Join row. Used full-screen by the /rondo
+ * entry page and in-shell by RondoApp5's "switch team" hub — the account
+ * header only renders when an `account` is supplied (the /rondo entry).
  */
 "use client";
 
 import * as React from "react";
+import { initials } from "@saas/rondo-core";
 import { C5, ink, Icon, MONO } from "./kit5";
-import { AccountCard5, type AccountInfo } from "./account-card5";
+import { Pressable, Stagger } from "./anim5";
 
 export interface HubTeam {
   slug: string;
   name: string;
   role?: string | undefined;
+}
+
+/** The signed-in account shown in the hub header. */
+export interface AccountInfo {
+  name: string;
+  email: string | null;
+  onSignOut: () => void;
 }
 
 const CREST_COLORS = [C5.green, C5.rust, "#2563EB", "#7C3AED", "#0EA5E9"];
@@ -24,6 +34,61 @@ function crestOf(name: string): string {
 
 function isManagerRole(role?: string): boolean {
   return role === "owner" || role === "admin";
+}
+
+function AccountHeader({ name, email, onSignOut }: AccountInfo) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "4px 0 2px" }}>
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: "50%",
+          background: "#E5E3D2",
+          border: `2.5px solid ${C5.gold}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 14,
+          fontWeight: 700,
+          color: C5.ink,
+          flex: "none",
+        }}
+      >
+        {initials(name)}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: C5.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {name}
+        </div>
+        {email && (
+          <div style={{ fontFamily: MONO, fontSize: 9, color: ink(0.45), marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {email}
+          </div>
+        )}
+      </div>
+      <Pressable
+        onClick={onSignOut}
+        title="Sign out"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          height: 34,
+          padding: "0 12px",
+          borderRadius: 12,
+          background: "rgba(176,81,47,.08)",
+          border: "1px solid rgba(176,81,47,.28)",
+          color: C5.rust,
+          cursor: "pointer",
+          flex: "none",
+        }}
+      >
+        <Icon name="logout" size={14} color={C5.rust} />
+        <span style={{ fontSize: 11.5, fontWeight: 700 }}>Sign out</span>
+      </Pressable>
+    </div>
+  );
 }
 
 export function Hub5({
@@ -39,63 +104,117 @@ export function Hub5({
   onOpen: (slug: string) => void;
   onCreate: () => void;
   onJoin: () => void;
-  /** When set, renders the signed-in user's account panel (profile photo,
-   *  name + email, notifications/theme settings, sign out) atop the list —
-   *  used by the standalone /rondo hub. */
+  /** When set, renders the account header (profile photo, name, email, sign
+   *  out) — used by the standalone /rondo entry page. */
   account?: AccountInfo | undefined;
 }) {
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", background: C5.surface }}>
-      <div style={{ padding: "16px 24px 0" }}>
-        <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.6, color: C5.ink }}>Your teams</div>
-        <div style={{ marginTop: 4, fontSize: 12.5, color: ink(0.55) }}>Pick a team, create one, or join with a code.</div>
-      </div>
-      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "16px 24px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
-        {account && <AccountCard5 {...account} />}
-        {teams.map((t, i) => {
-          const manager = isManagerRole(t.role);
-          const current = t.slug === currentSlug;
-          return (
-            <div
-              key={t.slug}
-              onClick={() => onOpen(t.slug)}
-              style={{ borderRadius: 20, background: C5.card, border: `1px solid ${ink(current ? 0.25 : 0.12)}`, padding: 16, display: "flex", alignItems: "center", gap: 13, cursor: "pointer", flex: "none" }}
-            >
-              <div style={{ width: 48, height: 48, borderRadius: 15, background: CREST_COLORS[i % CREST_COLORS.length], display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 700, color: C5.surface }}>
-                {crestOf(t.name)}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 16, fontWeight: 700, color: C5.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</div>
-                <div style={{ fontFamily: MONO, fontSize: 9, color: ink(0.5), marginTop: 2 }}>{current ? "CURRENT TEAM" : "TAP TO OPEN"}</div>
-              </div>
-              <span
-                style={{
-                  fontFamily: MONO,
-                  fontSize: 8.5,
-                  fontWeight: 700,
-                  padding: "4px 9px",
-                  borderRadius: 10,
-                  background: manager ? C5.goldBg : "rgba(30,138,94,.12)",
-                  color: manager ? C5.goldText : C5.green,
-                }}
-              >
-                {manager ? "MANAGER" : "PLAYER"}
-              </span>
-              <span style={{ fontSize: 13, color: ink(0.35) }}>›</span>
-            </div>
-          );
-        })}
-        <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
-          <div onClick={onCreate} style={{ flex: 1, borderRadius: 20, background: C5.green, padding: "18px 16px", cursor: "pointer", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", right: -30, top: -30, width: 110, height: 110, border: "2px solid rgba(245,242,233,.15)", borderRadius: "50%" }} />
-            <Icon name="plus" size={20} color={C5.surface} stroke={2.2} />
-            <div style={{ fontSize: 15, fontWeight: 700, color: C5.surface, marginTop: 10 }}>Create a team</div>
-            <div style={{ fontSize: 11, color: "rgba(245,242,233,.7)", marginTop: 3 }}>You&rsquo;ll be its manager</div>
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "18px 22px 20px" }}>
+        {account && <AccountHeader {...account} />}
+
+        <div style={{ marginTop: account ? 18 : 4 }}>
+          <div style={{ fontSize: 25, fontWeight: 700, letterSpacing: -0.7, color: C5.ink }}>Your teams</div>
+          <div style={{ marginTop: 3, fontSize: 12.5, color: ink(0.55) }}>
+            {teams.length === 1 ? "Tap to open, or start another below." : "Pick a squad to open."}
           </div>
-          <div onClick={onJoin} style={{ flex: 1, borderRadius: 20, background: C5.card, border: `2px dashed ${ink(0.2)}`, padding: "18px 16px", cursor: "pointer" }}>
-            <Icon name="link" size={20} color={C5.ink} stroke={2} />
-            <div style={{ fontSize: 15, fontWeight: 700, color: C5.ink, marginTop: 10 }}>Join a team</div>
-            <div style={{ fontSize: 11, color: ink(0.5), marginTop: 3 }}>Code or invite link</div>
+        </div>
+
+        <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
+          <Stagger style={{ flex: "none" }}>
+            {teams.map((t, i) => {
+              const manager = isManagerRole(t.role);
+              const current = t.slug === currentSlug;
+              return (
+                <Pressable
+                  key={t.slug}
+                  onClick={() => onOpen(t.slug)}
+                  style={{
+                    borderRadius: 20,
+                    background: C5.card,
+                    border: current ? `1.5px solid ${C5.green}` : `1px solid ${ink(0.12)}`,
+                    boxShadow: current ? "0 6px 18px -10px rgba(30,138,94,.5)" : "0 1px 2px rgba(14,27,20,.05)",
+                    padding: 15,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 13,
+                    cursor: "pointer",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 50,
+                      height: 50,
+                      borderRadius: 16,
+                      background: CREST_COLORS[i % CREST_COLORS.length],
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 19,
+                      fontWeight: 700,
+                      color: C5.surface,
+                      flex: "none",
+                    }}
+                  >
+                    {crestOf(t.name)}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 16.5, fontWeight: 700, color: C5.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {t.name}
+                    </div>
+                    <div style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 7 }}>
+                      <span
+                        style={{
+                          fontFamily: MONO,
+                          fontSize: 8,
+                          fontWeight: 700,
+                          padding: "3px 8px",
+                          borderRadius: 8,
+                          background: manager ? C5.goldBg : "rgba(30,138,94,.12)",
+                          color: manager ? C5.goldText : C5.green,
+                        }}
+                      >
+                        {manager ? "MANAGER" : "PLAYER"}
+                      </span>
+                      {current && <span style={{ fontFamily: MONO, fontSize: 8, color: ink(0.4) }}>CURRENT</span>}
+                    </div>
+                  </div>
+                  <span style={{ fontSize: 20, color: ink(0.28), flex: "none" }}>›</span>
+                </Pressable>
+              );
+            })}
+          </Stagger>
+
+          {teams.length === 0 && (
+            <div style={{ borderRadius: 20, background: C5.card, border: `1px dashed ${ink(0.18)}`, padding: "22px 16px", textAlign: "center" }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C5.ink }}>No squads yet</div>
+              <div style={{ marginTop: 3, fontSize: 12, color: ink(0.5) }}>Create one or join with a code below.</div>
+            </div>
+          )}
+        </div>
+
+        <div style={{ marginTop: 18 }}>
+          <div style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, color: ink(0.4), letterSpacing: 1, marginBottom: 9 }}>
+            START SOMETHING NEW
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <Pressable
+              onClick={onCreate}
+              style={{ flex: 1, borderRadius: 18, background: C5.green, padding: "16px 14px", cursor: "pointer", position: "relative", overflow: "hidden" }}
+            >
+              <div style={{ position: "absolute", right: -28, top: -28, width: 90, height: 90, border: "2px solid rgba(245,242,233,.15)", borderRadius: "50%" }} />
+              <Icon name="plus" size={19} color={C5.surface} stroke={2.3} />
+              <div style={{ fontSize: 14.5, fontWeight: 700, color: C5.surface, marginTop: 9 }}>Create a team</div>
+              <div style={{ fontSize: 10.5, color: "rgba(245,242,233,.7)", marginTop: 2 }}>You&rsquo;ll be manager</div>
+            </Pressable>
+            <Pressable
+              onClick={onJoin}
+              style={{ flex: 1, borderRadius: 18, background: C5.card, border: `1.5px dashed ${ink(0.22)}`, padding: "16px 14px", cursor: "pointer" }}
+            >
+              <Icon name="link" size={19} color={C5.ink} stroke={2} />
+              <div style={{ fontSize: 14.5, fontWeight: 700, color: C5.ink, marginTop: 9 }}>Join a team</div>
+              <div style={{ fontSize: 10.5, color: ink(0.5), marginTop: 2 }}>Code or link</div>
+            </Pressable>
           </div>
         </div>
       </div>
