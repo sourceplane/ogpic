@@ -1,0 +1,116 @@
+name: Android APK (TWA)
+
+# Builds a Trusted Web Activity (TWA) APK that wraps the live Rondo PWA — the
+# UI is loaded online from the production URL, so the app always shows the
+# deployed UI (nothing is bundled). Run it from the Actions tab
+# ("Run workflow") or by pushing an `apk-*` tag; the signed APK is attached to
+# a GitHub Release (a stable download link) and uploaded as a build artifact.
+#
+# The signing key is generated fresh each run (this is a throwaway test build),
+# so the TWA cannot pass Digital Asset Links verification and Chrome shows a
+# thin address bar. That is expected and fine for UI testing. To get a
+# bar-less install, use a stable keystore and serve /.well-known/assetlinks.json
+# with its SHA-256 fingerprint (printed in the build log).
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag to publish the APK under"
+        required: false
+        default: "twa-latest"
+  push:
+    tags:
+      - "apk-*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli@1.22.0
+
+      - name: Configure Bubblewrap (use runner's preinstalled JDK + Android SDK)
+        run: |
+          mkdir -p "$HOME/.bubblewrap"
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "${JAVA_HOME}",
+            "androidSdkPath": "${ANDROID_SDK_ROOT}"
+          }
+          EOF
+          echo "JAVA_HOME=$JAVA_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          yes | "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+
+      - name: Generate signing keystore (throwaway, test-only)
+        working-directory: android-twa
+        run: |
+          keytool -genkeypair -v \
+            -keystore android.keystore \
+            -alias android \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass rondotwa -keypass rondotwa \
+            -dname "CN=Rondo TWA, OU=Rondo, O=Sourceplane, C=US"
+
+      - name: Build TWA APK
+        working-directory: android-twa
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: rondotwa
+          BUBBLEWRAP_KEY_PASSWORD: rondotwa
+        run: |
+          # `yes` answers the "generate the Android project?" confirm; passwords
+          # come from the env vars above, so the build runs unattended.
+          yes | bubblewrap build --skipPwaValidation
+          ls -la app-release-signed.apk
+
+      - name: Print signing fingerprint (for optional assetlinks.json)
+        working-directory: android-twa
+        run: |
+          keytool -list -v -keystore android.keystore -alias android -storepass rondotwa \
+            | grep "SHA256:" || true
+
+      - name: Rename APK
+        working-directory: android-twa
+        run: cp app-release-signed.apk rondo-twa.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rondo-twa-apk
+          path: android-twa/rondo-twa.apk
+          if-no-files-found: error
+
+      - name: Publish GitHub Release with the APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.event.inputs.release_tag || github.ref_name }}"
+          [ -z "$TAG" ] && TAG="twa-latest"
+          NOTES=$'Trusted Web Activity wrapper for Rondo.\n\nLoads the live UI from https://ogpic-web-console-next-prod.rahulvarghesepullely.workers.dev/rondo — nothing is bundled, so it always shows the deployed UI.\n\nInstall on Android: download rondo-twa.apk, allow "install unknown apps" for your browser/files app, then open it. Chrome shows a thin address bar because this test build is signed with a throwaway key (expected).'
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" android-twa/rondo-twa.apk --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" android-twa/rondo-twa.apk \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Rondo TWA (Android)" \
+              --notes "$NOTES"
+          fi
+          echo "Release: $(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url --jq .url)"
