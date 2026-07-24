@@ -326,6 +326,158 @@ export function useSwipeBack(onBack: () => void, enabled: boolean): SwipeBackBin
   };
 }
 
+/* ── useSwipeTabs ─────────────────────────────────────────────────────── */
+
+const TAB_COMMIT_FRACTION = 0.22;
+const TAB_FLICK_VX = 0.4; // px/ms
+/** How far the page follows the finger, as a fraction of the drag (a rubbery
+ *  hint rather than a full page-follow — the real change is the transition). */
+const TAB_FOLLOW = 0.45;
+
+/**
+ * Slide left/right anywhere on a dock-level screen to move between dock tabs
+ * (HOME ↔ MATCHES ↔ CHAT ↔ …), the way a pager works. The content follows the
+ * finger slightly and, past ~22% of the width (or on a flick), commits to the
+ * neighbouring tab; otherwise it springs back.
+ *
+ * `onNext`/`onPrev` are the caller's existing tab navigation, called verbatim —
+ * this adds no new destinations. Attempts to swipe past the first/last tab just
+ * rubber-band. Disabled on deep screens (there, an edge drag means "back").
+ * Vertical intent wins the axis decision, so scrolling is unaffected, and a
+ * drag that starts on a horizontal scroller (a chip row) is ignored.
+ */
+export function useSwipeTabs({
+  onNext,
+  onPrev,
+  canNext,
+  canPrev,
+  enabled,
+}: {
+  onNext: () => void;
+  onPrev: () => void;
+  canNext: boolean;
+  canPrev: boolean;
+  enabled: boolean;
+}): SwipeBackBinding {
+  const reduced = useReducedMotion();
+  const [dx, setDx] = React.useState(0);
+  const [settling, setSettling] = React.useState(false);
+  const st = React.useRef<SwipeState>({
+    active: false,
+    startX: 0,
+    startY: 0,
+    decided: false,
+    horiz: false,
+    width: 0,
+    pointerId: -1,
+    lastX: 0,
+    lastT: 0,
+    vx: 0,
+  });
+
+  React.useEffect(() => {
+    if (!settling) return;
+    const t = setTimeout(() => setSettling(false), 300);
+    return () => clearTimeout(t);
+  }, [settling]);
+
+  const onPointerDown = React.useCallback<React.PointerEventHandler<HTMLDivElement>>(
+    (e) => {
+      if (!enabled) return;
+      // Ignore drags that begin inside a horizontally scrollable region (chip
+      // rows, carousels) — that content owns the horizontal axis.
+      let node: HTMLElement | null = e.target as HTMLElement;
+      while (node && node !== e.currentTarget) {
+        if (node.scrollWidth > node.clientWidth + 4) {
+          const ov = getComputedStyle(node).overflowX;
+          if (ov === "auto" || ov === "scroll") return;
+        }
+        node = node.parentElement;
+      }
+      const rect = e.currentTarget.getBoundingClientRect();
+      const now = e.timeStamp || performance.now();
+      st.current = {
+        active: true,
+        startX: e.clientX,
+        startY: e.clientY,
+        decided: false,
+        horiz: false,
+        width: rect.width || 1,
+        pointerId: e.pointerId,
+        lastX: e.clientX,
+        lastT: now,
+        vx: 0,
+      };
+      setSettling(false);
+    },
+    [enabled],
+  );
+
+  const onPointerMove = React.useCallback<React.PointerEventHandler<HTMLDivElement>>(
+    (e) => {
+      const s = st.current;
+      if (!s.active) return;
+      const ddx = e.clientX - s.startX;
+      const ddy = e.clientY - s.startY;
+      if (!s.decided) {
+        if (Math.abs(ddx) > 10 || Math.abs(ddy) > 10) {
+          s.decided = true;
+          // Bias toward vertical: only take the gesture when it is clearly
+          // horizontal, so list scrolling never feels hijacked.
+          s.horiz = Math.abs(ddx) > Math.abs(ddy) * 1.3;
+          if (s.horiz) {
+            try {
+              e.currentTarget.setPointerCapture(s.pointerId);
+            } catch {
+              /* capture is best-effort */
+            }
+          }
+        } else {
+          return;
+        }
+      }
+      if (!s.horiz) return;
+      const now = e.timeStamp || performance.now();
+      const dt = now - s.lastT;
+      if (dt > 0) s.vx = (e.clientX - s.lastX) / dt;
+      s.lastX = e.clientX;
+      s.lastT = now;
+      // Rubber-band when there's no tab that way.
+      const blocked = (ddx < 0 && !canNext) || (ddx > 0 && !canPrev);
+      const follow = ddx * TAB_FOLLOW * (blocked ? 0.25 : 1);
+      if (!reduced) setDx(follow);
+    },
+    [reduced, canNext, canPrev],
+  );
+
+  const finish = React.useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      const s = st.current;
+      if (!s.active) return;
+      s.active = false;
+      const ddx = e.clientX - s.startX;
+      const far = Math.abs(ddx) > s.width * TAB_COMMIT_FRACTION;
+      const flick = Math.abs(s.vx) > TAB_FLICK_VX && Math.abs(ddx) > 30;
+      setSettling(true);
+      setDx(0);
+      if (!s.horiz || (!far && !flick)) return;
+      if (ddx < 0 && canNext) onNext();
+      else if (ddx > 0 && canPrev) onPrev();
+    },
+    [onNext, onPrev, canNext, canPrev],
+  );
+
+  const dragging = st.current.active && st.current.horiz;
+
+  return {
+    handlers: { onPointerDown, onPointerMove, onPointerUp: finish, onPointerCancel: finish },
+    style: {
+      transform: dragging || settling ? `translateX(${dx}px)` : undefined,
+      transition: dragging ? "none" : settling ? `transform 280ms ${EASE}` : undefined,
+    },
+  };
+}
+
 /* ── #5 Stagger ───────────────────────────────────────────────────────── */
 
 /** Fades + rises its direct children with an incremental delay on mount
