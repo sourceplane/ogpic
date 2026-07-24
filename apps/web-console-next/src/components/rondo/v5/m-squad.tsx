@@ -52,7 +52,7 @@ export function squadTag(p: SquadRowVM, vm: RondoVM): TagStyle {
       : { label: "NO APP", bg: ink(0.06), fg: ink(0.5) };
   }
   const isXI = vm.confirmedPlayers.some((c) => c.id === p.id);
-  return isXI ? { label: "XI", bg: "rgba(30,138,94,.12)", fg: C5.green } : { label: "RES", bg: ink(0.06), fg: ink(0.45) };
+  return isXI ? { label: "XI", bg: "rgba(23,105,74,.12)", fg: C5.green } : { label: "RES", bg: ink(0.06), fg: ink(0.45) };
 }
 
 export function MSquad({
@@ -236,7 +236,7 @@ export function MSquad({
                   width: 36,
                   height: 36,
                   borderRadius: "50%",
-                  background: "#E5E3D2",
+                  background: "#E4EBE3",
                   border: isGhost ? `2px dashed ${ink(0.22)}` : `1px solid ${ink(0.1)}`,
                   display: "flex",
                   alignItems: "center",

@@ -20,30 +20,35 @@ import { EASE, Pressable, useReducedMotion } from "./anim5";
 /* ── design tokens (spec §1) ──────────────────────────────────────────── */
 
 export const C5 = {
-  paper: "#E9E4D8",
-  surface: "#F5F2E9",
+  paper: "#EAEEE9",
+  surface: "#F2F4F1",
   card: "#FFFFFF",
-  sheet: "#F7F4EB",
-  ink: "#0E1B14",
-  green: "#1E8A5E",
-  greenBright: "#5FD8A2",
+  sheet: "#F2F4F1",
+  ink: "#101511",
+  green: "#17694A",
+  greenBright: "#1DA851",
   gold: "#C9A24B",
   goldText: "#8A6D2C",
   goldBg: "rgba(201,162,75,.18)",
   rust: "#B0512F",
+  /** Informational accent (join requests, secondary tiles). */
+  blue: "#2A78D6",
+  /** Muted sage used for hero/pitch tints and avatar chips. */
+  sage: "#E4EBE3",
+  sageDeep: "#D2DED1",
   wa: "#25D366",
   waText: "#128C4B",
-  heroGrad: "linear-gradient(150deg,#0C1912 0%,#17402B 70%,#1E8A5E 185%)",
+  heroGrad: "linear-gradient(150deg,#101511 0%,#17402B 70%,#17694A 185%)",
   pitchTop: "linear-gradient(180deg,#143523,#102B1C)",
   pitchBottom: "linear-gradient(0deg,#2E1D10,#241A12)",
-  pitchLine: "rgba(245,242,233,.32)",
-  track: "#E8E4D6",
+  pitchLine: "rgba(242,244,241,.32)",
+  track: "#E0E5DF",
 } as const;
 
-/** `ink(a)` — the design's `rgba(14,27,20,<a>)` secondary/tertiary-ink helper
+/** `ink(a)` — the design's `rgba(16,21,17,<a>)` secondary/tertiary-ink helper
  *  (`.55` secondary, `.45`/`.4` tertiary, `.12`/`.14` hairline borders, …). */
 export function ink(a: number): string {
-  return `rgba(14,27,20,${a})`;
+  return `rgba(16,21,17,${a})`;
 }
 
 /** JetBrains Mono, wired to the `--font-jbmono` variable the route layout
@@ -313,8 +318,8 @@ export function PhaseChip({ phase, style }: { phase: MatchPhase; style?: React.C
     poll: { label: "POLL LIVE", bg: C5.goldBg, fg: C5.goldText },
     finalizing: { label: "FINALIZING", bg: C5.goldBg, fg: C5.goldText },
     draft: { label: "DRAFTING", bg: C5.goldBg, fg: C5.goldText },
-    scheduled: { label: "SCHEDULED", bg: "rgba(30,138,94,.12)", fg: C5.green },
-    live: { label: "LIVE", bg: "rgba(30,138,94,.12)", fg: C5.green },
+    scheduled: { label: "SCHEDULED", bg: "rgba(23,105,74,.12)", fg: C5.green },
+    live: { label: "LIVE", bg: "rgba(23,105,74,.12)", fg: C5.green },
     played: { label: "PLAYED", bg: ink(0.06), fg: ink(0.55) },
     cancelled: { label: "CANCELLED", bg: "rgba(176,81,47,.12)", fg: C5.rust },
   };
@@ -330,7 +335,7 @@ export function PhaseChip({ phase, style }: { phase: MatchPhase; style?: React.C
  *  LAST WINDOW summary — docs/design/rondo-rating-window-spec.md): green
  *  `▲+n` for a gain, rust `▼-n` for a drop, neutral `·` for no change. */
 export function DeltaChip({ delta, size = 9 }: { delta: number; size?: number }) {
-  if (delta > 0) return <ChipTag bg="rgba(30,138,94,.14)" fg={C5.green} size={size}>{`▲+${delta}`}</ChipTag>;
+  if (delta > 0) return <ChipTag bg="rgba(23,105,74,.14)" fg={C5.green} size={size}>{`▲+${delta}`}</ChipTag>;
   if (delta < 0) return <ChipTag bg="rgba(176,81,47,.14)" fg={C5.rust} size={size}>{`▼${delta}`}</ChipTag>;
   return (
     <ChipTag bg={ink(0.06)} fg={ink(0.5)} size={size}>
@@ -355,7 +360,7 @@ export function heroCircles(variant: "hero" | "login" = "hero"): React.ReactNode
             top: "50%",
             width: 250,
             height: 250,
-            border: "2px solid rgba(245,242,233,.1)",
+            border: "2px solid rgba(242,244,241,.1)",
             borderRadius: "50%",
             transform: "translate(-50%,-50%)",
           }}
@@ -367,12 +372,12 @@ export function heroCircles(variant: "hero" | "login" = "hero"): React.ReactNode
             top: "50%",
             width: 150,
             height: 150,
-            border: "2px solid rgba(245,242,233,.08)",
+            border: "2px solid rgba(242,244,241,.08)",
             borderRadius: "50%",
             transform: "translate(-50%,-50%)",
           }}
         />
-        <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 2, background: "rgba(245,242,233,.07)" }} />
+        <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 2, background: "rgba(242,244,241,.07)" }} />
       </>
     );
   }
@@ -385,7 +390,7 @@ export function heroCircles(variant: "hero" | "login" = "hero"): React.ReactNode
           top: -50,
           width: 170,
           height: 170,
-          border: "2px solid rgba(245,242,233,.1)",
+          border: "2px solid rgba(242,244,241,.1)",
           borderRadius: "50%",
         }}
       />
@@ -396,7 +401,7 @@ export function heroCircles(variant: "hero" | "login" = "hero"): React.ReactNode
           top: 30,
           width: 90,
           height: 90,
-          border: "2px solid rgba(245,242,233,.08)",
+          border: "2px solid rgba(242,244,241,.08)",
           borderRadius: "50%",
         }}
       />
@@ -407,7 +412,7 @@ export function heroCircles(variant: "hero" | "login" = "hero"): React.ReactNode
 /** The hero's dashed section divider (reference line 117) — spread this into
  *  a wrapper `div`'s style alongside layout props (margin/padding/display). */
 export const dashedDivider: React.CSSProperties = {
-  borderTop: "1.5px dashed rgba(245,242,233,.22)",
+  borderTop: "1.5px dashed rgba(242,244,241,.22)",
 };
 
 /* ── ticket hero ──────────────────────────────────────────────────────── */
@@ -434,7 +439,7 @@ export function TicketHero({
         color: C5.surface,
         position: "relative",
         overflow: "hidden",
-        boxShadow: "0 18px 34px -20px rgba(14,27,20,.55)",
+        boxShadow: "0 18px 34px -20px rgba(16,21,17,.55)",
         padding: 20,
         cursor: onClick ? "pointer" : undefined,
         ...style,
@@ -514,7 +519,7 @@ export function NightPitch({
     list.map((p, i) => {
       const isMe = mePlayerId != null && p.id === mePlayerId;
       const glow = isMe
-        ? `0 0 0 3px rgba(245,242,233,.95), 0 0 0 6px ${kit}`
+        ? `0 0 0 3px rgba(242,244,241,.95), 0 0 0 6px ${kit}`
         : `0 0 ${interactive ? 16 : 14}px ${kit}${interactive ? "90" : "66"}`;
       return (
         <div
@@ -558,7 +563,7 @@ export function NightPitch({
               fontSize: interactive ? 9 : 8,
               fontWeight: 700,
               color: C5.ink,
-              background: `rgba(245,242,233,${interactive ? 0.92 : 0.9})`,
+              background: `rgba(242,244,241,${interactive ? 0.92 : 0.9})`,
               borderRadius: interactive ? 6 : 5,
               padding: interactive ? "1px 6px" : "1px 5px",
               whiteSpace: "nowrap",
@@ -636,7 +641,7 @@ export function SegmentBar({
 
 /** The 44×26 switch (reference line 557; also used for the WhatsApp-bridge
  *  and manager-role rows, which pass their own `onColor`). Defaults to
- *  `green`, off-state is always `rgba(14,27,20,.18)`. */
+ *  `green`, off-state is always `rgba(16,21,17,.18)`. */
 export function Toggle({
   on,
   onClick,
@@ -653,7 +658,7 @@ export function Toggle({
         width: 44,
         height: 26,
         borderRadius: 13,
-        background: on ? onColor : "rgba(14,27,20,.18)",
+        background: on ? onColor : "rgba(16,21,17,.18)",
         position: "relative",
         cursor: onClick ? "pointer" : undefined,
         flex: "none",
@@ -668,7 +673,7 @@ export function Toggle({
           height: 20,
           borderRadius: "50%",
           background: "#FFFFFF",
-          boxShadow: "0 1px 3px rgba(14,27,20,.3)",
+          boxShadow: "0 1px 3px rgba(16,21,17,.3)",
           transition: "left .15s ease",
         }}
       />
@@ -678,7 +683,7 @@ export function Toggle({
 
 /* ── bottom sheet ─────────────────────────────────────────────────────── */
 
-/** The floating bottom sheet (reference lines 608-613): `rgba(14,27,20,.4)`
+/** The floating bottom sheet (reference lines 608-613): `rgba(16,21,17,.4)`
  *  backdrop, `sheet` bg card at 26px radius with a grab handle. Renders
  *  nothing when `open` is false. Backdrop click calls `onClose`; the card
  *  itself stops that click from bubbling. */
@@ -772,7 +777,7 @@ export function Sheet({
         position: "fixed",
         inset: 0,
         zIndex: 200,
-        background: "rgba(14,27,20,.4)",
+        background: "rgba(16,21,17,.4)",
         opacity: backdropOpacity,
         display: "flex",
         flexDirection: "column",
@@ -792,7 +797,7 @@ export function Sheet({
           background: C5.sheet,
           borderRadius: 26,
           padding: "14px 20px 20px",
-          boxShadow: "0 -12px 40px rgba(14,27,20,.3)",
+          boxShadow: "0 -12px 40px rgba(16,21,17,.3)",
           maxHeight: "86dvh",
           overflowY: "auto",
           transform: cardTransform,
@@ -806,7 +811,7 @@ export function Sheet({
           onPointerCancel={onHandleUp}
           style={{ padding: "2px 0 8px", margin: "-2px 0 0", cursor: "grab", touchAction: "none" }}
         >
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(14,27,20,.15)", margin: "0 auto" }} />
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(16,21,17,.15)", margin: "0 auto" }} />
         </div>
         {children}
       </div>
@@ -827,7 +832,7 @@ export interface DockItem {
 }
 
 /** The floating white dock (reference lines 697-704): 62px tall, 22px radius,
- *  `0 12px 28px -12px rgba(14,27,20,.4)` shadow, `8px 14px 12px` margin. */
+ *  `0 12px 28px -12px rgba(16,21,17,.4)` shadow, `8px 14px 12px` margin. */
 export function DockNav({
   items,
   active,
@@ -848,7 +853,7 @@ export function DockNav({
         borderRadius: 22,
         background: C5.card,
         border: `1px solid ${ink(0.08)}`,
-        boxShadow: "0 12px 28px -12px rgba(14,27,20,.4)",
+        boxShadow: "0 12px 28px -12px rgba(16,21,17,.4)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-around",
@@ -986,7 +991,7 @@ export function useToast(): { toast: (msg: string) => void; node: React.ReactNod
         color: C5.surface,
         fontSize: 12,
         fontWeight: 600,
-        boxShadow: "0 10px 24px -8px rgba(14,27,20,.5)",
+        boxShadow: "0 10px 24px -8px rgba(16,21,17,.5)",
         whiteSpace: "nowrap",
         pointerEvents: "none",
       }}

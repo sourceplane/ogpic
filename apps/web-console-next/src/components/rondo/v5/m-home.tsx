@@ -54,12 +54,12 @@ function resultLetter(row: LiveMatchRow): "W" | "D" | "L" | null {
 }
 
 const RESULT_STYLE: Record<"W" | "D" | "L", { bg: string; fg: string }> = {
-  W: { bg: "rgba(30,138,94,.14)", fg: C5.green },
+  W: { bg: "rgba(23,105,74,.14)", fg: C5.green },
   L: { bg: "rgba(176,81,47,.14)", fg: C5.rust },
   D: { bg: ink(0.06), fg: ink(0.55) },
 };
 
-const AVATAR_BG = ["#E5E3D2", "#DCDACA"];
+const AVATAR_BG = ["#E4EBE3", "#DDE3DC"];
 
 /** "IN 6 DAYS" / "IN 4H" / "IN 25M" from an ISO instant; null when past or
  *  unknown. `now` is passed in so the value is only computed after mount (a
@@ -97,8 +97,8 @@ type Tone = "gold" | "rust" | "blue" | "green";
 const TONE: Record<Tone, { border: string; tile: string; fg: string }> = {
   gold: { border: "rgba(201,162,75,.55)", tile: "rgba(201,162,75,.16)", fg: C5.goldText },
   rust: { border: "rgba(176,81,47,.45)", tile: "rgba(176,81,47,.12)", fg: C5.rust },
-  blue: { border: "rgba(37,99,235,.35)", tile: "rgba(37,99,235,.1)", fg: "#2563EB" },
-  green: { border: "rgba(30,138,94,.45)", tile: "rgba(30,138,94,.12)", fg: C5.green },
+  blue: { border: "rgba(42,120,214,.35)", tile: "rgba(42,120,214,.1)", fg: "#2A78D6" },
+  green: { border: "rgba(23,105,74,.45)", tile: "rgba(23,105,74,.12)", fg: C5.green },
 };
 
 interface NeedItem {
@@ -299,14 +299,14 @@ export function MHome({
             margin: "14px 22px 0",
             borderRadius: 24,
             padding: "18px 20px 20px",
-            background: "linear-gradient(150deg,#E4EBDF,#D2E0CD)",
+            background: `linear-gradient(150deg,${C5.sage},${C5.sageDeep})`,
             position: "relative",
             overflow: "hidden",
             cursor: "pointer",
           }}
         >
-          <div style={{ position: "absolute", right: -46, top: -34, width: 190, height: 190, border: "1.5px solid rgba(14,27,20,.07)", borderRadius: "50%" }} />
-          <div style={{ position: "absolute", right: -8, top: 44, width: 130, height: 130, border: "1.5px solid rgba(14,27,20,.06)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", right: -46, top: -34, width: 190, height: 190, border: "1.5px solid rgba(16,21,17,.07)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", right: -8, top: 44, width: 130, height: 130, border: "1.5px solid rgba(16,21,17,.06)", borderRadius: "50%" }} />
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
             <span style={{ fontFamily: MONO, fontSize: 9, letterSpacing: 1.6, color: ink(0.5) }}>NEXT MATCH</span>
             <span
@@ -317,7 +317,7 @@ export function MHome({
                 letterSpacing: 1,
                 padding: "5px 10px",
                 borderRadius: 11,
-                background: "rgba(30,138,94,.18)",
+                background: "rgba(23,105,74,.18)",
                 color: "#1B5E41",
                 flex: "none",
               }}
@@ -420,15 +420,15 @@ export function MHome({
             overflow: "hidden",
           }}
         >
-          <div style={{ position: "absolute", right: -30, top: -30, width: 110, height: 110, border: "2px solid rgba(245,242,233,.14)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", right: -30, top: -30, width: 110, height: 110, border: "2px solid rgba(242,244,241,.14)", borderRadius: "50%" }} />
           <Icon name="plus" size={24} color={C5.surface} stroke={2.4} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 19, fontWeight: 700, color: C5.surface, letterSpacing: -0.3 }}>New match</div>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, color: "rgba(245,242,233,.72)", marginTop: 3, letterSpacing: 1 }}>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, color: "rgba(242,244,241,.72)", marginTop: 3, letterSpacing: 1 }}>
               QUICK SCHEDULE · OR POLL THE SQUAD
             </div>
           </div>
-          <span style={{ fontSize: 18, color: "rgba(245,242,233,.7)", flex: "none" }}>›</span>
+          <span style={{ fontSize: 18, color: "rgba(242,244,241,.7)", flex: "none" }}>›</span>
         </Pressable>
 
         {/* chat */}
@@ -446,7 +446,7 @@ export function MHome({
             cursor: "pointer",
           }}
         >
-          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(30,138,94,.1)", display: "flex", alignItems: "center", justifyContent: "center", color: C5.green, flex: "none" }}>
+          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(23,105,74,.1)", display: "flex", alignItems: "center", justifyContent: "center", color: C5.green, flex: "none" }}>
             <Icon name="chat" size={19} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -492,7 +492,7 @@ export function MHome({
             cursor: "pointer",
           }}
         >
-          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(37,99,235,.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "#2563EB", flex: "none" }}>
+          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(42,120,214,.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "#2A78D6", flex: "none" }}>
             <Icon name="squad" size={19} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -512,8 +512,8 @@ export function MHome({
               height: 34,
               padding: "0 14px",
               borderRadius: 12,
-              background: "rgba(30,138,94,.1)",
-              border: `1px solid rgba(30,138,94,.35)`,
+              background: "rgba(23,105,74,.1)",
+              border: `1px solid rgba(23,105,74,.35)`,
               display: "flex",
               alignItems: "center",
               color: C5.green,

@@ -95,7 +95,7 @@ function VoterChip({ vm, playerId }: { vm: RondoVM; playerId: string }) {
   const p = vm.byId(playerId);
   const isGhost = !p?.email;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px 4px 4px", borderRadius: 16, background: "rgba(30,138,94,.1)", border: "1px solid rgba(30,138,94,.3)" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px 4px 4px", borderRadius: 16, background: "rgba(23,105,74,.1)", border: "1px solid rgba(23,105,74,.3)" }}>
       <div style={{ width: 22, height: 22, borderRadius: "50%", background: C5.green, color: C5.surface, fontSize: 7.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
         {p?.initials ?? "?"}
       </div>
@@ -112,7 +112,7 @@ function WaitingChip({ vm, playerId }: { vm: RondoVM; playerId: string }) {
   const p = vm.byId(playerId);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px 4px 4px", borderRadius: 16, background: C5.card, border: `1px solid ${ink(0.12)}`, opacity: 0.75 }}>
-      <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#E5E3D2", color: C5.ink, fontSize: 7.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#E4EBE3", color: C5.ink, fontSize: 7.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
         {p?.initials ?? "?"}
       </div>
       <span style={{ fontSize: 10.5, fontWeight: 600, color: ink(0.6) }}>{p?.shortName ?? "Player"}</span>
@@ -211,7 +211,7 @@ export function PDetail({
   const teamChip = isOut
     ? { label: "OUT", bg: "rgba(176,81,47,.4)", fg: C5.surface }
     : inTeamA
-      ? { label: (row?.teamA?.name ?? "Team A").toUpperCase(), bg: "rgba(30,138,94,.4)", fg: C5.surface }
+      ? { label: (row?.teamA?.name ?? "Team A").toUpperCase(), bg: "rgba(23,105,74,.4)", fg: C5.surface }
       : inTeamB
         ? { label: (row?.teamB?.name ?? "Team B").toUpperCase(), bg: "rgba(176,81,47,.4)", fg: C5.surface }
         : null;
@@ -270,7 +270,7 @@ export function PDetail({
             </div>
           ) : (
             <div>
-              <div style={{ borderRadius: 18, background: "rgba(30,138,94,.1)", border: "1px solid rgba(30,138,94,.3)", padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ borderRadius: 18, background: "rgba(23,105,74,.1)", border: "1px solid rgba(23,105,74,.3)", padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ width: 38, height: 38, borderRadius: "50%", background: C5.green, display: "flex", alignItems: "center", justifyContent: "center", color: C5.surface, flex: "none" }}>
                   <Icon name="check" size={16} stroke={3} />
                 </div>
@@ -326,7 +326,7 @@ export function PDetail({
         <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "14px 24px 16px" }}>
           <TicketHero style={{ padding: "16px 18px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-              <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: "rgba(245,242,233,.5)" }}>CONFIRMED</span>
+              <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: "rgba(242,244,241,.5)" }}>CONFIRMED</span>
               {teamChip && (
                 <ChipTag bg={teamChip.bg} fg={teamChip.fg} size={8.5}>
                   {teamChip.label}
@@ -334,7 +334,7 @@ export function PDetail({
               )}
             </div>
             <div style={{ fontSize: 20, fontWeight: 700, marginTop: 6 }}>{row?.label ?? "—"}</div>
-            <div style={{ fontSize: 12, color: "rgba(245,242,233,.65)", marginTop: 3 }}>
+            <div style={{ fontSize: 12, color: "rgba(242,244,241,.65)", marginTop: 3 }}>
               {row?.subLabel ?? "—"}
               {row?.mapsUrl && (
                 <>

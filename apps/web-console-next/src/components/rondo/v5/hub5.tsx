@@ -26,7 +26,7 @@ export interface AccountInfo {
   onSignOut: () => void;
 }
 
-const CREST_COLORS = [C5.green, C5.rust, "#2563EB", "#7C3AED", "#0EA5E9"];
+const CREST_COLORS = [C5.green, C5.rust, "#2A78D6", "#7C3AED", "#0EA5E9"];
 
 function crestOf(name: string): string {
   return (name.trim()[0] ?? "R").toUpperCase();
@@ -44,7 +44,7 @@ function AccountHeader({ name, email, onSignOut }: AccountInfo) {
           width: 44,
           height: 44,
           borderRadius: "50%",
-          background: "#E5E3D2",
+          background: "#E4EBE3",
           border: `2.5px solid ${C5.gold}`,
           display: "flex",
           alignItems: "center",
@@ -133,7 +133,7 @@ export function Hub5({
                     borderRadius: 20,
                     background: C5.card,
                     border: current ? `1.5px solid ${C5.green}` : `1px solid ${ink(0.12)}`,
-                    boxShadow: current ? "0 6px 18px -10px rgba(30,138,94,.5)" : "0 1px 2px rgba(14,27,20,.05)",
+                    boxShadow: current ? "0 6px 18px -10px rgba(23,105,74,.5)" : "0 1px 2px rgba(16,21,17,.05)",
                     padding: 15,
                     display: "flex",
                     alignItems: "center",
@@ -170,7 +170,7 @@ export function Hub5({
                           fontWeight: 700,
                           padding: "3px 8px",
                           borderRadius: 8,
-                          background: manager ? C5.goldBg : "rgba(30,138,94,.12)",
+                          background: manager ? C5.goldBg : "rgba(23,105,74,.12)",
                           color: manager ? C5.goldText : C5.green,
                         }}
                       >
@@ -202,10 +202,10 @@ export function Hub5({
               onClick={onCreate}
               style={{ flex: 1, borderRadius: 18, background: C5.green, padding: "16px 14px", cursor: "pointer", position: "relative", overflow: "hidden" }}
             >
-              <div style={{ position: "absolute", right: -28, top: -28, width: 90, height: 90, border: "2px solid rgba(245,242,233,.15)", borderRadius: "50%" }} />
+              <div style={{ position: "absolute", right: -28, top: -28, width: 90, height: 90, border: "2px solid rgba(242,244,241,.15)", borderRadius: "50%" }} />
               <Icon name="plus" size={19} color={C5.surface} stroke={2.3} />
               <div style={{ fontSize: 14.5, fontWeight: 700, color: C5.surface, marginTop: 9 }}>Create a team</div>
-              <div style={{ fontSize: 10.5, color: "rgba(245,242,233,.7)", marginTop: 2 }}>You&rsquo;ll be manager</div>
+              <div style={{ fontSize: 10.5, color: "rgba(242,244,241,.7)", marginTop: 2 }}>You&rsquo;ll be manager</div>
             </Pressable>
             <Pressable
               onClick={onJoin}

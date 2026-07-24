@@ -118,7 +118,7 @@ function ReactionPicker({ mine, onPick }: { mine: boolean; onPick: (emoji: strin
         border: `1px solid ${ink(0.12)}`,
         borderRadius: 18,
         padding: "3px 5px",
-        boxShadow: "0 6px 18px -6px rgba(14,27,20,.35)",
+        boxShadow: "0 6px 18px -6px rgba(16,21,17,.35)",
         position: "relative",
         zIndex: 3,
       }}
@@ -177,7 +177,7 @@ function ReactionPills({ vm, row, mine }: { vm: RondoVM; row: ChatRowVM; mine: b
               display: "flex",
               alignItems: "center",
               gap: 3,
-              background: isMine ? "rgba(30,138,94,.14)" : C5.card,
+              background: isMine ? "rgba(23,105,74,.14)" : C5.card,
               border: `1px solid ${isMine ? C5.green : ink(0.12)}`,
               borderRadius: 10,
               padding: "2px 7px",
@@ -185,7 +185,7 @@ function ReactionPills({ vm, row, mine }: { vm: RondoVM; row: ChatRowVM; mine: b
               fontWeight: 700,
               color: isMine ? C5.green : ink(0.6),
               cursor: "pointer",
-              boxShadow: "0 1px 3px rgba(14,27,20,.12)",
+              boxShadow: "0 1px 3px rgba(16,21,17,.12)",
             }}
           >
             <span style={{ fontSize: 11 }}>{emoji}</span>
@@ -218,7 +218,7 @@ function TextBubble({ vm, row }: { vm: RondoVM; row: ChatRowVM }) {
               width: 26,
               height: 26,
               borderRadius: "50%",
-              background: "#E5E3D2",
+              background: "#E4EBE3",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -240,7 +240,7 @@ function TextBubble({ vm, row }: { vm: RondoVM; row: ChatRowVM }) {
             background: mine ? C5.green : C5.card,
             border: `1px solid ${mine ? C5.green : ink(0.1)}`,
             padding: "7px 11px 5px",
-            boxShadow: "0 1px 2px rgba(14,27,20,.06)",
+            boxShadow: "0 1px 2px rgba(16,21,17,.06)",
             cursor: "pointer",
             opacity: pending ? 0.6 : 1,
           }}
@@ -258,7 +258,7 @@ function TextBubble({ vm, row }: { vm: RondoVM; row: ChatRowVM }) {
               textAlign: "right",
               fontFamily: MONO,
               fontSize: 7,
-              color: mine ? "rgba(245,242,233,.65)" : ink(0.35),
+              color: mine ? "rgba(242,244,241,.65)" : ink(0.35),
               marginTop: 2,
             }}
           >
@@ -284,14 +284,14 @@ function PollCard({ vm, row, role, nav }: { vm: RondoVM; row: ChatRowVM; role: R
     <div style={{ alignSelf: "center", width: "92%", borderRadius: 16, background: CARD_GRAD, padding: "11px 14px", color: C5.surface, flex: "none" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
         <span style={{ fontFamily: MONO, fontSize: 8, letterSpacing: 1.5, color: "#E9CB8A" }}>📊 AVAILABILITY POLL</span>
-        <span style={{ fontFamily: MONO, fontSize: 8, color: "rgba(245,242,233,.5)" }}>{timeLabel(row.createdAt)}</span>
+        <span style={{ fontFamily: MONO, fontSize: 8, color: "rgba(242,244,241,.5)" }}>{timeLabel(row.createdAt)}</span>
       </div>
       <div style={{ fontSize: 14, fontWeight: 700, marginTop: 7 }}>{leading ? `Leading: ${leading.label}` : "Waiting on votes"}</div>
-      <div style={{ marginTop: 7, height: 5, borderRadius: 3, background: "rgba(245,242,233,.15)" }}>
+      <div style={{ marginTop: 7, height: 5, borderRadius: 3, background: "rgba(242,244,241,.15)" }}>
         <div style={{ width: `${pct}%`, height: "100%", borderRadius: 3, background: C5.green }} />
       </div>
       <div style={{ marginTop: 6, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontFamily: MONO, fontSize: 8.5, color: "rgba(245,242,233,.55)" }}>{meta}</span>
+        <span style={{ fontFamily: MONO, fontSize: 8.5, color: "rgba(242,244,241,.55)" }}>{meta}</span>
         <span onClick={go} style={{ fontSize: 11, fontWeight: 700, color: C5.greenBright, cursor: "pointer" }}>
           {btnLabel}
         </span>
@@ -463,7 +463,7 @@ export function ChatScreen({
               width: 36,
               height: 36,
               borderRadius: 12,
-              background: "rgba(30,138,94,.1)",
+              background: "rgba(23,105,74,.1)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

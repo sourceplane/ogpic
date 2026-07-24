@@ -106,7 +106,7 @@ function DayTimePicker({
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 700, color: on ? C5.surface : C5.ink }}>{d.label}</div>
-              <div style={{ fontFamily: MONO, fontSize: 8.5, marginTop: 2, color: on ? "rgba(245,242,233,.75)" : ink(0.45) }}>
+              <div style={{ fontFamily: MONO, fontSize: 8.5, marginTop: 2, color: on ? "rgba(242,244,241,.75)" : ink(0.45) }}>
                 {d.sub}
               </div>
             </Pressable>
@@ -172,7 +172,7 @@ function ItemChip({ label, sub, onRemove }: { label: string; sub?: string; onRem
         alignItems: "center",
         gap: 10,
         borderRadius: 14,
-        background: "rgba(30,138,94,.08)",
+        background: "rgba(23,105,74,.08)",
         border: `1.5px solid ${C5.green}`,
         padding: "10px 10px 10px 14px",
       }}
@@ -274,7 +274,7 @@ export function MWizard({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string)
                 height: 40,
                 borderRadius: 12,
                 background: on ? C5.card : "transparent",
-                boxShadow: on ? "0 1px 3px rgba(14,27,20,.12)" : "none",
+                boxShadow: on ? "0 1px 3px rgba(16,21,17,.12)" : "none",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -353,7 +353,7 @@ function QuickMatch({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) => 
 
         {when && (
           <div style={{ marginTop: 18, borderRadius: 16, background: C5.card, border: `1px solid ${ink(0.12)}`, padding: 14, display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(30,138,94,.12)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(23,105,74,.12)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
               <Icon name="calendar" size={18} color={C5.green} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -537,7 +537,7 @@ function PollWizard({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) => 
                     }}
                   >
                     <span style={{ fontSize: 15, fontWeight: 700, color: on ? C5.surface : C5.ink }}>{d.k}</span>
-                    <span style={{ fontFamily: MONO, fontSize: 8, color: on ? "rgba(245,242,233,.7)" : ink(0.45) }}>{d.lbl}</span>
+                    <span style={{ fontFamily: MONO, fontSize: 8, color: on ? "rgba(242,244,241,.7)" : ink(0.45) }}>{d.lbl}</span>
                   </Pressable>
                 );
               })}

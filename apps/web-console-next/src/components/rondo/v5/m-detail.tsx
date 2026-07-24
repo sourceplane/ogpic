@@ -39,8 +39,8 @@ function VoterChip({ vm, playerId }: { vm: RondoVM; playerId: string }) {
         gap: 6,
         padding: "4px 10px 4px 4px",
         borderRadius: 16,
-        background: "rgba(30,138,94,.1)",
-        border: "1px solid rgba(30,138,94,.3)",
+        background: "rgba(23,105,74,.1)",
+        border: "1px solid rgba(23,105,74,.3)",
       }}
     >
       <div
@@ -90,7 +90,7 @@ function WaitingChip({ vm, playerId }: { vm: RondoVM; playerId: string }) {
           width: 22,
           height: 22,
           borderRadius: "50%",
-          background: "#E5E3D2",
+          background: "#E4EBE3",
           color: C5.ink,
           fontSize: 7.5,
           fontWeight: 700,
@@ -277,7 +277,7 @@ export function MDetail({
     toast("Cancel match — coming soon");
   }
 
-  const gapBg = vm.balanceGap <= 1 ? "rgba(30,138,94,.12)" : "rgba(201,162,75,.2)";
+  const gapBg = vm.balanceGap <= 1 ? "rgba(23,105,74,.12)" : "rgba(201,162,75,.2)";
   const gapFg = vm.balanceGap <= 1 ? C5.green : C5.goldText;
   const gapLbl = vm.balanceGap <= 1 ? `BALANCED · GAP ${vm.balanceGap}` : `GAP ${vm.balanceGap} — CONSIDER A SWAP`;
 
@@ -497,9 +497,9 @@ export function MDetail({
       {(phase === "scheduled" || phase === "live") && (
         <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "14px 24px 16px" }}>
           <TicketHero style={{ padding: "16px 18px" }}>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: "rgba(245,242,233,.5)" }}>CONFIRMED</div>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: "rgba(242,244,241,.5)" }}>CONFIRMED</div>
             <div style={{ fontSize: 20, fontWeight: 700, marginTop: 6 }}>{row?.label ?? "—"}</div>
-            <div style={{ fontSize: 12, color: "rgba(245,242,233,.65)", marginTop: 3 }}>
+            <div style={{ fontSize: 12, color: "rgba(242,244,241,.65)", marginTop: 3 }}>
               {row?.subLabel ?? "—"}
               {row?.mapsUrl && (
                 <>
