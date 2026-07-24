@@ -110,7 +110,7 @@ export function Hub5({
 }) {
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", background: C5.surface }}>
-      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "18px 22px 20px" }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "18px 22px calc(20px + env(safe-area-inset-bottom))" }}>
         {account && <AccountHeader {...account} />}
 
         <div style={{ marginTop: account ? 18 : 4 }}>

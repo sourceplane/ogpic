@@ -92,6 +92,34 @@ jobs:
         working-directory: capacitor-app
         run: npx cap add android
 
+      - name: Enable edge-to-edge full-screen (transparent system bars)
+        working-directory: capacitor-app
+        run: |
+          # The StatusBar plugin overlays the WebView under the status bar; this
+          # makes the navigation bar transparent and lets content draw into the
+          # display cutout too, so the app is truly edge-to-edge. Best-effort:
+          # if the template's style block moves, we skip rather than fail.
+          python3 - <<'PY'
+          import re, pathlib
+          p = pathlib.Path("android/app/src/main/res/values/styles.xml")
+          if not p.exists():
+              print("styles.xml not found — skipping edge-to-edge patch"); raise SystemExit(0)
+          s = p.read_text()
+          if "navigationBarColor" in s:
+              print("already patched"); raise SystemExit(0)
+          items = (
+              '\n        <item name="android:statusBarColor">@android:color/transparent</item>'
+              '\n        <item name="android:navigationBarColor">@android:color/transparent</item>'
+              '\n        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>'
+          )
+          m = re.search(r'(<style name="AppTheme\.NoActionBar"[^>]*>)', s)
+          if not m:
+              print("AppTheme.NoActionBar not found — skipping"); raise SystemExit(0)
+          s = s[:m.end()] + items + s[m.end():]
+          p.write_text(s)
+          print("patched styles.xml for edge-to-edge")
+          PY
+
       - name: Generate app icons (branded launcher icon)
         working-directory: capacitor-app
         run: npx capacitor-assets generate --android --iconBackgroundColor "#0E1B14" --iconBackgroundColorDark "#0E1B14" || echo "icon generation skipped — using defaults"

@@ -842,7 +842,9 @@ export function DockNav({
       style={{
         height: 62,
         flex: "none",
-        margin: "8px 14px 12px",
+        // Bottom margin lifts the floating dock above the gesture / nav bar
+        // when the app runs edge-to-edge (env inset is 0 in a browser).
+        margin: "8px 14px calc(12px + env(safe-area-inset-bottom))",
         borderRadius: 22,
         background: C5.card,
         border: `1px solid ${ink(0.08)}`,
