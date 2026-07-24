@@ -67,8 +67,14 @@ export default function RondoEntryPage() {
     router.replace("/rondo");
   }, [client, setToken, qc, router]);
 
+  // Latch: once we've seen at least one squad this session, never bounce the
+  // member to the create/join fork again — a later transient empty/stale read
+  // (app resume, revalidation) must not eject someone who has teams.
+  const hadTeamsRef = React.useRef(false);
+  if (teams.length > 0) hadTeamsRef.current = true;
+
   React.useEffect(() => {
-    if (!token) return;
+    if (!token || hadTeamsRef.current) return;
     // Only decide onboarding from a settled, fresh fetch — never from stale
     // cache mid-revalidation (which caused the create/join flash on return).
     if (orgsQuery.isFetching || !orgsQuery.isSuccess) return;
