@@ -237,7 +237,21 @@ export function RondoApp5({
   }
 
   return (
-    <div style={{ minHeight: "100dvh", background: C5.surface, display: "flex", flexDirection: "column", maxWidth: 430, margin: "0 auto", position: "relative" }}>
+    <div
+      style={{
+        minHeight: "100dvh",
+        background: C5.surface,
+        display: "flex",
+        flexDirection: "column",
+        maxWidth: 430,
+        margin: "0 auto",
+        position: "relative",
+        // Edge-to-edge: clear the status bar (top) so screen headers aren't
+        // under the clock. The dock adds its own bottom safe-area inset.
+        paddingTop: "env(safe-area-inset-top)",
+        boxSizing: "border-box",
+      }}
+    >
       <Anim5Styles />
       <div style={{ flex: 1, minHeight: 0, position: "relative", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <div

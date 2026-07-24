@@ -20,9 +20,14 @@ interface CapacitorAppPlugin {
   addListener?: (event: string, cb: () => void) => PluginHandle | Promise<PluginHandle>;
   exitApp?: () => void;
 }
+interface CapacitorStatusBarPlugin {
+  setOverlaysWebView?: (opts: { overlay: boolean }) => Promise<void> | void;
+  setStyle?: (opts: { style: string }) => Promise<void> | void;
+  setBackgroundColor?: (opts: { color: string }) => Promise<void> | void;
+}
 interface CapacitorGlobal {
   isNativePlatform?: () => boolean;
-  Plugins?: { App?: CapacitorAppPlugin };
+  Plugins?: { App?: CapacitorAppPlugin; StatusBar?: CapacitorStatusBarPlugin };
 }
 
 function capacitor(): CapacitorGlobal | undefined {
@@ -35,6 +40,30 @@ export function useIsNative(): boolean {
   const [native, setNative] = React.useState(false);
   React.useEffect(() => setNative(!!capacitor()?.isNativePlatform?.()), []);
   return native;
+}
+
+/**
+ * Draw the app edge-to-edge under the system bars (immersive full-screen) in
+ * the native shell. The status bar overlays the WebView with a transparent
+ * background and dark icons (the app surface is light); the Android theme makes
+ * the navigation bar transparent too (see the APK workflow). Safe-area CSS
+ * insets keep headers/dock clear of the bars. No-op in a browser / PWA.
+ */
+export function useFullscreen(): void {
+  React.useEffect(() => {
+    const cap = capacitor();
+    if (!cap?.isNativePlatform?.()) return;
+    const sb = cap.Plugins?.StatusBar;
+    if (!sb) return;
+    try {
+      void sb.setOverlaysWebView?.({ overlay: true });
+      // Style "LIGHT" = dark icons, for our light surface.
+      void sb.setStyle?.({ style: "LIGHT" });
+      void sb.setBackgroundColor?.({ color: "#00000000" });
+    } catch {
+      /* best effort — a missing StatusBar plugin just means no overlay */
+    }
+  }, []);
 }
 
 /**

@@ -90,7 +90,7 @@ export default function RondoEntryPage() {
     const email = profileQuery.data?.email ?? null;
     const name = profileQuery.data?.displayName || (email ? email.split("@")[0]! : "You");
     return (
-      <div style={{ minHeight: "100dvh", background: "#F5F2E9", maxWidth: 430, margin: "0 auto", position: "relative" }}>
+      <div style={{ minHeight: "100dvh", background: "#F5F2E9", maxWidth: 430, margin: "0 auto", position: "relative", paddingTop: "env(safe-area-inset-top)", boxSizing: "border-box" }}>
         <Hub5
           teams={teams.map((o) => ({ slug: o.slug, name: o.name, role: o.role }))}
           onOpen={(slug) => router.replace(`/rondo/${slug}`)}

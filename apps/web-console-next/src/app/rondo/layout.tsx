@@ -6,6 +6,7 @@
  * Space Grotesk + JetBrains Mono.
  */
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { NativeBoot } from "@/components/rondo/native-boot";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -28,6 +29,7 @@ export default function RondoLayout({ children }: { children: React.ReactNode })
   return (
     <div className={`${spaceGrotesk.variable} ${jbMono.variable}`}>
       <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      <NativeBoot />
       {children}
     </div>
   );
