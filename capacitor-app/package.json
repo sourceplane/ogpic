@@ -1,0 +1,14 @@
+{
+  "name": "rondo-capacitor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Capacitor Android wrapper that loads the live Rondo web app in a native WebView (no browser chrome).",
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.2.1"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/core": "^6.2.1"
+  }
+}
