@@ -5,18 +5,27 @@ name: Android APK (Capacitor)
 # capacitor-app/capacitor.config.json points at production, so the app loads the
 # UI online (nothing is bundled) and always shows the deployed UI.
 #
-# Run from the Actions tab ("Run workflow") or by pushing an `apk-*` tag. The
-# signed debug APK is attached to a GitHub Release (a stable download link) and
-# uploaded as a build artifact. A debug APK is used so it installs by sideload
-# with no signing setup; it is not for Play Store distribution.
+# Run from the Actions tab ("Run workflow") and pick a variant, or push an
+# `apk-*` tag (defaults to prod):
+#   - prod → production URL, real email login → Release tag `android-latest`
+#   - dev  → stage URL (backend runs in local_debug, so the login screen shows
+#            the DEV CODE), separate appId so it installs alongside prod →
+#            Release tag `android-dev`
+# The signed debug APK is attached to a GitHub Release (a stable download link)
+# and uploaded as a build artifact. A debug APK is used so it installs by
+# sideload with no signing setup; it is not for Play Store distribution.
 
 on:
   workflow_dispatch:
     inputs:
-      release_tag:
-        description: "Release tag to publish the APK under"
-        required: false
-        default: "android-latest"
+      variant:
+        description: "Which build to produce"
+        required: true
+        type: choice
+        default: prod
+        options:
+          - prod
+          - dev
   push:
     tags:
       - "apk-*"
@@ -46,6 +55,38 @@ jobs:
       - name: Install Capacitor deps
         working-directory: capacitor-app
         run: npm install
+
+      - name: Configure build variant
+        working-directory: capacitor-app
+        run: |
+          # prod → production URL (real email login); dev → stage URL, which the
+          # backend serves in local_debug mode so the login screen shows the DEV
+          # CODE. A distinct appId/name lets the dev app install alongside prod.
+          VARIANT="${{ github.event.inputs.variant || 'prod' }}"
+          if [ "$VARIANT" = "dev" ]; then
+            export CAP_URL="https://ogpic-web-console-next-stage.rahulvarghesepullely.workers.dev/rondo"
+            export CAP_APPID="ai.sourceplane.rondo.dev"
+            export CAP_APPNAME="Rondo Dev"
+            echo "TAG=android-dev" >> "$GITHUB_ENV"
+            echo "TITLE=Rondo Dev (Android)" >> "$GITHUB_ENV"
+          else
+            export CAP_URL="https://ogpic-web-console-next-prod.rahulvarghesepullely.workers.dev/rondo"
+            export CAP_APPID="ai.sourceplane.rondo"
+            export CAP_APPNAME="Rondo"
+            echo "TAG=android-latest" >> "$GITHUB_ENV"
+            echo "TITLE=Rondo (Android)" >> "$GITHUB_ENV"
+          fi
+          echo "VARIANT=$VARIANT" >> "$GITHUB_ENV"
+          node -e '
+            const fs = require("fs");
+            const p = "capacitor.config.json";
+            const c = JSON.parse(fs.readFileSync(p, "utf8"));
+            c.appId = process.env.CAP_APPID;
+            c.appName = process.env.CAP_APPNAME;
+            c.server = { ...(c.server || {}), url: process.env.CAP_URL };
+            fs.writeFileSync(p, JSON.stringify(c, null, 2));
+            console.log("Built variant:", process.env.VARIANT, c.appId, c.server.url);
+          '
 
       - name: Add Android platform
         working-directory: capacitor-app
@@ -81,15 +122,23 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="${{ github.event.inputs.release_tag || github.ref_name }}"
-          [ -z "$TAG" ] && TAG="android-latest"
-          NOTES=$'Capacitor (native WebView) build of Rondo — no browser address bar.\n\nLoads the live UI from https://ogpic-web-console-next-prod.rahulvarghesepullely.workers.dev/rondo — nothing is bundled, so it always shows the deployed UI.\n\nInstall on Android: download rondo.apk, allow "install unknown apps" for your browser/files app, then open it.'
+          # TAG/TITLE come from the Configure step; fall back to prod for tag pushes.
+          TAG="${TAG:-android-latest}"
+          TITLE="${TITLE:-Rondo (Android)}"
+          if [ "${VARIANT:-prod}" = "dev" ]; then
+            URL="https://ogpic-web-console-next-stage.rahulvarghesepullely.workers.dev/rondo"
+            EXTRA='This is the DEV build: it points at the stage environment, where the login screen shows the DEV CODE (no real email needed). Installs alongside the prod app.'
+          else
+            URL="https://ogpic-web-console-next-prod.rahulvarghesepullely.workers.dev/rondo"
+            EXTRA='This is the PROD build.'
+          fi
+          NOTES=$(printf 'Capacitor (native WebView) build of Rondo — no browser address bar.\n\n%s\n\nLoads the live UI from %s — nothing is bundled, so it always shows the deployed UI.\n\nInstall on Android: download rondo.apk, allow "install unknown apps" for your browser/files app, then open it.' "$EXTRA" "$URL")
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" capacitor-app/rondo.apk --clobber --repo "$GITHUB_REPOSITORY"
           else
             gh release create "$TAG" capacitor-app/rondo.apk \
               --repo "$GITHUB_REPOSITORY" \
-              --title "Rondo (Android)" \
+              --title "$TITLE" \
               --notes "$NOTES"
           fi
           echo "Release: $(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url --jq .url)"
