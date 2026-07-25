@@ -52,7 +52,7 @@ export function squadTag(p: SquadRowVM, vm: RondoVM): TagStyle {
       : { label: "NO APP", bg: ink(0.06), fg: ink(0.5) };
   }
   const isXI = vm.confirmedPlayers.some((c) => c.id === p.id);
-  return isXI ? { label: "XI", bg: "rgba(23,105,74,.12)", fg: C5.green } : { label: "RES", bg: ink(0.06), fg: ink(0.45) };
+  return isXI ? { label: "XI", bg: "rgba(var(--rk-green-rgb),.12)", fg: C5.green } : { label: "RES", bg: ink(0.06), fg: ink(0.45) };
 }
 
 export function MSquad({
@@ -88,7 +88,7 @@ export function MSquad({
               padding: "0 12px",
               borderRadius: 11,
               background: C5.ink,
-              color: C5.surface,
+              color: C5.onInk,
               display: "flex",
               alignItems: "center",
               gap: 6,
@@ -106,7 +106,7 @@ export function MSquad({
               padding: "0 12px",
               borderRadius: 11,
               background: C5.green,
-              color: C5.surface,
+              color: C5.onBrand,
               display: "flex",
               alignItems: "center",
               gap: 6,
@@ -188,7 +188,7 @@ export function MSquad({
                     vm.approveJoin(r.id);
                     toast(`${r.name} approved — they're in`);
                   }}
-                  style={{ height: 34, padding: "0 14px", borderRadius: 12, background: C5.green, color: C5.surface, display: "flex", alignItems: "center", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                  style={{ height: 34, padding: "0 14px", borderRadius: 12, background: C5.green, color: C5.onBrand, display: "flex", alignItems: "center", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                 >
                   Approve
                 </div>
@@ -236,7 +236,7 @@ export function MSquad({
                   width: 36,
                   height: 36,
                   borderRadius: "50%",
-                  background: "#E4EBE3",
+                  background: C5.sage,
                   border: isGhost ? `2px dashed ${ink(0.22)}` : `1px solid ${ink(0.1)}`,
                   display: "flex",
                   alignItems: "center",

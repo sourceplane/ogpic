@@ -156,10 +156,10 @@ export function RondoLogin() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 14px 30px -10px rgba(16,21,17,.5)",
+            boxShadow: "0 14px 30px -10px rgba(var(--rk-ink-rgb),.5)",
           }}
         >
-          <span style={{ fontSize: 34, fontWeight: 700, color: C5.surface }}>R</span>
+          <span style={{ fontSize: 34, fontWeight: 700, color: C5.onInk }}>R</span>
         </div>
       </div>
 

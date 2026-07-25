@@ -87,7 +87,7 @@ export function PClaim({
                 onClick={() => claimOne(p.id)}
                 style={{
                   borderRadius: 18,
-                  border: `2px dashed ${rowBusy ? C5.green : "rgba(23,105,74,.4)"}`,
+                  border: `2px dashed ${rowBusy ? C5.green : "rgba(var(--rk-green-rgb),.4)"}`,
                   background: C5.card,
                   padding: 14,
                   display: "flex",
@@ -146,7 +146,7 @@ export function PClaim({
               height: 54,
               borderRadius: 17,
               background: C5.green,
-              color: C5.surface,
+              color: C5.onBrand,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

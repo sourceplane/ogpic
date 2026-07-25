@@ -34,7 +34,7 @@ export function MMatches({ vm, nav }: { vm: RondoVM; nav: (screen: string) => vo
             padding: "0 14px",
             borderRadius: 12,
             background: C5.ink,
-            color: C5.surface,
+            color: C5.onInk,
             display: "flex",
             alignItems: "center",
             fontSize: 12,

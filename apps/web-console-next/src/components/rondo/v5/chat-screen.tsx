@@ -25,7 +25,7 @@ import { Pressable, Stagger } from "./anim5";
 /** The system cards' dark gradient (design lines 459/986) — a 2-stop variant
  *  distinct from `TicketHero`'s 3-stop `heroGrad`, so kept local here rather
  *  than folded into kit5. */
-const CARD_GRAD = "linear-gradient(150deg,#0C1912,#1A4530)";
+const CARD_GRAD = "var(--rk-poll-grad)";
 
 /** The reaction palette offered by the tap-to-react picker. The backend stores
  *  any emoji (up to 8 chars), so this is purely the UI's curated shortlist —
@@ -119,7 +119,7 @@ function ReactionPicker({ mine, onPick, onCopy }: { mine: boolean; onPick: (emoj
         border: `1px solid ${ink(0.12)}`,
         borderRadius: 18,
         padding: "3px 5px",
-        boxShadow: "0 6px 18px -6px rgba(16,21,17,.35)",
+        boxShadow: "0 6px 18px -6px rgba(var(--rk-ink-rgb),.35)",
         position: "relative",
         zIndex: 3,
       }}
@@ -198,7 +198,7 @@ function ReactionPills({ vm, row, mine }: { vm: RondoVM; row: ChatRowVM; mine: b
               display: "flex",
               alignItems: "center",
               gap: 3,
-              background: isMine ? "rgba(23,105,74,.14)" : C5.card,
+              background: isMine ? "rgba(var(--rk-green-rgb),.14)" : C5.card,
               border: `1px solid ${isMine ? C5.green : ink(0.12)}`,
               borderRadius: 10,
               padding: "2px 7px",
@@ -206,7 +206,7 @@ function ReactionPills({ vm, row, mine }: { vm: RondoVM; row: ChatRowVM; mine: b
               fontWeight: 700,
               color: isMine ? C5.green : ink(0.6),
               cursor: "pointer",
-              boxShadow: "0 1px 3px rgba(16,21,17,.12)",
+              boxShadow: "0 1px 3px rgba(var(--rk-ink-rgb),.12)",
             }}
           >
             <span style={{ fontSize: 11 }}>{emoji}</span>
@@ -249,7 +249,7 @@ function TextBubble({ vm, row, toast }: { vm: RondoVM; row: ChatRowVM; toast: (m
               width: 26,
               height: 26,
               borderRadius: "50%",
-              background: "#E4EBE3",
+              background: C5.sage,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -271,7 +271,7 @@ function TextBubble({ vm, row, toast }: { vm: RondoVM; row: ChatRowVM; toast: (m
             background: mine ? C5.green : C5.card,
             border: `1px solid ${mine ? C5.green : ink(0.1)}`,
             padding: "7px 11px 5px",
-            boxShadow: "0 1px 2px rgba(16,21,17,.06)",
+            boxShadow: "0 1px 2px rgba(var(--rk-ink-rgb),.06)",
             cursor: "pointer",
             opacity: pending ? 0.6 : 1,
           }}
@@ -289,7 +289,7 @@ function TextBubble({ vm, row, toast }: { vm: RondoVM; row: ChatRowVM; toast: (m
               textAlign: "right",
               fontFamily: MONO,
               fontSize: 7,
-              color: mine ? "rgba(242,244,241,.65)" : ink(0.35),
+              color: mine ? "rgba(var(--rk-on-dark-rgb),.65)" : ink(0.35),
               marginTop: 2,
             }}
           >
@@ -312,17 +312,17 @@ function PollCard({ vm, row, role, nav }: { vm: RondoVM; row: ChatRowVM; role: R
   const go = () => row.matchId && nav(detailScreen(role, row.matchId));
 
   return (
-    <div style={{ alignSelf: "center", width: "92%", borderRadius: 16, background: CARD_GRAD, padding: "11px 14px", color: C5.surface, flex: "none" }}>
+    <div style={{ alignSelf: "center", width: "92%", borderRadius: 16, background: CARD_GRAD, padding: "11px 14px", color: C5.onBrand, flex: "none" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
         <span style={{ fontFamily: MONO, fontSize: 8, letterSpacing: 1.5, color: "#E9CB8A" }}>📊 AVAILABILITY POLL</span>
-        <span style={{ fontFamily: MONO, fontSize: 8, color: "rgba(242,244,241,.5)" }}>{timeLabel(row.createdAt)}</span>
+        <span style={{ fontFamily: MONO, fontSize: 8, color: "rgba(var(--rk-on-dark-rgb),.5)" }}>{timeLabel(row.createdAt)}</span>
       </div>
       <div style={{ fontSize: 14, fontWeight: 700, marginTop: 7 }}>{leading ? `Leading: ${leading.label}` : "Waiting on votes"}</div>
-      <div style={{ marginTop: 7, height: 5, borderRadius: 3, background: "rgba(242,244,241,.15)" }}>
+      <div style={{ marginTop: 7, height: 5, borderRadius: 3, background: "rgba(var(--rk-on-dark-rgb),.15)" }}>
         <div style={{ width: `${pct}%`, height: "100%", borderRadius: 3, background: C5.green }} />
       </div>
       <div style={{ marginTop: 6, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontFamily: MONO, fontSize: 8.5, color: "rgba(242,244,241,.55)" }}>{meta}</span>
+        <span style={{ fontFamily: MONO, fontSize: 8.5, color: "rgba(var(--rk-on-dark-rgb),.55)" }}>{meta}</span>
         <span onClick={go} style={{ fontSize: 11, fontWeight: 700, color: C5.greenBright, cursor: "pointer" }}>
           {btnLabel}
         </span>
@@ -502,7 +502,7 @@ export function ChatScreen({
             justifyContent: "center",
             fontSize: 14,
             fontWeight: 700,
-            color: C5.surface,
+            color: C5.onBrand,
             flex: "none",
           }}
         >
@@ -543,7 +543,7 @@ export function ChatScreen({
               width: 36,
               height: 36,
               borderRadius: 12,
-              background: "rgba(23,105,74,.1)",
+              background: "rgba(var(--rk-green-rgb),.1)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -641,17 +641,17 @@ export function ChatScreen({
             padding: "0 13px",
             borderRadius: 17,
             background: C5.ink,
-            color: C5.surface,
+            color: C5.onInk,
             display: "flex",
             alignItems: "center",
             gap: 6,
             fontSize: 11.5,
             fontWeight: 700,
-            boxShadow: "0 8px 20px -8px rgba(16,21,17,.5)",
+            boxShadow: "0 8px 20px -8px rgba(var(--rk-ink-rgb),.5)",
             cursor: "pointer",
           }}
         >
-          <Icon name="chevronD" size={13} color={C5.surface} stroke={2.6} /> Latest
+          <Icon name="chevronD" size={13} color={C5.onInk} stroke={2.6} /> Latest
         </Pressable>
       )}
 
@@ -716,7 +716,7 @@ export function ChatScreen({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: C5.surface,
+            color: C5.onBrand,
             cursor: "pointer",
             flex: "none",
           }}

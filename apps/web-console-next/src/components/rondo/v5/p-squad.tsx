@@ -114,7 +114,7 @@ export function PSquad({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void
                   width: 36,
                   height: 36,
                   borderRadius: "50%",
-                  background: "#E4EBE3",
+                  background: C5.sage,
                   border: isGhost ? `2px dashed ${ink(0.22)}` : `1px solid ${ink(0.1)}`,
                   display: "flex",
                   alignItems: "center",

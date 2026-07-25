@@ -140,7 +140,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
               const on = i === day;
               return (
                 <div key={i} onClick={() => setDay(i)} className="rk-press" style={{ flex: 1, height: 56, borderRadius: 14, background: on ? C.ink : C.card, border: on ? "none" : `1px solid ${ink(0.1)}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2 }}>
-                  <span style={{ fontFamily: MONO, fontSize: 8.5, color: on ? "rgba(242,244,241,.6)" : ink(0.45) }}>{dd?.wd ?? "—"}</span>
+                  <span style={{ fontFamily: MONO, fontSize: 8.5, color: on ? "rgba(var(--rk-on-dark-rgb),.6)" : ink(0.45) }}>{dd?.wd ?? "—"}</span>
                   <span style={{ fontSize: 14, fontWeight: 700, color: on ? C.onDark : ink(0.55) }}>{dd?.n ?? "·"}</span>
                 </div>
               );
@@ -160,7 +160,7 @@ export function ManagerApp({ vm, teamNav }: { vm: RondoVM; teamNav?: TeamNav | u
               <input value={turf} onChange={(e) => setTurf(e.target.value)} placeholder="Turf name" style={{ width: "100%", border: "none", outline: "none", background: "transparent", fontFamily: "inherit", fontSize: 14, fontWeight: 600, color: C.ink }} />
             </FieldRow>
             <MapCard height={190} style={{ marginTop: 10 }} action={
-              <div style={{ position: "absolute", right: 10, bottom: 10, height: 34, padding: "0 14px", borderRadius: 12, background: C.card, boxShadow: "0 4px 12px rgba(16,21,17,.15)", display: "flex", alignItems: "center", gap: 7 }}>
+              <div style={{ position: "absolute", right: 10, bottom: 10, height: 34, padding: "0 14px", borderRadius: 12, background: C.card, boxShadow: "0 4px 12px rgba(var(--rk-ink-rgb),.15)", display: "flex", alignItems: "center", gap: 7 }}>
                 <Icon name="send" size={13} color={C.green} stroke={2.2} />
                 <span style={{ fontSize: 11.5, fontWeight: 700, color: C.ink }}>Move pin</span>
               </div>

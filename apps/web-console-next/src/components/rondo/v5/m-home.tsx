@@ -54,12 +54,12 @@ function resultLetter(row: LiveMatchRow): "W" | "D" | "L" | null {
 }
 
 const RESULT_STYLE: Record<"W" | "D" | "L", { bg: string; fg: string }> = {
-  W: { bg: "rgba(23,105,74,.14)", fg: C5.green },
-  L: { bg: "rgba(176,81,47,.14)", fg: C5.rust },
+  W: { bg: "rgba(var(--rk-green-rgb),.14)", fg: C5.green },
+  L: { bg: "rgba(var(--rk-rust-rgb),.14)", fg: C5.rust },
   D: { bg: ink(0.06), fg: ink(0.55) },
 };
 
-const AVATAR_BG = ["#E4EBE3", "#DDE3DC"];
+const AVATAR_BG = [C5.sage, C5.sageDeep];
 
 /** "IN 6 DAYS" / "IN 4H" / "IN 25M" from an ISO instant; null when past or
  *  unknown. `now` is passed in so the value is only computed after mount (a
@@ -95,10 +95,10 @@ function eyebrowLabel(nextIso: string | null | undefined, now: number | null): s
 type Tone = "gold" | "rust" | "blue" | "green";
 
 const TONE: Record<Tone, { border: string; tile: string; fg: string }> = {
-  gold: { border: "rgba(201,162,75,.55)", tile: "rgba(201,162,75,.16)", fg: C5.goldText },
-  rust: { border: "rgba(176,81,47,.45)", tile: "rgba(176,81,47,.12)", fg: C5.rust },
-  blue: { border: "rgba(42,120,214,.35)", tile: "rgba(42,120,214,.1)", fg: "#2A78D6" },
-  green: { border: "rgba(23,105,74,.45)", tile: "rgba(23,105,74,.12)", fg: C5.green },
+  gold: { border: "rgba(var(--rk-gold-rgb),.55)", tile: "rgba(var(--rk-gold-rgb),.16)", fg: C5.goldText },
+  rust: { border: "rgba(var(--rk-rust-rgb),.45)", tile: "rgba(var(--rk-rust-rgb),.12)", fg: C5.rust },
+  blue: { border: "rgba(var(--rk-blue-rgb),.35)", tile: "rgba(var(--rk-blue-rgb),.1)", fg: C5.blue },
+  green: { border: "rgba(var(--rk-green-rgb),.45)", tile: "rgba(var(--rk-green-rgb),.12)", fg: C5.green },
 };
 
 interface NeedItem {
@@ -305,8 +305,8 @@ export function MHome({
             cursor: "pointer",
           }}
         >
-          <div style={{ position: "absolute", right: -46, top: -34, width: 190, height: 190, border: "1.5px solid rgba(16,21,17,.07)", borderRadius: "50%" }} />
-          <div style={{ position: "absolute", right: -8, top: 44, width: 130, height: 130, border: "1.5px solid rgba(16,21,17,.06)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", right: -46, top: -34, width: 190, height: 190, border: "1.5px solid rgba(var(--rk-ink-rgb),.07)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", right: -8, top: 44, width: 130, height: 130, border: "1.5px solid rgba(var(--rk-ink-rgb),.06)", borderRadius: "50%" }} />
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
             <span style={{ fontFamily: MONO, fontSize: 9, letterSpacing: 1.6, color: ink(0.5) }}>NEXT MATCH</span>
             <span
@@ -317,8 +317,8 @@ export function MHome({
                 letterSpacing: 1,
                 padding: "5px 10px",
                 borderRadius: 11,
-                background: "rgba(23,105,74,.18)",
-                color: "#1B5E41",
+                background: "rgba(var(--rk-green-rgb),.18)",
+                color: C5.green,
                 flex: "none",
               }}
             >
@@ -420,15 +420,15 @@ export function MHome({
             overflow: "hidden",
           }}
         >
-          <div style={{ position: "absolute", right: -30, top: -30, width: 110, height: 110, border: "2px solid rgba(242,244,241,.14)", borderRadius: "50%" }} />
-          <Icon name="plus" size={24} color={C5.surface} stroke={2.4} />
+          <div style={{ position: "absolute", right: -30, top: -30, width: 110, height: 110, border: "2px solid rgba(var(--rk-on-dark-rgb),.14)", borderRadius: "50%" }} />
+          <Icon name="plus" size={24} color={C5.onBrand} stroke={2.4} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 19, fontWeight: 700, color: C5.surface, letterSpacing: -0.3 }}>New match</div>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, color: "rgba(242,244,241,.72)", marginTop: 3, letterSpacing: 1 }}>
+            <div style={{ fontSize: 19, fontWeight: 700, color: C5.onBrand, letterSpacing: -0.3 }}>New match</div>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, color: "rgba(var(--rk-on-dark-rgb),.72)", marginTop: 3, letterSpacing: 1 }}>
               QUICK SCHEDULE · OR POLL THE SQUAD
             </div>
           </div>
-          <span style={{ fontSize: 18, color: "rgba(242,244,241,.7)", flex: "none" }}>›</span>
+          <span style={{ fontSize: 18, color: "rgba(var(--rk-on-dark-rgb),.7)", flex: "none" }}>›</span>
         </Pressable>
 
         {/* chat */}
@@ -446,7 +446,7 @@ export function MHome({
             cursor: "pointer",
           }}
         >
-          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(23,105,74,.1)", display: "flex", alignItems: "center", justifyContent: "center", color: C5.green, flex: "none" }}>
+          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(var(--rk-green-rgb),.1)", display: "flex", alignItems: "center", justifyContent: "center", color: C5.green, flex: "none" }}>
             <Icon name="chat" size={19} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -462,7 +462,7 @@ export function MHome({
                 height: 26,
                 borderRadius: 13,
                 background: C5.green,
-                color: C5.surface,
+                color: C5.onBrand,
                 fontSize: 10.5,
                 fontWeight: 700,
                 display: "flex",
@@ -492,7 +492,7 @@ export function MHome({
             cursor: "pointer",
           }}
         >
-          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(42,120,214,.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "#2A78D6", flex: "none" }}>
+          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(var(--rk-blue-rgb),.08)", display: "flex", alignItems: "center", justifyContent: "center", color: C5.blue, flex: "none" }}>
             <Icon name="squad" size={19} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -512,8 +512,8 @@ export function MHome({
               height: 34,
               padding: "0 14px",
               borderRadius: 12,
-              background: "rgba(23,105,74,.1)",
-              border: `1px solid rgba(23,105,74,.35)`,
+              background: "rgba(var(--rk-green-rgb),.1)",
+              border: `1px solid rgba(var(--rk-green-rgb),.35)`,
               display: "flex",
               alignItems: "center",
               color: C5.green,
@@ -525,6 +525,56 @@ export function MHome({
           >
             Invite
           </Pressable>
+        </Pressable>
+
+        {/* ratings — the manager's way into the voting window. Permanent, not
+         *  conditional on `vm.votingOpen`: the "Rating window is open" card in
+         *  NEEDS YOU only appears once a window exists, so gating this row the
+         *  same way left a fresh team with no route to MRate and therefore no
+         *  way to open a window at all. The subtitle carries the live state so
+         *  the row doubles as the status readout. */}
+        <Pressable
+          onClick={() => nav("rate")}
+          style={{
+            margin: "10px 22px 0",
+            borderRadius: 20,
+            background: C5.card,
+            border: `1px solid ${vm.votingOpen ? "rgba(var(--rk-green-rgb),.35)" : ink(0.1)}`,
+            padding: "14px 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: 13,
+            cursor: "pointer",
+          }}
+        >
+          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(var(--rk-gold-rgb),.12)", display: "flex", alignItems: "center", justifyContent: "center", color: C5.goldText, flex: "none" }}>
+            <Icon name="star" size={19} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: C5.ink }}>Ratings</div>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, color: ink(0.45), marginTop: 3, letterSpacing: 0.8 }}>
+              {vm.votingOpen
+                ? `VOTING LIVE · ${vm.ratedCount}/${vm.totalRatable} VOTED`
+                : vm.ratingResults.length > 0
+                  ? `WINDOW CLOSED · LAST RUN ${vm.ratingResults.length} UPDATED`
+                  : "WINDOW CLOSED · TAP TO OPEN ONE"}
+            </div>
+          </div>
+          <span
+            style={{
+              fontFamily: MONO,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: 0.8,
+              padding: "5px 10px",
+              borderRadius: 14,
+              background: vm.votingOpen ? "rgba(var(--rk-green-rgb),.16)" : ink(0.06),
+              color: vm.votingOpen ? C5.green : ink(0.55),
+              flex: "none",
+            }}
+          >
+            {vm.votingOpen ? "LIVE" : "OPEN"}
+          </span>
         </Pressable>
 
         {/* season (collapsed by default) */}

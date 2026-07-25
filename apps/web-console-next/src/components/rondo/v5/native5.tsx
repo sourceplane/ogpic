@@ -12,6 +12,7 @@
 "use client";
 
 import * as React from "react";
+import { resolveTheme, THEME_EVENT } from "../theme";
 
 interface PluginHandle {
   remove?: () => void;
@@ -53,9 +54,14 @@ export function useIsNative(): boolean {
 /**
  * Draw the app edge-to-edge under the system bars (immersive full-screen) in
  * the native shell. The status bar overlays the WebView with a transparent
- * background and dark icons (the app surface is light); the Android theme makes
- * the navigation bar transparent too (see the APK workflow). Safe-area CSS
- * insets keep headers/dock clear of the bars. No-op in a browser / PWA.
+ * background; the Android theme makes the navigation bar transparent too (see
+ * the APK workflow). Safe-area CSS insets keep headers/dock clear of the bars.
+ * No-op in a browser / PWA.
+ *
+ * The icon style follows the resolved theme — dark icons on the light surface,
+ * light icons on the night-pitch one. It has to be re-applied on every theme
+ * change (and on an OS change while "system" is selected), otherwise switching
+ * to dark leaves black icons on a near-black bar.
  */
 export function useFullscreen(): void {
   React.useEffect(() => {
@@ -63,14 +69,26 @@ export function useFullscreen(): void {
     if (!cap?.isNativePlatform?.()) return;
     const sb = cap.Plugins?.StatusBar;
     if (!sb) return;
-    try {
-      void sb.setOverlaysWebView?.({ overlay: true });
-      // Style "LIGHT" = dark icons, for our light surface.
-      void sb.setStyle?.({ style: "LIGHT" });
-      void sb.setBackgroundColor?.({ color: "#00000000" });
-    } catch {
-      /* best effort — a missing StatusBar plugin just means no overlay */
-    }
+
+    const apply = () => {
+      try {
+        void sb.setOverlaysWebView?.({ overlay: true });
+        // Capacitor's Style.Light = dark icons; Style.Dark = light icons.
+        void sb.setStyle?.({ style: resolveTheme() === "dark" ? "DARK" : "LIGHT" });
+        void sb.setBackgroundColor?.({ color: "#00000000" });
+      } catch {
+        /* best effort — a missing StatusBar plugin just means no overlay */
+      }
+    };
+    apply();
+
+    const mq = window.matchMedia?.("(prefers-color-scheme: dark)");
+    window.addEventListener(THEME_EVENT, apply);
+    mq?.addEventListener?.("change", apply);
+    return () => {
+      window.removeEventListener(THEME_EVENT, apply);
+      mq?.removeEventListener?.("change", apply);
+    };
   }, []);
 }
 

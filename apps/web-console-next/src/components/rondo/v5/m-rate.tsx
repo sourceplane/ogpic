@@ -19,7 +19,9 @@ import { C5, DeltaChip, Icon, ink, MONO, MonoLabel, ProgressSteps } from "./kit5
 const DEADLINES: { kind: PollDeadlineKind; k: string; lbl: string }[] = [
   { kind: "24h", k: "24H", lbl: "AUTO-CLOSE" },
   { kind: "48h", k: "48H", lbl: "AUTO-CLOSE" },
-  { kind: "manual", k: "MANUAL", lbl: "YOU CLOSE IT" },
+  // The canvas labels the manual option "OPEN" (as in "stays open") — the VM
+  // kind is still `manual`.
+  { kind: "manual", k: "OPEN", lbl: "YOU CLOSE IT" },
 ];
 
 const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
@@ -39,11 +41,18 @@ export function MRate({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) =
   const sortedResults = [...vm.ratingResults].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
   const hasResults = !open && sortedResults.length > 0;
 
-  const deadlineReadout = vm.ratingDeadlineKind === "manual"
-    ? "MANUAL CLOSE"
+  // The canvas's single status line. Open: how far the round has got and when
+  // it ends; closed: what the last settled round did (or that none has run).
+  const closesIn = vm.ratingDeadlineKind === "manual"
+    ? "CLOSES WHEN YOU SAY"
     : vm.ratingDeadlineAt
-      ? `AUTO-CLOSES ${formatDeadline(vm.ratingDeadlineAt).toUpperCase()}`
+      ? `CLOSES ${formatDeadline(vm.ratingDeadlineAt).toUpperCase()}`
       : null;
+  const statusLine = open
+    ? [`LIVE`, `${vm.ratedCount}/${vm.totalRatable} VOTED`, closesIn].filter(Boolean).join(" · ")
+    : sortedResults.length > 0
+      ? `WINDOW CLOSED · LAST RUN ${sortedResults.length} UPDATED`
+      : "WINDOW CLOSED · NO ROUND YET";
 
   function toggleVoting() {
     if (open) {
@@ -83,11 +92,11 @@ export function MRate({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) =
             fontWeight: 600,
             padding: "5px 10px",
             borderRadius: 14,
-            background: open ? "rgba(23,105,74,.12)" : ink(0.06),
+            background: open ? "rgba(var(--rk-green-rgb),.12)" : ink(0.06),
             color: open ? C5.green : ink(0.55),
           }}
         >
-          {open ? "OPEN" : "CLOSED"}
+          {open ? "VOTING LIVE" : "VOTING CLOSED"}
         </span>
       </div>
 
@@ -98,57 +107,53 @@ export function MRate({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) =
             Open it whenever — players rate each other anonymously; votes settle into scores when you close it.
           </div>
 
-          {!open && (
-            <>
-              <MonoLabel size={9.5} weight={600} tone={0.5} style={{ marginTop: 16 }}>
-                WHEN DOES IT CLOSE?
-              </MonoLabel>
-              <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
-                {DEADLINES.map((d) => {
-                  const on = deadline === d.kind;
-                  return (
-                    <div
-                      key={d.kind}
-                      onClick={() => setDeadline(d.kind)}
-                      style={{
-                        flex: 1,
-                        height: 58,
-                        borderRadius: 14,
-                        background: on ? C5.green : C5.surface,
-                        border: `1.5px solid ${on ? C5.green : ink(0.14)}`,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 2,
-                        cursor: "pointer",
-                      }}
-                    >
-                      <span style={{ fontSize: 13.5, fontWeight: 700, color: on ? C5.surface : C5.ink }}>{d.k}</span>
-                      <span style={{ fontFamily: MONO, fontSize: 7.5, color: on ? "rgba(242,244,241,.7)" : ink(0.45) }}>{d.lbl}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
+          {/* Window length stays on screen while the window is live (the canvas
+           *  shows it in both states) but is locked — changing the deadline of
+           *  a running window isn't something the VM supports, so the control
+           *  reads as the chosen length rather than offering a no-op. */}
+          <MonoLabel size={9.5} weight={600} tone={0.5} style={{ marginTop: 16 }}>
+            WINDOW LENGTH
+          </MonoLabel>
+          <div style={{ marginTop: 8, display: "flex", gap: 8 }} aria-disabled={open || undefined}>
+            {DEADLINES.map((d) => {
+              const on = (open ? vm.ratingDeadlineKind : deadline) === d.kind;
+              return (
+                <div
+                  key={d.kind}
+                  onClick={open ? undefined : () => setDeadline(d.kind)}
+                  style={{
+                    flex: 1,
+                    height: 58,
+                    borderRadius: 14,
+                    background: on ? C5.panel : C5.surface,
+                    border: `1.5px solid ${on ? C5.ink : ink(0.11)}`,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 2,
+                    cursor: open ? "default" : "pointer",
+                    opacity: open && !on ? 0.5 : 1,
+                  }}
+                >
+                  <span style={{ fontSize: 13.5, fontWeight: 700, color: C5.ink }}>{d.k}</span>
+                  <span style={{ fontFamily: MONO, fontSize: 7.5, color: ink(0.48) }}>{d.lbl}</span>
+                </div>
+              );
+            })}
+          </div>
 
-          {open && (
-            <>
-              <div style={{ marginTop: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 600, color: ink(0.5) }}>
-                  {vm.ratedCount} / {vm.totalRatable} VOTED
-                </span>
-                <span style={{ fontFamily: MONO, fontSize: 9.5, color: ink(0.4) }}>ANONYMOUS</span>
-              </div>
-              <div style={{ marginTop: 7 }}>
-                <ProgressSteps percent={percent} />
-              </div>
-              {deadlineReadout && (
-                <div style={{ marginTop: 10, fontFamily: MONO, fontSize: 9, fontWeight: 600, color: ink(0.45) }}>{deadlineReadout}</div>
-              )}
-            </>
-          )}
+          {/* One status line in both states, as the canvas has it:
+           *  "LIVE · 3/12 VOTED · CLOSES IN 24H" / "WINDOW CLOSED · LAST RUN 7/12". */}
+          <div style={{ marginTop: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
+            <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 600, color: open ? C5.green : ink(0.55), letterSpacing: 0.6 }}>
+              {statusLine}
+            </span>
+            <span style={{ fontFamily: MONO, fontSize: 9.5, color: ink(0.4), flex: "none" }}>ANONYMOUS</span>
+          </div>
+          <div style={{ marginTop: 7 }}>
+            <ProgressSteps percent={open ? percent : 0} />
+          </div>
 
           <div
             onClick={toggleVoting}
@@ -157,15 +162,18 @@ export function MRate({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) =
               height: 50,
               borderRadius: 15,
               background: open ? C5.rust : C5.green,
-              color: C5.surface,
+              color: C5.onBrand,
+              boxShadow: open ? "0 0 24px rgba(var(--rk-rust-rgb),.35)" : "0 0 24px rgba(var(--rk-green-rgb),.35)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              gap: 9,
               fontSize: 13.5,
               fontWeight: 700,
               cursor: "pointer",
             }}
           >
+            {open && <span style={{ width: 7, height: 7, borderRadius: "50%", background: C5.onBrand, flex: "none" }} />}
             {open ? "Close voting & settle scores" : "Open voting window"}
           </div>
         </div>

@@ -49,12 +49,12 @@ export function TeamSelectScreen({
         {/* Primary actions — always at the top for quick access. */}
         <div style={{ display: "flex", gap: 10 }}>
           <div onClick={onCreate} className="rk-press" style={{ flex: 1, borderRadius: 18, background: C.green, color: C.onDark, padding: "16px 14px", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", right: -26, top: -26, width: 84, height: 84, border: "2px solid rgba(242,244,241,.16)", borderRadius: "50%" }} />
-            <div style={{ width: 34, height: 34, borderRadius: 11, background: "rgba(242,244,241,.16)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ position: "absolute", right: -26, top: -26, width: 84, height: 84, border: "2px solid rgba(var(--rk-on-dark-rgb),.16)", borderRadius: "50%" }} />
+            <div style={{ width: 34, height: 34, borderRadius: 11, background: "rgba(var(--rk-on-dark-rgb),.16)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Icon name="squad" size={17} color={C.onDark} />
             </div>
             <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -0.3, marginTop: 12 }}>Create team</div>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: "rgba(242,244,241,.7)", marginTop: 3 }}>YOU&rsquo;LL BE MANAGER</div>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: "rgba(var(--rk-on-dark-rgb),.7)", marginTop: 3 }}>YOU&rsquo;LL BE MANAGER</div>
           </div>
           <div onClick={onJoin} className="rk-press" style={{ flex: 1, borderRadius: 18, background: C.card, border: `1px solid ${ink(0.12)}`, padding: "16px 14px" }}>
             <div style={{ width: 34, height: 34, borderRadius: 11, background: green(0.12), display: "flex", alignItems: "center", justifyContent: "center" }}>

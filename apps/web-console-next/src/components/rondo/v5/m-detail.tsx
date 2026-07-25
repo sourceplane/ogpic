@@ -39,8 +39,8 @@ function VoterChip({ vm, playerId }: { vm: RondoVM; playerId: string }) {
         gap: 6,
         padding: "4px 10px 4px 4px",
         borderRadius: 16,
-        background: "rgba(23,105,74,.1)",
-        border: "1px solid rgba(23,105,74,.3)",
+        background: "rgba(var(--rk-green-rgb),.1)",
+        border: "1px solid rgba(var(--rk-green-rgb),.3)",
       }}
     >
       <div
@@ -49,7 +49,7 @@ function VoterChip({ vm, playerId }: { vm: RondoVM; playerId: string }) {
           height: 22,
           borderRadius: "50%",
           background: C5.green,
-          color: C5.surface,
+          color: C5.onBrand,
           fontSize: 7.5,
           fontWeight: 700,
           display: "flex",
@@ -90,7 +90,7 @@ function WaitingChip({ vm, playerId }: { vm: RondoVM; playerId: string }) {
           width: 22,
           height: 22,
           borderRadius: "50%",
-          background: "#E4EBE3",
+          background: C5.sage,
           color: C5.ink,
           fontSize: 7.5,
           fontWeight: 700,
@@ -277,7 +277,7 @@ export function MDetail({
     toast("Cancel match — coming soon");
   }
 
-  const gapBg = vm.balanceGap <= 1 ? "rgba(23,105,74,.12)" : "rgba(201,162,75,.2)";
+  const gapBg = vm.balanceGap <= 1 ? "rgba(var(--rk-green-rgb),.12)" : "rgba(var(--rk-gold-rgb),.2)";
   const gapFg = vm.balanceGap <= 1 ? C5.green : C5.goldText;
   const gapLbl = vm.balanceGap <= 1 ? `BALANCED · GAP ${vm.balanceGap}` : `GAP ${vm.balanceGap} — CONSIDER A SWAP`;
 
@@ -382,7 +382,7 @@ export function MDetail({
               height: 52,
               borderRadius: 16,
               background: C5.ink,
-              color: C5.surface,
+              color: C5.onInk,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -427,7 +427,7 @@ export function MDetail({
               height: 52,
               borderRadius: 16,
               background: C5.green,
-              color: C5.surface,
+              color: C5.onBrand,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -438,7 +438,7 @@ export function MDetail({
               opacity: busy || !selTime || !selTurf ? 0.7 : 1,
             }}
           >
-            <Icon name="zap" size={16} color={C5.surface} stroke={2.2} />
+            <Icon name="zap" size={16} color={C5.onBrand} stroke={2.2} />
             Auto-generate balanced teams
           </Pressable>
           <MonoLabel size={8.5} tone={0.45} weight={400} style={{ textAlign: "center", marginTop: 8 }}>
@@ -486,7 +486,7 @@ export function MDetail({
             </div>
             <Pressable
               onClick={handleFinalizeSchedule}
-              style={{ flex: 1, height: 52, borderRadius: 16, background: C5.ink, color: C5.surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+              style={{ flex: 1, height: 52, borderRadius: 16, background: C5.ink, color: C5.onInk, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
             >
               Finalize schedule
             </Pressable>
@@ -497,9 +497,9 @@ export function MDetail({
       {(phase === "scheduled" || phase === "live") && (
         <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "14px 24px 16px" }}>
           <TicketHero style={{ padding: "16px 18px" }}>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: "rgba(242,244,241,.5)" }}>CONFIRMED</div>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: "rgba(var(--rk-on-dark-rgb),.5)" }}>CONFIRMED</div>
             <div style={{ fontSize: 20, fontWeight: 700, marginTop: 6 }}>{row?.label ?? "—"}</div>
-            <div style={{ fontSize: 12, color: "rgba(242,244,241,.65)", marginTop: 3 }}>
+            <div style={{ fontSize: 12, color: "rgba(var(--rk-on-dark-rgb),.65)", marginTop: 3 }}>
               {row?.subLabel ?? "—"}
               {row?.mapsUrl && (
                 <>
@@ -513,7 +513,7 @@ export function MDetail({
           </TicketHero>
 
           {firstDropout && (
-            <div style={{ marginTop: 12, borderRadius: 18, background: "rgba(176,81,47,.08)", border: "1px solid rgba(176,81,47,.3)", padding: "14px 16px" }}>
+            <div style={{ marginTop: 12, borderRadius: 18, background: "rgba(var(--rk-rust-rgb),.08)", border: "1px solid rgba(var(--rk-rust-rgb),.3)", padding: "14px 16px" }}>
               <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: C5.rust }}>DROPOUT</div>
               <div style={{ fontSize: 14, fontWeight: 700, color: C5.ink, marginTop: 6 }}>
                 {firstDropout.playerName} dropped out — {firstDropout.reason}
@@ -529,7 +529,7 @@ export function MDetail({
                         firstDropout.playerName,
                       )
                     }
-                    style={{ flex: 1.4, height: 42, borderRadius: 13, background: C5.rust, color: C5.surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, cursor: "pointer", opacity: busy ? 0.7 : 1 }}
+                    style={{ flex: 1.4, height: 42, borderRadius: 13, background: C5.rust, color: C5.onBrand, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, cursor: "pointer", opacity: busy ? 0.7 : 1 }}
                   >
                     Replace with {firstDropout.suggestedReplacement.name} ({firstDropout.suggestedReplacement.ovr})
                   </div>
@@ -568,7 +568,7 @@ export function MDetail({
                 </div>
                 <Pressable
                   onClick={handleFinalizeSchedule}
-                  style={{ flex: 1, height: 52, borderRadius: 16, background: C5.ink, color: C5.surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+                  style={{ flex: 1, height: 52, borderRadius: 16, background: C5.ink, color: C5.onInk, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
                 >
                   Save lineup
                 </Pressable>

@@ -92,7 +92,7 @@ export function PPlayerView({
               width: 52,
               height: 52,
               borderRadius: "50%",
-              background: "#E4EBE3",
+              background: C5.sage,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

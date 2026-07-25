@@ -106,7 +106,7 @@ function DayTimePicker({
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 700, color: on ? C5.surface : C5.ink }}>{d.label}</div>
-              <div style={{ fontFamily: MONO, fontSize: 8.5, marginTop: 2, color: on ? "rgba(242,244,241,.75)" : ink(0.45) }}>
+              <div style={{ fontFamily: MONO, fontSize: 8.5, marginTop: 2, color: on ? "rgba(var(--rk-on-dark-rgb),.75)" : ink(0.45) }}>
                 {d.sub}
               </div>
             </Pressable>
@@ -172,7 +172,7 @@ function ItemChip({ label, sub, onRemove }: { label: string; sub?: string; onRem
         alignItems: "center",
         gap: 10,
         borderRadius: 14,
-        background: "rgba(23,105,74,.08)",
+        background: "rgba(var(--rk-green-rgb),.08)",
         border: `1.5px solid ${C5.green}`,
         padding: "10px 10px 10px 14px",
       }}
@@ -208,7 +208,7 @@ const addBtnStyle: React.CSSProperties = {
   height: 44,
   borderRadius: 13,
   background: C5.ink,
-  color: C5.surface,
+  color: C5.onInk,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -274,7 +274,7 @@ export function MWizard({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string)
                 height: 40,
                 borderRadius: 12,
                 background: on ? C5.card : "transparent",
-                boxShadow: on ? "0 1px 3px rgba(16,21,17,.12)" : "none",
+                boxShadow: on ? "0 1px 3px rgba(var(--rk-ink-rgb),.12)" : "none",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -353,7 +353,7 @@ function QuickMatch({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) => 
 
         {when && (
           <div style={{ marginTop: 18, borderRadius: 16, background: C5.card, border: `1px solid ${ink(0.12)}`, padding: 14, display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(23,105,74,.12)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(var(--rk-green-rgb),.12)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
               <Icon name="calendar" size={18} color={C5.green} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -373,7 +373,7 @@ function QuickMatch({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) => 
             height: 54,
             borderRadius: 17,
             background: C5.green,
-            color: C5.surface,
+            color: C5.onBrand,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -473,7 +473,7 @@ function PollWizard({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) => 
             <div style={{ marginTop: 16, borderRadius: 16, border: `2px dashed ${ink(0.18)}`, padding: 14 }}>
               <DayTimePicker day={tDay} time={tTime} onDay={setTDay} onTime={setTTime} />
               <Pressable onClick={addTime} style={{ ...addBtnStyle, marginTop: 14 }}>
-                <Icon name="plus" size={15} color={C5.surface} stroke={2.4} /> Add this slot
+                <Icon name="plus" size={15} color={C5.onInk} stroke={2.4} /> Add this slot
               </Pressable>
             </div>
           </div>
@@ -505,7 +505,7 @@ function PollWizard({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) => 
                   style={inputStyle}
                 />
                 <Pressable onClick={addTurf} style={{ ...addBtnStyle, padding: "0 16px" }}>
-                  <Icon name="plus" size={15} color={C5.surface} stroke={2.4} /> Add
+                  <Icon name="plus" size={15} color={C5.onInk} stroke={2.4} /> Add
                 </Pressable>
               </div>
             </div>
@@ -537,7 +537,7 @@ function PollWizard({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) => 
                     }}
                   >
                     <span style={{ fontSize: 15, fontWeight: 700, color: on ? C5.surface : C5.ink }}>{d.k}</span>
-                    <span style={{ fontFamily: MONO, fontSize: 8, color: on ? "rgba(242,244,241,.7)" : ink(0.45) }}>{d.lbl}</span>
+                    <span style={{ fontFamily: MONO, fontSize: 8, color: on ? "rgba(var(--rk-on-dark-rgb),.7)" : ink(0.45) }}>{d.lbl}</span>
                   </Pressable>
                 );
               })}
@@ -581,7 +581,7 @@ function PollWizard({ vm, nav, toast }: { vm: RondoVM; nav: (screen: string) => 
             height: 54,
             borderRadius: 17,
             background: C5.green,
-            color: C5.surface,
+            color: C5.onBrand,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

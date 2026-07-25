@@ -51,7 +51,7 @@ export function PlayerScoreSheet({
   return (
     <div
       onClick={onClose}
-      style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(16,21,17,.35)", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}
+      style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(var(--rk-ink-rgb),.35)", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
