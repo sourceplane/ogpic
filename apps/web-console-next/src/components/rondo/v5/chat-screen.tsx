@@ -20,7 +20,7 @@
 import * as React from "react";
 import { initials, type ChatRowVM, type RondoVM } from "@saas/rondo-core";
 import { C5, Icon, ink, MONO } from "./kit5";
-import { Stagger } from "./anim5";
+import { Pressable, Stagger } from "./anim5";
 
 /** The system cards' dark gradient (design lines 459/986) — a 2-stop variant
  *  distinct from `TicketHero`'s 3-stop `heroGrad`, so kept local here rather
@@ -104,8 +104,9 @@ function detailScreen(role: Role, matchId: string): string {
 
 /* ── row kinds ────────────────────────────────────────────────────────── */
 
-/** The floating emoji picker shown above a bubble on tap. */
-function ReactionPicker({ mine, onPick }: { mine: boolean; onPick: (emoji: string) => void }) {
+/** The floating action bar shown above a bubble on tap: react with an emoji,
+ *  or copy the message text. */
+function ReactionPicker({ mine, onPick, onCopy }: { mine: boolean; onPick: (emoji: string) => void; onCopy: () => void }) {
   return (
     <div
       className="rk5-rise"
@@ -143,6 +144,26 @@ function ReactionPicker({ mine, onPick }: { mine: boolean; onPick: (emoji: strin
           {e}
         </button>
       ))}
+      <span style={{ width: 1, alignSelf: "stretch", background: ink(0.12), margin: "4px 3px" }} />
+      <button
+        onClick={(ev) => {
+          ev.stopPropagation();
+          onCopy();
+        }}
+        title="Copy message"
+        style={{
+          border: "none",
+          background: "transparent",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          padding: "4px 7px",
+          borderRadius: 12,
+          color: ink(0.55),
+        }}
+      >
+        <Icon name="share" size={14} />
+      </button>
     </div>
   );
 }
@@ -197,7 +218,7 @@ function ReactionPills({ vm, row, mine }: { vm: RondoVM; row: ChatRowVM; mine: b
   );
 }
 
-function TextBubble({ vm, row }: { vm: RondoVM; row: ChatRowVM }) {
+function TextBubble({ vm, row, toast }: { vm: RondoVM; row: ChatRowVM; toast: (m: string) => void }) {
   const mine = row.mine;
   const gold = !mine && isManagerAuthor(vm, row.authorName);
   const [picking, setPicking] = React.useState(false);
@@ -208,9 +229,19 @@ function TextBubble({ vm, row }: { vm: RondoVM; row: ChatRowVM }) {
     vm.chat.react(row.id, emoji);
   };
 
+  const copy = () => {
+    setPicking(false);
+    // Clipboard access can be denied (insecure context, permissions) — tell the
+    // user rather than failing silently.
+    void navigator.clipboard
+      ?.writeText(row.body)
+      .then(() => toast("Message copied"))
+      .catch(() => toast("Couldn't copy the message"));
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: "none" }}>
-      {picking && <ReactionPicker mine={mine} onPick={react} />}
+      {picking && <ReactionPicker mine={mine} onPick={react} onCopy={copy} />}
       <div style={{ display: "flex", gap: 7, justifyContent: mine ? "flex-end" : "flex-start" }}>
         {!mine && (
           <div
@@ -375,7 +406,7 @@ function DayDivider({ label }: { label: string }) {
   );
 }
 
-function ChatRow({ vm, row, role, nav }: { vm: RondoVM; row: ChatRowVM; role: Role; nav: (screen: string) => void }) {
+function ChatRow({ vm, row, role, nav, toast }: { vm: RondoVM; row: ChatRowVM; role: Role; nav: (screen: string) => void; toast: (m: string) => void }) {
   switch (row.kind) {
     case "poll":
       return <PollCard vm={vm} row={row} role={role} nav={nav} />;
@@ -384,7 +415,7 @@ function ChatRow({ vm, row, role, nav }: { vm: RondoVM; row: ChatRowVM; role: Ro
     case "note":
       return <NotePill row={row} />;
     default:
-      return <TextBubble vm={vm} row={row} />;
+      return <TextBubble vm={vm} row={row} toast={toast} />;
   }
 }
 
@@ -407,7 +438,35 @@ export function ChatScreen({
 }) {
   const [draft, setDraft] = React.useState("");
   const taRef = React.useRef<HTMLTextAreaElement>(null);
-  const feed = [...vm.chat.rows].reverse();
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  // Search filters the feed client-side over messages already loaded (the feed
+  // pages older messages on demand, so "Load earlier" widens what's searchable).
+  const [searching, setSearching] = React.useState(false);
+  const [query, setQuery] = React.useState("");
+  const q = query.trim().toLowerCase();
+
+  const allRows = React.useMemo(() => [...vm.chat.rows].reverse(), [vm.chat.rows]);
+  const feed = React.useMemo(
+    () =>
+      q
+        ? allRows.filter(
+            (r) => r.body.toLowerCase().includes(q) || (r.authorName ?? "").toLowerCase().includes(q),
+          )
+        : allRows,
+    [allRows, q],
+  );
+
+  // "Jump to latest": the feed is column-reverse, so the newest row sits at
+  // scrollTop 0 and scrolling back through history moves it negative.
+  const [scrolledUp, setScrolledUp] = React.useState(false);
+  const onScroll = React.useCallback(() => {
+    const el = scrollRef.current;
+    if (el) setScrolledUp(Math.abs(el.scrollTop) > 240);
+  }, []);
+  const jumpToLatest = React.useCallback(() => {
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   // Auto-grow the composer up to ~4 lines, then scroll internally.
   const resize = React.useCallback(() => {
@@ -456,8 +515,29 @@ export function ChatScreen({
             <span style={{ fontFamily: MONO, fontSize: 8.5, color: ink(0.5) }}>{vm.activeTeam.members} MEMBERS</span>
           </div>
         </div>
+        <Pressable
+          onClick={() => {
+            setSearching((s) => !s);
+            setQuery("");
+          }}
+          title="Search messages"
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 12,
+            background: searching ? C5.green : ink(0.05),
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: searching ? C5.surface : ink(0.55),
+            cursor: "pointer",
+            flex: "none",
+          }}
+        >
+          <Icon name={searching ? "x" : "search"} size={16} />
+        </Pressable>
         {role === "manager" && onInvite && (
-          <div
+          <Pressable
             onClick={onInvite}
             style={{
               width: 36,
@@ -473,15 +553,50 @@ export function ChatScreen({
             }}
           >
             <Icon name="userPlus" size={16} />
-          </div>
+          </Pressable>
         )}
       </div>
 
+      {/* search */}
+      {searching && (
+        <div className="rk5-rise" style={{ padding: "10px 16px 0", flex: "none" }}>
+          <input
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search messages…"
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              height: 42,
+              borderRadius: 14,
+              background: C5.card,
+              border: `1px solid ${ink(0.14)}`,
+              padding: "0 14px",
+              fontFamily: "inherit",
+              fontSize: 13,
+              color: C5.ink,
+              outline: "none",
+            }}
+          />
+          {q && (
+            <div style={{ fontFamily: MONO, fontSize: 8.5, color: ink(0.45), marginTop: 6, letterSpacing: 0.8 }}>
+              {feed.length} {feed.length === 1 ? "MATCH" : "MATCHES"}
+              {vm.chat.hasMore ? " · LOAD EARLIER TO SEARCH FURTHER BACK" : ""}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* feed */}
-      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column-reverse", padding: "10px 14px", gap: 7 }}>
+      <div
+        ref={scrollRef}
+        onScroll={onScroll}
+        style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column-reverse", padding: "10px 14px", gap: 7, position: "relative" }}
+      >
         <Stagger style={{ flex: "none" }}>
           {feed.flatMap((row, i) => {
-            const nodes = [<ChatRow key={row.id} vm={vm} row={row} role={role} nav={nav} />];
+            const nodes = [<ChatRow key={row.id} vm={vm} row={row} role={role} nav={nav} toast={toast} />];
             // The feed is newest-first inside a column-reverse container, so a
             // divider placed *after* a row in DOM order renders just *above* it
             // on screen — insert one wherever the next-older row is a new day
@@ -493,15 +608,52 @@ export function ChatScreen({
             return nodes;
           })}
         </Stagger>
+        {q && feed.length === 0 && (
+          <div style={{ alignSelf: "center", textAlign: "center", padding: "24px 16px", flex: "none" }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: C5.ink }}>No messages match &ldquo;{query.trim()}&rdquo;</div>
+            <div style={{ fontSize: 11.5, color: ink(0.5), marginTop: 4 }}>
+              {vm.chat.hasMore ? "Load earlier messages to search further back." : "Try a different word."}
+            </div>
+          </div>
+        )}
         {vm.chat.hasMore && (
-          <div
+          <Pressable
             onClick={() => vm.chat.loadOlder()}
             style={{ alignSelf: "center", fontFamily: MONO, fontSize: 9.5, fontWeight: 700, color: C5.green, cursor: "pointer", padding: "6px 10px", flex: "none" }}
           >
             Load earlier messages
-          </div>
+          </Pressable>
         )}
       </div>
+
+      {/* jump to latest — only once you've scrolled back through history */}
+      {scrolledUp && !q && (
+        <Pressable
+          onClick={jumpToLatest}
+          className="rk5-rise"
+          title="Jump to latest"
+          style={{
+            position: "absolute",
+            right: 16,
+            bottom: 76,
+            zIndex: 4,
+            height: 34,
+            padding: "0 13px",
+            borderRadius: 17,
+            background: C5.ink,
+            color: C5.surface,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 11.5,
+            fontWeight: 700,
+            boxShadow: "0 8px 20px -8px rgba(16,21,17,.5)",
+            cursor: "pointer",
+          }}
+        >
+          <Icon name="chevronD" size={13} color={C5.surface} stroke={2.6} /> Latest
+        </Pressable>
+      )}
 
       {/* composer */}
       <div style={{ flex: "none", padding: "10px 16px 14px", display: "flex", alignItems: "flex-end", gap: 8, borderTop: `1px solid ${ink(0.08)}` }}>
