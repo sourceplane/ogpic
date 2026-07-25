@@ -13,6 +13,7 @@ import * as React from "react";
 import type { RondoVM } from "@saas/rondo-core";
 import { C5, Icon, ink, MONO, MonoLabel, Sheet, Toggle } from "./kit5";
 import { Pressable } from "./anim5";
+import { FieldError, invalidBorder, validateOptionalEmail, validateOptionalPhone, validateRequired } from "./form5";
 
 type Role = "manager" | "player";
 
@@ -349,6 +350,15 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
   // the confirmation copy below, matching the design's toggle row.
   const [wa, setWa] = React.useState(true);
   const [busy, setBusy] = React.useState(false);
+  const [touched, setTouched] = React.useState({ name: false, email: false, phone: false });
+
+  // Inline validation: name is required, the optional contact fields must be
+  // well-formed *if* filled (they exist so a joining member can claim this
+  // exact roster row, so a typo here costs a duplicate profile later).
+  const nameError = validateRequired(name, "Name");
+  const emailError = validateOptionalEmail(email);
+  const phoneError = validateOptionalPhone(phone);
+  const invalid = !!(nameError || emailError || phoneError);
 
   React.useEffect(() => {
     if (open) {
@@ -358,12 +368,14 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
       setPhone("");
       setWa(true);
       setBusy(false);
+      setTouched({ name: false, email: false, phone: false });
     }
   }, [open]);
 
   async function add() {
+    setTouched({ name: true, email: true, phone: true });
+    if (invalid || busy) return;
     const trimmed = name.trim();
-    if (!trimmed || busy) return;
     setBusy(true);
     const res = await vm.addPlayer({
       name: trimmed,
@@ -409,12 +421,14 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
         autoFocus
         value={name}
         onChange={(e) => setName(e.target.value)}
+        onBlur={() => setTouched((t) => ({ ...t, name: true }))}
         onKeyDown={(e) => {
           if (e.key === "Enter") add();
         }}
         placeholder="e.g. Ben Carter"
-        style={inputStyle}
+        style={{ ...inputStyle, ...invalidBorder(touched.name ? nameError : null) }}
       />
+      <FieldError error={touched.name ? nameError : null} />
 
       <MonoLabel size={9} style={{ marginTop: 12 }}>
         POSITION
@@ -454,6 +468,7 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
       <input
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        onBlur={() => setTouched((t) => ({ ...t, email: true }))}
         onKeyDown={(e) => {
           if (e.key === "Enter") add();
         }}
@@ -462,8 +477,9 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
         autoCapitalize="none"
         autoCorrect="off"
         placeholder="e.g. ben@example.com"
-        style={inputStyle}
+        style={{ ...inputStyle, ...invalidBorder(touched.email ? emailError : null) }}
       />
+      <FieldError error={touched.email ? emailError : null} />
 
       <MonoLabel size={9} style={{ marginTop: 12 }}>
         PHONE · OPTIONAL
@@ -471,14 +487,16 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
       <input
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
+        onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
         onKeyDown={(e) => {
           if (e.key === "Enter") add();
         }}
         type="tel"
         inputMode="tel"
         placeholder="e.g. +1 555 010 1234"
-        style={inputStyle}
+        style={{ ...inputStyle, ...invalidBorder(touched.phone ? phoneError : null) }}
       />
+      <FieldError error={touched.phone ? phoneError : null} />
 
       <div
         style={{
@@ -529,6 +547,9 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
           fontSize: 13.5,
           fontWeight: 700,
           cursor: busy ? "default" : "pointer",
+          // Dim (but stay tappable) while invalid, so pressing it reveals which
+          // field needs fixing rather than silently doing nothing.
+          opacity: !busy && invalid ? 0.6 : 1,
         }}
       >
         {busy ? "Adding…" : "Add to roster"}

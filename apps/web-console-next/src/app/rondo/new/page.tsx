@@ -30,6 +30,7 @@ import {
   Icon,
   MapCard,
 } from "@/components/rondo/kit";
+import { FieldError, validateRequired } from "@/components/rondo/v5/form5";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 const CRESTS = ["#17694A", "#101511", "#C9A24B", "#B0512F", "#FFFFFF"];
@@ -54,15 +55,19 @@ export default function RondoNewTeamPage() {
   const [error, setError] = React.useState<string | null>(null);
   const [created, setCreated] = React.useState<{ slug: string; name: string; code: string | null } | null>(null);
   const [copied, setCopied] = React.useState(false);
+  const [touched, setTouched] = React.useState(false);
+
+  const nameError = validateRequired(name, "Team name");
 
   async function create() {
-    if (!name.trim() || busy) return;
+    setTouched(true);
+    if (validateRequired(name, "Team name") || busy) return;
     setBusy(true);
     setError(null);
     const r = await wrap(() => client.organizations.create({ name: name.trim() }));
     if (!r.ok) {
       setBusy(false);
-      setError(r.error.message || "Could not create the team. Try again.");
+      setError(r.error.message || "Could not create the team. Check your connection and try again.");
       return;
     }
     await qc.invalidateQueries({ queryKey: qk.orgs() });
@@ -142,10 +147,12 @@ export default function RondoNewTeamPage() {
             autoFocus
             placeholder="Northside FC"
             onChange={(e) => setName(e.target.value)}
+            onBlur={() => setTouched(true)}
             onKeyDown={(e) => e.key === "Enter" && create()}
             style={{ width: "100%", border: "none", outline: "none", background: "transparent", fontFamily: "inherit", fontSize: 16, fontWeight: 600, color: C.ink }}
           />
         </FieldRow>
+        <FieldError error={touched ? nameError : null} />
 
         <div style={{ marginTop: 18 }}>
           <MonoLabel>CREST COLOUR</MonoLabel>

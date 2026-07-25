@@ -13,6 +13,7 @@ import { useSession } from "@/lib/session";
 import { wrap } from "@/lib/api";
 import { useRequireAuth } from "@/lib/use-async";
 import { C, ink, green, PhoneShell, StatusBar, ScreenHeader, Button, Icon } from "@/components/rondo/kit";
+import { FieldError, validateJoinCode } from "@/components/rondo/v5/form5";
 
 const MONO = "var(--font-jbmono), ui-monospace, monospace";
 const LEN = 6;
@@ -24,12 +25,17 @@ export default function RondoJoinPage() {
   const [code, setCode] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [touched, setTouched] = React.useState(false);
   const [sent, setSent] = React.useState<{ orgName: string } | null>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  const codeError = validateJoinCode(code, LEN);
+
   async function submit() {
+    setTouched(true);
+    const local = validateJoinCode(code, LEN);
+    if (local || busy) return;
     const c = code.trim().toUpperCase();
-    if (!c || busy) return;
     setBusy(true);
     setError(null);
     const r = await wrap(() => client.memberships.join({ code: c }));
@@ -37,10 +43,10 @@ export default function RondoJoinPage() {
     if (!r.ok) {
       setError(
         r.status === 404
-          ? "No squad found for that code."
+          ? "No squad found for that code — check the characters with your captain."
           : r.status === 409
-            ? "You've already requested to join this squad."
-            : r.error.message || "Could not send the request.",
+            ? "You've already requested to join this squad. Your manager still needs to approve it."
+            : r.error.message || "Could not send the request. Check your connection and try again.",
       );
       return;
     }
@@ -89,6 +95,7 @@ export default function RondoJoinPage() {
           maxLength={LEN}
           aria-label="Invite code"
           onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+          onBlur={() => setTouched(true)}
           onKeyDown={(e) => e.key === "Enter" && submit()}
           style={{ position: "absolute", inset: "24px 24px 0", width: "calc(100% - 48px)", height: 58, opacity: 0, zIndex: 2, cursor: "pointer" }}
         />
@@ -104,7 +111,11 @@ export default function RondoJoinPage() {
                   height: 58,
                   borderRadius: 14,
                   background: C.card,
-                  border: active ? `2px solid ${C.green}` : `1px solid ${ink(0.14)}`,
+                  border: active
+                    ? `2px solid ${C.green}`
+                    : touched && codeError
+                      ? `1.5px solid ${C.rust}`
+                      : `1px solid ${ink(0.14)}`,
                   boxShadow: active ? `0 0 0 4px ${green(0.12)}` : undefined,
                   display: "flex",
                   alignItems: "center",
@@ -118,6 +129,9 @@ export default function RondoJoinPage() {
               </div>
             );
           })}
+        </div>
+        <div style={{ marginTop: 2 }}>
+          <FieldError error={touched ? codeError : null} />
         </div>
       </div>
 
@@ -137,7 +151,7 @@ export default function RondoJoinPage() {
 
       <div style={{ flex: 1 }} />
       <div style={{ padding: "0 24px 26px" }}>
-        <Button variant="ink" onClick={submit} disabled={busy || !code.trim()}>
+        <Button variant="ink" onClick={submit} disabled={busy}>
           {busy ? "Sending…" : "Join squad"}
         </Button>
         <div
