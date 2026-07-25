@@ -21,6 +21,7 @@ import { initials, type RondoVM } from "@saas/rondo-core";
 import { C5, ChipTag, Icon, ink, MONO, MonoLabel, SegmentBar, Toggle } from "./kit5";
 import { enableNotifications, notifyState, type NotifyState } from "../notifications";
 import { POSITION_LABEL } from "./p-home";
+import { ThemeRow } from "./theme-row";
 
 /** 1-99 skill value → 0-5 segment fill (see file header). */
 function segFill(v: number, max = 99): number {
@@ -72,14 +73,14 @@ export function PProfile({
 
       <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "14px 24px 20px" }}>
         <div style={{ borderRadius: 20, background: C5.card, border: `1px solid ${ink(0.12)}`, padding: 20, display: "flex", alignItems: "center", gap: 15 }}>
-          <div style={{ width: 56, height: 56, borderRadius: "50%", background: C5.ink, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 700, color: C5.surface, flex: "none" }}>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: C5.ink, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 700, color: C5.onInk, flex: "none" }}>
             {myInitials}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 19, fontWeight: 700, color: C5.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
             {myPosLabel && (
               <div style={{ marginTop: 5, display: "flex", gap: 6 }}>
-                <ChipTag bg="rgba(23,105,74,.12)" fg={C5.green} size={8.5}>
+                <ChipTag bg="rgba(var(--rk-green-rgb),.12)" fg={C5.green} size={8.5}>
                   {myPosLabel}
                 </ChipTag>
               </div>
@@ -113,6 +114,8 @@ export function PProfile({
             <Toggle on={notif === "granted"} {...(notif === "unsupported" ? {} : { onClick: toggleNotifications })} />
           </div>
 
+          <ThemeRow />
+
           <div
             onClick={() => nav("hub")}
             style={{ borderRadius: 14, background: C5.card, border: `1px solid ${ink(0.1)}`, padding: "13px 16px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
@@ -123,7 +126,7 @@ export function PProfile({
 
           <div
             onClick={onSignOut}
-            style={{ borderRadius: 14, background: C5.card, border: "1px solid rgba(176,81,47,.3)", padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}
+            style={{ borderRadius: 14, background: C5.card, border: "1px solid rgba(var(--rk-rust-rgb),.3)", padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}
           >
             <Icon name="logout" size={15} color={C5.rust} />
             <span style={{ flex: 1, fontSize: 13.5, fontWeight: 700, color: C5.rust }}>Sign out</span>

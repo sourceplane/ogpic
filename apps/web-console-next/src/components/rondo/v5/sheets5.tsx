@@ -18,10 +18,12 @@ import { FieldError, invalidBorder, validateOptionalEmail, validateOptionalPhone
 type Role = "manager" | "player";
 
 /** The Create sheet's "Availability poll" glyph (design line 616) — a bar-
- *  chart path with no equivalent in kit5's `Icon` set, so kept local here. */
+ *  chart path with no equivalent in kit5's `Icon` set, so kept local here.
+ *  `stroke` rides `style` rather than the SVG presentation attribute because
+ *  C5 colours are `var(--rk-…)` strings, which attributes don't resolve. */
 function BarsIcon({ color }: { color: string }) {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style={{ stroke: color }} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
       <path d="M18 20V10M12 20V4M6 20v-6" />
     </svg>
   );
@@ -108,7 +110,7 @@ export function PlusSheet({
           <>
             <CreateTile
               icon={<BarsIcon color={C5.green} />}
-              iconBg="rgba(23,105,74,.12)"
+              iconBg="rgba(var(--rk-green-rgb),.12)"
               iconFg={C5.green}
               label="Availability poll"
               onClick={() => {
@@ -137,7 +139,7 @@ export function PlusSheet({
             <CreateTile icon={<Icon name="mapPin" size={17} />} iconBg={ink(0.06)} iconFg={C5.ink} label="Location" onClick={stub("Location")} />
             <CreateTile
               icon={<Icon name="check" size={17} />}
-              iconBg="rgba(23,105,74,.12)"
+              iconBg="rgba(var(--rk-green-rgb),.12)"
               iconFg={C5.green}
               label="My availability"
               onClick={() => {
@@ -214,7 +216,7 @@ export function InviteSheet({ vm, open, onClose, toast }: { vm: RondoVM; open: b
           style={{
             marginTop: 14,
             borderRadius: 18,
-            border: "2px dashed rgba(23,105,74,.5)",
+            border: "2px dashed rgba(var(--rk-green-rgb),.5)",
             background: C5.card,
             padding: 14,
             display: "flex",
@@ -254,7 +256,7 @@ export function InviteSheet({ vm, open, onClose, toast }: { vm: RondoVM; open: b
               height: 46,
               borderRadius: 14,
               background: C5.green,
-              color: C5.surface,
+              color: C5.onBrand,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -264,7 +266,7 @@ export function InviteSheet({ vm, open, onClose, toast }: { vm: RondoVM; open: b
               cursor: "pointer",
             }}
           >
-            <Icon name="share" size={14} color={C5.surface} /> Share link
+            <Icon name="share" size={14} color={C5.onBrand} /> Share link
           </div>
           <div
             onClick={() => toast("QR code (coming soon)")}
@@ -539,8 +541,8 @@ export function AddPlayerSheet5({ vm, open, onClose, toast }: { vm: RondoVM; ope
           marginTop: 14,
           height: 50,
           borderRadius: 16,
-          background: busy ? "rgba(23,105,74,.5)" : C5.green,
-          color: C5.surface,
+          background: busy ? "rgba(var(--rk-green-rgb),.5)" : C5.green,
+          color: C5.onBrand,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

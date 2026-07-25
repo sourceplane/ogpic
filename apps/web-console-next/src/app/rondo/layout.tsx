@@ -22,8 +22,11 @@ const jbMono = JetBrains_Mono({
   display: "swap",
 });
 
-// Apply the persisted theme before paint so there's no light→dark flash.
-const THEME_BOOT = `try{var t=localStorage.getItem('rk-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}`;
+// Apply the persisted theme before paint so there's no light→dark flash. The
+// matching `theme-color` meta goes in at the same moment, otherwise the mobile
+// browser chrome renders from the root layout's `prefers-color-scheme` rule and
+// visibly corrects itself once React mounts and `applyTheme` runs.
+const THEME_BOOT = `try{var t=localStorage.getItem('rk-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);var m=document.createElement('meta');m.name='theme-color';m.setAttribute('data-rk','');m.content=t==='dark'?'#1b231e':'#f2f4f1';document.head.appendChild(m);}}catch(e){}`;
 
 export default function RondoLayout({ children }: { children: React.ReactNode }) {
   return (

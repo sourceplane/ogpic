@@ -19,36 +19,58 @@ import { EASE, Pressable, useReducedMotion } from "./anim5";
 
 /* ── design tokens (spec §1) ──────────────────────────────────────────── */
 
+/**
+ * Every colour resolves through a CSS custom property declared in
+ * styles/rondo-kit.css, so one token file drives both themes and the whole v5
+ * surface follows `data-theme` (or the OS preference) with no per-screen work.
+ * The literals live there, not here — light is the "Pitchside" ramp, dark is
+ * the v11 night-turf canvas.
+ *
+ * Because these are `var(...)` strings rather than hex, they only resolve
+ * where CSS does: inline `style` objects and CSS properties. They are NOT
+ * valid in SVG *presentation attributes* (`<svg stroke={C5.ink}>` renders
+ * black) — `Icon` below therefore passes its colour through `style`, and any
+ * new SVG must do the same.
+ */
 export const C5 = {
-  paper: "#EAEEE9",
-  surface: "#F2F4F1",
-  card: "#FFFFFF",
-  sheet: "#F2F4F1",
-  ink: "#101511",
-  green: "#17694A",
-  greenBright: "#1DA851",
-  gold: "#C9A24B",
-  goldText: "#8A6D2C",
-  goldBg: "rgba(201,162,75,.18)",
-  rust: "#B0512F",
+  paper: "var(--rk-paper)",
+  surface: "var(--rk-surface)",
+  card: "var(--rk-card)",
+  sheet: "var(--rk-sheet)",
+  nav: "var(--rk-nav)",
+  /** Grouped/elevated fill — selected segments, recessed wells. */
+  panel: "var(--rk-panel)",
+  ink: "var(--rk-ink)",
+  green: "var(--rk-green)",
+  greenBright: "var(--rk-green-bright)",
+  gold: "var(--rk-gold)",
+  goldText: "var(--rk-gold-ink)",
+  goldBg: "var(--rk-gold-bg)",
+  rust: "var(--rk-rust)",
   /** Informational accent (join requests, secondary tiles). */
-  blue: "#2A78D6",
+  blue: "var(--rk-blue)",
   /** Muted sage used for hero/pitch tints and avatar chips. */
-  sage: "#E4EBE3",
-  sageDeep: "#D2DED1",
-  wa: "#25D366",
-  waText: "#128C4B",
-  heroGrad: "linear-gradient(150deg,#101511 0%,#17402B 70%,#17694A 185%)",
-  pitchTop: "linear-gradient(180deg,#143523,#102B1C)",
-  pitchBottom: "linear-gradient(0deg,#2E1D10,#241A12)",
-  pitchLine: "rgba(242,244,241,.32)",
-  track: "#E0E5DF",
+  sage: "var(--rk-pitch)",
+  sageDeep: "var(--rk-pitch-2)",
+  wa: "var(--rk-wa)",
+  waText: "var(--rk-wa-ink)",
+  /** Text/icons on a green, rust or blue fill. */
+  onBrand: "var(--rk-on-brand)",
+  /** Text/icons on the ink-coloured button — inverts with ink itself. */
+  onInk: "var(--rk-on-ink)",
+  heroGrad: "var(--rk-hero-grad)",
+  pitchTop: "var(--rk-pitch-top)",
+  pitchBottom: "var(--rk-pitch-bottom)",
+  pitchLine: "var(--rk-pitch-line)",
+  track: "var(--rk-track)",
 } as const;
 
-/** `ink(a)` — the design's `rgba(16,21,17,<a>)` secondary/tertiary-ink helper
- *  (`.55` secondary, `.45`/`.4` tertiary, `.12`/`.14` hairline borders, …). */
+/** `ink(a)` — the design's secondary/tertiary-ink helper (`.55` secondary,
+ *  `.45`/`.4` tertiary, `.12`/`.14` hairline borders, …). Rides the same
+ *  `--rk-ink-rgb` channel triplet as `C5.ink`, so the whole opacity ramp
+ *  inverts with the theme. */
 export function ink(a: number): string {
-  return `rgba(16,21,17,${a})`;
+  return `rgba(var(--rk-ink-rgb),${a})`;
 }
 
 /** JetBrains Mono, wired to the `--font-jbmono` variable the route layout
@@ -230,7 +252,10 @@ export function Icon({
       height={size}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={color}
+      /* `stroke` goes through style, not the presentation attribute: every
+       * colour in C5 is a `var(--rk-…)` string and SVG attributes don't
+       * resolve custom properties (the icon would render black). */
+      style={{ stroke: color }}
       strokeWidth={stroke}
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -318,10 +343,10 @@ export function PhaseChip({ phase, style }: { phase: MatchPhase; style?: React.C
     poll: { label: "POLL LIVE", bg: C5.goldBg, fg: C5.goldText },
     finalizing: { label: "FINALIZING", bg: C5.goldBg, fg: C5.goldText },
     draft: { label: "DRAFTING", bg: C5.goldBg, fg: C5.goldText },
-    scheduled: { label: "SCHEDULED", bg: "rgba(23,105,74,.12)", fg: C5.green },
-    live: { label: "LIVE", bg: "rgba(23,105,74,.12)", fg: C5.green },
+    scheduled: { label: "SCHEDULED", bg: "rgba(var(--rk-green-rgb),.12)", fg: C5.green },
+    live: { label: "LIVE", bg: "rgba(var(--rk-green-rgb),.12)", fg: C5.green },
     played: { label: "PLAYED", bg: ink(0.06), fg: ink(0.55) },
-    cancelled: { label: "CANCELLED", bg: "rgba(176,81,47,.12)", fg: C5.rust },
+    cancelled: { label: "CANCELLED", bg: "rgba(var(--rk-rust-rgb),.12)", fg: C5.rust },
   };
   const m = map[phase];
   return (
@@ -335,8 +360,8 @@ export function PhaseChip({ phase, style }: { phase: MatchPhase; style?: React.C
  *  LAST WINDOW summary — docs/design/rondo-rating-window-spec.md): green
  *  `▲+n` for a gain, rust `▼-n` for a drop, neutral `·` for no change. */
 export function DeltaChip({ delta, size = 9 }: { delta: number; size?: number }) {
-  if (delta > 0) return <ChipTag bg="rgba(23,105,74,.14)" fg={C5.green} size={size}>{`▲+${delta}`}</ChipTag>;
-  if (delta < 0) return <ChipTag bg="rgba(176,81,47,.14)" fg={C5.rust} size={size}>{`▼${delta}`}</ChipTag>;
+  if (delta > 0) return <ChipTag bg="rgba(var(--rk-green-rgb),.14)" fg={C5.green} size={size}>{`▲+${delta}`}</ChipTag>;
+  if (delta < 0) return <ChipTag bg="rgba(var(--rk-rust-rgb),.14)" fg={C5.rust} size={size}>{`▼${delta}`}</ChipTag>;
   return (
     <ChipTag bg={ink(0.06)} fg={ink(0.5)} size={size}>
       ·
@@ -360,7 +385,7 @@ export function heroCircles(variant: "hero" | "login" = "hero"): React.ReactNode
             top: "50%",
             width: 250,
             height: 250,
-            border: "2px solid rgba(242,244,241,.1)",
+            border: "2px solid rgba(var(--rk-on-dark-rgb),.1)",
             borderRadius: "50%",
             transform: "translate(-50%,-50%)",
           }}
@@ -372,12 +397,12 @@ export function heroCircles(variant: "hero" | "login" = "hero"): React.ReactNode
             top: "50%",
             width: 150,
             height: 150,
-            border: "2px solid rgba(242,244,241,.08)",
+            border: "2px solid rgba(var(--rk-on-dark-rgb),.08)",
             borderRadius: "50%",
             transform: "translate(-50%,-50%)",
           }}
         />
-        <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 2, background: "rgba(242,244,241,.07)" }} />
+        <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 2, background: "rgba(var(--rk-on-dark-rgb),.07)" }} />
       </>
     );
   }
@@ -390,7 +415,7 @@ export function heroCircles(variant: "hero" | "login" = "hero"): React.ReactNode
           top: -50,
           width: 170,
           height: 170,
-          border: "2px solid rgba(242,244,241,.1)",
+          border: "2px solid rgba(var(--rk-on-dark-rgb),.1)",
           borderRadius: "50%",
         }}
       />
@@ -401,7 +426,7 @@ export function heroCircles(variant: "hero" | "login" = "hero"): React.ReactNode
           top: 30,
           width: 90,
           height: 90,
-          border: "2px solid rgba(242,244,241,.08)",
+          border: "2px solid rgba(var(--rk-on-dark-rgb),.08)",
           borderRadius: "50%",
         }}
       />
@@ -412,7 +437,7 @@ export function heroCircles(variant: "hero" | "login" = "hero"): React.ReactNode
 /** The hero's dashed section divider (reference line 117) — spread this into
  *  a wrapper `div`'s style alongside layout props (margin/padding/display). */
 export const dashedDivider: React.CSSProperties = {
-  borderTop: "1.5px dashed rgba(242,244,241,.22)",
+  borderTop: "1.5px dashed rgba(var(--rk-on-dark-rgb),.22)",
 };
 
 /* ── ticket hero ──────────────────────────────────────────────────────── */
@@ -436,10 +461,10 @@ export function TicketHero({
       style={{
         borderRadius: 24,
         background: C5.heroGrad,
-        color: C5.surface,
+        color: C5.onBrand,
         position: "relative",
         overflow: "hidden",
-        boxShadow: "0 18px 34px -20px rgba(16,21,17,.55)",
+        boxShadow: "0 18px 34px -20px rgba(var(--rk-ink-rgb),.55)",
         padding: 20,
         cursor: onClick ? "pointer" : undefined,
         ...style,
@@ -519,7 +544,7 @@ export function NightPitch({
     list.map((p, i) => {
       const isMe = mePlayerId != null && p.id === mePlayerId;
       const glow = isMe
-        ? `0 0 0 3px rgba(242,244,241,.95), 0 0 0 6px ${kit}`
+        ? `0 0 0 3px rgba(var(--rk-on-dark-rgb),.95), 0 0 0 6px ${kit}`
         : `0 0 ${interactive ? 16 : 14}px ${kit}${interactive ? "90" : "66"}`;
       return (
         <div
@@ -546,7 +571,7 @@ export function NightPitch({
               height: size,
               borderRadius: "50%",
               background: kit,
-              color: C5.surface,
+              color: C5.onBrand,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -563,7 +588,7 @@ export function NightPitch({
               fontSize: interactive ? 9 : 8,
               fontWeight: 700,
               color: C5.ink,
-              background: `rgba(242,244,241,${interactive ? 0.92 : 0.9})`,
+              background: `rgba(var(--rk-on-dark-rgb),${interactive ? 0.92 : 0.9})`,
               borderRadius: interactive ? 6 : 5,
               padding: interactive ? "1px 6px" : "1px 5px",
               whiteSpace: "nowrap",
@@ -597,7 +622,7 @@ export function NightPitch({
           justifyContent: "center",
         }}
       >
-        <span style={{ fontSize: interactive ? 12 : 10, fontWeight: 700, color: C5.surface }}>VS</span>
+        <span style={{ fontSize: interactive ? 12 : 10, fontWeight: 700, color: C5.onInk }}>VS</span>
       </div>
       {renderSide(a, kitA, 0)}
       {renderSide(b, kitB, a.length)}
@@ -641,7 +666,7 @@ export function SegmentBar({
 
 /** The 44×26 switch (reference line 557; also used for the WhatsApp-bridge
  *  and manager-role rows, which pass their own `onColor`). Defaults to
- *  `green`, off-state is always `rgba(16,21,17,.18)`. */
+ *  `green`, off-state is always `rgba(var(--rk-ink-rgb),.18)`. */
 export function Toggle({
   on,
   onClick,
@@ -658,7 +683,7 @@ export function Toggle({
         width: 44,
         height: 26,
         borderRadius: 13,
-        background: on ? onColor : "rgba(16,21,17,.18)",
+        background: on ? onColor : "rgba(var(--rk-ink-rgb),.18)",
         position: "relative",
         cursor: onClick ? "pointer" : undefined,
         flex: "none",
@@ -672,8 +697,8 @@ export function Toggle({
           width: 20,
           height: 20,
           borderRadius: "50%",
-          background: "#FFFFFF",
-          boxShadow: "0 1px 3px rgba(16,21,17,.3)",
+          background: C5.card,
+          boxShadow: "0 1px 3px rgba(var(--rk-ink-rgb),.3)",
           transition: "left .15s ease",
         }}
       />
@@ -683,7 +708,7 @@ export function Toggle({
 
 /* ── bottom sheet ─────────────────────────────────────────────────────── */
 
-/** The floating bottom sheet (reference lines 608-613): `rgba(16,21,17,.4)`
+/** The floating bottom sheet (reference lines 608-613): `rgba(var(--rk-ink-rgb),.4)`
  *  backdrop, `sheet` bg card at 26px radius with a grab handle. Renders
  *  nothing when `open` is false. Backdrop click calls `onClose`; the card
  *  itself stops that click from bubbling. */
@@ -777,7 +802,7 @@ export function Sheet({
         position: "fixed",
         inset: 0,
         zIndex: 200,
-        background: "rgba(16,21,17,.4)",
+        background: "rgba(var(--rk-ink-rgb),.4)",
         opacity: backdropOpacity,
         display: "flex",
         flexDirection: "column",
@@ -797,7 +822,7 @@ export function Sheet({
           background: C5.sheet,
           borderRadius: 26,
           padding: "14px 20px 20px",
-          boxShadow: "0 -12px 40px rgba(16,21,17,.3)",
+          boxShadow: "0 -12px 40px rgba(var(--rk-ink-rgb),.3)",
           maxHeight: "86dvh",
           overflowY: "auto",
           transform: cardTransform,
@@ -811,7 +836,7 @@ export function Sheet({
           onPointerCancel={onHandleUp}
           style={{ padding: "2px 0 8px", margin: "-2px 0 0", cursor: "grab", touchAction: "none" }}
         >
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(16,21,17,.15)", margin: "0 auto" }} />
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(var(--rk-ink-rgb),.15)", margin: "0 auto" }} />
         </div>
         {children}
       </div>
@@ -832,7 +857,7 @@ export interface DockItem {
 }
 
 /** The floating white dock (reference lines 697-704): 62px tall, 22px radius,
- *  `0 12px 28px -12px rgba(16,21,17,.4)` shadow, `8px 14px 12px` margin. */
+ *  `0 12px 28px -12px rgba(var(--rk-ink-rgb),.4)` shadow, `8px 14px 12px` margin. */
 export function DockNav({
   items,
   active,
@@ -853,7 +878,7 @@ export function DockNav({
         borderRadius: 22,
         background: C5.card,
         border: `1px solid ${ink(0.08)}`,
-        boxShadow: "0 12px 28px -12px rgba(16,21,17,.4)",
+        boxShadow: "0 12px 28px -12px rgba(var(--rk-ink-rgb),.4)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-around",
@@ -988,10 +1013,10 @@ export function useToast(): { toast: (msg: string) => void; node: React.ReactNod
         padding: "10px 18px",
         borderRadius: 20,
         background: C5.ink,
-        color: C5.surface,
+        color: C5.onInk,
         fontSize: 12,
         fontWeight: 600,
-        boxShadow: "0 10px 24px -8px rgba(16,21,17,.5)",
+        boxShadow: "0 10px 24px -8px rgba(var(--rk-ink-rgb),.5)",
         whiteSpace: "nowrap",
         pointerEvents: "none",
       }}

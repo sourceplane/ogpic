@@ -47,7 +47,7 @@ export function ClaimSheet({
   return (
     <div
       onClick={onClose}
-      style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(16,21,17,.35)", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}
+      style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(var(--rk-ink-rgb),.35)", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -59,7 +59,7 @@ export function ClaimSheet({
         <div style={{ fontSize: 12.5, color: ink(0.55), marginTop: 2 }}>Claim your spot to set your own availability.</div>
 
         {error && (
-          <div style={{ marginTop: 14, padding: "10px 14px", borderRadius: 12, background: "rgba(176,81,47,.12)", border: "1px solid rgba(176,81,47,.3)", color: C.rust, fontSize: 12 }}>{error}</div>
+          <div style={{ marginTop: 14, padding: "10px 14px", borderRadius: 12, background: "rgba(var(--rk-rust-rgb),.12)", border: "1px solid rgba(var(--rk-rust-rgb),.3)", color: C.rust, fontSize: 12 }}>{error}</div>
         )}
 
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>

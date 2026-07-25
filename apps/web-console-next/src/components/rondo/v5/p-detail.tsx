@@ -67,7 +67,7 @@ function CheckRow({
           flex: "none",
         }}
       >
-        {selected && <Icon name="check" size={12} color={C5.surface} stroke={3} />}
+        {selected && <Icon name="check" size={12} color={C5.onBrand} stroke={3} />}
       </div>
       <span style={{ flex: 1, fontSize: 13.5, fontWeight: 700, color: C5.ink }}>{label}</span>
       {trailing && (
@@ -95,8 +95,8 @@ function VoterChip({ vm, playerId }: { vm: RondoVM; playerId: string }) {
   const p = vm.byId(playerId);
   const isGhost = !p?.email;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px 4px 4px", borderRadius: 16, background: "rgba(23,105,74,.1)", border: "1px solid rgba(23,105,74,.3)" }}>
-      <div style={{ width: 22, height: 22, borderRadius: "50%", background: C5.green, color: C5.surface, fontSize: 7.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px 4px 4px", borderRadius: 16, background: "rgba(var(--rk-green-rgb),.1)", border: "1px solid rgba(var(--rk-green-rgb),.3)" }}>
+      <div style={{ width: 22, height: 22, borderRadius: "50%", background: C5.green, color: C5.onBrand, fontSize: 7.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
         {p?.initials ?? "?"}
       </div>
       <span style={{ fontSize: 10.5, fontWeight: 700, color: C5.ink }}>{p?.shortName ?? "Player"}</span>
@@ -112,7 +112,7 @@ function WaitingChip({ vm, playerId }: { vm: RondoVM; playerId: string }) {
   const p = vm.byId(playerId);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px 4px 4px", borderRadius: 16, background: C5.card, border: `1px solid ${ink(0.12)}`, opacity: 0.75 }}>
-      <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#E4EBE3", color: C5.ink, fontSize: 7.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: 22, height: 22, borderRadius: "50%", background: C5.sage, color: C5.ink, fontSize: 7.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
         {p?.initials ?? "?"}
       </div>
       <span style={{ fontSize: 10.5, fontWeight: 600, color: ink(0.6) }}>{p?.shortName ?? "Player"}</span>
@@ -209,11 +209,11 @@ export function PDetail({
   const isReplaced = isOut && hasLineup && !inTeamA && !inTeamB;
 
   const teamChip = isOut
-    ? { label: "OUT", bg: "rgba(176,81,47,.4)", fg: C5.surface }
+    ? { label: "OUT", bg: "rgba(var(--rk-rust-rgb),.4)", fg: C5.surface }
     : inTeamA
-      ? { label: (row?.teamA?.name ?? "Team A").toUpperCase(), bg: "rgba(23,105,74,.4)", fg: C5.surface }
+      ? { label: (row?.teamA?.name ?? "Team A").toUpperCase(), bg: "rgba(var(--rk-green-rgb),.4)", fg: C5.surface }
       : inTeamB
-        ? { label: (row?.teamB?.name ?? "Team B").toUpperCase(), bg: "rgba(176,81,47,.4)", fg: C5.surface }
+        ? { label: (row?.teamB?.name ?? "Team B").toUpperCase(), bg: "rgba(var(--rk-rust-rgb),.4)", fg: C5.surface }
         : null;
 
   const draftPlaces = React.useMemo(() => placeDraft(vm.home, vm.away), [vm.home, vm.away]);
@@ -263,15 +263,15 @@ export function PDetail({
 
               <div
                 onClick={handleSubmitVote}
-                style={{ marginTop: 16, height: 52, borderRadius: 16, background: C5.green, color: C5.surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13.5, fontWeight: 700, cursor: "pointer", opacity: busy ? 0.7 : 1 }}
+                style={{ marginTop: 16, height: 52, borderRadius: 16, background: C5.green, color: C5.onBrand, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13.5, fontWeight: 700, cursor: "pointer", opacity: busy ? 0.7 : 1 }}
               >
                 Submit availability
               </div>
             </div>
           ) : (
             <div>
-              <div style={{ borderRadius: 18, background: "rgba(23,105,74,.1)", border: "1px solid rgba(23,105,74,.3)", padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 38, height: 38, borderRadius: "50%", background: C5.green, display: "flex", alignItems: "center", justifyContent: "center", color: C5.surface, flex: "none" }}>
+              <div style={{ borderRadius: 18, background: "rgba(var(--rk-green-rgb),.1)", border: "1px solid rgba(var(--rk-green-rgb),.3)", padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 38, height: 38, borderRadius: "50%", background: C5.green, display: "flex", alignItems: "center", justifyContent: "center", color: C5.onBrand, flex: "none" }}>
                   <Icon name="check" size={16} stroke={3} />
                 </div>
                 <div style={{ flex: 1 }}>
@@ -326,7 +326,7 @@ export function PDetail({
         <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "14px 24px 16px" }}>
           <TicketHero style={{ padding: "16px 18px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-              <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: "rgba(242,244,241,.5)" }}>CONFIRMED</span>
+              <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: "rgba(var(--rk-on-dark-rgb),.5)" }}>CONFIRMED</span>
               {teamChip && (
                 <ChipTag bg={teamChip.bg} fg={teamChip.fg} size={8.5}>
                   {teamChip.label}
@@ -334,7 +334,7 @@ export function PDetail({
               )}
             </div>
             <div style={{ fontSize: 20, fontWeight: 700, marginTop: 6 }}>{row?.label ?? "—"}</div>
-            <div style={{ fontSize: 12, color: "rgba(242,244,241,.65)", marginTop: 3 }}>
+            <div style={{ fontSize: 12, color: "rgba(var(--rk-on-dark-rgb),.65)", marginTop: 3 }}>
               {row?.subLabel ?? "—"}
               {row?.mapsUrl && (
                 <>
@@ -387,8 +387,8 @@ export function PDetail({
           )}
 
           {isOut && (
-            <div style={{ marginTop: 12, borderRadius: 18, background: "rgba(176,81,47,.08)", border: "1px solid rgba(176,81,47,.3)", padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 38, height: 38, borderRadius: "50%", background: C5.rust, display: "flex", alignItems: "center", justifyContent: "center", color: C5.surface, fontSize: 15, fontWeight: 700, flex: "none" }}>
+            <div style={{ marginTop: 12, borderRadius: 18, background: "rgba(var(--rk-rust-rgb),.08)", border: "1px solid rgba(var(--rk-rust-rgb),.3)", padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 38, height: 38, borderRadius: "50%", background: C5.rust, display: "flex", alignItems: "center", justifyContent: "center", color: C5.onBrand, fontSize: 15, fontWeight: 700, flex: "none" }}>
                 ✕
               </div>
               <div style={{ flex: 1 }}>

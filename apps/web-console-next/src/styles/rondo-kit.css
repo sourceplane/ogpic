@@ -9,37 +9,65 @@
  * --font-grotesk / --font-jbmono.
  */
 
-.rk {
+/* ── tokens ────────────────────────────────────────────────────
+ * Declared on :root (not `.rk`) because the v5 screens read them through the
+ * `C5` map in components/rondo/v5/kit5.tsx and are not nested inside a `.rk`
+ * element. `.rk` inherits them like everything else, so the v4 kit is
+ * unchanged. Light is the shipped "Pitchside" ramp; dark is lifted verbatim
+ * from the v11 dark canvas (see the dark block below). */
+:root {
   /* ── surfaces ─────────────────────────────────────────────── */
   --rk-bg: #efede8; /* page behind the app */
   --rk-surface: #f2f4f1; /* the screen itself */
   --rk-card: #ffffff;
+  --rk-sheet: #f2f4f1; /* bottom sheets */
+  --rk-paper: #eaeee9; /* recessed wells, empty states */
+  --rk-nav: #ffffff; /* the bottom dock */
   --rk-pitch: #e4ebe3; /* pitch / map muted green */
   --rk-pitch-2: #e9ece7;
   --rk-panel: #edf1ed; /* grouped section background */
   --rk-avatar: #e4ebe3;
   --rk-avatar-2: #dde3dc;
   --rk-seg-empty: #eaeee9; /* unfilled rating segment */
+  --rk-track: #e0e5df; /* progress-bar trough */
 
   /* ── ink ──────────────────────────────────────────────────── */
   --rk-ink: #101511; /* near-black text + dark buttons */
   --rk-ink-rgb: 16, 21, 17; /* for rgba() opacity ramps */
   --rk-on-dark: #f2f4f1; /* text on ink / green / rust */
+  --rk-on-dark-rgb: 242, 244, 241; /* opacity ramp for text on dark art */
+  --rk-on-brand: #f2f4f1; /* text on a green / rust / blue fill */
+  --rk-on-ink: #f2f4f1; /* text on the ink-coloured button */
 
   /* ── accents ──────────────────────────────────────────────── */
   --rk-green: #17694a; /* primary brand · HOME side · CTAs */
   --rk-green-rgb: 23, 105, 74;
+  --rk-green-bright: #1da851; /* live/positive highlight */
   --rk-gold: #c9a24b; /* manager accent */
   --rk-gold-rgb: 201, 162, 75;
   --rk-gold-ink: #8a6d2c; /* gold text on soft-gold chip */
+  --rk-gold-bg: rgba(201, 162, 75, 0.18);
   --rk-rust: #b0512f; /* AWAY side · destructive · badges */
   --rk-rust-rgb: 176, 81, 47;
+  --rk-blue: #2a78d6; /* informational (join requests) */
+  --rk-blue-rgb: 42, 120, 214;
+  --rk-wa: #25d366; /* WhatsApp brand */
+  --rk-wa-ink: #128c4b; /* WhatsApp text on a light fill */
+
+  /* ── pitch / hero art ─────────────────────────────────────── */
+  --rk-hero-grad: linear-gradient(150deg, #101511 0%, #17402b 70%, #17694a 185%);
+  --rk-pitch-top: linear-gradient(180deg, #143523, #102b1c);
+  --rk-pitch-bottom: linear-gradient(0deg, #2e1d10, #241a12);
+  --rk-pitch-line: rgba(242, 244, 241, 0.32);
+  --rk-poll-grad: linear-gradient(150deg, #0c1912, #1a4530); /* poll card in chat */
 
   /* ── lines ────────────────────────────────────────────────── */
   --rk-line: rgba(16, 21, 17, 0.12);
   --rk-line-soft: rgba(16, 21, 17, 0.1);
   --rk-line-strong: rgba(16, 21, 17, 0.14);
+}
 
+.rk {
   /* ── radii ────────────────────────────────────────────────── */
   --rk-r-frame: 28px;
   --rk-r-card: 20px;
@@ -59,58 +87,102 @@
 }
 
 /* ── dark theme ────────────────────────────────────────────────
- * The token overrides that flip the whole kit to dark. Applied when the OS
- * prefers dark (unless the viewer forced light) or when the viewer forces dark
- * via the profile menu (data-theme on the document root). `onDark` (text on
- * brand buttons) intentionally stays light in both themes; the brand green/
- * gold/rust are nudged brighter so they stay legible on dark surfaces. */
+ * The token overrides that flip the whole kit to dark, lifted verbatim from
+ * the v11 "night-turf" canvas. Applied when the OS prefers dark (unless the
+ * viewer forced light) or when the viewer forces dark via the profile menu
+ * (data-theme on the document root).
+ *
+ * Two inversions worth noting, both straight from the canvas:
+ *   · cards (#141A16) sit DARKER than the screen (#1B231E) — the opposite of
+ *     the light ramp, where white cards lift off a warm-grey screen;
+ *   · text on a brand fill goes pure white (the brand green is bright enough
+ *     in dark that the light ramp's off-white reads muddy), while text on the
+ *     ink-coloured button flips to near-black because ink itself inverts. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .rk {
-    --rk-bg: #0a0d0b;
-    --rk-surface: #10140f;
-    --rk-card: #191e18;
-    --rk-pitch: #16301f;
-    --rk-pitch-2: #193523;
-    --rk-panel: #12160f;
-    --rk-avatar: #262e24;
-    --rk-avatar-2: #2d352a;
-    --rk-seg-empty: #232a22;
-    --rk-ink: #e8ede5;
-    --rk-ink-rgb: 232, 237, 229;
-    --rk-green: #3aa276;
-    --rk-green-rgb: 58, 162, 118;
-    --rk-gold: #d9b463;
-    --rk-gold-rgb: 217, 180, 99;
-    --rk-gold-ink: #d9b463;
-    --rk-rust: #d1663f;
-    --rk-rust-rgb: 209, 102, 63;
-    --rk-line: rgba(232, 237, 229, 0.14);
-    --rk-line-soft: rgba(232, 237, 229, 0.1);
-    --rk-line-strong: rgba(232, 237, 229, 0.18);
+  :root:not([data-theme="light"]) {
+    --rk-bg: #0a0f0c;
+    --rk-surface: #1b231e;
+    --rk-card: #141a16;
+    --rk-sheet: #1b231e;
+    --rk-paper: #141a16;
+    --rk-nav: #101713;
+    --rk-pitch: #1f4a36;
+    --rk-pitch-2: #143020;
+    --rk-panel: #222b25;
+    --rk-avatar: #2e6a4d;
+    --rk-avatar-2: #1a3e2c;
+    --rk-seg-empty: #222b25;
+    --rk-track: rgba(236, 240, 236, 0.11);
+    --rk-ink: #ecf0ec;
+    --rk-ink-rgb: 236, 240, 236;
+    --rk-on-dark: #ffffff;
+    --rk-on-dark-rgb: 255, 255, 255;
+    --rk-on-brand: #ffffff;
+    --rk-on-ink: #0a0f0c;
+    --rk-green: #56c98d;
+    --rk-green-rgb: 86, 201, 141;
+    --rk-green-bright: #7cd9a6;
+    --rk-gold: #e0c074;
+    --rk-gold-rgb: 224, 192, 116;
+    --rk-gold-ink: #e0c074;
+    --rk-gold-bg: rgba(224, 192, 116, 0.16);
+    --rk-rust: #e0866f;
+    --rk-rust-rgb: 224, 134, 111;
+    --rk-blue: #6ba4e8;
+    --rk-blue-rgb: 107, 164, 232;
+    --rk-wa: #25d366;
+    --rk-wa-ink: #56c98d;
+    --rk-hero-grad: linear-gradient(155deg, #1f4a36 0%, #143020 55%, #0e2317 100%);
+    --rk-pitch-top: linear-gradient(180deg, #1f4a36, #143020);
+    --rk-pitch-bottom: linear-gradient(0deg, #2e1d10, #241a12);
+    --rk-pitch-line: rgba(236, 240, 236, 0.28);
+    --rk-poll-grad: linear-gradient(150deg, #132b1e, #1e4433);
+    --rk-line: rgba(236, 240, 236, 0.11);
+    --rk-line-soft: rgba(236, 240, 236, 0.08);
+    --rk-line-strong: rgba(236, 240, 236, 0.14);
   }
 }
-:root[data-theme="dark"] .rk {
-  --rk-bg: #0a0d0b;
-  --rk-surface: #10140f;
-  --rk-card: #191e18;
-  --rk-pitch: #16301f;
-  --rk-pitch-2: #193523;
-  --rk-panel: #12160f;
-  --rk-avatar: #262e24;
-  --rk-avatar-2: #2d352a;
-  --rk-seg-empty: #232a22;
-  --rk-ink: #e8ede5;
-  --rk-ink-rgb: 232, 237, 229;
-  --rk-green: #3aa276;
-  --rk-green-rgb: 58, 162, 118;
-  --rk-gold: #d9b463;
-  --rk-gold-rgb: 217, 180, 99;
-  --rk-gold-ink: #d9b463;
-  --rk-rust: #d1663f;
-  --rk-rust-rgb: 209, 102, 63;
-  --rk-line: rgba(232, 237, 229, 0.14);
-  --rk-line-soft: rgba(232, 237, 229, 0.1);
-  --rk-line-strong: rgba(232, 237, 229, 0.18);
+:root[data-theme="dark"] {
+  --rk-bg: #0a0f0c;
+  --rk-surface: #1b231e;
+  --rk-card: #141a16;
+  --rk-sheet: #1b231e;
+  --rk-paper: #141a16;
+  --rk-nav: #101713;
+  --rk-pitch: #1f4a36;
+  --rk-pitch-2: #143020;
+  --rk-panel: #222b25;
+  --rk-avatar: #2e6a4d;
+  --rk-avatar-2: #1a3e2c;
+  --rk-seg-empty: #222b25;
+  --rk-track: rgba(236, 240, 236, 0.11);
+  --rk-ink: #ecf0ec;
+  --rk-ink-rgb: 236, 240, 236;
+  --rk-on-dark: #ffffff;
+  --rk-on-dark-rgb: 255, 255, 255;
+  --rk-on-brand: #ffffff;
+  --rk-on-ink: #0a0f0c;
+  --rk-green: #56c98d;
+  --rk-green-rgb: 86, 201, 141;
+  --rk-green-bright: #7cd9a6;
+  --rk-gold: #e0c074;
+  --rk-gold-rgb: 224, 192, 116;
+  --rk-gold-ink: #e0c074;
+  --rk-gold-bg: rgba(224, 192, 116, 0.16);
+  --rk-rust: #e0866f;
+  --rk-rust-rgb: 224, 134, 111;
+  --rk-blue: #6ba4e8;
+  --rk-blue-rgb: 107, 164, 232;
+  --rk-wa: #25d366;
+  --rk-wa-ink: #56c98d;
+  --rk-hero-grad: linear-gradient(155deg, #1f4a36 0%, #143020 55%, #0e2317 100%);
+  --rk-pitch-top: linear-gradient(180deg, #1f4a36, #143020);
+  --rk-pitch-bottom: linear-gradient(0deg, #2e1d10, #241a12);
+  --rk-pitch-line: rgba(236, 240, 236, 0.28);
+  --rk-poll-grad: linear-gradient(150deg, #132b1e, #1e4433);
+  --rk-line: rgba(236, 240, 236, 0.11);
+  --rk-line-soft: rgba(236, 240, 236, 0.08);
+  --rk-line-strong: rgba(236, 240, 236, 0.14);
 }
 
 /* mono micro-type: uppercase JetBrains labels, codes, meta */

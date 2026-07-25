@@ -584,14 +584,14 @@ export function MapCard({
           position: "absolute",
           inset: 0,
           backgroundImage:
-            "repeating-linear-gradient(0deg,transparent 0 23px,rgba(16,21,17,.05) 23px 24px),repeating-linear-gradient(90deg,transparent 0 23px,rgba(16,21,17,.05) 23px 24px)",
+            "repeating-linear-gradient(0deg,transparent 0 23px,rgba(var(--rk-ink-rgb),.05) 23px 24px),repeating-linear-gradient(90deg,transparent 0 23px,rgba(var(--rk-ink-rgb),.05) 23px 24px)",
         }}
       />
       <div style={{ position: "absolute", left: "-10%", top: "42%", width: "120%", height: 15, background: "rgba(255,255,255,.75)", transform: "rotate(-7deg)" }} />
       <div style={{ position: "absolute", left: "28%", top: "-10%", width: 10, height: "120%", background: "rgba(255,255,255,.6)", transform: "rotate(9deg)" }} />
       {/* pin */}
       <div style={{ position: "absolute", left: "50%", top: "48%", transform: "translate(-50%,-100%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <div style={{ width: 28, height: 28, borderRadius: "50%", background: C.green, border: "3px solid #FFFFFF", boxShadow: "0 4px 10px rgba(16,21,17,.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 28, height: 28, borderRadius: "50%", background: C.green, border: "3px solid #FFFFFF", boxShadow: "0 4px 10px rgba(var(--rk-ink-rgb),.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#FFFFFF" }} />
         </div>
         <div style={{ width: 3, height: 9, background: C.green, borderRadius: "0 0 2px 2px" }} />
@@ -706,8 +706,11 @@ export function Icon({ name, size = 20, color = "currentColor", stroke = 2 }: { 
     ),
     x: <path d="M18 6L6 18M6 6l12 12" />,
   };
+  // stroke via style, not the presentation attribute: `C`/`ink()` are
+  // `var(--rk-…)` strings and SVG attributes don't resolve custom properties,
+  // which would render every icon black.
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ stroke: color }} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       {p[name]}
     </svg>
   );

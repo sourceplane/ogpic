@@ -163,7 +163,7 @@ export function FieldError({ error }: { error?: string | null | undefined }) {
 
 /** The rust border an invalid field wears — spread over `fieldInputStyle`. */
 export function invalidBorder(error?: string | null): React.CSSProperties {
-  return error ? { border: `1.5px solid ${C5.rust}`, background: "rgba(176,81,47,.04)" } : {};
+  return error ? { border: `1.5px solid ${C5.rust}`, background: "rgba(var(--rk-rust-rgb),.04)" } : {};
 }
 
 /* ── form-level banner ───────────────────────────────────────────────────── */
@@ -177,8 +177,8 @@ export function FormError({ children }: { children: React.ReactNode }) {
       style={{
         padding: "11px 14px",
         borderRadius: 14,
-        background: "rgba(176,81,47,.1)",
-        border: "1px solid rgba(176,81,47,.3)",
+        background: "rgba(var(--rk-rust-rgb),.1)",
+        border: "1px solid rgba(var(--rk-rust-rgb),.3)",
         color: C5.rust,
         fontSize: 12.5,
         lineHeight: 1.4,

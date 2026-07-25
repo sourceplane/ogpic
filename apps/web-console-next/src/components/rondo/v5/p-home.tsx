@@ -54,8 +54,8 @@ function resultLetter(row: LiveMatchRow): "W" | "D" | "L" | null {
 }
 
 const RESULT_STYLE: Record<"W" | "D" | "L", { bg: string; fg: string }> = {
-  W: { bg: "rgba(23,105,74,.14)", fg: C5.green },
-  L: { bg: "rgba(176,81,47,.14)", fg: C5.rust },
+  W: { bg: "rgba(var(--rk-green-rgb),.14)", fg: C5.green },
+  L: { bg: "rgba(var(--rk-rust-rgb),.14)", fg: C5.rust },
   D: { bg: ink(0.06), fg: ink(0.55) },
 };
 
@@ -130,15 +130,15 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
       <div style={{ flex: 1, minHeight: 0, overflowY: "auto", paddingBottom: 20 }}>
         <TicketHero onClick={() => nav("matches")} style={{ margin: "14px 24px 0" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: "rgba(242,244,241,.5)" }}>NEXT MATCH</span>
-            <ChipTag bg="rgba(23,105,74,.4)" fg={C5.surface} size={8.5}>
+            <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.5, color: "rgba(var(--rk-on-dark-rgb),.5)" }}>NEXT MATCH</span>
+            <ChipTag bg="rgba(var(--rk-green-rgb),.4)" fg={C5.surface} size={8.5}>
               {nextRow ? MATCH_PHASE_LABEL[nextRow.phase] : "NEW"}
             </ChipTag>
           </div>
           <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.4, marginTop: 10 }}>
             {nextRow ? nextRow.label : "No match on the books"}
           </div>
-          <div style={{ fontSize: 12, color: "rgba(242,244,241,.65)", marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: "rgba(var(--rk-on-dark-rgb),.65)", marginTop: 4 }}>
             {nextRow ? nextRow.subLabel : "You'll see the next fixture here"}
           </div>
           <div style={{ marginTop: 14, ...dashedDivider, paddingTop: 13, display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -147,7 +147,7 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
                 VOTE NEEDED ({voteNeededCount})
               </ChipTag>
             )}
-            <ChipTag bg="rgba(242,244,241,.12)" fg="rgba(242,244,241,.8)" size={9}>
+            <ChipTag bg="rgba(var(--rk-on-dark-rgb),.12)" fg="rgba(var(--rk-on-dark-rgb),.8)" size={9}>
               ALL MATCHES →
             </ChipTag>
           </div>
@@ -172,7 +172,7 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
               width: 40,
               height: 40,
               borderRadius: 14,
-              background: "rgba(23,105,74,.1)",
+              background: "rgba(var(--rk-green-rgb),.1)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -212,7 +212,7 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
               width: 40,
               height: 40,
               borderRadius: 14,
-              background: "rgba(23,105,74,.1)",
+              background: "rgba(var(--rk-green-rgb),.1)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

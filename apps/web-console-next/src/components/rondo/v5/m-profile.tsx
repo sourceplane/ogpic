@@ -18,6 +18,7 @@ import * as React from "react";
 import { initials, type RondoVM } from "@saas/rondo-core";
 import { C5, Icon, ink, MONO, Toggle } from "./kit5";
 import { enableNotifications, notifyState, type NotifyState } from "../notifications";
+import { ThemeRow } from "./theme-row";
 
 export function MProfile({
   vm,
@@ -80,7 +81,7 @@ export function MProfile({
               width: 56,
               height: 56,
               borderRadius: "50%",
-              background: "#E4EBE3",
+              background: C5.sage,
               border: `3px solid ${C5.gold}`,
               display: "flex",
               alignItems: "center",
@@ -132,6 +133,8 @@ export function MProfile({
             <Toggle on={notif === "granted"} {...(notif === "unsupported" ? {} : { onClick: toggleNotifications })} />
           </div>
 
+          <ThemeRow />
+
           <div
             onClick={() => nav("hub")}
             style={{ borderRadius: 14, background: C5.card, border: `1px solid ${ink(0.1)}`, padding: "13px 16px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
@@ -145,7 +148,7 @@ export function MProfile({
             style={{
               borderRadius: 14,
               background: C5.card,
-              border: "1px solid rgba(176,81,47,.3)",
+              border: "1px solid rgba(var(--rk-rust-rgb),.3)",
               padding: "13px 16px",
               display: "flex",
               alignItems: "center",

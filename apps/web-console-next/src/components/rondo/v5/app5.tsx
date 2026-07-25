@@ -59,6 +59,14 @@ const PLAYER_DOCK: readonly { key: string; label: string; icon: DockItem["icon"]
 const DEEP_SCREENS = new Set(["mdetail", "pdetail", "edit", "pview", "wizard", "hub", "profile", "psquad"]);
 const DOCK_ORDER = ["home", "matches", "chat", "squad", "rate"];
 
+/** `rate` is the one screen whose depth depends on the role: it is a dock tab
+ *  for players (RATE) but a screen the manager pushes from Home's Ratings row,
+ *  so only the manager gets forward/back animation and swipe-back on it. */
+function isDeepScreen(base: string, role: "manager" | "player"): boolean {
+  if (base === "rate") return role === "manager";
+  return DEEP_SCREENS.has(base);
+}
+
 /** Back-navigation target per push screen, for the swipe-back gesture — each
  *  is the exact `nav(...)` those screens already fire from their header back
  *  button, so the gesture pops to the same place with no behaviour change.
@@ -140,22 +148,24 @@ export function RondoApp5({
   const direction = React.useMemo<NavDirection>(() => {
     const prevBase = prevScreenRef.current.split(":")[0] ?? prevScreenRef.current;
     const nextBase = screen.split(":")[0] ?? screen;
-    const prevDepth = DEEP_SCREENS.has(prevBase) ? 1 : 0;
-    const nextDepth = DEEP_SCREENS.has(nextBase) ? 1 : 0;
+    const prevDepth = isDeepScreen(prevBase, role) ? 1 : 0;
+    const nextDepth = isDeepScreen(nextBase, role) ? 1 : 0;
     if (nextDepth > prevDepth) return "forward";
     if (nextDepth < prevDepth) return "back";
     const pi = DOCK_ORDER.indexOf(prevBase);
     const ni = DOCK_ORDER.indexOf(nextBase);
     if (pi >= 0 && ni >= 0 && ni < pi) return "back";
     return "forward";
-  }, [screen]);
+  }, [screen, role]);
   React.useEffect(() => {
     prevScreenRef.current = screen;
   }, [screen]);
 
   // Interactive edge-swipe-back on push screens — calls the same back nav their
   // header button already uses (never a new destination).
-  const backTarget = BACK_TARGET[base];
+  // Manager-only: Ratings is pushed from Home, so it pops back there. For a
+  // player `rate` is a dock tab and must stay swipe-back-free.
+  const backTarget = base === "rate" ? (role === "manager" ? "home" : undefined) : BACK_TARGET[base];
   const onSwipeBack = React.useCallback(() => {
     if (!backTarget) return;
     haptic("light"); // the gesture committed — a firmer tick than a tap
