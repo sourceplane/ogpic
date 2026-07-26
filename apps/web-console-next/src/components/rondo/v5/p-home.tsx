@@ -12,7 +12,7 @@
 
 import * as React from "react";
 import { initials, MATCH_PHASE_LABEL, type LiveMatchRow, type MatchPhase, type Position, type RondoVM } from "@saas/rondo-core";
-import { C5, Console, Hairline, Icon, ink, MONO, MonoLabel, SectionHead, Seam } from "./kit5";
+import { C5, Console, Hairline, Icon, ink, MONO, MonoLabel, Section, SectionHead, Seam } from "./kit5";
 import { CountUp, Pressable } from "./anim5";
 
 /** Position → the chips row / profile identity chip's full-word label
@@ -147,12 +147,13 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
         </Pressable>
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "13px 18px 16px" }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "10px 10px calc(104px + env(safe-area-inset-bottom))" }}>
         <Console>
+          <Section i={0}>
           {/* pitch hero */}
           <Pressable
             onClick={() => nav("matches")}
-            style={{ position: "relative", padding: 18, background: C5.heroGrad, overflow: "hidden", cursor: "pointer", display: "block" }}
+            style={{ position: "relative", padding: 22, background: C5.heroGrad, overflow: "hidden", cursor: "pointer", display: "block" }}
           >
             <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 34px,transparent 34px 68px)" }} />
             <div style={{ position: "absolute", left: -30, bottom: -70, width: 240, height: 210, background: "radial-gradient(closest-side,rgba(var(--rk-green-rgb),.22),transparent)" }} />
@@ -194,13 +195,16 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
               </div>
             </div>
           </Pressable>
+          </Section>
 
           <Seam />
 
+          <Section i={1}>
           {focus ? (
             <>
               <SectionHead label="NEEDS YOU" right={`${needs.length} OPEN`} />
-              <Pressable onClick={focus.onClick} style={{ padding: "14px 18px 15px", background: focus.tint, cursor: "pointer", display: "block" }}>
+              <Pressable onClick={focus.onClick} className="rk5-row"
+                style={{ padding: "18px 20px 19px", background: focus.tint, cursor: "pointer", display: "block" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span className="rk5-pulse" style={{ width: 6, height: 6, borderRadius: "50%", background: focus.fg, flex: "none" }} />
                   <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, letterSpacing: 1.6, color: focus.fg }}>{focus.kind}</span>
@@ -214,7 +218,7 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
               {needs.slice(1).map((n) => (
                 <div key={n.key}>
                   <Hairline />
-                  <Pressable onClick={n.onClick} style={{ padding: "13px 18px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
+                  <Pressable onClick={n.onClick} className="rk5-row" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer" }}>
                     <span style={{ width: 25, height: 25, borderRadius: 8, background: n.tint, color: n.fg, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
                       <Icon name="star" size={13} />
                     </span>
@@ -228,7 +232,7 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
               ))}
             </>
           ) : (
-            <div style={{ padding: "16px 18px", display: "flex", alignItems: "center", gap: 11, background: "rgba(var(--rk-green-rgb),.06)" }}>
+            <div style={{ padding: "20px", display: "flex", alignItems: "center", gap: 13, background: "rgba(var(--rk-green-rgb),.06)" }}>
               <span style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(var(--rk-green-rgb),.16)", color: C5.green, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flex: "none" }}>
                 ✓
               </span>
@@ -239,12 +243,15 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
             </div>
           )}
 
+          </Section>
+
           <Seam />
 
+          <Section i={2}>
           <SectionHead label="DO" />
-          <Pressable onClick={() => nav("chat")} style={{ padding: "13px 18px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
-            <span style={{ width: 30, height: 30, borderRadius: 10, background: ink(0.06), display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
-              <Icon name="chat" size={15} color={ink(0.75)} />
+          <Pressable onClick={() => nav("chat")} className="rk5-row" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer" }}>
+            <span style={{ width: 32, height: 32, borderRadius: 11, background: ink(0.06), display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+              <Icon name="chat" size={16} color={ink(0.75)} />
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13.5, fontWeight: 700, color: C5.ink }}>Team chat</div>
@@ -262,7 +269,7 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
           {/* The viewer's own card. Until they're linked to a roster player
            *  there is no rating to show — a "0 OVR" badge reads as a real
            *  score of zero, so the row becomes a prompt to claim instead. */}
-          <Pressable onClick={() => nav("profile")} style={{ padding: "13px 18px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
+          <Pressable onClick={() => nav("profile")} className="rk5-row" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer" }}>
             {me ? (
               <span
                 style={{
@@ -282,8 +289,8 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
                 <span style={{ fontFamily: MONO, fontSize: 5.5, color: C5.green, marginTop: 1 }}>OVR</span>
               </span>
             ) : (
-              <span style={{ width: 30, height: 30, borderRadius: 10, background: ink(0.06), display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
-                <Icon name="userPlus" size={15} color={ink(0.75)} />
+              <span style={{ width: 32, height: 32, borderRadius: 11, background: ink(0.06), display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+                <Icon name="userPlus" size={16} color={ink(0.75)} />
               </span>
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -297,9 +304,9 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
             <span style={{ fontSize: 13, color: ink(0.3), flex: "none" }}>›</span>
           </Pressable>
           <Hairline />
-          <Pressable onClick={() => nav("psquad")} style={{ padding: "13px 18px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
-            <span style={{ width: 30, height: 30, borderRadius: 10, background: ink(0.06), display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
-              <Icon name="squad" size={15} color={ink(0.75)} />
+          <Pressable onClick={() => nav("psquad")} className="rk5-row" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer" }}>
+            <span style={{ width: 32, height: 32, borderRadius: 11, background: ink(0.06), display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+              <Icon name="squad" size={16} color={ink(0.75)} />
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13.5, fontWeight: 700, color: C5.ink }}>View squad</div>
@@ -308,9 +315,12 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
             <span style={{ fontSize: 13, color: ink(0.3), flex: "none" }}>›</span>
           </Pressable>
 
+          </Section>
+
           <Seam />
 
-          <Pressable onClick={() => setSeasonOpen((s) => !s)} style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+          <Section i={3}>
+          <Pressable onClick={() => setSeasonOpen((s) => !s)} className="rk5-row" style={{ padding: "18px 20px", display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }}>
             <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: 1.6, color: ink(0.5) }}>TEAM SEASON</span>
             <span style={{ flex: 1, height: 1, background: "var(--rk-hairline)" }} />
             <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, color: ink(0.42) }}>{seasonOpen ? "HIDE" : "SHOW"}</span>
@@ -318,7 +328,7 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
           {seasonOpen && (
             <div className="rk5-rise">
               <Hairline />
-              <div style={{ padding: "12px 18px 16px" }}>
+              <div style={{ padding: "14px 20px 20px" }}>
                 <div style={{ display: "flex", gap: 8 }}>
                   <PStat value={<CountUp value={games} />} label="GAMES" />
                   <PStat value={<CountUp value={goalsN} />} label="GOALS" />
@@ -343,6 +353,7 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
               </div>
             </div>
           )}
+          </Section>
         </Console>
       </div>
     </div>

@@ -21,7 +21,7 @@
 
 import * as React from "react";
 import { initials, MATCH_PHASE_LABEL, type LiveMatchRow, type MatchPhase, type RondoVM } from "@saas/rondo-core";
-import { C5, Console, Hairline, Icon, ink, MONO, MonoLabel, SectionHead, Seam } from "./kit5";
+import { C5, Console, Hairline, Icon, ink, MONO, MonoLabel, Section, SectionHead, Seam } from "./kit5";
 import { CountUp, Pressable } from "./anim5";
 
 /** Priority order for "what's the next match to feature" — the live one if
@@ -252,14 +252,15 @@ export function MHome({
       </div>
 
       {/* ── the console: one card, sections joined by seams ────────────── */}
-      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "13px 18px 16px" }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "10px 10px calc(104px + env(safe-area-inset-bottom))" }}>
         <Console>
+          <Section i={0}>
           {/* pitch hero */}
           <Pressable
             onClick={() => nav(nextRow ? "matches" : "wizard")}
             style={{
               position: "relative",
-              padding: 18,
+              padding: 22,
               background: C5.heroGrad,
               overflow: "hidden",
               cursor: "pointer",
@@ -314,9 +315,11 @@ export function MHome({
               </div>
             </div>
           </Pressable>
+          </Section>
 
           <Seam />
 
+          <Section i={1}>
           {/* NEEDS YOU — the first item is the focus block, the rest compact rows */}
           {needs.length > 0 ? (
             <>
@@ -330,7 +333,7 @@ export function MHome({
               ))}
             </>
           ) : (
-            <div style={{ padding: "16px 18px", display: "flex", alignItems: "center", gap: 11, background: "rgba(var(--rk-green-rgb),.06)" }}>
+            <div style={{ padding: "20px", display: "flex", alignItems: "center", gap: 13, background: "rgba(var(--rk-green-rgb),.06)" }}>
               <span style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(var(--rk-green-rgb),.16)", color: C5.green, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flex: "none" }}>
                 ✓
               </span>
@@ -341,23 +344,31 @@ export function MHome({
             </div>
           )}
 
+          </Section>
+
           <Seam />
 
+          <Section i={2}>
           {/* DO */}
           <SectionHead label="DO" />
           <ConsoleRow
             onClick={() => nav("wizard")}
-            tint="rgba(var(--rk-green-rgb),.14)"
-            icon={<Icon name="plus" size={15} color={C5.green} stroke={2.5} />}
+            primary
+            tint="rgba(var(--rk-green-rgb),.18)"
+            icon={<Icon name="plus" size={19} color={C5.green} stroke={2.6} />}
             title="New match"
             meta="POLL THE SQUAD · PICK A TURF"
-            right={<span style={{ fontSize: 14, color: C5.green }}>›</span>}
+            right={
+              <span style={{ width: 26, height: 26, borderRadius: "50%", background: "rgba(var(--rk-green-rgb),.16)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+                <Icon name="chevronR" size={13} color={C5.green} stroke={2.6} />
+              </span>
+            }
           />
           <Hairline />
           <ConsoleRow
             onClick={() => nav("chat")}
             tint={ink(0.06)}
-            icon={<Icon name="chat" size={15} color={ink(0.75)} />}
+            icon={<Icon name="chat" size={16} color={ink(0.75)} />}
             title="Team chat"
             sub={lastChat ? `${lastChat.authorName ?? "Someone"}: ${lastChat.body}` : "No messages yet"}
             right={
@@ -372,7 +383,7 @@ export function MHome({
           <ConsoleRow
             onClick={() => nav("squad")}
             tint={ink(0.06)}
-            icon={<Icon name="squad" size={15} color={ink(0.75)} />}
+            icon={<Icon name="squad" size={16} color={ink(0.75)} />}
             title="Squad"
             meta={`${vm.players.length} PLAYERS${vm.joinCode ? ` · CODE ${vm.joinCode}` : ""}`}
             right={
@@ -392,7 +403,7 @@ export function MHome({
           <ConsoleRow
             onClick={() => nav("rate")}
             tint="rgba(var(--rk-gold-rgb),.14)"
-            icon={<Icon name="star" size={15} color={C5.goldText} />}
+            icon={<Icon name="star" size={16} color={C5.goldText} />}
             title="Ratings"
             meta={
               vm.votingOpen
@@ -408,10 +419,14 @@ export function MHome({
             }
           />
 
+          </Section>
+
           <Seam />
 
+          <Section i={3}>
           {/* SEASON */}
-          <Pressable onClick={() => setSeasonOpen((s) => !s)} style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+          <Pressable onClick={() => setSeasonOpen((s) => !s)} className="rk5-row"
+            style={{ padding: "18px 20px", display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }}>
             <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: 1.6, color: ink(0.5) }}>SEASON</span>
             <span style={{ flex: 1, height: 1, background: "var(--rk-hairline)" }} />
             <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, color: ink(0.42) }}>{seasonOpen ? "HIDE" : "SHOW"}</span>
@@ -420,7 +435,7 @@ export function MHome({
           {seasonOpen && (
             <div className="rk5-rise">
               <Hairline />
-              <div style={{ padding: "12px 18px 16px" }}>
+              <div style={{ padding: "14px 20px 20px" }}>
                 <div style={{ display: "flex", gap: 8 }}>
                   <StatTile value={<CountUp value={playedCount} />} label="PLAYED" />
                   <StatTile value={<CountUp value={wonCount} />} label="WON" color={C5.green} />
@@ -446,6 +461,7 @@ export function MHome({
               </div>
             </div>
           )}
+          </Section>
         </Console>
       </div>
     </div>
@@ -457,7 +473,7 @@ const heroPip: React.CSSProperties = {
   width: 23,
   height: 23,
   borderRadius: "50%",
-  background: "var(--rk-crest-team)",
+  background: "linear-gradient(155deg, var(--rk-avatar), var(--rk-avatar-2))",
   border: "2px solid var(--rk-pitch-2)",
   boxShadow: "0 0 0 1px rgba(var(--rk-green-rgb),.28)",
   display: "flex",
@@ -473,7 +489,8 @@ const heroPip: React.CSSProperties = {
 function FocusBlock({ item }: { item: NeedItem }) {
   const tone = TONE[item.tone];
   return (
-    <Pressable onClick={item.onClick} style={{ padding: "14px 18px 15px", background: tone.tile, cursor: "pointer", display: "block" }}>
+    <Pressable onClick={item.onClick} className="rk5-row"
+      style={{ padding: "18px 20px 19px", background: tone.tile, cursor: "pointer", display: "block" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span className="rk5-pulse" style={{ width: 6, height: 6, borderRadius: "50%", background: tone.fg, flex: "none" }} />
         <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, letterSpacing: 1.6, color: tone.fg }}>{item.kind}</span>
@@ -491,8 +508,8 @@ function FocusBlock({ item }: { item: NeedItem }) {
 function CompactNeed({ item }: { item: NeedItem }) {
   const tone = TONE[item.tone];
   return (
-    <Pressable onClick={item.onClick} style={{ padding: "13px 18px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
-      <span style={{ width: 25, height: 25, borderRadius: 8, background: tone.tile, color: tone.fg, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+    <Pressable onClick={item.onClick} className="rk5-row" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer" }}>
+      <span style={{ width: 28, height: 28, borderRadius: 9, background: tone.tile, color: tone.fg, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
         <Icon name={item.icon} size={13} />
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -513,6 +530,7 @@ function ConsoleRow({
   meta,
   sub,
   right,
+  primary,
 }: {
   onClick: () => void;
   tint: string;
@@ -521,14 +539,41 @@ function ConsoleRow({
   meta?: string;
   sub?: string;
   right?: React.ReactNode;
+  /** The section's main action — carries a brand wash and a larger tile so it
+   *  reads as the thing to do, not just the first row in a list. */
+  primary?: boolean;
 }) {
   return (
-    <Pressable onClick={onClick} style={{ padding: "13px 18px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
-      <span style={{ width: 30, height: 30, borderRadius: 10, background: tint, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>{icon}</span>
+    <Pressable
+      onClick={onClick}
+      className="rk5-row"
+      style={{
+        padding: primary ? "19px 20px" : "16px 20px",
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        cursor: "pointer",
+        ...(primary ? { background: "rgba(var(--rk-green-rgb),.07)" } : {}),
+      }}
+    >
+      <span
+        style={{
+          width: primary ? 38 : 32,
+          height: primary ? 38 : 32,
+          borderRadius: primary ? 13 : 11,
+          background: tint,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flex: "none",
+        }}
+      >
+        {icon}
+      </span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13.5, fontWeight: 700, color: C5.ink }}>{title}</div>
-        {meta && <div style={{ fontFamily: MONO, fontSize: 7.5, color: ink(0.45), marginTop: 2 }}>{meta}</div>}
-        {sub && <div style={{ fontSize: 11, color: ink(0.5), marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sub}</div>}
+        <div style={{ fontSize: primary ? 15.5 : 14, fontWeight: 700, color: C5.ink, letterSpacing: primary ? -0.3 : 0 }}>{title}</div>
+        {meta && <div style={{ fontFamily: MONO, fontSize: 8, color: ink(0.45), marginTop: 4 }}>{meta}</div>}
+        {sub && <div style={{ fontSize: 11.5, color: ink(0.5), marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sub}</div>}
       </div>
       {right}
     </Pressable>

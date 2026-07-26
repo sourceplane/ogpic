@@ -1043,7 +1043,7 @@ export function Console({ children, style }: { children: React.ReactNode; style?
   return (
     <div
       style={{
-        borderRadius: 26,
+        borderRadius: 24,
         background: "var(--rk-console-grad)",
         border: `1px solid ${ink(0.09)}`,
         boxShadow: "var(--rk-console-shadow)",
@@ -1061,6 +1061,16 @@ export function Seam() {
   return <div style={{ height: 7, background: "var(--rk-seam)", boxShadow: "var(--rk-seam-shadow)" }} />;
 }
 
+/** Wraps a console section so it rises in on mount, `i` positions it in the
+ *  top-down cascade. Purely presentational. */
+export function Section({ i = 0, children }: { i?: number; children: React.ReactNode }) {
+  return (
+    <div className="rk5-sect" style={{ animationDelay: `${Math.min(i, 6) * 55}ms` }}>
+      {children}
+    </div>
+  );
+}
+
 /** A 1px rule between rows inside one console section. */
 export function Hairline() {
   return <div style={{ height: 1, background: "var(--rk-hairline)" }} />;
@@ -1070,7 +1080,7 @@ export function Hairline() {
  *  rule that eats the remaining width, and an optional right-aligned count. */
 export function SectionHead({ label, right, tick = true }: { label: string; right?: React.ReactNode; tick?: boolean }) {
   return (
-    <div style={{ padding: "15px 18px 9px", display: "flex", alignItems: "center", gap: 8 }}>
+    <div style={{ padding: "20px 20px 12px", display: "flex", alignItems: "center", gap: 9 }}>
       {tick && <span style={{ width: 3, height: 11, borderRadius: 2, background: C5.green, flex: "none" }} />}
       <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: 1.6, color: ink(0.5) }}>{label}</span>
       <span style={{ flex: 1, height: 1, background: "var(--rk-hairline)" }} />

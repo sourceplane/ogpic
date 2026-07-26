@@ -77,6 +77,16 @@ const ANIM5_CSS = `
    the GPU and never triggers layout. */
 @keyframes rk5-pulse{ 0%,100%{ opacity: 1; } 50%{ opacity: .3; } }
 .rk5-pulse{ animation: rk5-pulse 2s ease infinite; }
+
+/* Console rows: the canvas tints a row while it is held rather than scaling it,
+   which suits a full-bleed row inside a card (a scale would break the seams). */
+.rk5-row{ transition: background .15s ease; }
+.rk5-row:active{ background: rgba(var(--rk-ink-rgb), .05); }
+
+/* Console sections rise in on mount, top-down, so Home assembles itself
+   instead of appearing all at once. Transform+opacity only. */
+@keyframes rk5-sect{ from{ opacity: 0; transform: translateY(10px); } to{ opacity: 1; transform: none; } }
+.rk5-sect{ animation: rk5-sect .42s cubic-bezier(.22,1,.36,1) both; }
 .rk5-sheet{ transition: transform 320ms ${EASE}; will-change: transform; }
 .rk5-sheet-backdrop{ transition: opacity 300ms ${EASE}; }
 .rk5-toast{ transition: transform 320ms ${EASE}, opacity 320ms ${EASE}; }
@@ -92,6 +102,8 @@ const ANIM5_CSS = `
   /* Infinite animations must be switched off, not shortened: collapsing the
      duration of a looping keyframe makes it strobe rather than stop. */
   .rk5-pulse{ animation: none !important; }
+  .rk5-sect{ animation-duration: .001ms !important; animation-delay: 0ms !important; }
+  .rk5-row{ transition-duration: .001ms !important; }
 }
 `;
 
