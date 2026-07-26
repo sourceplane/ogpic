@@ -117,9 +117,11 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <div style={{ padding: "14px 22px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flex: "none" }}>
         <div>
-          <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.6, color: ink(0.45) }}>YOUR SQUAD</div>
+          <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.6, color: ink(0.45) }}>
+            {me ? vm.activeTeamName.toUpperCase() : "YOUR SQUAD"}
+          </div>
           <Pressable onClick={() => nav("hub")} style={{ display: "flex", alignItems: "center", gap: 7, cursor: "pointer", marginTop: 3 }}>
-            <span style={{ fontSize: 25, fontWeight: 700, letterSpacing: -0.9, color: C5.ink }}>{vm.activeTeamName}</span>
+            <span style={{ fontSize: 25, fontWeight: 700, letterSpacing: -0.9, color: C5.ink }}>{me?.name ?? vm.activeTeamName}</span>
             <Icon name="chevronD" size={13} color={ink(0.45)} stroke={2.4} />
           </Pressable>
         </div>
@@ -257,29 +259,39 @@ export function PHome({ vm, nav }: { vm: RondoVM; nav: (screen: string) => void;
             )}
           </Pressable>
           <Hairline />
-          {/* the viewer's own card — the canvas's "Your card" row */}
+          {/* The viewer's own card. Until they're linked to a roster player
+           *  there is no rating to show — a "0 OVR" badge reads as a real
+           *  score of zero, so the row becomes a prompt to claim instead. */}
           <Pressable onClick={() => nav("profile")} style={{ padding: "13px 18px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
-            <span
-              style={{
-                width: 34,
-                height: 34,
-                borderRadius: 10,
-                background: "rgba(var(--rk-green-rgb),.14)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                flex: "none",
-                lineHeight: 1,
-              }}
-            >
-              <span style={{ fontSize: 13, fontWeight: 800, color: C5.green }}>{myOvr}</span>
-              <span style={{ fontFamily: MONO, fontSize: 5.5, color: C5.green, marginTop: 1 }}>OVR</span>
-            </span>
+            {me ? (
+              <span
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  background: "rgba(var(--rk-green-rgb),.14)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flex: "none",
+                  lineHeight: 1,
+                }}
+              >
+                <span style={{ fontSize: 13, fontWeight: 800, color: C5.green }}>{myOvr}</span>
+                <span style={{ fontFamily: MONO, fontSize: 5.5, color: C5.green, marginTop: 1 }}>OVR</span>
+              </span>
+            ) : (
+              <span style={{ width: 30, height: 30, borderRadius: 10, background: ink(0.06), display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+                <Icon name="userPlus" size={15} color={ink(0.75)} />
+              </span>
+            )}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: C5.ink }}>Your card</div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: C5.ink }}>{me ? "Your card" : "Claim your player"}</div>
               <div style={{ fontFamily: MONO, fontSize: 7.5, color: ink(0.45), marginTop: 2 }}>
-                {[myPosLabel, `${games} GAMES`, `${goalsN} GOALS`, `${motmN} MOTM`].filter(Boolean).join(" · ")}
+                {me
+                  ? [myPosLabel, `${games} GAMES`, `${goalsN} GOALS`, `${motmN} MOTM`].filter(Boolean).join(" · ")
+                  : "LINK YOURSELF TO A ROSTER SPOT"}
               </div>
             </div>
             <span style={{ fontSize: 13, color: ink(0.3), flex: "none" }}>›</span>
