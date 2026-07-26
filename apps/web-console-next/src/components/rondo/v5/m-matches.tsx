@@ -8,7 +8,7 @@
 "use client";
 
 import * as React from "react";
-import type { MatchPhase, RondoVM } from "@saas/rondo-core";
+import { MATCH_PHASE_LABEL, type MatchPhase, type RondoVM } from "@saas/rondo-core";
 import { C5, ink, MONO, PhaseChip, ProgressSteps } from "./kit5";
 import { Pressable, Stagger } from "./anim5";
 
@@ -26,7 +26,7 @@ export function MMatches({ vm, nav }: { vm: RondoVM; nav: (screen: string) => vo
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <div style={{ padding: "14px 24px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flex: "none" }}>
-        <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.6, color: C5.ink }}>Matches</span>
+        <span style={{ fontSize: 26, fontWeight: 700, letterSpacing: -0.9, color: C5.ink }}>Matches</span>
         <div
           onClick={() => nav("wizard")}
           style={{
@@ -59,19 +59,19 @@ export function MMatches({ vm, nav }: { vm: RondoVM; nav: (screen: string) => vo
               <Pressable
                 key={m.id}
                 onClick={() => nav(`mdetail:${m.id}`)}
-                style={{ borderRadius: 18, background: C5.card, border: `1px solid ${ink(0.12)}`, padding: "15px 16px", cursor: "pointer" }}
+                style={{ borderRadius: 18, background: "var(--rk-row-grad)", boxShadow: "var(--rk-row-sheen)", border: `1px solid ${ink(0.1)}`, padding: "15px 16px", cursor: "pointer", flex: "none" }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ fontSize: 15, fontWeight: 700, color: C5.ink, flex: 1 }}>{m.label}</span>
                   <PhaseChip phase={m.phase} />
                 </div>
-                <div style={{ fontSize: 12, color: ink(0.55), marginTop: 4 }}>{m.subLabel}</div>
+                <div style={{ fontSize: 12, color: ink(0.58), marginTop: 4 }}>{m.subLabel}</div>
                 <div style={{ marginTop: 10 }}>
                   <ProgressSteps percent={m.progressStep} color={color} />
                 </div>
                 <div style={{ marginTop: 6, display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ fontFamily: MONO, fontSize: 8, color: ink(0.4) }}>POLL → DRAFT → SCHEDULED</span>
-                  <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, color }}>{m.progressStep}%</span>
+                  <span style={{ fontFamily: MONO, fontSize: 8, color: ink(0.48) }}>POLL → DRAFT → SCHEDULED</span>
+                  <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, color }}>{MATCH_PHASE_LABEL[m.phase]}</span>
                 </div>
               </Pressable>
             );

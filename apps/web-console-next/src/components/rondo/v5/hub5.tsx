@@ -17,6 +17,9 @@ export interface HubTeam {
   slug: string;
   name: string;
   role?: string | undefined;
+  /** Mono meta line under the name, e.g. "42 MEMBERS · 2 MATCHES LIVE".
+   *  Optional: the /rondo org list has no counts to build it from. */
+  meta?: string | undefined;
 }
 
 /** The signed-in account shown in the hub header. */
@@ -114,27 +117,34 @@ export function Hub5({
         {account && <AccountHeader {...account} />}
 
         <div style={{ marginTop: account ? 18 : 4 }}>
-          <div style={{ fontSize: 25, fontWeight: 700, letterSpacing: -0.7, color: C5.ink }}>Your teams</div>
-          <div style={{ marginTop: 3, fontSize: 12.5, color: ink(0.55) }}>
-            {teams.length === 1 ? "Tap to open, or start another below." : "Pick a squad to open."}
-          </div>
+          <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: -0.9, color: C5.ink }}>Your teams</div>
+          <div style={{ marginTop: 4, fontSize: 12.5, color: ink(0.58) }}>Pick a team, create one, or join with a code.</div>
         </div>
 
-        <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
           <Stagger style={{ flex: "none" }}>
             {teams.map((t, i) => {
               const manager = isManagerRole(t.role);
               const current = t.slug === currentSlug;
+              // The canvas gives the manager's own club the brand crest and
+              // tints the rest from the palette, so a list of squads still
+              // reads apart at a glance.
+              const crest = manager ? "var(--rk-crest-team)" : CREST_COLORS[i % CREST_COLORS.length]!;
+              // The canvas's mono meta line ("42 MEMBERS · 2 MATCHES LIVE").
+              // Only a caller with a loaded VM can supply real counts, so the
+              // line falls back to marking the open team and is otherwise
+              // omitted rather than showing invented numbers.
+              const metaLine = t.meta ?? (current ? "CURRENT TEAM" : null);
               return (
                 <Pressable
                   key={t.slug}
                   onClick={() => onOpen(t.slug)}
                   style={{
                     borderRadius: 20,
-                    background: C5.card,
-                    border: current ? `1.5px solid ${C5.green}` : `1px solid ${ink(0.12)}`,
-                    boxShadow: current ? "0 6px 18px -10px rgba(var(--rk-green-rgb),.5)" : "0 1px 2px rgba(var(--rk-ink-rgb),.05)",
-                    padding: 15,
+                    background: "var(--rk-row-grad)",
+                    border: current ? `1.5px solid ${C5.green}` : `1px solid ${ink(0.1)}`,
+                    boxShadow: current ? "0 6px 18px -10px rgba(var(--rk-green-rgb),.5)" : "var(--rk-row-sheen)",
+                    padding: 16,
                     display: "flex",
                     alignItems: "center",
                     gap: 13,
@@ -143,14 +153,14 @@ export function Hub5({
                 >
                   <div
                     style={{
-                      width: 50,
-                      height: 50,
-                      borderRadius: 16,
-                      background: CREST_COLORS[i % CREST_COLORS.length],
+                      width: 48,
+                      height: 48,
+                      borderRadius: 15,
+                      background: crest,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: 19,
+                      fontSize: 17,
                       fontWeight: 700,
                       color: C5.onBrand,
                       flex: "none",
@@ -159,27 +169,26 @@ export function Hub5({
                     {crestOf(t.name)}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 16.5, fontWeight: 700, color: C5.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: C5.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {t.name}
                     </div>
-                    <div style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 7 }}>
-                      <span
-                        style={{
-                          fontFamily: MONO,
-                          fontSize: 8,
-                          fontWeight: 700,
-                          padding: "3px 8px",
-                          borderRadius: 8,
-                          background: manager ? C5.goldBg : "rgba(var(--rk-green-rgb),.12)",
-                          color: manager ? C5.goldText : C5.green,
-                        }}
-                      >
-                        {manager ? "MANAGER" : "PLAYER"}
-                      </span>
-                      {current && <span style={{ fontFamily: MONO, fontSize: 8, color: ink(0.4) }}>CURRENT</span>}
-                    </div>
+                    {metaLine && <div style={{ fontFamily: MONO, fontSize: 9, color: ink(0.58), marginTop: 2 }}>{metaLine}</div>}
                   </div>
-                  <span style={{ fontSize: 20, color: ink(0.28), flex: "none" }}>›</span>
+                  <span
+                    style={{
+                      fontFamily: MONO,
+                      fontSize: 8.5,
+                      fontWeight: 700,
+                      padding: "4px 9px",
+                      borderRadius: 10,
+                      background: manager ? "rgba(var(--rk-gold-rgb),.18)" : "rgba(var(--rk-green-rgb),.12)",
+                      color: manager ? C5.goldText : C5.green,
+                      flex: "none",
+                    }}
+                  >
+                    {manager ? "MANAGER" : "PLAYER"}
+                  </span>
+                  <span style={{ fontSize: 13, color: ink(0.42), flex: "none" }}>›</span>
                 </Pressable>
               );
             })}
@@ -191,29 +200,24 @@ export function Hub5({
               <div style={{ marginTop: 3, fontSize: 12, color: ink(0.5) }}>Create one or join with a code below.</div>
             </div>
           )}
-        </div>
 
-        <div style={{ marginTop: 18 }}>
-          <div style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, color: ink(0.4), letterSpacing: 1, marginBottom: 9 }}>
-            START SOMETHING NEW
-          </div>
-          <div style={{ display: "flex", gap: 10 }}>
+          <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
             <Pressable
               onClick={onCreate}
-              style={{ flex: 1, borderRadius: 18, background: C5.green, padding: "16px 14px", cursor: "pointer", position: "relative", overflow: "hidden" }}
+              style={{ flex: 1, borderRadius: 20, background: "var(--rk-crest-team)", padding: "18px 16px", cursor: "pointer", position: "relative", overflow: "hidden" }}
             >
-              <div style={{ position: "absolute", right: -28, top: -28, width: 90, height: 90, border: "2px solid rgba(var(--rk-on-dark-rgb),.15)", borderRadius: "50%" }} />
-              <Icon name="plus" size={19} color={C5.onBrand} stroke={2.3} />
-              <div style={{ fontSize: 14.5, fontWeight: 700, color: C5.onBrand, marginTop: 9 }}>Create a team</div>
-              <div style={{ fontSize: 10.5, color: "rgba(var(--rk-on-dark-rgb),.7)", marginTop: 2 }}>You&rsquo;ll be manager</div>
+              <div style={{ position: "absolute", right: -30, top: -30, width: 110, height: 110, border: "2px solid rgba(255,255,255,.18)", borderRadius: "50%" }} />
+              <Icon name="plus" size={20} color={C5.onBrand} stroke={2.2} />
+              <div style={{ fontSize: 15, fontWeight: 700, color: C5.onBrand, marginTop: 10 }}>Create a team</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,.65)", marginTop: 3 }}>You&rsquo;ll be its manager</div>
             </Pressable>
             <Pressable
               onClick={onJoin}
-              style={{ flex: 1, borderRadius: 18, background: C5.card, border: `1.5px dashed ${ink(0.22)}`, padding: "16px 14px", cursor: "pointer" }}
+              style={{ flex: 1, borderRadius: 20, background: C5.card, border: `2px dashed ${ink(0.15)}`, padding: "18px 16px", cursor: "pointer" }}
             >
-              <Icon name="link" size={19} color={C5.ink} stroke={2} />
-              <div style={{ fontSize: 14.5, fontWeight: 700, color: C5.ink, marginTop: 9 }}>Join a team</div>
-              <div style={{ fontSize: 10.5, color: ink(0.5), marginTop: 2 }}>Code or link</div>
+              <Icon name="link" size={20} color={C5.ink} stroke={2} />
+              <div style={{ fontSize: 15, fontWeight: 700, color: C5.ink, marginTop: 10 }}>Join a team</div>
+              <div style={{ fontSize: 11, color: ink(0.58), marginTop: 3 }}>Code or invite link</div>
             </Pressable>
           </div>
         </div>

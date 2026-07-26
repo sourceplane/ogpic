@@ -61,6 +61,19 @@
   --rk-pitch-line: rgba(242, 244, 241, 0.32);
   --rk-poll-grad: linear-gradient(150deg, #0c1912, #1a4530); /* poll card in chat */
 
+  /* sign-in hero: a floodlit pitch. Dark takes the canvas values verbatim;
+   * light keeps the same composition on a daylight turf so the screen still
+   * belongs to the light ramp rather than dropping a night panel into it. */
+  --rk-hero-pitch: linear-gradient(162deg, #dfe8dd 0%, #cfdccd 55%, #bed0bc 170%);
+  --rk-hero-line: rgba(16, 21, 17, 0.12);
+  --rk-hero-ink: #101511;
+  --rk-hero-ink-soft: rgba(16, 21, 17, 0.62);
+  --rk-hero-chip: rgba(16, 21, 17, 0.07);
+  --rk-crest-grad: linear-gradient(150deg, #17694a, #0e2317);
+  --rk-row-grad: linear-gradient(180deg, #ffffff, #f7f9f6);
+  --rk-row-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --rk-crest-team: linear-gradient(140deg, #17694a, #0e3d2a);
+
   /* ── lines ────────────────────────────────────────────────── */
   --rk-line: rgba(16, 21, 17, 0.12);
   --rk-line-soft: rgba(16, 21, 17, 0.1);
@@ -137,6 +150,16 @@
     --rk-pitch-bottom: linear-gradient(0deg, #2e1d10, #241a12);
     --rk-pitch-line: rgba(236, 240, 236, 0.28);
     --rk-poll-grad: linear-gradient(150deg, #132b1e, #1e4433);
+    --rk-hero-pitch: linear-gradient(162deg, #1b3e2c 0%, #12291d 55%, #0c1d14 170%);
+    --rk-hero-line: rgba(255, 255, 255, 0.1);
+    --rk-hero-ink: #f4f6f3;
+    --rk-hero-ink-soft: rgba(236, 240, 236, 0.62);
+    --rk-hero-chip: rgba(255, 255, 255, 0.08);
+    --rk-crest-grad: linear-gradient(150deg, #25573f, #0e2317);
+    --rk-row-grad: linear-gradient(180deg, #191f1b, #121814);
+    --rk-row-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    --rk-crest-team: linear-gradient(140deg, #25976c, #116040);
+
     --rk-line: rgba(236, 240, 236, 0.11);
     --rk-line-soft: rgba(236, 240, 236, 0.08);
     --rk-line-strong: rgba(236, 240, 236, 0.14);
@@ -180,6 +203,15 @@
   --rk-pitch-bottom: linear-gradient(0deg, #2e1d10, #241a12);
   --rk-pitch-line: rgba(236, 240, 236, 0.28);
   --rk-poll-grad: linear-gradient(150deg, #132b1e, #1e4433);
+  --rk-hero-pitch: linear-gradient(162deg, #1b3e2c 0%, #12291d 55%, #0c1d14 170%);
+  --rk-hero-line: rgba(255, 255, 255, 0.1);
+  --rk-hero-ink: #f4f6f3;
+  --rk-hero-ink-soft: rgba(236, 240, 236, 0.62);
+  --rk-hero-chip: rgba(255, 255, 255, 0.08);
+  --rk-crest-grad: linear-gradient(150deg, #25573f, #0e2317);
+  --rk-row-grad: linear-gradient(180deg, #191f1b, #121814);
+  --rk-row-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --rk-crest-team: linear-gradient(140deg, #25976c, #116040);
   --rk-line: rgba(236, 240, 236, 0.11);
   --rk-line-soft: rgba(236, 240, 236, 0.08);
   --rk-line-strong: rgba(236, 240, 236, 0.14);

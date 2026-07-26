@@ -33,6 +33,8 @@ import { EASE, Pressable, useReducedMotion } from "./anim5";
  * new SVG must do the same.
  */
 export const C5 = {
+  /** The page behind the app frame. */
+  bg: "var(--rk-bg)",
   paper: "var(--rk-paper)",
   surface: "var(--rk-surface)",
   card: "var(--rk-card)",
