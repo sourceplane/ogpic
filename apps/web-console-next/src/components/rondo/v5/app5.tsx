@@ -252,7 +252,17 @@ export function RondoApp5({
     // The v5 "Your teams" hub — every squad with role chips (design 54-88).
     body = (
       <Hub5
-        teams={(teamNav?.teams ?? []).map((t) => ({ slug: t.slug, name: t.name, role: t.role }))}
+        teams={(teamNav?.teams ?? []).map((t) => ({
+          slug: t.slug,
+          name: t.name,
+          role: t.role,
+          // Only the team we're inside has a loaded VM, so only it can carry
+          // the canvas's counts line — the rest list without one.
+          meta:
+            t.slug === teamNav?.currentSlug
+              ? `${vm.players.length} MEMBERS · ${(vm.liveMatches ?? []).filter((m) => m.phase !== "played" && m.phase !== "cancelled").length} MATCHES LIVE`
+              : undefined,
+        }))}
         currentSlug={teamNav?.currentSlug}
         onOpen={(slug) => teamNav?.onSelect(slug)}
         onCreate={() => teamNav?.onCreate()}

@@ -20,15 +20,17 @@ import { useSession } from "@/lib/session";
 import { wrap } from "@/lib/api";
 import { C5, ink, MONO } from "./v5/kit5";
 import { Pressable } from "./v5/anim5";
-import { Field, FormError, fieldInputStyle, invalidBorder, validateCode, validateEmail } from "./v5/form5";
+import { FormError, validateCode, validateEmail } from "./v5/form5";
 
-type Step = "start" | "email" | "code";
+// The email form is the entry state — the canvas puts the field on screen
+// immediately rather than behind a "Continue with email" step.
+type Step = "email" | "code";
 
 export function RondoLogin() {
   const router = useRouter();
   const { client, setToken } = useSession();
   const [providers, setProviders] = React.useState<{ id: string; displayName: string }[]>([]);
-  const [step, setStep] = React.useState<Step>("start");
+  const [step, setStep] = React.useState<Step>("email");
   const [email, setEmail] = React.useState("");
   const [code, setCode] = React.useState("");
   const [challengeId, setChallengeId] = React.useState<string | null>(null);
@@ -125,207 +127,355 @@ export function RondoLogin() {
     setTouched((t) => ({ ...t, code: false }));
   }
 
+  const codeStep = step === "code";
+
   return (
     <div
       style={{
+        // An explicit height, not just min-height: the hero below is sized in
+        // percent, and a percentage height only resolves against a parent with
+        // a definite height — with min-height alone it collapses to content.
+        height: "100dvh",
         minHeight: "100dvh",
-        background: C5.surface,
+        background: C5.bg,
         maxWidth: 430,
         margin: "0 auto",
         display: "flex",
         flexDirection: "column",
-        paddingTop: "env(safe-area-inset-top)",
         boxSizing: "border-box",
       }}
     >
-      {/* pitch hero */}
-      <div style={{ margin: "14px 20px 0", height: 250, flex: "none", position: "relative", background: C5.sage, borderRadius: 22, overflow: "hidden" }}>
-        <div style={{ position: "absolute", left: 14, right: 14, top: 14, bottom: -2, border: `2px solid ${C5.card}`, borderBottom: "none", borderRadius: "8px 8px 0 0" }} />
-        <div style={{ position: "absolute", left: "50%", bottom: -60, width: 150, height: 150, border: `2px solid ${C5.card}`, borderRadius: "50%", transform: "translateX(-50%)" }} />
-        <div style={{ position: "absolute", left: "50%", top: 14, transform: "translateX(-50%)", width: 150, height: 52, border: `2px solid ${C5.card}`, borderTop: "none" }} />
-        <div
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "58%",
-            transform: "translate(-50%,-50%)",
-            width: 72,
-            height: 72,
-            borderRadius: 22,
-            background: C5.ink,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 14px 30px -10px rgba(var(--rk-ink-rgb),.5)",
-          }}
-        >
-          <span style={{ fontSize: 34, fontWeight: 700, color: C5.onInk }}>R</span>
-        </div>
-      </div>
+      {/* ── floodlit-pitch hero (canvas: 52% of the screen) ─────────────── */}
+      <div
+        style={{
+          flex: "none",
+          height: "52%",
+          minHeight: 330,
+          position: "relative",
+          background: "var(--rk-hero-pitch)",
+          overflow: "hidden",
+          paddingTop: "env(safe-area-inset-top)",
+        }}
+      >
+        {/* mown stripes */}
+        <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg,var(--rk-hero-line) 0 38px,transparent 38px 76px)", opacity: 0.32 }} />
+        {/* centre circle, inner ring, spot and halfway line */}
+        <div style={{ position: "absolute", left: "50%", top: "44%", width: 300, height: 300, border: `2px solid var(--rk-hero-line)`, borderRadius: "50%", transform: "translate(-50%,-50%)" }} />
+        <div style={{ position: "absolute", left: "50%", top: "44%", width: 186, height: 186, border: `2px solid var(--rk-hero-line)`, borderRadius: "50%", transform: "translate(-50%,-50%)", opacity: 0.8 }} />
+        <div style={{ position: "absolute", left: "50%", top: "44%", width: 8, height: 8, borderRadius: "50%", background: "var(--rk-hero-line)", transform: "translate(-50%,-50%)" }} />
+        <div style={{ position: "absolute", left: 0, right: 0, top: "44%", height: 2, background: "var(--rk-hero-line)", opacity: 0.8 }} />
+        {/* corner arc */}
+        <div style={{ position: "absolute", left: -40, bottom: -70, width: 180, height: 180, border: `2px solid var(--rk-hero-line)`, borderRadius: "50%", opacity: 0.7 }} />
 
-      <div style={{ padding: "24px 26px 0" }}>
-        <div style={{ fontSize: 36, fontWeight: 700, letterSpacing: -1.4, color: C5.ink, lineHeight: 1 }}>Rondo</div>
-        <div style={{ marginTop: 9, fontSize: 15.5, fontWeight: 500, color: ink(0.72), lineHeight: 1.32 }}>
-          Balanced sides.
-          <br />
-          Every match.
-        </div>
-        <div style={{ marginTop: 9, fontFamily: MONO, fontSize: 9.5, letterSpacing: 1.5, color: ink(0.45) }}>
-          SUNDAY-LEAGUE FOOTBALL, SORTED.
-        </div>
-      </div>
-
-      <div style={{ flex: 1 }} />
-
-      <div style={{ padding: "0 24px calc(26px + env(safe-area-inset-bottom))", display: "flex", flexDirection: "column", gap: 11 }}>
-        {formError && <FormError>{formError}</FormError>}
-
-        {step === "start" && (
-          <>
-            <Pressable onClick={() => setStep("email")} style={primaryBtn(C5.ink, C5.surface)}>
-              Continue with email
-            </Pressable>
-            {google && (
-              <Pressable onClick={() => startOAuth(google.id)} style={outlineBtn()}>
-                <GoogleGlyph /> Continue with Google
-              </Pressable>
-            )}
-            <Pressable
-              onClick={() => router.push("/rondo/demo")}
-              style={{ textAlign: "center", padding: "7px 0", fontFamily: MONO, fontSize: 10.5, color: C5.green, fontWeight: 700, cursor: "pointer" }}
-            >
-              EXPLORE A DEMO SQUAD →
-            </Pressable>
-            <div style={{ textAlign: "center", fontSize: 10.5, color: ink(0.4), lineHeight: 1.5 }}>
-              By continuing you agree to the Terms &amp; Privacy Policy.
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: "0 24px" }}>
+          <div
+            style={{
+              width: 74,
+              height: 74,
+              borderRadius: 24,
+              background: "var(--rk-crest-grad)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 20px 40px -16px rgba(0,0,0,.7)",
+              flex: "none",
+            }}
+          >
+            <span style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1.5, color: "#F4F6F3" }}>R</span>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 36, fontWeight: 700, letterSpacing: -1.6, color: "var(--rk-hero-ink)", lineHeight: 1 }}>Rondo</div>
+            <div style={{ fontSize: 13.5, color: "var(--rk-hero-ink-soft)", marginTop: 7, maxWidth: 230, lineHeight: 1.4 }}>
+              Balanced sides, booked turf, settled costs — one app for your football crew.
             </div>
-          </>
-        )}
+          </div>
+        </div>
 
-        {step === "email" && (
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 22, display: "flex", justifyContent: "center", gap: 7 }}>
+          {["FAIR TEAMS", "TURF BOOKING", "SPLIT COSTS"].map((t) => (
+            <span
+              key={t}
+              style={{
+                fontFamily: MONO,
+                fontSize: 7.5,
+                fontWeight: 700,
+                letterSpacing: 1,
+                color: "var(--rk-hero-ink-soft)",
+                background: "var(--rk-hero-chip)",
+                borderRadius: 8,
+                padding: "5px 9px",
+              }}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── the sheet, overlapping the hero by 26px ─────────────────────── */}
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          marginTop: -26,
+          borderRadius: "28px 28px 0 0",
+          background: C5.card,
+          boxShadow: "0 -18px 40px -22px rgba(0,0,0,.65)",
+          padding: "34px 24px 0",
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+        }}
+        className="rk5-rise"
+      >
+        <div style={{ width: 38, height: 4, borderRadius: 2, background: ink(0.12), margin: "0 auto 18px", flex: "none" }} />
+
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
+          <span style={{ fontSize: 19, fontWeight: 700, letterSpacing: -0.5, color: C5.ink }}>
+            {codeStep ? "Check your inbox" : "Get on the pitch"}
+          </span>
+          <Pressable
+            onClick={() => router.push("/rondo/demo")}
+            style={{ fontFamily: MONO, fontSize: 7.5, fontWeight: 700, letterSpacing: 1, color: C5.green, background: "rgba(var(--rk-green-rgb),.1)", borderRadius: 8, padding: "4px 8px", cursor: "pointer", flex: "none" }}
+          >
+            DEMO SQUAD →
+          </Pressable>
+        </div>
+
+        {formError && <div style={{ marginTop: 12 }}><FormError>{formError}</FormError></div>}
+
+        {!codeStep && (
           <>
-            <Field label="EMAIL" error={showEmailError} hint="We'll send a 6-digit code — no password needed.">
+            {/* email field — the canvas's phone row, with a mail glyph where the
+             *  dial code sits. The platform authenticates by email code, so the
+             *  field is an email one; the shape is the canvas's. */}
+            <div
+              style={{
+                marginTop: 14,
+                height: 52,
+                borderRadius: 16,
+                background: C5.surface,
+                border: `1.5px solid ${showEmailError ? C5.rust : ink(0.14)}`,
+                display: "flex",
+                alignItems: "center",
+                padding: "0 6px 0 14px",
+                gap: 10,
+              }}
+            >
+              <MailGlyph />
+              <span style={{ width: 1, height: 20, background: ink(0.15), flex: "none" }} />
               <input
                 type="email"
                 inputMode="email"
                 autoComplete="email"
                 placeholder="you@email.com"
                 value={email}
-                autoFocus
                 onChange={(e) => {
                   setEmail(e.target.value);
                   setServerEmailError(null);
                 }}
                 onBlur={() => setTouched((t) => ({ ...t, email: true }))}
                 onKeyDown={(e) => e.key === "Enter" && submitEmail()}
-                style={{ ...fieldInputStyle, ...invalidBorder(showEmailError) }}
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  border: "none",
+                  outline: "none",
+                  background: "transparent",
+                  fontFamily: "inherit",
+                  fontSize: 15,
+                  fontWeight: 600,
+                  letterSpacing: 0.4,
+                  color: C5.ink,
+                }}
               />
-            </Field>
-            <Pressable onClick={submitEmail} disabled={busy} style={primaryBtn(C5.green, C5.surface, busy)}>
-              {busy ? "Sending…" : "Send me a code"}
-            </Pressable>
-            <Pressable onClick={() => { setStep("start"); setFormError(null); }} style={backLink}>
-              ← Back
-            </Pressable>
+              <Pressable
+                onClick={submitEmail}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 13,
+                  background: email.trim() && !validateEmail(email) ? C5.green : ink(0.14),
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  flex: "none",
+                  opacity: busy ? 0.6 : 1,
+                }}
+              >
+                <ArrowGlyph />
+              </Pressable>
+            </div>
+            {showEmailError ? (
+              <div style={{ marginTop: 7, fontSize: 11.5, color: C5.rust }}>{showEmailError}</div>
+            ) : (
+              <div style={{ marginTop: 7, fontFamily: MONO, fontSize: 8, color: ink(0.48), letterSpacing: 0.3 }}>
+                WE SEND A 6-DIGIT CODE — NO PASSWORD TO REMEMBER
+              </div>
+            )}
+
+            {/* The canvas always shows two social buttons under an OR rule. We
+             *  render whatever OAuth the deployment actually has configured,
+             *  and drop the rule entirely when it has none — an OR divider over
+             *  empty space reads as a broken screen. */}
+            {providers.length > 0 && (
+              <>
+                <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ flex: 1, height: 1, background: ink(0.11) }} />
+                  <span style={{ fontFamily: MONO, fontSize: 8, letterSpacing: 1.5, color: ink(0.42) }}>OR</span>
+                  <span style={{ flex: 1, height: 1, background: ink(0.11) }} />
+                </div>
+
+                <div style={{ marginTop: 14, display: "flex", gap: 9 }}>
+                  {google && (
+                    <Pressable onClick={() => startOAuth(google.id)} style={providerBtn()}>
+                      <GoogleGlyph /> Google
+                    </Pressable>
+                  )}
+                  {providers
+                    .filter((p) => p.id !== "google")
+                    .slice(0, 1)
+                    .map((p) => (
+                      <Pressable key={p.id} onClick={() => startOAuth(p.id)} style={providerBtn()}>
+                        {p.displayName}
+                      </Pressable>
+                    ))}
+                </div>
+              </>
+            )}
           </>
         )}
 
-        {step === "code" && (
+        {codeStep && (
           <>
-            <div style={{ fontSize: 13.5, color: ink(0.6), lineHeight: 1.4, textAlign: "center" }}>
+            <div style={{ marginTop: 12, fontSize: 13, color: ink(0.6), lineHeight: 1.45 }}>
               Enter the 6-digit code sent to <span style={{ color: C5.ink, fontWeight: 700 }}>{emailHint ?? email}</span>.
             </div>
-            <Field error={showCodeError}>
-              <input
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                placeholder="••••••"
-                value={code}
-                autoFocus
-                onChange={(e) => {
-                  setCode(e.target.value.replace(/\D/g, "").slice(0, 6));
-                  setServerCodeError(null);
-                }}
-                onBlur={() => setTouched((t) => ({ ...t, code: true }))}
-                onKeyDown={(e) => e.key === "Enter" && submitCode()}
-                style={{
-                  ...fieldInputStyle,
-                  ...invalidBorder(showCodeError),
-                  textAlign: "center",
-                  letterSpacing: 8,
-                  fontSize: 22,
-                  fontWeight: 700,
-                  fontFamily: MONO,
-                }}
-              />
-            </Field>
-            {debugCode && (
-              <div style={{ fontFamily: MONO, fontSize: 11, color: C5.green, textAlign: "center" }}>DEV CODE: {debugCode}</div>
-            )}
-            <Pressable onClick={submitCode} disabled={busy} style={primaryBtn(C5.green, C5.surface, busy)}>
+            <input
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              placeholder="••••••"
+              value={code}
+              autoFocus
+              onChange={(e) => {
+                setCode(e.target.value.replace(/\D/g, "").slice(0, 6));
+                setServerCodeError(null);
+              }}
+              onBlur={() => setTouched((t) => ({ ...t, code: true }))}
+              onKeyDown={(e) => e.key === "Enter" && submitCode()}
+              style={{
+                marginTop: 14,
+                height: 58,
+                borderRadius: 16,
+                background: C5.surface,
+                border: `1.5px solid ${showCodeError ? C5.rust : ink(0.14)}`,
+                outline: "none",
+                textAlign: "center",
+                letterSpacing: 8,
+                fontSize: 22,
+                fontWeight: 700,
+                fontFamily: MONO,
+                color: C5.ink,
+                width: "100%",
+                boxSizing: "border-box",
+              }}
+            />
+            {showCodeError && <div style={{ marginTop: 7, fontSize: 11.5, color: C5.rust }}>{showCodeError}</div>}
+            {debugCode && <div style={{ marginTop: 7, fontFamily: MONO, fontSize: 11, color: C5.green }}>DEV CODE: {debugCode}</div>}
+
+            <Pressable
+              onClick={submitCode}
+              style={{
+                marginTop: 14,
+                height: 52,
+                borderRadius: 15,
+                background: C5.green,
+                color: C5.onBrand,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 13.5,
+                fontWeight: 700,
+                cursor: "pointer",
+                opacity: busy ? 0.65 : 1,
+              }}
+            >
               {busy ? "Verifying…" : "Verify & continue"}
             </Pressable>
-            <div style={{ display: "flex", gap: 8 }}>
-              <Pressable onClick={() => { setStep("email"); setCode(""); setServerCodeError(null); setFormError(null); }} style={{ ...backLink, flex: 1 }}>
+            <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+              <Pressable
+                onClick={() => { setStep("email"); setCode(""); setServerCodeError(null); setFormError(null); }}
+                style={sheetLink}
+              >
                 ← Different email
               </Pressable>
-              <Pressable onClick={resend} style={{ ...backLink, flex: 1, color: C5.green }}>
+              <Pressable onClick={resend} style={{ ...sheetLink, color: C5.green }}>
                 Resend code
               </Pressable>
             </div>
           </>
         )}
+
+        <div style={{ flex: 1, minHeight: 12 }} />
+        <div style={{ padding: "16px 0 calc(22px + env(safe-area-inset-bottom))", textAlign: "center", fontSize: 10.5, lineHeight: 1.5, color: ink(0.48) }}>
+          By continuing you agree to Rondo&rsquo;s Terms &amp; Privacy.
+          <br />
+          Already have a team code? Join after signing in.
+        </div>
       </div>
     </div>
   );
 }
 
-function primaryBtn(bg: string, fg: string, dim = false): React.CSSProperties {
+function providerBtn(): React.CSSProperties {
   return {
-    height: 54,
-    borderRadius: 17,
-    background: bg,
-    color: fg,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 9,
-    fontSize: 14.5,
-    fontWeight: 700,
-    cursor: "pointer",
-    opacity: dim ? 0.65 : 1,
-  };
-}
-
-function outlineBtn(): React.CSSProperties {
-  return {
-    height: 52,
-    borderRadius: 17,
+    flex: 1,
+    height: 50,
+    borderRadius: 15,
     background: C5.card,
-    border: `1px solid ${ink(0.14)}`,
+    border: `1.5px solid ${ink(0.14)}`,
     color: C5.ink,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: 9,
-    fontSize: 14,
+    gap: 8,
+    fontSize: 13,
     fontWeight: 700,
     cursor: "pointer",
   };
 }
 
-const backLink: React.CSSProperties = {
+const sheetLink: React.CSSProperties = {
+  flex: 1,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   color: ink(0.5),
-  fontSize: 12,
+  fontSize: 11,
   cursor: "pointer",
   padding: 9,
   fontFamily: MONO,
   fontWeight: 700,
 };
+
+function MailGlyph() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ stroke: "var(--rk-ink)", flex: "none" }} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <rect x="3" y="5" width="18" height="14" rx="2.5" />
+      <path d="M3.5 7l8.5 6 8.5-6" />
+    </svg>
+  );
+}
+
+function ArrowGlyph() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style={{ stroke: "var(--rk-on-brand)" }} strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M5 12h13M12 5l7 7-7 7" />
+    </svg>
+  );
+}
 
 function GoogleGlyph() {
   return (

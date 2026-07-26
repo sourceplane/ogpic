@@ -43,13 +43,13 @@ export default function RondoCallbackPage() {
   }, [router, setToken]);
 
   return (
-    <div className="rk" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 24, textAlign: "center", background: "#F2F4F1" }}>
-      <div style={{ width: 56, height: 56, borderRadius: 17, background: "#101511", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 700, color: "#F2F4F1" }}>R</div>
+    <div className="rk" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 24, textAlign: "center", background: "var(--rk-surface)" }}>
+      <div style={{ width: 56, height: 56, borderRadius: 17, background: "var(--rk-ink)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 700, color: "var(--rk-on-ink)" }}>R</div>
       {error ? (
         <>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#101511" }}>Sign-in failed</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "var(--rk-ink)" }}>Sign-in failed</div>
           <div style={{ fontSize: 13, color: "rgba(16,21,17,.55)", maxWidth: 300 }}>{ERROR_COPY[error] ?? ERROR_COPY.oauth_failed}</div>
-          <button onClick={() => router.replace("/rondo")} style={{ height: 46, padding: "0 20px", borderRadius: 14, background: "#17694A", border: "none", color: "#F2F4F1", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Back to sign in</button>
+          <button onClick={() => router.replace("/rondo")} style={{ height: 46, padding: "0 20px", borderRadius: 14, background: "var(--rk-green)", border: "none", color: "var(--rk-on-brand)", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Back to sign in</button>
         </>
       ) : (
         <div style={{ fontFamily: "var(--font-jbmono), ui-monospace, monospace", fontSize: 12, color: "rgba(16,21,17,.5)", letterSpacing: ".5px" }}>Completing sign-in…</div>
