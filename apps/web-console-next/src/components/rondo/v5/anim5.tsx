@@ -71,6 +71,12 @@ const ANIM5_CSS = `
 .rk5-rise{ animation: rk5-rise 340ms ${EASE} both; }
 @keyframes rk5-badge-pop{ from{ transform: scale(0); } to{ transform: scale(1); } }
 .rk5-badge-pop{ animation: rk5-badge-pop 300ms ${EASE} both; }
+
+/* Slow breathing marker on Home's focus item — the one thing on the screen
+   that says "this is still waiting on you". Opacity only, so it composites on
+   the GPU and never triggers layout. */
+@keyframes rk5-pulse{ 0%,100%{ opacity: 1; } 50%{ opacity: .3; } }
+.rk5-pulse{ animation: rk5-pulse 2s ease infinite; }
 .rk5-sheet{ transition: transform 320ms ${EASE}; will-change: transform; }
 .rk5-sheet-backdrop{ transition: opacity 300ms ${EASE}; }
 .rk5-toast{ transition: transform 320ms ${EASE}, opacity 320ms ${EASE}; }
@@ -83,6 +89,9 @@ const ANIM5_CSS = `
     animation-delay: 0ms !important;
     transition-duration: .001ms !important;
   }
+  /* Infinite animations must be switched off, not shortened: collapsing the
+     duration of a looping keyframe makes it strobe rather than stop. */
+  .rk5-pulse{ animation: none !important; }
 }
 `;
 
