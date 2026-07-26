@@ -73,6 +73,11 @@
   --rk-row-grad: linear-gradient(180deg, #ffffff, #f7f9f6);
   --rk-row-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.6);
   --rk-crest-team: linear-gradient(140deg, #17694a, #0e3d2a);
+  --rk-console-grad: linear-gradient(180deg, #ffffff, #f7f9f6);
+  --rk-console-shadow: 0 22px 46px -26px rgba(16, 21, 17, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --rk-seam: rgba(16, 21, 17, 0.05);
+  --rk-seam-shadow: inset 0 1px 0 rgba(16, 21, 17, 0.07), inset 0 -1px 0 rgba(255, 255, 255, 0.8);
+  --rk-hairline: rgba(16, 21, 17, 0.08);
 
   /* ── lines ────────────────────────────────────────────────── */
   --rk-line: rgba(16, 21, 17, 0.12);
@@ -159,6 +164,11 @@
     --rk-row-grad: linear-gradient(180deg, #191f1b, #121814);
     --rk-row-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.05);
     --rk-crest-team: linear-gradient(140deg, #25976c, #116040);
+    --rk-console-grad: linear-gradient(180deg, #171e19, #101512);
+    --rk-console-shadow: 0 22px 46px -26px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    --rk-seam: rgba(0, 0, 0, 0.28);
+    --rk-seam-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+    --rk-hairline: rgba(255, 255, 255, 0.07);
 
     --rk-line: rgba(236, 240, 236, 0.11);
     --rk-line-soft: rgba(236, 240, 236, 0.08);
@@ -212,6 +222,11 @@
   --rk-row-grad: linear-gradient(180deg, #191f1b, #121814);
   --rk-row-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.05);
   --rk-crest-team: linear-gradient(140deg, #25976c, #116040);
+  --rk-console-grad: linear-gradient(180deg, #171e19, #101512);
+  --rk-console-shadow: 0 22px 46px -26px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --rk-seam: rgba(0, 0, 0, 0.28);
+  --rk-seam-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  --rk-hairline: rgba(255, 255, 255, 0.07);
   --rk-line: rgba(236, 240, 236, 0.11);
   --rk-line-soft: rgba(236, 240, 236, 0.08);
   --rk-line-strong: rgba(236, 240, 236, 0.14);

@@ -21,8 +21,8 @@
 
 import * as React from "react";
 import { initials, MATCH_PHASE_LABEL, type LiveMatchRow, type MatchPhase, type RondoVM } from "@saas/rondo-core";
-import { C5, Icon, ink, MONO, MonoLabel } from "./kit5";
-import { CountUp, Pressable, Stagger } from "./anim5";
+import { C5, Console, Hairline, Icon, ink, MONO, MonoLabel, SectionHead, Seam } from "./kit5";
+import { CountUp, Pressable } from "./anim5";
 
 /** Priority order for "what's the next match to feature" — the live one if
  *  any, else wherever the poll pipeline is furthest along, else the soonest
@@ -58,8 +58,6 @@ const RESULT_STYLE: Record<"W" | "D" | "L", { bg: string; fg: string }> = {
   L: { bg: "rgba(var(--rk-rust-rgb),.14)", fg: C5.rust },
   D: { bg: ink(0.06), fg: ink(0.55) },
 };
-
-const AVATAR_BG = [C5.sage, C5.sageDeep];
 
 /** "IN 6 DAYS" / "IN 4H" / "IN 25M" from an ISO instant; null when past or
  *  unknown. `now` is passed in so the value is only computed after mount (a
@@ -104,55 +102,13 @@ const TONE: Record<Tone, { border: string; tile: string; fg: string }> = {
 interface NeedItem {
   key: string;
   tone: Tone;
+  /** Mono marker on the focus block ("POLL OPEN", "DROP-OUT", …). */
+  kind: string;
   icon: React.ComponentProps<typeof Icon>["name"];
   title: string;
   meta: string;
   cta: string;
   onClick: () => void;
-}
-
-function NeedRow({ item }: { item: NeedItem }) {
-  const tone = TONE[item.tone];
-  return (
-    <Pressable
-      onClick={item.onClick}
-      style={{
-        borderRadius: 18,
-        background: C5.card,
-        border: `1.5px solid ${tone.border}`,
-        padding: "13px 15px",
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        cursor: "pointer",
-      }}
-    >
-      <div
-        style={{
-          width: 38,
-          height: 38,
-          borderRadius: 13,
-          background: tone.tile,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: tone.fg,
-          flex: "none",
-        }}
-      >
-        <Icon name={item.icon} size={17} />
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: C5.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {item.title}
-        </div>
-        <div style={{ fontFamily: MONO, fontSize: 8.5, color: ink(0.45), marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {item.meta}
-        </div>
-      </div>
-      <span style={{ fontSize: 12.5, fontWeight: 700, color: tone.fg, flex: "none" }}>{item.cta} →</span>
-    </Pressable>
-  );
 }
 
 /* ── screen ──────────────────────────────────────────────────────────────── */
@@ -208,6 +164,7 @@ export function MHome({
     needs.push({
       key: `poll-${matchId}`,
       tone: "gold",
+      kind: "POLL OPEN",
       icon: "flag",
       title: `Poll open · ${row?.label ?? "Match"}`,
       meta: `${poll.votedCount} OF ${poll.eligible} VOTED${closes ? ` · CLOSES ${closes}` : ""}`,
@@ -220,6 +177,7 @@ export function MHome({
     needs.push({
       key: "dropout",
       tone: "rust",
+      kind: "DROP-OUT",
       icon: "x",
       title: `${dropAlert.playerName} can't make it`,
       meta: `${dropAlert.reason.toUpperCase()} · NEEDS A REPLACEMENT`,
@@ -232,6 +190,7 @@ export function MHome({
     needs.push({
       key: "joins",
       tone: "blue",
+      kind: "JOIN REQUEST",
       icon: "userPlus",
       title: joinReqs.length === 1 ? `${joinReqs[0]!.name} wants to join` : `${joinReqs.length} want to join`,
       meta: "TAP TO APPROVE OR DECLINE",
@@ -243,6 +202,7 @@ export function MHome({
     needs.push({
       key: "voting",
       tone: "green",
+      kind: "RATING WINDOW",
       icon: "star",
       title: "Rating window is open",
       meta: `${vm.ratedCount} OF ${vm.totalRatable} RATED`,
@@ -291,370 +251,287 @@ export function MHome({
         </Pressable>
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", paddingBottom: 18 }}>
-        {/* next-match hero */}
-        <Pressable
-          onClick={() => nav(nextRow ? "matches" : "wizard")}
-          style={{
-            margin: "14px 22px 0",
-            borderRadius: 24,
-            padding: "18px 20px 20px",
-            background: `linear-gradient(150deg,${C5.sage},${C5.sageDeep})`,
-            position: "relative",
-            overflow: "hidden",
-            cursor: "pointer",
-          }}
-        >
-          <div style={{ position: "absolute", right: -46, top: -34, width: 190, height: 190, border: "1.5px solid rgba(var(--rk-ink-rgb),.07)", borderRadius: "50%" }} />
-          <div style={{ position: "absolute", right: -8, top: 44, width: 130, height: 130, border: "1.5px solid rgba(var(--rk-ink-rgb),.06)", borderRadius: "50%" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-            <span style={{ fontFamily: MONO, fontSize: 9, letterSpacing: 1.6, color: ink(0.5) }}>NEXT MATCH</span>
-            <span
-              style={{
-                fontFamily: MONO,
-                fontSize: 8.5,
-                fontWeight: 700,
-                letterSpacing: 1,
-                padding: "5px 10px",
-                borderRadius: 11,
-                background: "rgba(var(--rk-green-rgb),.18)",
-                color: C5.green,
-                flex: "none",
-              }}
-            >
-              {countdown ?? (nextRow ? MATCH_PHASE_LABEL[nextRow.phase] : "NOTHING BOOKED")}
-            </span>
-          </div>
-          <div style={{ fontSize: 27, fontWeight: 700, letterSpacing: -0.9, color: C5.ink, marginTop: 12, lineHeight: 1.1 }}>
-            {nextRow ? nextRow.label : "No match on the books"}
-          </div>
-          <div style={{ fontSize: 13.5, color: ink(0.6), marginTop: 5 }}>
-            {nextRow ? nextRow.subLabel : "Tap to set one up"}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 16 }}>
-            {confirmedShown.length > 0 && (
-              <div style={{ display: "flex", flex: "none" }}>
-                {confirmedShown.map((p, i) => (
-                  <div
-                    key={p.id}
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: "50%",
-                      background: AVATAR_BG[i % 2],
-                      border: `2px solid ${C5.ink}`,
-                      marginLeft: i === 0 ? 0 : -9,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 8.5,
-                      fontWeight: 700,
-                      color: C5.ink,
-                    }}
-                  >
-                    {p.initials}
-                  </div>
-                ))}
-                {confirmedOverflow > 0 && (
-                  <div
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: "50%",
-                      background: AVATAR_BG[confirmedShown.length % 2],
-                      border: `2px solid ${C5.ink}`,
-                      marginLeft: -9,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 8.5,
-                      fontWeight: 700,
-                      color: C5.ink,
-                    }}
-                  >
-                    +{confirmedOverflow}
-                  </div>
-                )}
-              </div>
-            )}
-            <span style={{ fontFamily: MONO, fontSize: 8.5, color: ink(0.5), letterSpacing: 0.6 }}>
-              {confirmed.length > 0 ? `${confirmed.length} CONFIRMED · ` : ""}TAP FOR ALL MATCHES
-            </span>
-          </div>
-        </Pressable>
-
-        {/* needs you */}
-        {needs.length > 0 && (
-          <>
-            <div style={{ margin: "22px 22px 0", display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-              <MonoLabel size={9.5} weight={700} tone={0.5} style={{ letterSpacing: 1.6 }}>
-                NEEDS YOU
-              </MonoLabel>
-              <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 700, color: C5.rust, letterSpacing: 1 }}>
-                {needs.length} OPEN
-              </span>
-            </div>
-            <div style={{ margin: "10px 22px 0", display: "flex", flexDirection: "column", gap: 9 }}>
-              <Stagger style={{ flex: "none" }}>
-                {needs.map((item) => (
-                  <NeedRow key={item.key} item={item} />
-                ))}
-              </Stagger>
-            </div>
-          </>
-        )}
-
-        {/* primary CTA */}
-        <Pressable
-          onClick={() => nav("wizard")}
-          style={{
-            margin: "16px 22px 0",
-            borderRadius: 22,
-            background: C5.green,
-            padding: "18px 20px",
-            display: "flex",
-            alignItems: "center",
-            gap: 14,
-            cursor: "pointer",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          <div style={{ position: "absolute", right: -30, top: -30, width: 110, height: 110, border: "2px solid rgba(var(--rk-on-dark-rgb),.14)", borderRadius: "50%" }} />
-          <Icon name="plus" size={24} color={C5.onBrand} stroke={2.4} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 19, fontWeight: 700, color: C5.onBrand, letterSpacing: -0.3 }}>New match</div>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, color: "rgba(var(--rk-on-dark-rgb),.72)", marginTop: 3, letterSpacing: 1 }}>
-              QUICK SCHEDULE · OR POLL THE SQUAD
-            </div>
-          </div>
-          <span style={{ fontSize: 18, color: "rgba(var(--rk-on-dark-rgb),.7)", flex: "none" }}>›</span>
-        </Pressable>
-
-        {/* chat */}
-        <Pressable
-          onClick={() => nav("chat")}
-          style={{
-            margin: "10px 22px 0",
-            borderRadius: 20,
-            background: C5.card,
-            border: `1px solid ${ink(0.1)}`,
-            padding: "14px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 13,
-            cursor: "pointer",
-          }}
-        >
-          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(var(--rk-green-rgb),.1)", display: "flex", alignItems: "center", justifyContent: "center", color: C5.green, flex: "none" }}>
-            <Icon name="chat" size={19} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: C5.ink }}>Team chat</div>
-            <div style={{ fontSize: 12, color: ink(0.5), marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {lastChat ? `${lastChat.authorName ?? "Someone"}: ${lastChat.body}` : "No messages yet"}
-            </div>
-          </div>
-          {vm.chat.rows.length > 0 && (
-            <span
-              style={{
-                minWidth: 26,
-                height: 26,
-                borderRadius: 13,
-                background: C5.green,
-                color: C5.onBrand,
-                fontSize: 10.5,
-                fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "0 7px",
-                flex: "none",
-              }}
-            >
-              {vm.chat.rows.length}
-            </span>
-          )}
-        </Pressable>
-
-        {/* squad */}
-        <Pressable
-          onClick={() => nav("squad")}
-          style={{
-            margin: "10px 22px 0",
-            borderRadius: 20,
-            background: C5.card,
-            border: `1px solid ${ink(0.1)}`,
-            padding: "14px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 13,
-            cursor: "pointer",
-          }}
-        >
-          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(var(--rk-blue-rgb),.08)", display: "flex", alignItems: "center", justifyContent: "center", color: C5.blue, flex: "none" }}>
-            <Icon name="squad" size={19} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: C5.ink }}>Squad</div>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, color: ink(0.45), marginTop: 3, letterSpacing: 0.8 }}>
-              {vm.players.length} PLAYERS
-              {vm.joinCode ? ` · CODE ${vm.joinCode}` : ""}
-            </div>
-          </div>
+      {/* ── the console: one card, sections joined by seams ────────────── */}
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "13px 18px 16px" }}>
+        <Console>
+          {/* pitch hero */}
           <Pressable
-            onClick={(e) => {
-              // Nested inside the Squad row — don't also navigate to Squad.
-              e.stopPropagation();
-              onInvite();
-            }}
+            onClick={() => nav(nextRow ? "matches" : "wizard")}
             style={{
-              height: 34,
-              padding: "0 14px",
-              borderRadius: 12,
-              background: "rgba(var(--rk-green-rgb),.1)",
-              border: `1px solid rgba(var(--rk-green-rgb),.35)`,
-              display: "flex",
-              alignItems: "center",
-              color: C5.green,
-              fontSize: 12.5,
-              fontWeight: 700,
+              position: "relative",
+              padding: 18,
+              background: C5.heroGrad,
+              overflow: "hidden",
               cursor: "pointer",
-              flex: "none",
+              display: "block",
             }}
           >
-            Invite
-          </Pressable>
-        </Pressable>
+            <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 34px,transparent 34px 68px)" }} />
+            <div style={{ position: "absolute", left: -30, bottom: -70, width: 240, height: 210, background: "radial-gradient(closest-side,rgba(var(--rk-green-rgb),.22),transparent)" }} />
+            <div style={{ position: "absolute", right: -54, top: -54, width: 170, height: 170, border: "2px solid rgba(255,255,255,.09)", borderRadius: "50%" }} />
 
-        {/* ratings — the manager's way into the voting window. Permanent, not
-         *  conditional on `vm.votingOpen`: the "Rating window is open" card in
-         *  NEEDS YOU only appears once a window exists, so gating this row the
-         *  same way left a fresh team with no route to MRate and therefore no
-         *  way to open a window at all. The subtitle carries the live state so
-         *  the row doubles as the status readout. */}
-        <Pressable
-          onClick={() => nav("rate")}
-          style={{
-            margin: "10px 22px 0",
-            borderRadius: 20,
-            background: C5.card,
-            border: `1px solid ${vm.votingOpen ? "rgba(var(--rk-green-rgb),.35)" : ink(0.1)}`,
-            padding: "14px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 13,
-            cursor: "pointer",
-          }}
-        >
-          <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(var(--rk-gold-rgb),.12)", display: "flex", alignItems: "center", justifyContent: "center", color: C5.goldText, flex: "none" }}>
-            <Icon name="star" size={19} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: C5.ink }}>Ratings</div>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, color: ink(0.45), marginTop: 3, letterSpacing: 0.8 }}>
-              {vm.votingOpen
+            <div style={{ position: "relative" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
+                <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1.6, color: "rgba(var(--rk-on-dark-rgb),.55)" }}>NEXT MATCH</span>
+                <span
+                  style={{
+                    fontFamily: MONO,
+                    fontSize: 8.5,
+                    fontWeight: 700,
+                    padding: "4px 9px",
+                    borderRadius: 9,
+                    background: "rgba(var(--rk-green-rgb),.16)",
+                    border: "1px solid rgba(var(--rk-green-rgb),.3)",
+                    color: C5.greenBright,
+                    flex: "none",
+                  }}
+                >
+                  {countdown ?? (nextRow ? MATCH_PHASE_LABEL[nextRow.phase] : "NOTHING BOOKED")}
+                </span>
+              </div>
+              <div style={{ fontSize: 23, fontWeight: 700, letterSpacing: -0.8, color: "#F4F6F3", marginTop: 9 }}>
+                {nextRow ? nextRow.label : "No match on the books"}
+              </div>
+              <div style={{ fontSize: 12, color: "rgba(var(--rk-on-dark-rgb),.62)", marginTop: 4 }}>
+                {nextRow ? nextRow.subLabel : "Tap to set one up"}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 14 }}>
+                {confirmedShown.length > 0 && (
+                  <div style={{ display: "flex", flex: "none" }}>
+                    {confirmedShown.map((p, i) => (
+                      <div key={p.id} style={{ ...heroPip, marginLeft: i === 0 ? 0 : -6 }}>
+                        {p.initials}
+                      </div>
+                    ))}
+                    {confirmedOverflow > 0 && <div style={{ ...heroPip, marginLeft: -6 }}>+{confirmedOverflow}</div>}
+                  </div>
+                )}
+                {confirmed.length > 0 && (
+                  <span style={{ fontFamily: MONO, fontSize: 7.5, color: "rgba(var(--rk-on-dark-rgb),.5)" }}>{confirmed.length} CONFIRMED</span>
+                )}
+                <div style={{ flex: 1 }} />
+                <span style={{ fontFamily: MONO, fontSize: 7.5, fontWeight: 700, color: C5.greenBright, flex: "none" }}>ALL MATCHES ›</span>
+              </div>
+            </div>
+          </Pressable>
+
+          <Seam />
+
+          {/* NEEDS YOU — the first item is the focus block, the rest compact rows */}
+          {needs.length > 0 ? (
+            <>
+              <SectionHead label="NEEDS YOU" right={`${needs.length} OPEN`} />
+              <FocusBlock item={needs[0]!} />
+              {needs.slice(1).map((n) => (
+                <div key={n.key}>
+                  <Hairline />
+                  <CompactNeed item={n} />
+                </div>
+              ))}
+            </>
+          ) : (
+            <div style={{ padding: "16px 18px", display: "flex", alignItems: "center", gap: 11, background: "rgba(var(--rk-green-rgb),.06)" }}>
+              <span style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(var(--rk-green-rgb),.16)", color: C5.green, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flex: "none" }}>
+                ✓
+              </span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C5.ink }}>All caught up</div>
+                <div style={{ fontFamily: MONO, fontSize: 7.5, color: ink(0.42), marginTop: 2 }}>NOTHING NEEDS YOU RIGHT NOW</div>
+              </div>
+            </div>
+          )}
+
+          <Seam />
+
+          {/* DO */}
+          <SectionHead label="DO" />
+          <ConsoleRow
+            onClick={() => nav("wizard")}
+            tint="rgba(var(--rk-green-rgb),.14)"
+            icon={<Icon name="plus" size={15} color={C5.green} stroke={2.5} />}
+            title="New match"
+            meta="POLL THE SQUAD · PICK A TURF"
+            right={<span style={{ fontSize: 14, color: C5.green }}>›</span>}
+          />
+          <Hairline />
+          <ConsoleRow
+            onClick={() => nav("chat")}
+            tint={ink(0.06)}
+            icon={<Icon name="chat" size={15} color={ink(0.75)} />}
+            title="Team chat"
+            sub={lastChat ? `${lastChat.authorName ?? "Someone"}: ${lastChat.body}` : "No messages yet"}
+            right={
+              vm.chat.rows.length > 0 ? (
+                <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, padding: "3px 7px", borderRadius: 9, background: "rgba(var(--rk-green-rgb),.16)", color: C5.green, flex: "none" }}>
+                  {vm.chat.rows.length}
+                </span>
+              ) : null
+            }
+          />
+          <Hairline />
+          <ConsoleRow
+            onClick={() => nav("squad")}
+            tint={ink(0.06)}
+            icon={<Icon name="squad" size={15} color={ink(0.75)} />}
+            title="Squad"
+            meta={`${vm.players.length} PLAYERS${vm.joinCode ? ` · CODE ${vm.joinCode}` : ""}`}
+            right={
+              <Pressable
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onInvite();
+                }}
+                style={{ height: 28, padding: "0 11px", borderRadius: 9, background: "rgba(var(--rk-green-rgb),.12)", border: "1px solid rgba(var(--rk-green-rgb),.3)", color: C5.green, display: "flex", alignItems: "center", fontSize: 10.5, fontWeight: 700, cursor: "pointer", flex: "none" }}
+              >
+                Invite
+              </Pressable>
+            }
+          />
+          <Hairline />
+          {/* Ratings — permanent, so a fresh team can always open a window. */}
+          <ConsoleRow
+            onClick={() => nav("rate")}
+            tint="rgba(var(--rk-gold-rgb),.14)"
+            icon={<Icon name="star" size={15} color={C5.goldText} />}
+            title="Ratings"
+            meta={
+              vm.votingOpen
                 ? `VOTING LIVE · ${vm.ratedCount}/${vm.totalRatable} VOTED`
                 : vm.ratingResults.length > 0
                   ? `WINDOW CLOSED · LAST RUN ${vm.ratingResults.length} UPDATED`
-                  : "WINDOW CLOSED · TAP TO OPEN ONE"}
-            </div>
-          </div>
-          <span
-            style={{
-              fontFamily: MONO,
-              fontSize: 9,
-              fontWeight: 700,
-              letterSpacing: 0.8,
-              padding: "5px 10px",
-              borderRadius: 14,
-              background: vm.votingOpen ? "rgba(var(--rk-green-rgb),.16)" : ink(0.06),
-              color: vm.votingOpen ? C5.green : ink(0.55),
-              flex: "none",
-            }}
-          >
-            {vm.votingOpen ? "LIVE" : "OPEN"}
-          </span>
-        </Pressable>
+                  : "WINDOW CLOSED · TAP TO OPEN ONE"
+            }
+            right={
+              <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, padding: "3px 7px", borderRadius: 9, background: vm.votingOpen ? "rgba(var(--rk-green-rgb),.16)" : ink(0.06), color: vm.votingOpen ? C5.green : ink(0.55), flex: "none" }}>
+                {vm.votingOpen ? "LIVE" : "OPEN"}
+              </span>
+            }
+          />
 
-        {/* season (collapsed by default) */}
-        <div style={{ margin: "20px 22px 0" }}>
-          <Pressable
-            onClick={() => setSeasonOpen((s) => !s)}
-            style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
-          >
-            <MonoLabel size={9.5} weight={700} tone={0.5} style={{ letterSpacing: 1.6 }}>
-              SEASON
-            </MonoLabel>
-            <div style={{ flex: 1, height: 1, background: ink(0.1) }} />
-            <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700, color: ink(0.45), letterSpacing: 1 }}>
-              {seasonOpen ? "HIDE" : "SHOW"}
-            </span>
+          <Seam />
+
+          {/* SEASON */}
+          <Pressable onClick={() => setSeasonOpen((s) => !s)} style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+            <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: 1.6, color: ink(0.5) }}>SEASON</span>
+            <span style={{ flex: 1, height: 1, background: "var(--rk-hairline)" }} />
+            <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, color: ink(0.42) }}>{seasonOpen ? "HIDE" : "SHOW"}</span>
           </Pressable>
 
           {seasonOpen && (
             <div className="rk5-rise">
-              <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
-                <StatTile value={<CountUp value={playedCount} />} label="PLAYED" />
-                <StatTile value={<CountUp value={wonCount} />} label="WON" color={C5.green} />
-                <StatTile value={formLabel} label="FORM" />
-              </div>
-
-              {lastResult && (
-                <div style={{ marginTop: 9, borderRadius: 16, background: C5.card, border: `1px solid ${ink(0.1)}`, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-                  <MonoLabel size={8.5} tone={0.45} style={{ letterSpacing: 1.4 }}>
-                    LAST
-                  </MonoLabel>
-                  <span style={{ flex: 1, fontSize: 12.5, fontWeight: 600, color: C5.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {lastResult.teamA?.name ?? "Home"} vs {lastResult.teamB?.name ?? "Away"}
-                  </span>
-                  <span style={{ fontSize: 15, fontWeight: 700, color: C5.ink, flex: "none" }}>{lastResult.score}</span>
-                  {lastResultLetter && (
-                    <span
-                      style={{
-                        width: 22,
-                        height: 22,
-                        borderRadius: 7,
-                        background: RESULT_STYLE[lastResultLetter].bg,
-                        color: RESULT_STYLE[lastResultLetter].fg,
-                        fontSize: 10,
-                        fontWeight: 700,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flex: "none",
-                      }}
-                    >
-                      {lastResultLetter}
-                    </span>
-                  )}
+              <Hairline />
+              <div style={{ padding: "12px 18px 16px" }}>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <StatTile value={<CountUp value={playedCount} />} label="PLAYED" />
+                  <StatTile value={<CountUp value={wonCount} />} label="WON" color={C5.green} />
+                  <StatTile value={formLabel} label="FORM" />
                 </div>
-              )}
 
-              {vm.ratingResults.length > 0 && (() => {
-                const biggest = [...vm.ratingResults].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))[0]!;
-                const biggestName = vm.byId(biggest.playerId)?.name ?? "Player";
-                const arrow = biggest.delta > 0 ? "▲" : biggest.delta < 0 ? "▼" : "·";
-                return (
-                  <Pressable
-                    onClick={() => nav("rate")}
-                    style={{ marginTop: 9, borderRadius: 16, background: C5.card, border: `1px solid ${ink(0.1)}`, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}
-                  >
+                {lastResult && (
+                  <div style={{ marginTop: 9, borderRadius: 16, background: ink(0.04), padding: "12px 16px", display: "flex", alignItems: "center", gap: 12 }}>
                     <MonoLabel size={8.5} tone={0.45} style={{ letterSpacing: 1.4 }}>
-                      RATINGS
+                      LAST
                     </MonoLabel>
-                    <span style={{ flex: 1, fontSize: 12, color: ink(0.6) }}>
-                      {vm.ratingResults.length} updated · top mover {biggestName} {arrow}
-                      {Math.abs(biggest.delta)}
+                    <span style={{ flex: 1, fontSize: 12.5, fontWeight: 600, color: C5.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {lastResult.teamA?.name ?? "Home"} vs {lastResult.teamB?.name ?? "Away"}
                     </span>
-                  </Pressable>
-                );
-              })()}
+                    <span style={{ fontSize: 15, fontWeight: 700, color: C5.ink, flex: "none" }}>{lastResult.score}</span>
+                    {lastResultLetter && (
+                      <span style={{ width: 22, height: 22, borderRadius: 7, background: RESULT_STYLE[lastResultLetter].bg, color: RESULT_STYLE[lastResultLetter].fg, fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+                        {lastResultLetter}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
-        </div>
+        </Console>
       </div>
     </div>
+  );
+}
+
+/** Avatar pip on the hero's confirmed stack. */
+const heroPip: React.CSSProperties = {
+  width: 23,
+  height: 23,
+  borderRadius: "50%",
+  background: "var(--rk-crest-team)",
+  border: "2px solid var(--rk-pitch-2)",
+  boxShadow: "0 0 0 1px rgba(var(--rk-green-rgb),.28)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: 7,
+  fontWeight: 700,
+  color: "#DDEBE3",
+};
+
+/** The single most important thing waiting on the manager — given its own
+ *  tinted block at the top of NEEDS YOU, with a pulsing kind marker. */
+function FocusBlock({ item }: { item: NeedItem }) {
+  const tone = TONE[item.tone];
+  return (
+    <Pressable onClick={item.onClick} style={{ padding: "14px 18px 15px", background: tone.tile, cursor: "pointer", display: "block" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="rk5-pulse" style={{ width: 6, height: 6, borderRadius: "50%", background: tone.fg, flex: "none" }} />
+        <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, letterSpacing: 1.6, color: tone.fg }}>{item.kind}</span>
+        <div style={{ flex: 1 }} />
+        <span style={{ fontFamily: MONO, fontSize: 7.5, letterSpacing: 1, color: ink(0.35) }}>DO THIS FIRST</span>
+      </div>
+      <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: -0.5, color: C5.ink, marginTop: 9 }}>{item.title}</div>
+      <div style={{ fontFamily: MONO, fontSize: 8.5, color: ink(0.5), marginTop: 5 }}>{item.meta}</div>
+      <div style={{ marginTop: 11, fontSize: 12.5, fontWeight: 700, color: tone.fg }}>{item.cta} →</div>
+    </Pressable>
+  );
+}
+
+/** A secondary needs-you item: compact row under the focus block. */
+function CompactNeed({ item }: { item: NeedItem }) {
+  const tone = TONE[item.tone];
+  return (
+    <Pressable onClick={item.onClick} style={{ padding: "13px 18px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
+      <span style={{ width: 25, height: 25, borderRadius: 8, background: tone.tile, color: tone.fg, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+        <Icon name={item.icon} size={13} />
+      </span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 12.5, fontWeight: 600, color: ink(0.9), whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.title}</div>
+        <div style={{ fontFamily: MONO, fontSize: 7.5, color: ink(0.4), marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.meta}</div>
+      </div>
+      <span style={{ fontSize: 13, color: ink(0.3), flex: "none" }}>›</span>
+    </Pressable>
+  );
+}
+
+/** A DO-section row inside the console. */
+function ConsoleRow({
+  onClick,
+  tint,
+  icon,
+  title,
+  meta,
+  sub,
+  right,
+}: {
+  onClick: () => void;
+  tint: string;
+  icon: React.ReactNode;
+  title: string;
+  meta?: string;
+  sub?: string;
+  right?: React.ReactNode;
+}) {
+  return (
+    <Pressable onClick={onClick} style={{ padding: "13px 18px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
+      <span style={{ width: 30, height: 30, borderRadius: 10, background: tint, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>{icon}</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 700, color: C5.ink }}>{title}</div>
+        {meta && <div style={{ fontFamily: MONO, fontSize: 7.5, color: ink(0.45), marginTop: 2 }}>{meta}</div>}
+        {sub && <div style={{ fontSize: 11, color: ink(0.5), marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sub}</div>}
+      </div>
+      {right}
+    </Pressable>
   );
 }
 

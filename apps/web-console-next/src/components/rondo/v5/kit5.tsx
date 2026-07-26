@@ -1029,3 +1029,52 @@ export function useToast(): { toast: (msg: string) => void; node: React.ReactNod
 
   return { toast, node };
 }
+
+/* ── console card (v11 Home) ──────────────────────────────────────────────
+ * The v11 Home is not a stack of floating cards — it is one rounded "console"
+ * whose sections are separated by a recessed seam (a hard 7px band that reads
+ * as a physical join) and, within a section, by hairlines. These three
+ * primitives are what make that read; Home composes them.
+ */
+
+/** The outer console container. Children run edge to edge — sections supply
+ *  their own padding so seams and hairlines can span the full width. */
+export function Console({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <div
+      style={{
+        borderRadius: 26,
+        background: "var(--rk-console-grad)",
+        border: `1px solid ${ink(0.09)}`,
+        boxShadow: "var(--rk-console-shadow)",
+        overflow: "hidden",
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** The recessed band between console sections. */
+export function Seam() {
+  return <div style={{ height: 7, background: "var(--rk-seam)", boxShadow: "var(--rk-seam-shadow)" }} />;
+}
+
+/** A 1px rule between rows inside one console section. */
+export function Hairline() {
+  return <div style={{ height: 1, background: "var(--rk-hairline)" }} />;
+}
+
+/** Section caption inside the console: a short brand tick, a mono label, a
+ *  rule that eats the remaining width, and an optional right-aligned count. */
+export function SectionHead({ label, right, tick = true }: { label: string; right?: React.ReactNode; tick?: boolean }) {
+  return (
+    <div style={{ padding: "15px 18px 9px", display: "flex", alignItems: "center", gap: 8 }}>
+      {tick && <span style={{ width: 3, height: 11, borderRadius: 2, background: C5.green, flex: "none" }} />}
+      <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: 1.6, color: ink(0.5) }}>{label}</span>
+      <span style={{ flex: 1, height: 1, background: "var(--rk-hairline)" }} />
+      {right != null && <span style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, color: ink(0.4) }}>{right}</span>}
+    </div>
+  );
+}
